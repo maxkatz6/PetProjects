@@ -1,10 +1,8 @@
 ﻿#region Using
 
-using System;
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
-using System.Collections.Generic;
 using TDF.Core;
 using TDF.Graphics.Data;
 using TDF.Graphics.Models;
@@ -18,7 +16,6 @@ namespace TDF.Graphics.Effects
         public DirectionalLight[] DirectionalLights = new DirectionalLight[DLMaxCount];
         public PointLight[] PointLights = new PointLight[PLMaxCount];
         public SpotLight[] SpotLights = new SpotLight[SLMaxCount];
-
         private const byte DLMaxCount = 5, PLMaxCount = 20, SLMaxCount = 5;
         private EffectShaderResourceVariable _diffuse;
         private EffectVariable _directionalLight;
@@ -38,25 +35,36 @@ namespace TDF.Graphics.Effects
             FxShaderFlags |= ShaderFlags.SkipValidation;
         }
 
+        public void AddDirectionalLight(DirectionalLight dl)
+        {
+            DirectionalLights[(int)_lightsCount.X] = dl;
+            _directionalLight.GetElement((int)_lightsCount.X++).WriteValue(dl);
+            ;
+            _numLights.Set(_lightsCount);
+        }
+
         public void AddPointLight(PointLight pl)
         {
-            PointLights[(int) _lightsCount.Y] = pl;
-             _pointLight.GetElement((int) _lightsCount.Y++).AsPointLight().Set(pl);
+            PointLights[(int)_lightsCount.Y] = pl;
+            _pointLight.GetElement((int)_lightsCount.Y++).AsPointLight().Set(pl);
             _numLights.Set(_lightsCount);
         }
 
         public void AddSpotLight(SpotLight sl)
         {
-            SpotLights[(int) _lightsCount.Z] = sl;
-             _spotLight.GetElement((int) _lightsCount.Z++).WriteValue(sl);
+            SpotLights[(int)_lightsCount.Z] = sl;
+            _spotLight.GetElement((int)_lightsCount.Z++).WriteValue(sl);
             _numLights.Set(_lightsCount);
         }
 
-        public void AddDirectionalLight(DirectionalLight dl)
+        public void SetCamPosition(Vector3 pos)
         {
-            DirectionalLights[(int) _lightsCount.X] = dl;
-             _directionalLight.GetElement((int) _lightsCount.X++).WriteValue(dl);;
-            _numLights.Set(_lightsCount);
+            _evePos.Set(pos);
+        }
+
+        public void SetCamPosition()
+        {
+            _evePos.Set(Config.CurrentCamera.Position);
         }
 
         public void SetMaterial(Material mat)
@@ -64,6 +72,13 @@ namespace TDF.Graphics.Effects
             _fxMaterial.Set(mat);
             _diffuse.SetResource(mat.DiffuseTexture.TextureResource);
             _normal.SetResource(mat.NormalTexture.TextureResource);
+        }
+
+        public override void SetModel(StaticMesh staticMesh, Matrix matrix)
+        {
+            SetMaterial(staticMesh.Material);
+            SetWorldMatrix(matrix);
+            SetWVP(matrix * Config.CurrentCamera.View * Config.CurrentCamera.Projection);
         }
 
         public void SetWorldMatrix(Matrix mat)
@@ -75,16 +90,6 @@ namespace TDF.Graphics.Effects
         public void SetWVP(Matrix mat)
         {
             _wvp.SetMatrix(mat);
-        }
-
-        public void SetCamPosition(Vector3 pos)
-        {
-            _evePos.Set(pos);
-        }
-       
-         public void SetCamPosition()
-        {
-             _evePos.Set(Config.CurrentCamera.Position);
         }
 
         protected override void InitializeEffect()
@@ -106,13 +111,6 @@ namespace TDF.Graphics.Effects
             _fxMaterial = FxEffect.GetVariableByName("gMaterial").AsMaterial();
 
             ChangeInputLayout(InputElements.InputElementType[BumpVertex.VertexType]);
-        }
-
-        public override void SetModel(Mesh mesh, Matrix matrix)
-        {
-            SetMaterial(mesh.Material);
-            SetWorldMatrix(matrix);
-            SetWVP(matrix * Config.CurrentCamera.View * Config.CurrentCamera.Projection);
         }
     }
 }

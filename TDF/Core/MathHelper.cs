@@ -6,7 +6,7 @@ namespace TDF.Core
     /// <summary>
     /// Math and convert helper class
     /// </summary>
-    internal static class MathHelper
+    public static class MathHelper
     {
         /// <summary>
         /// Create Color4 from byte color

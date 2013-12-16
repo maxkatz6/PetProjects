@@ -1,26 +1,26 @@
 ﻿#region Using
 
+using System;
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
-using System;
 using TDF.Core;
 using TDF.Graphics.Models;
 using TDF.Graphics.Render;
 
-#endregion Using
+#endregion
 
 namespace TDF.Graphics.Effects
 {
     public abstract class Effect
     {
 #if DEBUG
+        protected SharpDX.Direct3D11.Effect FxEffect;
+        protected InputLayout FxInputLayout;
         protected ShaderFlags FxShaderFlags = ShaderFlags.Debug;
 #else
         protected FxShaderFlags FxShaderFlags = FxShaderFlags.None;
 #endif
-        protected SharpDX.Direct3D11.Effect FxEffect;
-        protected InputLayout FxInputLayout;
         protected EffectTechnique FxTech;
 
         protected int PassCount
@@ -28,9 +28,15 @@ namespace TDF.Graphics.Effects
             get { return FxTech.Description.PassCount; }
         }
 
+        public object this[string s]
+        {
+            get { return FxEffect.GetVariableByName(s); }
+            set { SetVariable(s, value); }
+        }
+
         public void ChangeInputLayout(InputElement[] inputElements)
         {
-            var passDesc = FxTech.GetPassByIndex(0).Description;
+            EffectPassDescription passDesc = FxTech.GetPassByIndex(0).Description;
             FxInputLayout = new InputLayout(DirectX11.Device, passDesc.Signature, inputElements);
         }
 
@@ -48,7 +54,7 @@ namespace TDF.Graphics.Effects
         {
             try
             {
-                var cr = ShaderBytecode.CompileFromFile(Config.ShadersFilePath + file, "fx_5_0",
+                CompilationResult cr = ShaderBytecode.CompileFromFile(Config.ShadersFilePath + file, "fx_5_0",
                     FxShaderFlags);
                 FxEffect = new SharpDX.Direct3D11.Effect(DirectX11.Device, cr.Bytecode.Data);
                 InitializeEffect();
@@ -63,7 +69,7 @@ namespace TDF.Graphics.Effects
         {
             try
             {
-                var cr = ShaderBytecode.Compile(source, "fx_5_0", FxShaderFlags, EffectFlags.None);
+                CompilationResult cr = ShaderBytecode.Compile(source, "fx_5_0", FxShaderFlags, EffectFlags.None);
                 FxEffect = new SharpDX.Direct3D11.Effect(DirectX11.Device, cr.Bytecode.Data);
                 InitializeEffect();
             }
@@ -82,15 +88,12 @@ namespace TDF.Graphics.Effects
             }
         }
 
-        public void SetVariable<T>(string name, T obj)
-        {
-            FxEffect.GetVariableByName(name).WriteValue(obj);
-        }
-
         public void SetMatrix(string name, Matrix mt)
         {
             FxEffect.GetVariableByName(name).AsMatrix().SetMatrix(mt);
         }
+
+        public abstract void SetModel(StaticMesh staticMesh, Matrix matrix);
 
         public void SetTexture(string name, ShaderResourceView srv)
         {
@@ -102,14 +105,10 @@ namespace TDF.Graphics.Effects
             FxEffect.GetVariableByName(name).AsShaderResource().SetResourceArray(srv);
         }
 
-        protected abstract void InitializeEffect();
-
-        public object this[string s]
+        public void SetVariable<T>(string name, T obj)
         {
-            get { return FxEffect.GetVariableByName(s); }
-            set { SetVariable(s, value);}
+            FxEffect.GetVariableByName(name).WriteValue(obj);
         }
-
-        public abstract void SetModel(Mesh mesh, Matrix matrix);
+        protected abstract void InitializeEffect();
     }
 }

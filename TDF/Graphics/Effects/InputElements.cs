@@ -1,13 +1,12 @@
 ﻿#region Using
 
-using System.Collections.Generic;
-using System.Linq;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+using System.Collections.Generic;
 using TDF.Graphics.Data;
 
-#endregion
+#endregion Using
 
 namespace TDF.Graphics.Effects
 {

@@ -13,6 +13,8 @@ namespace TDF.Graphics.Render
 {
     public static class DirectX11
     {
+        private static Rational rational;
+
         #region Variables & Properties
 
         public static BlendState AlphaDisableBlendingState { get; private set; }
@@ -91,7 +93,7 @@ namespace TDF.Graphics.Render
                 // Now go through all the display modes and find the one that matches the screen width and height.
                 // When a match is found store the the refresh rate for that monitor, if vertical sync is enabled.
                 // Otherwise we use maximum refresh rate.
-                var rational = new Rational(0, 1);
+                rational = new Rational(0, 1);
                 if (VerticalSyncEnabled)
                 {
                     foreach (var mode in modes)
@@ -117,7 +119,6 @@ namespace TDF.Graphics.Render
 
                 // Release the adapter output.
                 monitor.Dispose();
-
                 #endregion Environment Config
 
                 #region Initialize swap chain and d3d device
@@ -146,7 +147,7 @@ namespace TDF.Graphics.Render
                         Format = Format.R8G8B8A8_UNorm,
                         Width = Config.Width,
                         Height = Config.Height,
-                        RefreshRate = new Rational(60, 1),
+                        RefreshRate = rational,
                         Scaling = DisplayModeScaling.Unspecified,
                         ScanlineOrdering = DisplayModeScanlineOrder.Unspecified
                     },
@@ -489,6 +490,21 @@ namespace TDF.Graphics.Render
         public static void ChangePrimitiveTopology(PrimitiveTopology primitiveTopology)
         {
             DeviceContext.InputAssembler.PrimitiveTopology = primitiveTopology;
+        }
+
+        public static void Resize()
+        {
+            var modeDescription = new ModeDescription
+            {
+                Format = Format.R8G8B8A8_UNorm,
+                Width = Config.Width,
+                Height = Config.Height,
+                RefreshRate = rational,
+                Scaling = DisplayModeScaling.Unspecified,
+                ScanlineOrdering = DisplayModeScanlineOrder.Unspecified
+            };
+            SwapChain.ResizeTarget(ref modeDescription);
+   //         SwapChain.ResizeBuffers(3,Config.Width,Config.Height, Format.R8G8B8A8_UNorm, SwapChainFlags.AllowModeSwitch);
         }
         #endregion Methods
     }

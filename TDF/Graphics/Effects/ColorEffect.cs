@@ -14,14 +14,7 @@ namespace TDF.Graphics.Effects
     {
         private static EffectMatrixVariable _fxWVP;
 
-        protected override void InitializeEffect()
-        {
-            ChangeTechnique("Color_" + Config.FShaderVersion);
-            _fxWVP = FxEffect.GetVariableByName("WorldViewProj").AsMatrix();
-            ChangeInputLayout(InputElements.InputElementType[ColorVertex.VertexType]);
-        }
-
-        public override void SetModel(Mesh mesh, Matrix matrix)
+        public override void SetModel(StaticMesh staticMesh, Matrix matrix)
         {
             SetWVP(matrix * Config.CurrentCamera.View * Config.CurrentCamera.Projection);
         }
@@ -29,6 +22,13 @@ namespace TDF.Graphics.Effects
         public void SetWVP(Matrix matrix)
         {
             _fxWVP.SetMatrix(matrix);
+        }
+
+        protected override void InitializeEffect()
+        {
+            ChangeTechnique("Color_" + Config.FShaderVersion);
+            _fxWVP = FxEffect.GetVariableByName("WorldViewProj").AsMatrix();
+            ChangeInputLayout(InputElements.InputElementType[ColorVertex.VertexType]);
         }
     }
 }
