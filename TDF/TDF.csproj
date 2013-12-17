@@ -74,7 +74,6 @@
     <Compile Include="Graphics\Render\DirectX11.cs" />
     <Compile Include="Graphics\Effects\ColorEffect.cs" />
     <Compile Include="Graphics\Effects\EffectHelper.cs" />
-    <Compile Include="Graphics\Effects\LightingEffect.cs" />
     <Compile Include="Graphics\Effects\TextureEffect.cs" />
     <Compile Include="Graphics\Models\Model.cs" />
     <Compile Include="Graphics\Models\GeometryGenerator.cs" />
