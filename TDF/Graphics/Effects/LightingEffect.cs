@@ -23,7 +23,7 @@ namespace TDF.Graphics.Effects
         private EffectMaterialVariable _fxMaterial;
         private EffectMatrixVariable _fxWIT;
         private EffectMatrixVariable _fxWorld;
-        private Vector3 _lightsCount = new Vector3(1, 1, 1);
+        private Vector3 _lightsCount = new Vector3(0, 0, 0);
         private EffectShaderResourceVariable _normal;
         private EffectVectorVariable _numLights;
         private EffectVariable _pointLight;
@@ -76,6 +76,7 @@ namespace TDF.Graphics.Effects
 
         public override void SetModel(StaticMesh staticMesh, Matrix matrix)
         {
+            SetCamPosition();
             SetMaterial(staticMesh.Material);
             SetWorldMatrix(matrix);
             SetWVP(matrix * Config.CurrentCamera.View * Config.CurrentCamera.Projection);
@@ -96,8 +97,6 @@ namespace TDF.Graphics.Effects
         {
             ChangeTechnique("Light_" + Config.FShaderVersion);
 
-            //** http://www.gamedev.net/topic/534310-send-an-array-effectvariable-setrawvalue-d3d-10solved/ **// почитать
-
             _wvp = FxEffect.GetVariableByName("WorldViewProj").AsMatrix();
             _fxWorld = FxEffect.GetVariableByName("World").AsMatrix();
             _fxWIT = FxEffect.GetVariableByName("WorldInvTranspose").AsMatrix();
@@ -111,6 +110,14 @@ namespace TDF.Graphics.Effects
             _fxMaterial = FxEffect.GetVariableByName("gMaterial").AsMaterial();
 
             ChangeInputLayout(InputElements.InputElementType[BumpVertex.VertexType]);
+        }
+
+        public void UpdateLights()
+        {
+            for (int i = 0; i < _lightsCount.Y; i++)
+            {
+                _pointLight.GetElement(i).AsPointLight().Set(PointLights[i]);
+            }
         }
     }
 }
