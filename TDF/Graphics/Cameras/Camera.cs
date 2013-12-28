@@ -13,9 +13,14 @@ namespace TDF.Graphics.Cameras
 
         protected Camera()
         {
+            UpdateScrennMatrices();
+        }
+
+        public void UpdateScrennMatrices()
+        {
             Projection = Matrix.PerspectiveFovLH(MathHelper.ToRadians(45), (float)Config.Width / Config.Height, Config.ScreenNear, Config.ScreenDepth);
 
-            Ortho= Matrix.OrthoLH(Config.Width, Config.Height, Config.ScreenNear, Config.ScreenDepth);
+            Ortho = Matrix.OrthoLH(Config.Width, Config.Height, Config.ScreenNear, Config.ScreenDepth);
         }
 
         public abstract void Update();

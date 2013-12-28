@@ -20,10 +20,6 @@ namespace TDF.Graphics.Cameras
 
         public FreeCamera(Vector3 position, float yaw, float pitch, bool pressedOnlyMouseRotate = false, bool negativeRot = true)
         {
-            Projection = Matrix.PerspectiveFovLH(MathHelper.ToRadians(45), (float)Config.Width / Config.Height, Config.ScreenNear, Config.ScreenDepth);
-
-            Ortho = Matrix.OrthoLH(Config.Width, Config.Height, Config.ScreenNear, Config.ScreenDepth);
-
             Position = position;
             Yaw = yaw;
             Pitch = pitch;

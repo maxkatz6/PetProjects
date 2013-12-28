@@ -16,8 +16,7 @@ namespace TDF.Core
         /// The camera
         /// </summary>
 
-        public static Camera CurrentCamera;
-
+        internal static bool IsInited;
         private static IniFile _iniFile;
 
         #region Статические свойства
@@ -156,7 +155,7 @@ namespace TDF.Core
             {
                 ErrorProvider.Send(new Exception(
                     "Файл конфигурации не был найден. Программа создала новый файл со стандартной конфигруцией"));;
-                Initialize();
+                Initialize("TDF Project", 1920,1080);
                 File.Create(configFilePath).Dispose();
                 SaveConfig(AppDomain.CurrentDomain.BaseDirectory + configFilePath);
                 return;
@@ -202,12 +201,14 @@ namespace TDF.Core
             ModelFilePath = Path.Combine(DataFilePath, _iniFile.ReadValue("FilePath", "ModelFilePath", @"Models\"));
             ShadersFilePath = Path.Combine(DataFilePath, _iniFile.ReadValue("FilePath", "ShadersFilePath", @"Shaders\"));
             TextureFilePath = Path.Combine(DataFilePath, _iniFile.ReadValue("FilePath", "TextureFilePath", @"Textures\"));
+
+            IsInited = true;
         }
 
         /// <summary>
         /// Initializes the feature.
         /// </summary>
-        public static void InitializeFeature()
+        internal static void InitializeFeature()
         {
             switch (DirectX11.Device.FeatureLevel)
             {
@@ -277,7 +278,7 @@ namespace TDF.Core
         /// <param name="title">The title.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        private static void Initialize(string title = "Engine Demo", int width = 1920, int height = 1080)
+        public static void Initialize(string title , int width, int height)
         {
             Title = title;
             Width = width;
@@ -300,6 +301,7 @@ namespace TDF.Core
             ShadersFilePath = DataFilePath + @"Shaders\";
             ModelFilePath = DataFilePath + @"Models\";
             TextureFilePath = DataFilePath + @"Textures\";
+            IsInited = true;
         }
 
         #endregion Инициализвация

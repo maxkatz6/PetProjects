@@ -1,10 +1,9 @@
 ﻿using Assimp;
 using SharpDX;
-using Graphics = TDF.Graphics;
 
-namespace ModelConverter.Core
+namespace TDFExample_ModelConverter.Core
 {
-    public static class AssimpHelper
+    public static class Helper
     {
 
         /// <summary>
@@ -17,16 +16,19 @@ namespace ModelConverter.Core
             return new Color(inputColor.R, inputColor.G, inputColor.B, inputColor.A);
         }
 
-
+        public static Color ToColor(this System.Drawing.Color inputColor)
+        {
+            return new Color(inputColor.R, inputColor.G, inputColor.B, inputColor.A);
+        }
 
         /// <summary>
         /// Convert from Assimp.Material to engine Material
         /// </summary>
         /// <param name="m">The material</param>
         /// <returns></returns>
-        public static Graphics.Data.Material ToMaterial(this Material m)
+        public static TDF.Graphics.Data.Material ToMaterial(this Material m)
         {
-            var ret = new Graphics.Data.Material
+            var ret = new TDF.Graphics.Data.Material
             {
                 Ambient = new Color4(m.ColorAmbient.A, m.ColorAmbient.R, m.ColorAmbient.G, m.ColorAmbient.B),
                 Diffuse = new Color4(m.ColorDiffuse.A, m.ColorAmbient.R, m.ColorAmbient.G, m.ColorAmbient.B),

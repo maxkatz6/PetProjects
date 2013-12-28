@@ -1,10 +1,12 @@
 ﻿#region Using
 
+using System.Reflection;
 using SharpDX;
 using System;
 using System.Collections.Generic;
 using TDF.Core;
 using TDF.Graphics.Data;
+using TDF.Graphics.Effects;
 
 #endregion Using
 
@@ -12,9 +14,38 @@ namespace TDF.Graphics.Models
 {
     public class GeometryGenerator
     {
+        public static DxModel GenereateModel<T>(MeshGeometry<BumpVertex> mesh) where T : struct
+        {
+            return GenereateModel<T>(mesh, Texture.NullTexture, Texture.NullTexture);
+        }
+
+        public static DxModel GenereateModel<T>(MeshGeometry<BumpVertex> mesh, Texture difTexture) where T : struct
+        {
+            return GenereateModel<T>(mesh, difTexture, Texture.NullTexture);
+        }
+
+        public static DxModel GenereateModel<T>(MeshGeometry<BumpVertex> mesh, Texture difTexture, Texture norTexture) where T : struct
+        {
+            var m = mesh.Convert<T>().ToMesh();
+
+            m.SetMaterial(new Material
+            {
+                DiffuseTexture = difTexture,
+                NormalTexture = norTexture
+            });
+
+            var vertexType = typeof (T).GetField("VertexType", BindingFlags.Static | BindingFlags.Public);
+            m.Effect = EffectManager.Effects[vertexType != null ? (int)vertexType.GetValue(null) : 1];
+
+            var model = new DxModel();
+            model.SetMeshes(m);
+            return model;
+        }
+
         public static MeshGeometry<BumpVertex> CreateBox(float width, float height, float depth)
         {
             MeshGeometry<BumpVertex> mesh;
+            #region
             mesh.Indices = new List<uint>
             {
                 0,
@@ -54,7 +85,7 @@ namespace TDF.Graphics.Models
                 22,
                 23
             };
-
+            #endregion
             mesh.Vertices = new List<BumpVertex>();
 
             var w2 = 0.5f * width;

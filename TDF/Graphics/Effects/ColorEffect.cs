@@ -5,6 +5,7 @@ using SharpDX.Direct3D11;
 using TDF.Core;
 using TDF.Graphics.Data;
 using TDF.Graphics.Models;
+using TDF.Graphics.Render;
 
 #endregion Using
 
@@ -16,7 +17,7 @@ namespace TDF.Graphics.Effects
 
         public override void SetModel(StaticMesh staticMesh, Matrix matrix)
         {
-            SetWVP(matrix * Config.CurrentCamera.View * Config.CurrentCamera.Projection);
+            SetWVP(matrix *DirectX11.ViewMatrix * DirectX11.ProjectionMatrix);
         }
 
         public void SetWVP(Matrix matrix)

@@ -53,6 +53,7 @@ float4 PS(PixelInputType pin) : SV_Target
 
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
 	textureColor = shaderTexture.Sample(SampleType, pin.tex);
+	textureColor += float4(1,0.5,6,4);
 	return textureColor;
 }
 

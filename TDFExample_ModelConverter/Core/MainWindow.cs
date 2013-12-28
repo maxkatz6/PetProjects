@@ -1,5 +1,6 @@
 ﻿#region Using
 
+using System.Linq;
 using SharpDX;
 using System;
 using System.Collections.Generic;
@@ -19,80 +20,71 @@ namespace TDFExample_ModelConverter.Core
 {
     public partial class MainWindow : Form
     {
-        private readonly Fps _fps = new Fps();
         private readonly FreeCamera _freeCamera;
-        private readonly DxModel _model = new DxModel();
+        private  DxModel _model;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            Resize +=
-                (sender, args) => { if (splitContainer1.Panel1.Width != 200) splitContainer1.SplitterDistance = 200; };
+            _freeCamera = new FreeCamera(new Vector3(0, 25, -150), 0, 0, true);
+            DirectX11.Initialize(dxPanel.Handle, _freeCamera, true);
 
-            _fps.Initialize();
-            Config.Initialize("config.ini");
-            _freeCamera = new FreeCamera(new Vector3(0, 25, -150), 0, 0, true, true);
-            Config.CurrentCamera = _freeCamera;
-            DirectX11.Enable4xMSAA = true;
-            DirectX11.Initialize(directXPanel1.Handle);
-            DirectX11.TurnZBufferOn();
-            DirectX11.TurnOnAlphaBlending();
-            Input.Initialize();
+            _model = GeometryGenerator.GenereateModel<TextureVertex>(GeometryGenerator.CreateGrid(1000, 1000, 2, 2));
 
-            var le = new TextureEffect();
-            le.InitializeFromFile("Texture.fx");
+            Shown += (sender, args) => dxPanel.Run(Update, Draw);
+        }
 
-            var m = GeometryGenerator.CreateGrid(1000, 1000, 2, 2).Convert<TextureVertex>().ToMesh();
-            m.Material = new Material
+        public void Draw()
+        {
+            _model.Render();
+
+            toolStripStatusLabel1.Text = dxPanel.FPS + "\r" +_freeCamera.Position + "\r"+ Input.MouseState.Vector;
+        }
+
+        public new void Update()
+        {
+            Input.SetMouseCoord(WinAPI.GetCurPos());
+
+            _freeCamera.RotateWithMouse(Input.MouseState);
+
+            if (Input.IsKeyDown(Key.W))
             {
-                DiffuseTexture = Texture.NullTexture,
-            };
-
-            m.HasMaterial = true;
-            m.Effect = le;
-            _model.Meshes = new List<StaticMesh> { m };
-            _model.Matrix = Matrix.Identity;
-
-            directXPanel1.Loop = () =>
+                _freeCamera.DirectionMove(Vector3.ForwardLH);
+            }
+            else if (Input.IsKeyDown(Key.S))
             {
-                _fps.Frame();
+                _freeCamera.DirectionMove(Vector3.BackwardLH);
+            }
 
-                _freeCamera.Update();
-                _freeCamera.RotateWithMouse(Input.MouseState);
-                DirectX11.BeginScene(Color.DarkGray);
-                _model.Render();
-                DirectX11.EndScene();
-                if (Input.IsKeyDown(Key.W))
-                {
-                    _freeCamera.DirectionMove(Vector3.ForwardLH);
-                }
-                else if (Input.IsKeyDown(Key.S))
-                {
-                    _freeCamera.DirectionMove(Vector3.BackwardLH);
-                }
+            if (Input.IsKeyDown(Key.A))
+            {
+                _freeCamera.DirectionMove(Vector3.Left);
+            }
+            else if (Input.IsKeyDown(Key.D))
+            {
+                _freeCamera.DirectionMove(Vector3.Right);
+            }
 
-                if (Input.IsKeyDown(Key.A))
-                {
-                    _freeCamera.DirectionMove(Vector3.Left);
-                }
-                else if (Input.IsKeyDown(Key.D))
-                {
-                    _freeCamera.DirectionMove(Vector3.Right);
-                }
-
-                Point p = WinAPI.GetCurPos();
-                Input.SetMouseCoord(p.X - directXPanel1.Location.X, p.Y - directXPanel1.Location.Y - 47);
-                toolStripStatusLabel1.Text = _fps.Value.ToString(CultureInfo.InvariantCulture) + "      " +
-                                             _freeCamera.Position + "                " + Input.MouseState.Vector;
-            };
-
-            Shown += (sender, args) => directXPanel1.Run();
+            _freeCamera.Update();
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
             _freeCamera.RotateFactor = (sender as TrackBar).Value / 1000f;
         }
+
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+            _freeCamera.Speed = (sender as TrackBar).Value / 10f;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            TextureEffect te = new TextureEffect();
+            te.InitializeFromFile("Texture.fx");
+                EffectManager.Effects[1] = te;
+        }
+
     }
 }

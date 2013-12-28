@@ -13,7 +13,7 @@ namespace TDF.Graphics.Data
         public void SetToZero()
         {
             Position = Vector3.Zero;
-            Color = Color4.Black;
+            Color = Color4.White;
         }
 
         public ColorVertex(Vector3 position, Color4 color)
@@ -63,29 +63,29 @@ namespace TDF.Graphics.Data
     public struct LightVertex 
     {
 
-        public Vector3 position;
-        public Vector2 texture;
-        public Vector3 normal;
+        public Vector3 Position;
+        public Vector2 Texture;
+        public Vector3 Normal;
 
         public void SetToZero()
         {
-            position = Vector3.Zero;
-            texture = Vector2.Zero;
-            normal = Vector3.Zero;
+            Position = Vector3.Zero;
+            Texture = Vector2.Zero;
+            Normal = Vector3.Zero;
         }
 
         public LightVertex(float px, float py, float pz, float nx, float ny, float nz, float u, float v)
         {
-            position = new Vector3(px, py, pz);
-            normal = new Vector3(nx, ny, nz);
-            texture = new Vector2(u, v);
+            Position = new Vector3(px, py, pz);
+            Normal = new Vector3(nx, ny, nz);
+            Texture = new Vector2(u, v);
         }
 
         public LightVertex(Vector3 pos, Vector3 norm, Vector2 uv)
         {
-            position = pos;
-            texture = uv;
-            normal = norm;
+            Position = pos;
+            Texture = uv;
+            Normal = norm;
         }
 
         public const int VertexType = 2;

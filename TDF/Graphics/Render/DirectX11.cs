@@ -1,20 +1,25 @@
-﻿using System;
-using TDF.Core;
-using TDF.Graphics.Data;
+﻿#region Using
+
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+using System;
+using TDF.Core;
+using TDF.Graphics.Cameras;
+using TDF.Graphics.Data;
 using TDF.Graphics.Effects;
+using TDF.Graphics.Shaders;
+using TDF.Inputs;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
+
+#endregion Using
 
 namespace TDF.Graphics.Render
 {
     public static class DirectX11
     {
-        private static Rational rational;
-
         #region Variables & Properties
 
         public static BlendState AlphaDisableBlendingState { get; private set; }
@@ -37,7 +42,21 @@ namespace TDF.Graphics.Render
 
         public static int VideoCardMemory { get; private set; }
 
-        public static Matrix WorldMatrix { get; set; }
+        public static Matrix OrthoMatrix
+        {
+            get { return CurrentCamera.Ortho; }
+        }
+
+        public static Matrix ProjectionMatrix
+        {
+            get { return CurrentCamera.Projection; }
+        }
+
+        public static Matrix ViewMatrix
+        {
+            get { return CurrentCamera.View; }
+        }
+        internal static Camera CurrentCamera;
 
         private static Texture2D DepthStencilBuffer { get; set; }
 
@@ -48,6 +67,8 @@ namespace TDF.Graphics.Render
         private static SwapChain SwapChain { get; set; }
 
         private static bool VerticalSyncEnabled { get; set; }
+
+        private static Rational Rational { get; set; }
 
         #endregion Variables & Properties
 
@@ -67,14 +88,30 @@ namespace TDF.Graphics.Render
             DeviceContext.ClearRenderTargetView(RenderTargetView, color);
         }
 
+        public static void ChangePrimitiveTopology(PrimitiveTopology primitiveTopology)
+        {
+            DeviceContext.InputAssembler.PrimitiveTopology = primitiveTopology;
+        }
+
         public static void EndScene()
         {
             // Present the back buffer to the screen since rendering is complete.
             SwapChain.Present(VerticalSyncEnabled ? 1 : 0, PresentFlags.None);
         }
 
-        public static bool Initialize(IntPtr windowHandle)
+        public static bool Initialize(IntPtr windowHandle, Camera camera, string configFile, bool _4xMSAA = false)
         {
+            Config.Initialize(configFile);
+            Initialize(windowHandle, camera, _4xMSAA);
+            return true;
+        }
+
+        public static bool Initialize(IntPtr windowHandle, Camera camera, bool _4xMSAA = false)
+        {
+            if (!Config.IsInited) Config.Initialize("config.ini");
+            camera.UpdateScrennMatrices();
+            CurrentCamera = camera;
+            Enable4xMSAA = _4xMSAA;
             try
             {
                 #region Environment Config
@@ -85,29 +122,30 @@ namespace TDF.Graphics.Render
                 // Create a DirectX graphics interface factory.
                 var factory = new Factory1();
                 // Use the factory to create an adapter for the primary graphics interface (video card).
-                var adapter = factory.GetAdapter1(0);
+                Adapter1 adapter = factory.GetAdapter1(0);
                 // Get the primary adapter output (monitor).
-                var monitor = adapter.Outputs[0];
+                Output monitor = adapter.Outputs[0];
                 // Get modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
-                var modes = monitor.GetDisplayModeList(Format.R8G8B8A8_UNorm, DisplayModeEnumerationFlags.Interlaced);
+                ModeDescription[] modes = monitor.GetDisplayModeList(Format.R8G8B8A8_UNorm,
+                    DisplayModeEnumerationFlags.Interlaced);
                 // Now go through all the display modes and find the one that matches the screen width and height.
                 // When a match is found store the the refresh rate for that monitor, if vertical sync is enabled.
                 // Otherwise we use maximum refresh rate.
-                rational = new Rational(0, 1);
+                Rational = new Rational(0, 1);
                 if (VerticalSyncEnabled)
                 {
                     foreach (var mode in modes)
                     {
                         if (mode.Width == Config.Width && mode.Height == Config.Height)
                         {
-                            rational = new Rational(mode.RefreshRate.Numerator, mode.RefreshRate.Denominator);
+                            Rational = new Rational(mode.RefreshRate.Numerator, mode.RefreshRate.Denominator);
                             break;
                         }
                     }
                 }
 
                 // Get the daapter (video card) description.
-                var adapterDescription = adapter.Description;
+                AdapterDescription adapterDescription = adapter.Description;
 
                 // Store the dedicated video card memory in megabytes.
                 VideoCardMemory = adapterDescription.DedicatedVideoMemory >> 10 >> 10;
@@ -117,8 +155,8 @@ namespace TDF.Graphics.Render
 
                 //factory.MakeWindowAssociation(windowHandle,WindowAssociationFlags.None);
 
-                // Release the adapter output.
                 monitor.Dispose();
+
                 #endregion Environment Config
 
                 #region Initialize swap chain and d3d device
@@ -126,10 +164,12 @@ namespace TDF.Graphics.Render
                 // Create the swap chain, Direct3D device, and Direct3D device context.
 
 #if DEBUG
-                Device = new Device(adapter, DeviceCreationFlags.Debug, FeatureLevel.Level_11_0, FeatureLevel.Level_10_1, FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
+                Device = new Device(adapter, DeviceCreationFlags.Debug, FeatureLevel.Level_11_0, FeatureLevel.Level_10_1,
+                    FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
 #else
                 Device = new Device(adapter, DeviceCreationFlags.None,  FeatureLevel.Level_11_0, FeatureLevel.Level_10_1, FeatureLevel.Level_10_0, FeatureLevel.Level_9_3,FeatureLevel.Level_9_2, FeatureLevel.Level_9_1 );
 #endif
+                adapter.Dispose();
                 Config.InitializeFeature();
                 DeviceContext = Device.ImmediateContext;
                 ChangePrimitiveTopology(PrimitiveTopology.TriangleList);
@@ -137,7 +177,7 @@ namespace TDF.Graphics.Render
                 int m4XMsaaQuality = Device.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, 4);
 
                 // Initialize the swap chain description.
-                var swapChainDesc = new SwapChainDescription()
+                var swapChainDesc = new SwapChainDescription
                 {
                     // Set to a single back buffer.
                     BufferCount = 1,
@@ -147,7 +187,7 @@ namespace TDF.Graphics.Render
                         Format = Format.R8G8B8A8_UNorm,
                         Width = Config.Width,
                         Height = Config.Height,
-                        RefreshRate = rational,
+                        RefreshRate = Rational,
                         Scaling = DisplayModeScaling.Unspecified,
                         ScanlineOrdering = DisplayModeScanlineOrder.Unspecified
                     },
@@ -156,7 +196,8 @@ namespace TDF.Graphics.Render
                     // Set the handle for the window to render to.
                     OutputHandle = windowHandle,
                     // Turn multisampling off.
-                    SampleDescription = (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
+                    SampleDescription =
+                        (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
                     // Set to full screen or windowed mode.
                     IsWindowed = !Config.FullScreen,
                     // Don't set the advanced flags.
@@ -182,14 +223,15 @@ namespace TDF.Graphics.Render
                 }
 
                 // Initialize and set up the description of the depth buffer.
-                var depthBufferDesc = new Texture2DDescription()
+                var depthBufferDesc = new Texture2DDescription
                 {
                     Width = Config.Width,
                     Height = Config.Height,
                     MipLevels = 1,
                     ArraySize = 1,
                     Format = Format.D24_UNorm_S8_UInt,
-                    SampleDescription = (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
+                    SampleDescription =
+                        (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
                     Usage = ResourceUsage.Default,
                     BindFlags = BindFlags.DepthStencil,
                     CpuAccessFlags = CpuAccessFlags.None,
@@ -204,7 +246,7 @@ namespace TDF.Graphics.Render
                 #region Initialize Depth Enabled Stencil
 
                 // Initialize and set up the description of the stencil state.
-                var depthStencilDesc = new DepthStencilStateDescription()
+                var depthStencilDesc = new DepthStencilStateDescription
                 {
                     IsDepthEnabled = true,
                     DepthWriteMask = DepthWriteMask.All,
@@ -213,7 +255,7 @@ namespace TDF.Graphics.Render
                     StencilReadMask = 0xFF,
                     StencilWriteMask = 0xFF,
                     // Stencil operation if pixel front-facing.
-                    FrontFace = new DepthStencilOperationDescription()
+                    FrontFace = new DepthStencilOperationDescription
                     {
                         FailOperation = StencilOperation.Keep,
                         DepthFailOperation = StencilOperation.Increment,
@@ -221,7 +263,7 @@ namespace TDF.Graphics.Render
                         Comparison = Comparison.Always
                     },
                     // Stencil operation if pixel is back-facing.
-                    BackFace = new DepthStencilOperationDescription()
+                    BackFace = new DepthStencilOperationDescription
                     {
                         FailOperation = StencilOperation.Keep,
                         DepthFailOperation = StencilOperation.Decrement,
@@ -241,14 +283,12 @@ namespace TDF.Graphics.Render
                 DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
 
                 // Initialize and set up the depth stencil view.
-                var depthStencilViewDesc = new DepthStencilViewDescription()
+                var depthStencilViewDesc = new DepthStencilViewDescription
                 {
                     Format = Format.D24_UNorm_S8_UInt,
-
-                    Dimension = Enable4xMSAA ?
-                    DepthStencilViewDimension.Texture2DMultisampled :
-                    DepthStencilViewDimension.Texture2D,
-
+                    Dimension = Enable4xMSAA
+                        ? DepthStencilViewDimension.Texture2DMultisampled
+                        : DepthStencilViewDimension.Texture2D,
                     Texture2D = new DepthStencilViewDescription.Texture2DResource
                     {
                         MipSlice = 0
@@ -266,7 +306,7 @@ namespace TDF.Graphics.Render
                 #region Initialize Raster State
 
                 // Setup the raster description which will determine how and what polygon will be drawn.
-                var rasterDesc = new RasterizerStateDescription()
+                var rasterDesc = new RasterizerStateDescription
                 {
                     IsAntialiasedLineEnabled = Enable4xMSAA,
                     CullMode = CullMode.Back,
@@ -301,7 +341,7 @@ namespace TDF.Graphics.Render
                 // Now create a second depth stencil state which turns off the Z buffer for 2D rendering.
                 // The difference is that DepthEnable is set to false.
                 // All other parameters are the same as the other depth stencil state.
-                var depthDisabledStencilDesc = new DepthStencilStateDescription()
+                var depthDisabledStencilDesc = new DepthStencilStateDescription
                 {
                     IsDepthEnabled = false,
                     DepthWriteMask = DepthWriteMask.All,
@@ -310,7 +350,7 @@ namespace TDF.Graphics.Render
                     StencilReadMask = 0xFF,
                     StencilWriteMask = 0xFF,
                     // Stencil operation if pixel front-facing.
-                    FrontFace = new DepthStencilOperationDescription()
+                    FrontFace = new DepthStencilOperationDescription
                     {
                         FailOperation = StencilOperation.Keep,
                         DepthFailOperation = StencilOperation.Increment,
@@ -318,7 +358,7 @@ namespace TDF.Graphics.Render
                         Comparison = Comparison.Always
                     },
                     // Stencil operation if pixel is back-facing.
-                    BackFace = new DepthStencilOperationDescription()
+                    BackFace = new DepthStencilOperationDescription
                     {
                         FailOperation = StencilOperation.Keep,
                         DepthFailOperation = StencilOperation.Decrement,
@@ -355,15 +395,20 @@ namespace TDF.Graphics.Render
 
                 #endregion Initialize Blend States
 
-                #region Initialize Text and shaders
-
+                #region Initialize other
 
                 Texture.CreateNullTexture();
                 InputElements.Initialize();
-                // Release the adapter.
-                adapter.Dispose();
+                Input.Initialize();
 
-                #endregion Initialize Text and shaders
+                #endregion Initialize other
+
+                #region Prepare for render
+
+                TurnZBufferOn();
+                TurnOnAlphaBlending();
+
+                #endregion Prepare for render
 
                 return true;
             }
@@ -372,6 +417,22 @@ namespace TDF.Graphics.Render
                 ErrorProvider.Send(ex);
                 return false;
             }
+        }
+
+        public static void Resize()
+        {
+            var modeDescription = new ModeDescription
+            {
+                Format = Format.R8G8B8A8_UNorm,
+                Width = Config.Width,
+                Height = Config.Height,
+                RefreshRate = Rational,
+                Scaling = DisplayModeScaling.Unspecified,
+                ScanlineOrdering = DisplayModeScanlineOrder.Unspecified
+            };
+            SwapChain.ResizeTarget(ref modeDescription);
+            //         SwapChain.ResizeBuffers(3,Config.Width,Config.Height, Format.R8G8B8A8_UNorm, SwapChainFlags.AllowModeSwitch);
+            CurrentCamera.UpdateScrennMatrices();
         }
 
         public static void SetBackBufferRenderTarget()
@@ -448,9 +509,8 @@ namespace TDF.Graphics.Render
                 SwapChain = null;
             }
 
-
-            Shaders.BitmapShader.Shutdown();
-            Shaders.ColorShader.Shutdown();
+            BitmapShader.Shutdown();
+            ColorShader.Shutdown();
             Log.Shutdown();
         }
 
@@ -487,25 +547,6 @@ namespace TDF.Graphics.Render
             SwapChain.SetFullscreenState(Config.FullScreen, null);
         }
 
-        public static void ChangePrimitiveTopology(PrimitiveTopology primitiveTopology)
-        {
-            DeviceContext.InputAssembler.PrimitiveTopology = primitiveTopology;
-        }
-
-        public static void Resize()
-        {
-            var modeDescription = new ModeDescription
-            {
-                Format = Format.R8G8B8A8_UNorm,
-                Width = Config.Width,
-                Height = Config.Height,
-                RefreshRate = rational,
-                Scaling = DisplayModeScaling.Unspecified,
-                ScanlineOrdering = DisplayModeScanlineOrder.Unspecified
-            };
-            SwapChain.ResizeTarget(ref modeDescription);
-   //         SwapChain.ResizeBuffers(3,Config.Width,Config.Height, Format.R8G8B8A8_UNorm, SwapChainFlags.AllowModeSwitch);
-        }
         #endregion Methods
     }
 }

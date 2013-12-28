@@ -150,7 +150,7 @@ namespace TDF.Inputs
             MouseState = mouseState;
         }
 
-        internal static void CharInput(char c)
+        public static void CharInput(char c)
         {
             if (CharEnterEvent != null)
                 CharEnterEvent(c);
