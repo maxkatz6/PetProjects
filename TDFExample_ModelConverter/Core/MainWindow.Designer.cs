@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using TDF.WinFormsPanel;
 
 namespace TDFExample_ModelConverter.Core
 {
@@ -42,11 +43,10 @@ namespace TDFExample_ModelConverter.Core
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
             this.trackBar1 = new System.Windows.Forms.TrackBar();
-            this.dxPanel = new TDFExample_ModelConverter.Core.DirectXPanel();
-            this.directXPanel1 = new TDFExample_ModelConverter.Core.DirectXPanel();
-            this.button1 = new System.Windows.Forms.Button();
+            this.dxPanel = new TDF.WinFormsPanel.DirectXPanel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -77,8 +77,9 @@ namespace TDFExample_ModelConverter.Core
             // открытьToolStripMenuItem
             // 
             this.открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.открытьToolStripMenuItem.Text = "Открыть";
+            this.открытьToolStripMenuItem.Click += new System.EventHandler(this.открытьToolStripMenuItem_Click);
             // 
             // редакторToolStripMenuItem
             // 
@@ -141,6 +142,16 @@ namespace TDFExample_ModelConverter.Core
             this.panel1.Size = new System.Drawing.Size(194, 436);
             this.panel1.TabIndex = 0;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(51, 227);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // trackBar2
             // 
             this.trackBar2.Dock = System.Windows.Forms.DockStyle.Top;
@@ -171,25 +182,6 @@ namespace TDFExample_ModelConverter.Core
             this.dxPanel.Name = "dxPanel";
             this.dxPanel.Size = new System.Drawing.Size(482, 436);
             this.dxPanel.TabIndex = 1;
-            // 
-            // directXPanel1
-            // 
-            this.directXPanel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.directXPanel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.directXPanel1.Location = new System.Drawing.Point(203, 3);
-            this.directXPanel1.Name = "directXPanel1";
-            this.directXPanel1.Size = new System.Drawing.Size(50, 76);
-            this.directXPanel1.TabIndex = 1;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(51, 227);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // MainWindow
             // 
@@ -229,7 +221,6 @@ namespace TDFExample_ModelConverter.Core
         private System.Windows.Forms.ToolStripMenuItem добавитьToolStripMenuItem;
         private OpenFileDialog openFileDialog1;
         private SaveFileDialog saveFileDialog1;
-        private DirectXPanel directXPanel1;
         private TableLayoutPanel tableLayoutPanel1;
         private Panel panel1;
         private TrackBar trackBar2;

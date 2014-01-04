@@ -108,6 +108,8 @@ namespace TDF.Graphics.Render
 
         public static bool Initialize(IntPtr windowHandle, Camera camera, bool _4xMSAA = false)
         {
+            Log.Initialize();
+            LibManager.SaveFromResource();
             if (!Config.IsInited) Config.Initialize("config.ini");
             camera.UpdateScrennMatrices();
             CurrentCamera = camera;
@@ -131,7 +133,6 @@ namespace TDF.Graphics.Render
                 // Now go through all the display modes and find the one that matches the screen width and height.
                 // When a match is found store the the refresh rate for that monitor, if vertical sync is enabled.
                 // Otherwise we use maximum refresh rate.
-                Rational = new Rational(0, 1);
                 if (VerticalSyncEnabled)
                 {
                     foreach (var mode in modes)

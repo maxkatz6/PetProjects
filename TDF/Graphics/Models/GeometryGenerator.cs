@@ -35,7 +35,7 @@ namespace TDF.Graphics.Models
             });
 
             var vertexType = typeof (T).GetField("VertexType", BindingFlags.Static | BindingFlags.Public);
-            m.Effect = EffectManager.Effects[vertexType != null ? (int)vertexType.GetValue(null) : 1];
+            m.Effect = vertexType != null ? (int)vertexType.GetValue(null) : 1;
 
             var model = new DxModel();
             model.SetMeshes(m);

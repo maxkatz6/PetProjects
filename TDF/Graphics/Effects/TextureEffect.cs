@@ -13,8 +13,8 @@ namespace TDF.Graphics.Effects
 {
     public class TextureEffect : Effect
     {
-        private static EffectShaderResourceVariable _fxTexture;
-        private static EffectMatrixVariable _fxWVP;
+        private EffectShaderResourceVariable _fxTexture;
+        private EffectMatrixVariable _fxWVP;
 
         public void SetDiffuseTexture(Texture texture)
         {

@@ -1,10 +1,14 @@
 ﻿#region Using
 
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Resources;
 using SharpDX.Direct3D11;
 using System.Collections.Generic;
 using System.IO;
 using TDF.Core;
 using TDF.Graphics.Render;
+using TDF.Properties;
 
 #endregion Using
 
@@ -40,7 +44,7 @@ namespace TDF.Graphics.Data
                     texture.Height = texture2D.Description.Height;
                 }
             }
-
+            Textures.Add(file, texture);
             return texture;
         }
 
@@ -48,8 +52,18 @@ namespace TDF.Graphics.Data
         {
             NullTexture = new Texture
             {
-                TextureResource = ShaderResourceView.FromFile(DirectX11.Device, Config.TextureFilePath + "null.dds")
+                TextureResource = ShaderResourceView.FromMemory(DirectX11.Device, (byte[])(Resources.ResourceManager.GetObject("nullTexture")))
             };
+        }
+
+        public Texture(){}
+
+        public Texture(string s)
+        {
+            var tex = Textures.ContainsKey(s) ? Textures[s] : Load(s);
+            Height = tex.Height;
+            Width = tex.Width;
+            TextureResource = tex.TextureResource;
         }
     }
 }

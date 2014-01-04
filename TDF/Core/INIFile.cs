@@ -59,10 +59,7 @@ namespace TDF.Core
         public string ReadValue(string section, string key, string defaultValue = null)
         {
             var result = new StringBuilder(MaxSize);
-            if (WinAPI.GetPrivateProfileString(section, key, defaultValue ?? string.Empty, result, (uint)result.Capacity, _filePath) > 0)
-                return result.ToString();
-
-            throw new Win32Exception();
+            return WinAPI.GetPrivateProfileString(section, key, defaultValue ?? string.Empty, result, (uint)result.Capacity, _filePath) > 0 ? result.ToString() : defaultValue;
         }
 
         /// <summary>

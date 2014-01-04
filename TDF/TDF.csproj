@@ -55,6 +55,7 @@
     <Compile Include="Core\FPS.cs" />
     <Compile Include="Core\INIFile.cs" />
     <Compile Include="Core\IShutdown.cs" />
+    <Compile Include="Core\LibManager.cs" />
     <Compile Include="Core\Log.cs" />
     <Compile Include="Core\MathHelper.cs" />
     <Compile Include="Core\Timer.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Graphics\Data\Vertex.cs" />
     <Compile Include="Graphics\Data\WorldObject.cs" />
     <Compile Include="Graphics\Effects\Effect.cs" />
+    <Compile Include="Graphics\Effects\EffectManager.cs" />
     <Compile Include="Graphics\Effects\InputElements.cs" />
     <Compile Include="Inputs\Input.cs" />
     <Compile Include="Inputs\Key.cs" />
@@ -80,20 +82,22 @@
     <Compile Include="Graphics\Shaders\BitmapShader.cs" />
     <Compile Include="Graphics\Shaders\ColorShader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Libs\Assimp32.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Libs\Assimp64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Libs\sharpdx_direct3d11_effects_x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Libs\sharpdx_direct3d11_effects_x86.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Include="Resources\sharpdx_direct3d11_effects_x86.dll" />
+    <None Include="Resources\sharpdx_direct3d11_effects_x64.dll" />
+    <None Include="Resources\null.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -19,7 +19,9 @@ namespace TDF.Graphics.Effects
         protected InputLayout FxInputLayout;
         protected ShaderFlags FxShaderFlags = ShaderFlags.Debug;
 #else
-        protected FxShaderFlags FxShaderFlags = FxShaderFlags.None;
+        protected ShaderFlags FxShaderFlags = ShaderFlags.None;
+        protected SharpDX.Direct3D11.Effect FxEffect;
+        protected InputLayout FxInputLayout;
 #endif
         protected EffectTechnique FxTech;
 
@@ -36,7 +38,7 @@ namespace TDF.Graphics.Effects
 
         public void ChangeInputLayout(InputElement[] inputElements)
         {
-            EffectPassDescription passDesc = FxTech.GetPassByIndex(0).Description;
+            var passDesc = FxTech.GetPassByIndex(0).Description;
             FxInputLayout = new InputLayout(DirectX11.Device, passDesc.Signature, inputElements);
         }
 
@@ -54,7 +56,7 @@ namespace TDF.Graphics.Effects
         {
             try
             {
-                CompilationResult cr = ShaderBytecode.CompileFromFile(Config.ShadersFilePath + file, "fx_5_0",
+                var cr = ShaderBytecode.CompileFromFile(Config.ShadersFilePath + file, "fx_5_0",
                     FxShaderFlags);
                 FxEffect = new SharpDX.Direct3D11.Effect(DirectX11.Device, cr.Bytecode.Data);
                 InitializeEffect();
@@ -62,6 +64,7 @@ namespace TDF.Graphics.Effects
             catch (Exception ex)
             {
                 ErrorProvider.Send(ex);
+                throw new Exception();
             }
         }
 
@@ -69,13 +72,14 @@ namespace TDF.Graphics.Effects
         {
             try
             {
-                CompilationResult cr = ShaderBytecode.Compile(source, "fx_5_0", FxShaderFlags, EffectFlags.None);
+                var cr = ShaderBytecode.Compile(source, "fx_5_0", FxShaderFlags, EffectFlags.None);
                 FxEffect = new SharpDX.Direct3D11.Effect(DirectX11.Device, cr.Bytecode.Data);
                 InitializeEffect();
             }
             catch (Exception ex)
             {
                 ErrorProvider.Send(ex);
+                throw new Exception();
             }
         }
 
@@ -87,6 +91,8 @@ namespace TDF.Graphics.Effects
                 FxTech.GetPassByName("P0").Apply(DirectX11.DeviceContext);
             }
         }
+
+        public virtual void EndRender() { }
 
         public void SetMatrix(string name, Matrix mt)
         {

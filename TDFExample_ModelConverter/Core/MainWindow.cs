@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using System.Linq;
+using System.Threading.Tasks;
 using SharpDX;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,8 @@ namespace TDFExample_ModelConverter.Core
     public partial class MainWindow : Form
     {
         private readonly FreeCamera _freeCamera;
-        private  DxModel _model;
+        private DxModel plos;
+        private readonly DxModel _model = new DxModel();
 
         public MainWindow()
         {
@@ -29,14 +31,15 @@ namespace TDFExample_ModelConverter.Core
 
             _freeCamera = new FreeCamera(new Vector3(0, 25, -150), 0, 0, true);
             DirectX11.Initialize(dxPanel.Handle, _freeCamera, true);
-
-            _model = GeometryGenerator.GenereateModel<TextureVertex>(GeometryGenerator.CreateGrid(1000, 1000, 2, 2));
+            
+            plos = GeometryGenerator.GenereateModel<TextureVertex>(GeometryGenerator.CreateGrid(1000,1000,3,3));
 
             Shown += (sender, args) => dxPanel.Run(Update, Draw);
         }
 
         public void Draw()
         {
+            plos.Render();
             _model.Render();
 
             toolStripStatusLabel1.Text = dxPanel.FPS + "\r" +_freeCamera.Position + "\r"+ Input.MouseState.Vector;
@@ -81,9 +84,14 @@ namespace TDFExample_ModelConverter.Core
 
         private void button1_Click(object sender, EventArgs e)
         {
-            TextureEffect te = new TextureEffect();
+            var te = new TextureEffect();
             te.InitializeFromFile("Texture.fx");
-                EffectManager.Effects[1] = te;
+            EffectManager.Effects[1] = te;
+        }
+
+        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _model.AsyncLoadModel(@"C:\Users\Максим\Desktop\Paris2010_0.obj");
         }
 
     }

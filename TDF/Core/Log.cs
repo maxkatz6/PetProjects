@@ -34,7 +34,7 @@ namespace TDF.Core
         /// <param name="text">The text.</param>
         public static void Write(string text)
         {
-                _sw.WriteLine(text);
+            _sw.WriteLine(text);
         }
     }
 }

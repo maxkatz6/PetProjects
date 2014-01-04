@@ -6,8 +6,8 @@ using SharpDX.DXGI;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using TDF.Graphics.Data;
+using TDF.Graphics.Effects;
 using TDF.Graphics.Render;
-using Effect = TDF.Graphics.Effects.Effect;
 
 #endregion Using
 
@@ -15,27 +15,33 @@ namespace TDF.Graphics.Models
 {
     public sealed class DxModel
     {
-        public Material[] Materials;
-        public StaticMesh[] Meshes;
+        public List<Material> Materials;
+        public List<StaticMesh> Meshes;
 
         public Matrix? Matrix { get; set; }
 
+        public DxModel()
+        {
+            Materials = new List<Material>(20);
+            Meshes = new List<StaticMesh>(20);
+        }
+
         public int MeshCount
         {
-            get { return Meshes.Length; }
+            get { return Meshes.Count; }
         }
 
         public void Render()
         {
-            foreach (var mesh in Meshes)
+            for (int i = 0; i < Meshes.Count; i++)
             {
-                mesh.Render(Matrix.HasValue ? Matrix.Value : SharpDX.Matrix.Identity);
+                Meshes[i].Render(Matrix ?? SharpDX.Matrix.Identity);
             }
         }
 
         public void SetMeshes(params StaticMesh[] meshes)
         {
-            Meshes = meshes;
+            Meshes = new List<StaticMesh>(meshes);
         }
     }
 
@@ -102,7 +108,7 @@ namespace TDF.Graphics.Models
 
     public sealed class StaticMesh : Mesh
     {
-        public Effect Effect;
+        public int Effect;
         internal bool HasMaterial;
 
         public Material Material { get; private set; }
@@ -115,9 +121,10 @@ namespace TDF.Graphics.Models
 
         public void Render(Matrix m)
         {
-            Effect.SetModel(this, m);
-            Effect.Render();
+            EffectManager.Effects[Effect].SetModel(this, m);
+            EffectManager.Effects[Effect].Render();
             Render();
+            EffectManager.Effects[Effect].EndRender();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.IO;
 using TDF.Graphics.Cameras;
 using TDF.Graphics.Render;
 using SharpDX.Direct3D;
+using TDF.Properties;
 
 namespace TDF.Core
 {
@@ -175,7 +176,7 @@ namespace TDF.Core
                 Width = t;
             }
 
-            VerticalSyncEnabled = _iniFile.ReadValue("Window", "VerticalSyncEnabled", "True") == bool.TrueString;
+            VerticalSyncEnabled = _iniFile.ReadValue("Window", "VerticalSyncEnabled", "False") == bool.TrueString;
 
             FullScreen = _iniFile.ReadValue("Window", "FullScreen", "False") == bool.TrueString;
 
@@ -198,9 +199,9 @@ namespace TDF.Core
                 Fps = t;
             }
 
-            ModelFilePath = Path.Combine(DataFilePath, _iniFile.ReadValue("FilePath", "ModelFilePath", @"Models\"));
-            ShadersFilePath = Path.Combine(DataFilePath, _iniFile.ReadValue("FilePath", "ShadersFilePath", @"Shaders\"));
-            TextureFilePath = Path.Combine(DataFilePath, _iniFile.ReadValue("FilePath", "TextureFilePath", @"Textures\"));
+            ModelFilePath = Path.Combine(DataFilePath, _iniFile.ReadValue("FilePath", "ModelFilePath", string.Empty));
+            ShadersFilePath = Path.Combine(DataFilePath, _iniFile.ReadValue("FilePath", "ShadersFilePath", string.Empty));
+            TextureFilePath = Path.Combine(DataFilePath, _iniFile.ReadValue("FilePath", "TextureFilePath", string.Empty));
 
             IsInited = true;
         }
