@@ -21,9 +21,9 @@ namespace TDF.Graphics.Effects
             _fxTexture.SetResource(texture.TextureResource);
         }
 
-        public override void SetModel(StaticMesh staticMesh, Matrix matrix)
+        public override void SetMesh(Mesh staticMesh, Matrix matrix)
         {
-            SetWVP(matrix * DirectX11.ViewMatrix * DirectX11.ProjectionMatrix);
+            SetWVP(matrix);
             SetDiffuseTexture(staticMesh.Material.DiffuseTexture);
         }
 

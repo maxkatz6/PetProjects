@@ -32,8 +32,8 @@ namespace TDFExample_ModelConverter.Core
 
             Parallel.For(0, assimpModel.MeshCount, (i, a) =>
             {
-                var amesh = new StaticMesh();
-                amesh.SetIndices(assimpModel.Meshes[i].GetIndices());
+                var amesh = new TDF.Graphics.Models.Mesh();
+                amesh.CreateIndexBuffer(assimpModel.Meshes[i].GetIndices());
                 var aMesh = assimpModel.Meshes[i];
 
                 /* if (aMesh.HasTangentBasis)
@@ -48,7 +48,7 @@ namespace TDFExample_ModelConverter.Core
                             aMesh.GetTextureCoords(0)[j].ToVector2(), 
                             aMesh.Tangents[j].ToVector3());
                     }
-                    amesh.SetVertices(vert);
+                    amesh.CreateVertexBuffer(vert);
                 }
                 else if (aMesh.HasNormals)
                 {
@@ -61,7 +61,7 @@ namespace TDFExample_ModelConverter.Core
                             aMesh.Normals[j].ToVector3(),
                             aMesh.GetTextureCoords(0)[j].ToVector2());
                     }
-                    amesh.SetVertices(vert);
+                    amesh.CreateVertexBuffer(vert);
                 }
                 else */
                 if (aMesh.HasTextureCoords(0))
@@ -74,8 +74,8 @@ namespace TDFExample_ModelConverter.Core
                             aMesh.Vertices[j].ToVector3(),
                             aMesh.GetTextureCoords(0)[j].ToVector2());
                     }
-                    amesh.SetVertices(vert);
-                    amesh.Effect =TextureVertex.VertexType;
+                    amesh.CreateVertexBuffer(vert);
+                    amesh.EffectNumber =TextureVertex.VertexType;
                 }
                 else if (aMesh.HasVertexColors(0))
                 {
@@ -86,8 +86,8 @@ namespace TDFExample_ModelConverter.Core
                         vert[j] = new ColorVertex(
                             aMesh.Vertices[j].ToVector3(), aMesh.GetVertexColors(0)[j].ToColor());
                     }
-                    amesh.SetVertices(vert);
-                    amesh.Effect = ColorVertex.VertexType;
+                    amesh.CreateVertexBuffer(vert);
+                    amesh.EffectNumber = ColorVertex.VertexType;
                 }
                 else
                 {
@@ -98,8 +98,8 @@ namespace TDFExample_ModelConverter.Core
                         vert[j] = new ColorVertex(
                             aMesh.Vertices[j].ToVector3(), new Color4(1, 1, 1, 1));
                     }
-                    amesh.SetVertices(vert);
-                    amesh.Effect = ColorVertex.VertexType;
+                    amesh.CreateVertexBuffer(vert);
+                    amesh.EffectNumber = ColorVertex.VertexType;
                 }
 
                 var mater = assimpModel.Materials[assimpModel.Meshes[i].MaterialIndex].ToMaterial();

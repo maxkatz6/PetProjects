@@ -99,7 +99,7 @@ namespace TDF.Graphics.Effects
             FxEffect.GetVariableByName(name).AsMatrix().SetMatrix(mt);
         }
 
-        public abstract void SetModel(StaticMesh staticMesh, Matrix matrix);
+        public abstract void SetMesh(Mesh staticMesh, Matrix matrix);
 
         public void SetTexture(string name, ShaderResourceView srv)
         {

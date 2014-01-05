@@ -43,27 +43,27 @@ namespace ShaderViewer
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.textBox1 = new System.Windows.Forms.RichTextBox();
-            this.panel2 = new System.Windows.Forms.Panel();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
             this.button1 = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.RichTextBox();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button2 = new System.Windows.Forms.Button();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
             this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.directXPanel1 = new TDF.WinFormsPanel.DirectXPanel();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.button2 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -148,72 +148,8 @@ namespace ShaderViewer
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(441, 677);
+            this.panel1.Size = new System.Drawing.Size(334, 677);
             this.panel1.TabIndex = 0;
-            // 
-            // textBox1
-            // 
-            this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox1.Font = new System.Drawing.Font("Arimo", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox1.Location = new System.Drawing.Point(3, 3);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(427, 557);
-            this.textBox1.TabIndex = 3;
-            this.textBox1.Text = "";
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.trackBar2);
-            this.panel2.Controls.Add(this.trackBar1);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(0, 0);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(441, 88);
-            this.panel2.TabIndex = 2;
-            // 
-            // button1
-            // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.button1.Location = new System.Drawing.Point(330, 3);
-            this.button1.MaximumSize = new System.Drawing.Size(100, 20);
-            this.button1.MinimumSize = new System.Drawing.Size(100, 20);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 20);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Ok";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
-            // 
-            // trackBar2
-            // 
-            this.trackBar2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.trackBar2.Location = new System.Drawing.Point(0, 45);
-            this.trackBar2.Maximum = 500;
-            this.trackBar2.Name = "trackBar2";
-            this.trackBar2.Size = new System.Drawing.Size(441, 45);
-            this.trackBar2.TabIndex = 1;
-            this.trackBar2.Value = 10;
-            this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
-            // 
-            // trackBar1
-            // 
-            this.trackBar1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.trackBar1.Location = new System.Drawing.Point(0, 0);
-            this.trackBar1.Maximum = 20;
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(441, 45);
-            this.trackBar1.TabIndex = 0;
-            this.trackBar1.Value = 10;
-            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
-            // 
-            // directXPanel1
-            // 
-            this.directXPanel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.directXPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.directXPanel1.Location = new System.Drawing.Point(450, 3);
-            this.directXPanel1.Name = "directXPanel1";
-            this.directXPanel1.Size = new System.Drawing.Size(682, 677);
-            this.directXPanel1.TabIndex = 1;
             // 
             // tabControl1
             // 
@@ -223,7 +159,7 @@ namespace ShaderViewer
             this.tabControl1.Location = new System.Drawing.Point(0, 88);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(441, 589);
+            this.tabControl1.Size = new System.Drawing.Size(334, 589);
             this.tabControl1.TabIndex = 4;
             // 
             // tabPage1
@@ -233,10 +169,33 @@ namespace ShaderViewer
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(433, 563);
+            this.tabPage1.Size = new System.Drawing.Size(326, 563);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "TextureShader";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.button1.Location = new System.Drawing.Point(223, 3);
+            this.button1.MaximumSize = new System.Drawing.Size(100, 20);
+            this.button1.MinimumSize = new System.Drawing.Size(100, 20);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(100, 20);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "Ok";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox1.Font = new System.Drawing.Font("Arimo", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox1.Location = new System.Drawing.Point(3, 3);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(320, 557);
+            this.textBox1.TabIndex = 3;
+            this.textBox1.Text = "";
             // 
             // tabPage2
             // 
@@ -250,16 +209,6 @@ namespace ShaderViewer
             this.tabPage2.Text = "ColorShader";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // richTextBox1
-            // 
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox1.Font = new System.Drawing.Font("Arimo", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox1.Location = new System.Drawing.Point(3, 3);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(427, 557);
-            this.richTextBox1.TabIndex = 4;
-            this.richTextBox1.Text = "";
-            // 
             // button2
             // 
             this.button2.Dock = System.Windows.Forms.DockStyle.Right;
@@ -272,6 +221,57 @@ namespace ShaderViewer
             this.button2.Text = "Ok";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // richTextBox1
+            // 
+            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox1.Font = new System.Drawing.Font("Arimo", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBox1.Location = new System.Drawing.Point(3, 3);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(427, 557);
+            this.richTextBox1.TabIndex = 4;
+            this.richTextBox1.Text = "";
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.trackBar2);
+            this.panel2.Controls.Add(this.trackBar1);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(0, 0);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(334, 88);
+            this.panel2.TabIndex = 2;
+            // 
+            // trackBar2
+            // 
+            this.trackBar2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.trackBar2.Location = new System.Drawing.Point(0, 45);
+            this.trackBar2.Maximum = 500;
+            this.trackBar2.Name = "trackBar2";
+            this.trackBar2.Size = new System.Drawing.Size(334, 45);
+            this.trackBar2.TabIndex = 1;
+            this.trackBar2.Value = 10;
+            this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
+            // 
+            // trackBar1
+            // 
+            this.trackBar1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.trackBar1.Location = new System.Drawing.Point(0, 0);
+            this.trackBar1.Maximum = 20;
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(334, 45);
+            this.trackBar1.TabIndex = 0;
+            this.trackBar1.Value = 10;
+            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            // 
+            // directXPanel1
+            // 
+            this.directXPanel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.directXPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.directXPanel1.Location = new System.Drawing.Point(343, 3);
+            this.directXPanel1.Name = "directXPanel1";
+            this.directXPanel1.Size = new System.Drawing.Size(789, 677);
+            this.directXPanel1.TabIndex = 1;
             // 
             // MainWindow
             // 
@@ -292,13 +292,13 @@ namespace ShaderViewer
             this.statusStrip1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

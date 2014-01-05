@@ -35,7 +35,7 @@ namespace TDF.Graphics.Models
             });
 
             var vertexType = typeof (T).GetField("VertexType", BindingFlags.Static | BindingFlags.Public);
-            m.Effect = vertexType != null ? (int)vertexType.GetValue(null) : 1;
+            m.EffectNumber = vertexType != null ? (int)vertexType.GetValue(null) : 1;
 
             var model = new DxModel();
             model.SetMeshes(m);
@@ -366,11 +366,11 @@ namespace TDF.Graphics.Models
                 };
             }
 
-            public StaticMesh ToMesh()
+            public Mesh ToMesh()
             {
-                var returnMesh = new StaticMesh();
-                returnMesh.SetIndices(Indices);
-                returnMesh.SetVertices(Vertices);
+                var returnMesh = new Mesh();
+                returnMesh.CreateIndexBuffer(Indices);
+                returnMesh.CreateVertexBuffer(Vertices);
                 return returnMesh;
             }
         }

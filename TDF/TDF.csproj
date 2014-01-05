@@ -60,6 +60,8 @@
     <Compile Include="Core\MathHelper.cs" />
     <Compile Include="Core\Timer.cs" />
     <Compile Include="Core\WinAPI.cs" />
+    <Compile Include="Graphics\2D\Bitmap.cs" />
+    <Compile Include="Graphics\2D\Box.cs" />
     <Compile Include="Graphics\Cameras\Camera.cs" />
     <Compile Include="Graphics\Cameras\FreeCamera.cs" />
     <Compile Include="Graphics\Cameras\TargetCamera.cs" />

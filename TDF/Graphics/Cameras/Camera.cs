@@ -3,7 +3,7 @@ using SharpDX;
 
 namespace TDF.Graphics.Cameras
 {
-    public abstract class Camera
+    public class Camera
     {
         public Matrix View { get; set; }
         public Matrix Projection { get; set; }
@@ -11,7 +11,7 @@ namespace TDF.Graphics.Cameras
 
         public Vector3 Position { get; set; }
 
-        protected Camera()
+        public Camera()
         {
             UpdateScrennMatrices();
         }
@@ -23,6 +23,6 @@ namespace TDF.Graphics.Cameras
             Ortho = Matrix.OrthoLH(Config.Width, Config.Height, Config.ScreenNear, Config.ScreenDepth);
         }
 
-        public abstract void Update();
+        public virtual void Update() { }
     }
 }

@@ -14,7 +14,7 @@ using TDF.Properties;
 
 namespace TDF.Graphics.Data
 {
-    public class Texture
+    public class Texture : IShutdown
     {
         public static Dictionary<string, Texture> Textures = new Dictionary<string, Texture>();
 
@@ -52,7 +52,9 @@ namespace TDF.Graphics.Data
         {
             NullTexture = new Texture
             {
-                TextureResource = ShaderResourceView.FromMemory(DirectX11.Device, (byte[])(Resources.ResourceManager.GetObject("nullTexture")))
+                TextureResource = ShaderResourceView.FromMemory(DirectX11.Device, (byte[])(Resources.ResourceManager.GetObject("nullTexture"))),
+                Height = 200,
+                Width = 200
             };
         }
 
@@ -60,10 +62,15 @@ namespace TDF.Graphics.Data
 
         public Texture(string s)
         {
-            var tex = Textures.ContainsKey(s) ? Textures[s] : Load(s);
+            var tex = s == null || !Textures.ContainsKey(s) ? Load(s) : Textures[s];
             Height = tex.Height;
             Width = tex.Width;
             TextureResource = tex.TextureResource;
+        }
+
+        public void Shutdown()
+        {
+            TextureResource.Dispose();
         }
     }
 }

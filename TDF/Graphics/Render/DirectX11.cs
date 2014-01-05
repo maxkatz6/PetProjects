@@ -70,6 +70,7 @@ namespace TDF.Graphics.Render
 
         private static Rational Rational { get; set; }
 
+        private static bool isCameraInited ;
         #endregion Variables & Properties
 
         #region Methods
@@ -108,11 +109,18 @@ namespace TDF.Graphics.Render
 
         public static bool Initialize(IntPtr windowHandle, Camera camera, bool _4xMSAA = false)
         {
-            Log.Initialize();
-            LibManager.SaveFromResource();
-            if (!Config.IsInited) Config.Initialize("config.ini");
             camera.UpdateScrennMatrices();
             CurrentCamera = camera;
+            isCameraInited = true;
+            return Initialize(windowHandle, _4xMSAA);
+        }
+
+        public static bool Initialize(IntPtr windowHandle, bool _4xMSAA = false)
+        {
+            Log.Initialize();
+            LibManager.SaveFromResource();
+            if (!Config.IsInited) Config.Initialize("Default Title",1260,720);
+            if (!isCameraInited) CurrentCamera = new Camera();
             Enable4xMSAA = _4xMSAA;
             try
             {
