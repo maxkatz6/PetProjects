@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ormeli
+namespace Ormeli.App
 {
     class Program
     {
         static void Main(string[] args)
         {
+            
         }
     }
 }
