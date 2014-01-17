@@ -1,0 +1,451 @@
+﻿using Ormeli.App;
+using Ormeli.Render;
+using SharpDX;
+using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using System;
+using Device = SharpDX.Direct3D11.Device;
+using Resource = SharpDX.Direct3D11.Resource;
+
+namespace Ormeli.DirectX11
+{
+    public class DXRender : RenderClass
+    {
+        public Color BackColor;
+
+        public Device Device;
+
+        public DeviceContext DeviceContext;
+
+        public SwapChain SwapChain;
+
+        public string VideoCardDescription { get; set; }
+
+        public DepthStencilState DepthStencilState { get; set; }
+
+        public RenderTargetView RenderTargetView { get; set; }
+
+        public Texture2D DepthStencilBuffer { get; set; }
+
+        public DepthStencilView DepthStencilView { get; set; }
+
+        public bool Enable4xMSAA { get; set; }
+
+        public Rational Rational { get; set; }
+
+        public RasterizerState RasterState { get; set; }
+
+        public BlendState AlphaDisableBlendingState { get; set; }
+
+        public BlendState AlphaEnableBlendingState { get; set; }
+
+        public DepthStencilState DepthDisabledStencilState { get; set; }
+
+        public int VideoCardMemory { get; set; }
+
+        public override void Initialize(IntPtr windowHandle)
+        {
+            #region Environment Config
+
+            // Create a DirectX graphics interface factory.
+            var factory = new Factory1();
+            // Use the factory to create an adapter for the primary graphics interface (video card).
+            Adapter1 adapter = factory.GetAdapter1(0);
+            // Get the primary adapter output (monitor).
+            Output monitor = adapter.Outputs[0];
+            // Get modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
+            ModeDescription[] modes = monitor.GetDisplayModeList(Format.R8G8B8A8_UNorm,
+                DisplayModeEnumerationFlags.Interlaced);
+            // Now go through all the display modes and find the one that matches the screen width and height.
+            // When a match is found store the the refresh rate for that monitor, if vertical sync is enabled.
+            // Otherwise we use maximum refresh rate.
+            if (Config.VerticalSyncEnabled)
+            {
+                foreach (var mode in modes)
+                {
+                    if (mode.Width == Config.Width && mode.Height == Config.Height)
+                    {
+                        Rational = new Rational(mode.RefreshRate.Numerator, mode.RefreshRate.Denominator);
+                        break;
+                    }
+                }
+            }
+
+            // Get the daapter (video card) description.
+            AdapterDescription adapterDescription = adapter.Description;
+
+            // Store the dedicated video card memory in megabytes.
+            VideoCardMemory = adapterDescription.DedicatedVideoMemory >> 10 >> 10;
+
+            // Convert the name of the video card to a character array and store it.
+            VideoCardDescription = adapterDescription.Description;
+
+            //factory.MakeWindowAssociation(windowHandle,WindowAssociationFlags.None);
+
+            monitor.Dispose();
+
+            #endregion Environment Config
+
+            #region Initialize swap chain and d3d device
+
+            // Create the swap chain, Direct3D device, and Direct3D device context.
+
+#if DEBUG
+                Device = new Device(adapter, DeviceCreationFlags.Debug, FeatureLevel.Level_11_0, FeatureLevel.Level_10_1,
+                    FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
+#else
+            Device = new Device(adapter, DeviceCreationFlags.None, FeatureLevel.Level_11_0, FeatureLevel.Level_10_1,
+                FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
+#endif
+            adapter.Dispose();
+            DeviceContext = Device.ImmediateContext;
+
+            int m4XMsaaQuality = Device.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, 4);
+
+            // Initialize the swap chain description.
+            var swapChainDesc = new SwapChainDescription
+            {
+                // Set to a single back buffer.
+                BufferCount = 1,
+                // Set the width and height of the back buffer.
+                ModeDescription = new ModeDescription
+                {
+                    Format = Format.R8G8B8A8_UNorm,
+                    Width = Config.Width,
+                    Height = Config.Height,
+                    RefreshRate = Rational,
+                    Scaling = DisplayModeScaling.Unspecified,
+                    ScanlineOrdering = DisplayModeScanlineOrder.Unspecified
+                },
+                // Set the usage of the back buffer.
+                Usage = Usage.RenderTargetOutput,
+                // Set the handle for the window to render to.
+                OutputHandle = windowHandle,
+                // Turn multisampling off.
+                SampleDescription =
+                    (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
+                // Set to full screen or windowed mode.
+                IsWindowed = !Config.FullScreen,
+                // Don't set the advanced flags.
+                Flags = SwapChainFlags.AllowModeSwitch,
+                // Discard the back buffer content after presenting.
+                SwapEffect = SwapEffect.Discard
+            };
+
+            SwapChain = new SwapChain(factory, Device, swapChainDesc);
+
+            // Release the factory.
+            factory.Dispose();
+
+            #endregion Initialize swap chain and d3d device
+
+            #region Initialize buffers
+
+            // Get the pointer to the back buffer.
+            using (var backBuffer = Resource.FromSwapChain<Texture2D>(SwapChain, 0))
+            {
+                // Create the render target view with the back buffer pointer.
+                RenderTargetView = new RenderTargetView(Device, backBuffer);
+            }
+
+            // Initialize and set up the description of the depth buffer.
+            var depthBufferDesc = new Texture2DDescription
+            {
+                Width = Config.Width,
+                Height = Config.Height,
+                MipLevels = 1,
+                ArraySize = 1,
+                Format = Format.D24_UNorm_S8_UInt,
+                SampleDescription =
+                    (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
+                Usage = ResourceUsage.Default,
+                BindFlags = BindFlags.DepthStencil,
+                CpuAccessFlags = CpuAccessFlags.None,
+                OptionFlags = ResourceOptionFlags.None
+            };
+
+            // Create the texture for the depth buffer using the filled out description.
+            DepthStencilBuffer = new Texture2D(Device, depthBufferDesc);
+
+            #endregion Initialize buffers
+
+            #region Initialize Depth Enabled Stencil
+
+            // Initialize and set up the description of the stencil state.
+            var depthStencilDesc = new DepthStencilStateDescription
+            {
+                IsDepthEnabled = true,
+                DepthWriteMask = DepthWriteMask.All,
+                DepthComparison = Comparison.Less,
+                IsStencilEnabled = true,
+                StencilReadMask = 0xFF,
+                StencilWriteMask = 0xFF,
+                // Stencil operation if pixel front-facing.
+                FrontFace = new DepthStencilOperationDescription
+                {
+                    FailOperation = StencilOperation.Keep,
+                    DepthFailOperation = StencilOperation.Increment,
+                    PassOperation = StencilOperation.Keep,
+                    Comparison = Comparison.Always
+                },
+                // Stencil operation if pixel is back-facing.
+                BackFace = new DepthStencilOperationDescription
+                {
+                    FailOperation = StencilOperation.Keep,
+                    DepthFailOperation = StencilOperation.Decrement,
+                    PassOperation = StencilOperation.Keep,
+                    Comparison = Comparison.Always
+                }
+            };
+
+            // Create the depth stencil state.
+            DepthStencilState = new DepthStencilState(Device, depthStencilDesc);
+
+            #endregion Initialize Depth Enabled Stencil
+
+            #region Initialize Output Merger
+
+            // Set the depth stencil state.
+            DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
+
+            // Initialize and set up the depth stencil view.
+            var depthStencilViewDesc = new DepthStencilViewDescription
+            {
+                Format = Format.D24_UNorm_S8_UInt,
+                Dimension = Enable4xMSAA
+                    ? DepthStencilViewDimension.Texture2DMultisampled
+                    : DepthStencilViewDimension.Texture2D,
+                Texture2D = new DepthStencilViewDescription.Texture2DResource
+                {
+                    MipSlice = 0
+                },
+            };
+
+            // Create the depth stencil view.
+            DepthStencilView = new DepthStencilView(Device, DepthStencilBuffer, depthStencilViewDesc);
+
+            // Bind the render target view and depth stencil buffer to the output render pipeline.
+            DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
+
+            #endregion Initialize Output Merger
+
+            #region Initialize Raster State
+
+            // Setup the raster description which will determine how and what polygon will be drawn.
+            var rasterDesc = new RasterizerStateDescription
+            {
+                IsAntialiasedLineEnabled = Enable4xMSAA,
+                CullMode = CullMode.Back,
+                DepthBias = 0,
+                DepthBiasClamp = .0f,
+                IsDepthClipEnabled = true,
+                FillMode = FillMode.Solid,
+                IsFrontCounterClockwise = false,
+                IsMultisampleEnabled = Enable4xMSAA,
+                IsScissorEnabled = false,
+                SlopeScaledDepthBias = .0f
+            };
+
+            // Create the rasterizer state from the description we just filled out.
+            RasterState = new RasterizerState(Device, rasterDesc);
+
+            #endregion Initialize Raster State
+
+            #region Initialize Rasterizer
+
+            // Now set the rasterizer state.
+            DeviceContext.Rasterizer.State = RasterState;
+
+            // Setup and create the viewport for rendering.
+
+            DeviceContext.Rasterizer.SetViewport(0, 0, Config.Width, Config.Height);
+
+            #endregion Initialize Rasterizer
+
+            #region Initialize Depth Disabled Stencil
+
+            // Now create a second depth stencil state which turns off the Z buffer for 2D rendering.
+            // The difference is that DepthEnable is set to false.
+            // All other parameters are the same as the other depth stencil state.
+            var depthDisabledStencilDesc = new DepthStencilStateDescription
+            {
+                IsDepthEnabled = false,
+                DepthWriteMask = DepthWriteMask.All,
+                DepthComparison = Comparison.Less,
+                IsStencilEnabled = true,
+                StencilReadMask = 0xFF,
+                StencilWriteMask = 0xFF,
+                // Stencil operation if pixel front-facing.
+                FrontFace = new DepthStencilOperationDescription
+                {
+                    FailOperation = StencilOperation.Keep,
+                    DepthFailOperation = StencilOperation.Increment,
+                    PassOperation = StencilOperation.Keep,
+                    Comparison = Comparison.Always
+                },
+                // Stencil operation if pixel is back-facing.
+                BackFace = new DepthStencilOperationDescription
+                {
+                    FailOperation = StencilOperation.Keep,
+                    DepthFailOperation = StencilOperation.Decrement,
+                    PassOperation = StencilOperation.Keep,
+                    Comparison = Comparison.Always
+                }
+            };
+
+            // Create the depth stencil state.
+            DepthDisabledStencilState = new DepthStencilState(Device, depthDisabledStencilDesc);
+
+            #endregion Initialize Depth Disabled Stencil
+
+            #region Initialize Blend States
+
+            // Create an alpha enabled blend state description.
+            var blendStateDesc = new BlendStateDescription();
+            blendStateDesc.RenderTarget[0].IsBlendEnabled = true;
+            blendStateDesc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+            blendStateDesc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+            blendStateDesc.RenderTarget[0].BlendOperation = BlendOperation.Add;
+            blendStateDesc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+            blendStateDesc.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
+            blendStateDesc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+            blendStateDesc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+
+            // Create the blend state using the description.
+            AlphaEnableBlendingState = new BlendState(Device, blendStateDesc);
+
+            // Modify the description to create an disabled blend state description.
+            blendStateDesc.RenderTarget[0].IsBlendEnabled = false;
+            // Create the blend state using the description.
+            AlphaDisableBlendingState = new BlendState(Device, blendStateDesc);
+
+            #endregion Initialize Blend States
+        }
+
+        public override void BeginDraw()
+        {
+            DeviceContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1, 0);
+            DeviceContext.ClearRenderTargetView(RenderTargetView, BackColor);
+        }
+
+        public override void BeginDraw(Math.Color color)
+        {
+            DeviceContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1, 0);
+            DeviceContext.ClearRenderTargetView(RenderTargetView, ToDXColor(color));
+        }
+
+        public override void EndDraw()
+        {
+            SwapChain.Present(Config.VerticalSyncEnabled ? 1 : 0, PresentFlags.None);
+        }
+
+        private static Color4 ToDXColor(Math.Color d)
+        {
+            return new Color4(d.R,  d.G , d.B ,  d.A);
+        }
+
+        protected override void OnDispose()
+        {
+            if (SwapChain != null)
+            {
+                SwapChain.SetFullscreenState(false, null);
+            }
+
+            if (AlphaEnableBlendingState != null)
+            {
+                AlphaEnableBlendingState.Dispose();
+                AlphaEnableBlendingState = null;
+            }
+
+            if (AlphaDisableBlendingState != null)
+            {
+                AlphaDisableBlendingState.Dispose();
+                AlphaDisableBlendingState = null;
+            }
+
+            if (DepthDisabledStencilState != null)
+            {
+                DepthDisabledStencilState.Dispose();
+                DepthDisabledStencilState = null;
+            }
+
+            if (RasterState != null)
+            {
+                RasterState.Dispose();
+                RasterState = null;
+            }
+
+            if (DepthStencilView != null)
+            {
+                DepthStencilView.Dispose();
+                DepthStencilView = null;
+            }
+
+            if (DepthStencilState != null)
+            {
+                DepthStencilState.Dispose();
+                DepthStencilState = null;
+            }
+
+            if (DepthStencilBuffer != null)
+            {
+                DepthStencilBuffer.Dispose();
+                DepthStencilBuffer = null;
+            }
+
+            if (RenderTargetView != null)
+            {
+                RenderTargetView.Dispose();
+                RenderTargetView = null;
+            }
+
+            if (Device != null)
+            {
+                Device.Dispose();
+                Device = null;
+            }
+
+            if (SwapChain != null)
+            {
+                SwapChain.Dispose();
+                SwapChain = null;
+            }
+        }
+
+        public void SetBackBufferRenderTarget()
+        {
+            // Bind the render target view and depth stencil buffer to the output render pipeline.
+            DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
+        }
+
+        public override void TurnOffAlphaBlending()
+        {
+            // Setup the blend factor.
+            var blendFactor = new Color4(0, 0, 0, 0);
+
+            // Turn on the alpha blending.
+            DeviceContext.OutputMerger.SetBlendState(AlphaDisableBlendingState, blendFactor);
+        }
+
+        public override void TurnOnAlphaBlending()
+        {
+            // Setup the blend factor.
+            var blendFactor = new Color4(0, 0, 0, 0);
+
+            // Turn on the alpha blending.
+            DeviceContext.OutputMerger.SetBlendState(AlphaEnableBlendingState, blendFactor);
+        }
+
+        public override void TurnZBufferOff()
+        {
+            DeviceContext.OutputMerger.SetDepthStencilState(DepthDisabledStencilState, 1);
+        }
+
+        public override void TurnZBufferOn()
+        {
+            DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
+        }
+
+    }
+}

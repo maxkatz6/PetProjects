@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ormeli.App
+﻿namespace Ormeli.App
 {
     public static class Config
     {
+        public static int Height { get; set; }
+        public static int Width { get; set; }
+        public static bool VerticalSyncEnabled { get; set; }
+        public static bool FullScreen { get; set; }
     }
 }
