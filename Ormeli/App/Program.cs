@@ -23,10 +23,11 @@ namespace Ormeli.App
             var render = new DXRender();
             render.Initialize(Form.Handle);
             App.Initialize(render);
-            Form.Paint += (sender, args) =>{App.Render.BeginDraw(new Color(100,0,255,100));
-                                               App.Render.EndDraw();
+            Form.Paint += (sender, args) =>
+            {
+                App.Render.BeginDraw(new Color(100,0,255,100));
+                App.Render.EndDraw();
             };
-
         }
 
         protected override void OnDispose()

@@ -2,7 +2,7 @@
 using Ormeli.Core.Patterns;
 using Ormeli.Math;
 
-namespace Ormeli.Render
+namespace Ormeli
 {
     public abstract class RenderClass : Disposable
     {
@@ -14,5 +14,6 @@ namespace Ormeli.Render
         public abstract void TurnZBufferOn();
         public abstract void TurnOnAlphaBlending();
         public abstract void TurnOffAlphaBlending();
+        public abstract void Render(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount);
     }
 }

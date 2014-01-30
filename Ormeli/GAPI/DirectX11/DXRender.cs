@@ -1,5 +1,4 @@
 ﻿using Ormeli.App;
-using Ormeli.Render;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
@@ -10,7 +9,7 @@ using Resource = SharpDX.Direct3D11.Resource;
 
 namespace Ormeli.DirectX11
 {
-    public class DXRender : RenderClass
+    internal class DXRender : RenderClass
     {
         public Color BackColor;
 
@@ -426,6 +425,19 @@ namespace Ormeli.DirectX11
 
             // Turn on the alpha blending.
             DeviceContext.OutputMerger.SetBlendState(AlphaDisableBlendingState, blendFactor);
+        }
+
+        public override void Render(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
+        {
+            // TODO : DO SOMESING WITH IT
+            Render((DXBuffer)vertexBuffer, (DXBuffer)indexBuffer, vertexStride, indexCount);
+        }
+
+        public void Render(DXBuffer vertexBuffer, DXBuffer indexBuffer, int vertexStride, int indexCount)
+        {
+            DeviceContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertexBuffer.Buffer, vertexStride, 0));
+            DeviceContext.InputAssembler.SetIndexBuffer(indexBuffer.Buffer, Format.R32_UInt, 0);
+            DeviceContext.DrawIndexed(indexCount, 0, 0);
         }
 
         public override void TurnOnAlphaBlending()

@@ -1,6 +1,4 @@
-﻿using Ormeli.Render;
-
-namespace Ormeli.App
+﻿namespace Ormeli.App
 {
     public static class App
     {

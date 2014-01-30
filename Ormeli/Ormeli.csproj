@@ -98,6 +98,12 @@
     <Compile Include="App\Program.cs" />
     <Compile Include="Core\Patterns\Disposable.cs" />
     <Compile Include="Core\Patterns\Singleton.cs" />
+    <Compile Include="GAPI\Buffer.cs" />
+    <Compile Include="GAPI\DirectX11\DXBuffer.cs" />
+    <Compile Include="GAPI\Effect.cs" />
+    <Compile Include="GAPI\Shader.cs" />
+    <Compile Include="GAPI\Texture.cs" />
+    <Compile Include="Graphics\Mesh.cs" />
     <Compile Include="Math\Color.cs" />
     <Compile Include="Math\Matrix.cs" />
     <Compile Include="Math\Plane.cs" />
@@ -108,11 +114,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GAPI\DirectX11\DXRender.cs" />
     <Compile Include="GAPI\OpenGL3\OGRender.cs" />
-    <Compile Include="Render\RenderClass.cs" />
+    <Compile Include="GAPI\RenderClass.cs" />
     <Compile Include="Math\MathHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Graphics\" />
     <Folder Include="GUI\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
