@@ -15,5 +15,8 @@ namespace Ormeli
         public abstract void TurnOnAlphaBlending();
         public abstract void TurnOffAlphaBlending();
         public abstract void Render(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount);
+        public abstract Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic, CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct;
+        public abstract Buffer CreateBuffer<T>(T obj, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic, CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct;
+        public abstract Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic, CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct;
     }
 }

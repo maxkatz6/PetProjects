@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using OpenTK.Graphics;
 using Ormeli.App;
 using Ormeli.Math;
@@ -55,6 +56,51 @@ namespace Ormeli.OpenGL3
         public override void Render(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
         {
             throw new NotImplementedException();
+        }
+
+        public override Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic, CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
+        {
+            uint pointer;
+            GL.GenBuffers(1, out pointer);
+            return new Buffer((IntPtr)pointer,bufferTarget,bufferUsage,cpuAccessFlags);
+        }
+
+        public override Buffer CreateBuffer<T>(T obj, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
+            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
+        {
+            //TODO DESTROY THIS SHIT
+            //how i did it?
+            var bf = (BufferTarget)(bufferTarget == BindFlag.ConstantBuffer ? 0x8a11 : 34961+(int)bufferTarget);
+            var bu =
+                (BufferUsageHint)
+                    (35040 + ((int)bufferUsage == 3 ? 0 : (int)bufferUsage * 3) + cpuAccessFlags == CpuAccessFlags.None
+                        ? 3 : ((int)cpuAccessFlags - 1));
+            uint pointer;
+            GL.GenBuffers(1, out pointer);
+            GL.BindBuffer(bf, pointer);
+            GL.BufferData(bf,
+               new IntPtr(Marshal.SizeOf(typeof(T))),
+               new []{obj}, bu);
+
+            return new Buffer((IntPtr)pointer, bufferTarget, bufferUsage, cpuAccessFlags);
+        }
+
+        public override Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
+            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
+        {
+            var bf = (BufferTarget)(bufferTarget == BindFlag.ConstantBuffer ? 0x8a11 : 34961 + (int)bufferTarget);
+            var bu =
+                (BufferUsageHint)
+                    (35040 + ((int) bufferUsage == 3 ? 0 : (int) bufferUsage*3) + cpuAccessFlags == CpuAccessFlags.None
+                        ? 3
+                        : ((int) cpuAccessFlags - 1));
+            uint pointer;
+            GL.GenBuffers(1, out pointer);
+            GL.BindBuffer(bf, pointer);
+            GL.BufferData(bf,
+                new IntPtr(objs.Length * Marshal.SizeOf(typeof(T))),
+                objs, bu);
+            return new Buffer((IntPtr)pointer, bufferTarget, bufferUsage, cpuAccessFlags);
         }
 
         private static Color4 ToGLColor(Color d)

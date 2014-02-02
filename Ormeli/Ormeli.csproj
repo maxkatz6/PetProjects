@@ -99,11 +99,10 @@
     <Compile Include="Core\Patterns\Disposable.cs" />
     <Compile Include="Core\Patterns\Singleton.cs" />
     <Compile Include="GAPI\Buffer.cs" />
-    <Compile Include="GAPI\DirectX11\DXBuffer.cs" />
     <Compile Include="GAPI\Effect.cs" />
-    <Compile Include="GAPI\Shader.cs" />
     <Compile Include="GAPI\Texture.cs" />
     <Compile Include="Graphics\Mesh.cs" />
+    <Compile Include="Graphics\Vertex.cs" />
     <Compile Include="Math\Color.cs" />
     <Compile Include="Math\Matrix.cs" />
     <Compile Include="Math\Plane.cs" />

@@ -1,4 +1,5 @@
-﻿using Ormeli.App;
+﻿using System.Runtime.InteropServices;
+using Ormeli.App;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
@@ -160,7 +161,7 @@ namespace Ormeli.DirectX11
                     (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
                 Usage = ResourceUsage.Default,
                 BindFlags = BindFlags.DepthStencil,
-                CpuAccessFlags = CpuAccessFlags.None,
+                CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags.None,
                 OptionFlags = ResourceOptionFlags.None
             };
 
@@ -429,15 +430,51 @@ namespace Ormeli.DirectX11
 
         public override void Render(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
         {
-            // TODO : DO SOMESING WITH IT
-            Render((DXBuffer)vertexBuffer, (DXBuffer)indexBuffer, vertexStride, indexCount);
+            DeviceContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer.Handle), vertexStride, 0));
+            DeviceContext.InputAssembler.SetIndexBuffer(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
+            DeviceContext.DrawIndexed(indexCount, 0, 0);
         }
 
-        public void Render(DXBuffer vertexBuffer, DXBuffer indexBuffer, int vertexStride, int indexCount)
+        public override Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic, CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
         {
-            DeviceContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertexBuffer.Buffer, vertexStride, 0));
-            DeviceContext.InputAssembler.SetIndexBuffer(indexBuffer.Buffer, Format.R32_UInt, 0);
-            DeviceContext.DrawIndexed(indexCount, 0, 0);
+            var vbd = new BufferDescription(
+                Marshal.SizeOf(typeof(T)),
+                (ResourceUsage)bufferUsage,
+                (BindFlags)bufferTarget,
+                (SharpDX.Direct3D11.CpuAccessFlags)cpuAccessFlags,
+                ResourceOptionFlags.None,
+                0
+                );
+            return new Buffer(new SharpDX.Direct3D11.Buffer(Device, vbd).NativePointer, bufferTarget, bufferUsage, cpuAccessFlags);
+        }
+
+        public override Buffer CreateBuffer<T>(T obj, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
+            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
+        {
+            var vbd = new BufferDescription(
+                Marshal.SizeOf(typeof(T)),
+                (ResourceUsage)bufferUsage,
+                (BindFlags)bufferTarget,
+                (SharpDX.Direct3D11.CpuAccessFlags)cpuAccessFlags,
+                ResourceOptionFlags.None,
+                0
+                );
+            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device,ref obj, vbd).NativePointer, bufferTarget, bufferUsage, cpuAccessFlags);
+
+        }
+
+        public override Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
+            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
+        {
+            var vbd = new BufferDescription(
+                objs.Length * Marshal.SizeOf(typeof(T)),
+                (ResourceUsage)bufferUsage,
+                (BindFlags)bufferTarget,
+                (SharpDX.Direct3D11.CpuAccessFlags)cpuAccessFlags,
+                ResourceOptionFlags.None,
+                0
+                );
+            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, objs, vbd).NativePointer,bufferTarget,bufferUsage,cpuAccessFlags);
         }
 
         public override void TurnOnAlphaBlending()

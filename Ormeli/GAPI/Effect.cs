@@ -10,44 +10,31 @@ namespace Ormeli
 {
     public abstract class Effect
     {
-/*#if DEBUG
-        protected SharpDX.Direct3D11.Effect FxEffect;
-        protected InputLayout FxInputLayout;
-        protected ShaderFlags FxShaderFlags = ShaderFlags.Debug;
-#else
-        protected ShaderFlags FxShaderFlags = ShaderFlags.None;
-        protected Effect FxEffect;
-        protected InputLayout FxInputLayout;
-#endif
-        protected EffectTechnique FxTech;*/
-
-     /*   protected int PassCount
+        public struct InputElement
         {
-            get { return FxTech.Description.PassCount; }
-        }*/
-
-        public abstract object this[string s]
-        {
-            get;
-            set;
+            public string Name;
+            public int Index;
+            public int Offset;
+            public Type Type;
         }
 
-   /*     public void ChangeInputLayout(InputElement[] inputElements)
+        public virtual object this[string s]
         {
-            var passDesc = FxTech.GetPassByIndex(0).Description;
-            FxInputLayout = new InputLayout(DirectX11.Device, passDesc.Signature, inputElements);
+            get { return GetValue(s); }
+            set { SetVariable(s, value); }
         }
 
-        public virtual void ChangeTechnique(string name)
-        {
-            FxTech = FxEffect.GetTechniqueByName(name);
-        }
+        protected int PassCount;
 
-        public virtual void ChangeTechnique(int index);
-        */
-        protected abstract void InitializeFromFile(string file);
+        public abstract void ChangeInputLayout(InputElement[] inputElements);
 
-        protected abstract void InitializeFromMemory(string source);
+        public abstract void ChangeTechnique(string name);
+
+        public abstract void ChangeTechnique(int index);
+
+        public abstract void InitializeFromFile(string file);
+
+        public abstract void InitializeFromMemory(string source);
 
         public abstract void Render();
 
@@ -62,6 +49,8 @@ namespace Ormeli
         public abstract void SetTextureArray(string name, Texture[] textures);
 
         public abstract void SetVariable<T>(string name, T obj);
+
+        public abstract object GetValue(string name);
 
         protected abstract void InitializeEffect();
     }

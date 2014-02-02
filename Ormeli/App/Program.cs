@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using Ormeli.Core.Patterns;
 using Ormeli.DirectX11;
 using Color = Ormeli.Math.Color;
