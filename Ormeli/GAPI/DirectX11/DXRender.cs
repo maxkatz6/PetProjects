@@ -1,10 +1,11 @@
-﻿using System.Runtime.InteropServices;
-using Ormeli.App;
+﻿using Ormeli.App;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
+using System.Runtime.InteropServices;
+using Color = Ormeli.Math.Color;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
 
@@ -12,7 +13,7 @@ namespace Ormeli.DirectX11
 {
     internal class DXRender : RenderClass
     {
-        public Color BackColor;
+        public Color4 BackColor;
 
         public Device Device;
 
@@ -20,7 +21,6 @@ namespace Ormeli.DirectX11
 
         public SwapChain SwapChain;
 
-        public string VideoCardDescription { get; set; }
 
         public DepthStencilState DepthStencilState { get; set; }
 
@@ -42,68 +42,40 @@ namespace Ormeli.DirectX11
 
         public DepthStencilState DepthDisabledStencilState { get; set; }
 
-        public int VideoCardMemory { get; set; }
-
         public override void Initialize(IntPtr windowHandle)
         {
-            #region Environment Config
-
-            // Create a DirectX graphics interface factory.
+            #region Создаем фабрику, адаптер и получаем данные о видеокарте
+            // Создаем фабрику, адаптер и получаем данные о видеокарте
             var factory = new Factory1();
-            // Use the factory to create an adapter for the primary graphics interface (video card).
-            Adapter1 adapter = factory.GetAdapter1(0);
-            // Get the primary adapter output (monitor).
-            Output monitor = adapter.Outputs[0];
-            // Get modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
-            ModeDescription[] modes = monitor.GetDisplayModeList(Format.R8G8B8A8_UNorm,
-                DisplayModeEnumerationFlags.Interlaced);
-            // Now go through all the display modes and find the one that matches the screen width and height.
-            // When a match is found store the the refresh rate for that monitor, if vertical sync is enabled.
-            // Otherwise we use maximum refresh rate.
+            var adapter = factory.GetAdapter1(0);
+
             if (Config.VerticalSyncEnabled)
             {
-                foreach (var mode in modes)
+                var modes = adapter.Outputs[0].GetDisplayModeList(Format.R8G8B8A8_UNorm,
+                    DisplayModeEnumerationFlags.Interlaced);
+                for (int i = 0; i < modes.Length; i++)
                 {
-                    if (mode.Width == Config.Width && mode.Height == Config.Height)
+                    if (modes[i].Width == Config.Width && modes[i].Height == Config.Height)
                     {
-                        Rational = new Rational(mode.RefreshRate.Numerator, mode.RefreshRate.Denominator);
+                        Rational = new Rational(modes[i].RefreshRate.Numerator, modes[i].RefreshRate.Denominator);
                         break;
                     }
                 }
             }
 
-            // Get the daapter (video card) description.
-            AdapterDescription adapterDescription = adapter.Description;
+            HardwareDescription.VideoCardMemory = adapter.Description.DedicatedVideoMemory >> 10 >> 10;
+            HardwareDescription.VideoCardDescription = adapter.Description.Description;
 
-            // Store the dedicated video card memory in megabytes.
-            VideoCardMemory = adapterDescription.DedicatedVideoMemory >> 10 >> 10;
+            #endregion 
+            #region Создаем SwapChain, Device, и DeviceContext
 
-            // Convert the name of the video card to a character array and store it.
-            VideoCardDescription = adapterDescription.Description;
-
-            //factory.MakeWindowAssociation(windowHandle,WindowAssociationFlags.None);
-
-            monitor.Dispose();
-
-            #endregion Environment Config
-
-            #region Initialize swap chain and d3d device
-
-            // Create the swap chain, Direct3D device, and Direct3D device context.
-
-#if DEBUG
-                Device = new Device(adapter, DeviceCreationFlags.Debug, FeatureLevel.Level_11_0, FeatureLevel.Level_10_1,
-                    FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
-#else
-            Device = new Device(adapter, DeviceCreationFlags.None, FeatureLevel.Level_11_0, FeatureLevel.Level_10_1,
+            Device = new Device(adapter, Config.IsDebug ? DeviceCreationFlags.Debug : DeviceCreationFlags.None , FeatureLevel.Level_11_0, FeatureLevel.Level_10_1,
                 FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
-#endif
-            adapter.Dispose();
+
             DeviceContext = Device.ImmediateContext;
 
             int m4XMsaaQuality = Device.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, 4);
 
-            // Initialize the swap chain description.
             var swapChainDesc = new SwapChainDescription
             {
                 // Set to a single back buffer.
@@ -135,10 +107,11 @@ namespace Ormeli.DirectX11
 
             SwapChain = new SwapChain(factory, Device, swapChainDesc);
 
-            // Release the factory.
+            // Удаляем фабрику и адаптер из памяти.
             factory.Dispose();
+            adapter.Dispose();
 
-            #endregion Initialize swap chain and d3d device
+            #endregion
 
             #region Initialize buffers
 
@@ -329,10 +302,9 @@ namespace Ormeli.DirectX11
             DeviceContext.ClearRenderTargetView(RenderTargetView, BackColor);
         }
 
-        public override void BeginDraw(Math.Color color)
+        public override void ChangeBackColor(Color color)
         {
-            DeviceContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1, 0);
-            DeviceContext.ClearRenderTargetView(RenderTargetView, ToDXColor(color));
+            BackColor = ToDXColor(color);
         }
 
         public override void EndDraw()
@@ -340,9 +312,9 @@ namespace Ormeli.DirectX11
             SwapChain.Present(Config.VerticalSyncEnabled ? 1 : 0, PresentFlags.None);
         }
 
-        private static Color4 ToDXColor(Math.Color d)
+        private static Color4 ToDXColor(Color d)
         {
-            return new Color4(d.R,  d.G , d.B ,  d.A);
+            return new Color4(d.R, d.G, d.B, d.A);
         }
 
         protected override void OnDispose()
@@ -428,53 +400,60 @@ namespace Ormeli.DirectX11
             DeviceContext.OutputMerger.SetBlendState(AlphaDisableBlendingState, blendFactor);
         }
 
-        public override void Render(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
+        public override void DrawBuffer(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
         {
-            DeviceContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer.Handle), vertexStride, 0));
-            DeviceContext.InputAssembler.SetIndexBuffer(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
+            DeviceContext.InputAssembler.SetVertexBuffers(0,
+                new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer.Handle),
+                    vertexStride, 0));
+            DeviceContext.InputAssembler.SetIndexBuffer(
+                CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
             DeviceContext.DrawIndexed(indexCount, 0, 0);
         }
 
-        public override Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic, CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
-        {
-            var vbd = new BufferDescription(
-                Marshal.SizeOf(typeof(T)),
-                (ResourceUsage)bufferUsage,
-                (BindFlags)bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags)cpuAccessFlags,
-                ResourceOptionFlags.None,
-                0
-                );
-            return new Buffer(new SharpDX.Direct3D11.Buffer(Device, vbd).NativePointer, bufferTarget, bufferUsage, cpuAccessFlags);
-        }
-
-        public override Buffer CreateBuffer<T>(T obj, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
+        public override Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
             CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
         {
             var vbd = new BufferDescription(
                 Marshal.SizeOf(typeof(T)),
                 (ResourceUsage)bufferUsage,
                 (BindFlags)bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags)cpuAccessFlags,
+                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
                 ResourceOptionFlags.None,
                 0
                 );
-            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device,ref obj, vbd).NativePointer, bufferTarget, bufferUsage, cpuAccessFlags);
-
+            return new Buffer(new SharpDX.Direct3D11.Buffer(Device, vbd).NativePointer, bufferTarget, bufferUsage,
+                cpuAccessFlags);
         }
 
-        public override Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
+        public override Buffer CreateBuffer<T>(T obj, BindFlag bufferTarget,
+            BufferUsage bufferUsage = BufferUsage.Dynamic,
+            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
+        {
+            var vbd = new BufferDescription(
+                Marshal.SizeOf(typeof(T)),
+                (ResourceUsage)bufferUsage,
+                (BindFlags)bufferTarget,
+                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+                ResourceOptionFlags.None,
+                0
+                );
+            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, ref obj, vbd).NativePointer, bufferTarget,
+                bufferUsage, cpuAccessFlags);
+        }
+
+        public override Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget,
+            BufferUsage bufferUsage = BufferUsage.Dynamic,
             CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
         {
             var vbd = new BufferDescription(
                 objs.Length * Marshal.SizeOf(typeof(T)),
                 (ResourceUsage)bufferUsage,
                 (BindFlags)bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags)cpuAccessFlags,
-                ResourceOptionFlags.None,
-                0
+                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+                ResourceOptionFlags.None, 0
                 );
-            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, objs, vbd).NativePointer,bufferTarget,bufferUsage,cpuAccessFlags);
+            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, objs, vbd).NativePointer, bufferTarget,
+                bufferUsage, cpuAccessFlags);
         }
 
         public override void TurnOnAlphaBlending()
@@ -495,6 +474,5 @@ namespace Ormeli.DirectX11
         {
             DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
         }
-
     }
 }

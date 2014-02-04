@@ -22,10 +22,9 @@ namespace Ormeli.OpenGL3
         //    SwapBuffers();
         }
 
-        public override void BeginDraw(Color color)
+        public override void ChangeBackColor(Color color)
         {
             GL.ClearColor(color.R, color.G, color.B, color.A);
-            BeginDraw();
         }
 
         public override void EndDraw()
@@ -53,7 +52,7 @@ namespace Ormeli.OpenGL3
             throw new NotImplementedException();
         }
 
-        public override void Render(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
+        public override void DrawBuffer(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
         {
             throw new NotImplementedException();
         }
@@ -68,7 +67,7 @@ namespace Ormeli.OpenGL3
         public override Buffer CreateBuffer<T>(T obj, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
             CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)
         {
-            //TODO DESTROY THIS SHIT
+            //TODO DESTROY with fire THIS SHIT
             //how i did it?
             var bf = (BufferTarget)(bufferTarget == BindFlag.ConstantBuffer ? 0x8a11 : 34961+(int)bufferTarget);
             var bu =

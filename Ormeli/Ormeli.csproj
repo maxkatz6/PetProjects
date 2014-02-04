@@ -95,6 +95,7 @@
   <ItemGroup>
     <Compile Include="App\App.cs" />
     <Compile Include="App\Config.cs" />
+    <Compile Include="App\HardwareDescription.cs" />
     <Compile Include="App\Program.cs" />
     <Compile Include="Core\Patterns\Disposable.cs" />
     <Compile Include="Core\Patterns\Singleton.cs" />

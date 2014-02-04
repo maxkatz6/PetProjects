@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 
 namespace Ormeli.Math
 {
-    [Serializable]
     [StructLayout(LayoutKind.Explicit, Pack = 0, Size = 64)]
     public struct Matrix
     {

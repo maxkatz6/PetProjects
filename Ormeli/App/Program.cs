@@ -1,8 +1,9 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using Ormeli.Core.Patterns;
 using Ormeli.DirectX11;
-using Color = Ormeli.Math.Color;
+using Ormeli.Graphics;
+using Ormeli.Math;
+using SharpDX.Direct3D11;
 
 namespace Ormeli.App
 {
@@ -21,12 +22,12 @@ namespace Ormeli.App
             Config.Height = 1080;
             Config.Width = 1920;
             Form = new Form();
-            var render = new DXRender();
-            render.Initialize(Form.Handle);
-            App.Initialize(render);
+            App.Initialize(new DXRender(), Form.Handle);
+
+            App.Render.ChangeBackColor(new Color(100, 0, 255, 100));
             Form.Paint += (sender, args) =>
             {
-                App.Render.BeginDraw(new Color(100,0,255,100));
+                App.Render.BeginDraw();
                 App.Render.EndDraw();
             };
         }
