@@ -1,4 +1,4 @@
-﻿namespace Ormeli.App
+﻿namespace Ormeli
 {
     public static class Config
     {

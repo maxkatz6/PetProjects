@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ormeli.App
+namespace Ormeli
 {
     public static class App
     {

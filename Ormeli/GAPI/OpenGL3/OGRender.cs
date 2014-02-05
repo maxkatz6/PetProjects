@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics;
-using Ormeli.App;
 using Ormeli.Math;
 
 namespace Ormeli.OpenGL3
