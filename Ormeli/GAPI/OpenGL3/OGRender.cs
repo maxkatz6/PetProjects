@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using OpenTK;
 using OpenTK.Graphics;
 using Ormeli.Math;
 
@@ -7,9 +8,43 @@ namespace Ormeli.OpenGL3
 {
     public class OGRender : RenderClass
     {
-        public override void Initialize(IntPtr handle)
+        private GameWindow _gameWindow;
+        private int shaderProgramHandle;
+
+        public override void CreateWindow()
+        {
+            _gameWindow = new GameWindow(Config.Width, Config.Height)
+            {
+                VSync = Config.VerticalSyncEnabled ? VSyncMode.On : VSyncMode.Off
+            };
+        }
+
+        public override RenderType Initialize()
+        {
+            shaderProgramHandle = GL.CreateProgram();
+            //
+            GL.LinkProgram(shaderProgramHandle);
+            
+            Console.WriteLine(GL.GetProgramInfoLog(shaderProgramHandle));
+
+            GL.UseProgram(shaderProgramHandle);
+
+            // Other state
+            GL.Enable(EnableCap.DepthTest);
+            GL.ClearColor(System.Drawing.Color.MidnightBlue);
+
+            return RenderType.OpneGl3;
+        }
+
+        public override void InitCG()
         {
             throw new NotImplementedException();
+        }
+
+        public override void Run(Action act)
+        {
+            _gameWindow.RenderFrame += (sender, args) => act();
+            _gameWindow.Run();
         }
 
         public override void BeginDraw()
@@ -17,8 +52,6 @@ namespace Ormeli.OpenGL3
             GL.Viewport(0, 0, Config.Width, Config.Height);
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-        //    SwapBuffers();
         }
 
         public override void ChangeBackColor(Color color)
@@ -28,7 +61,7 @@ namespace Ormeli.OpenGL3
 
         public override void EndDraw()
         {
-            throw new NotImplementedException();
+            _gameWindow.SwapBuffers();
         }
 
         public override void TurnZBufferOff()
@@ -53,7 +86,9 @@ namespace Ormeli.OpenGL3
 
         public override void DrawBuffer(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
         {
-            throw new NotImplementedException();
+            GL.BindVertexArray(vertexBuffer.Handle.ToInt32());
+            GL.DrawElements(BeginMode.Triangles, indexCount,
+                DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
 
         public override Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic, CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write)

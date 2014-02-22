@@ -1,9 +1,11 @@
-﻿using SharpDX;
+﻿using Ormeli.CG;
+using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
 using System.Runtime.InteropServices;
+using SharpDX.Windows;
 using Color = Ormeli.Math.Color;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
@@ -41,7 +43,18 @@ namespace Ormeli.DirectX11
 
         public DepthStencilState DepthDisabledStencilState { get; set; }
 
-        public override void Initialize(IntPtr windowHandle)
+        private RenderForm renderForm;
+
+        public override void CreateWindow()
+        {
+            renderForm = new RenderForm
+            {
+                Height = Config.Height,
+                Width = Config.Width
+            };
+        }
+
+        public override RenderType Initialize()
         {
             #region Создаем фабрику, адаптер и получаем данные о видеокарте
             // Создаем фабрику, адаптер и получаем данные о видеокарте
@@ -92,7 +105,7 @@ namespace Ormeli.DirectX11
                 // Set the usage of the back buffer.
                 Usage = Usage.RenderTargetOutput,
                 // Set the handle for the window to render to.
-                OutputHandle = windowHandle,
+                OutputHandle = renderForm.Handle,
                 // Turn multisampling off.
                 SampleDescription =
                     (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
@@ -293,6 +306,29 @@ namespace Ormeli.DirectX11
             AlphaDisableBlendingState = new BlendState(Device, blendStateDesc);
 
             #endregion Initialize Blend States
+
+            return RenderType.DirectX11;
+        }
+
+        public override void InitCG()
+        {
+            var v = CgImports.cgCreateContext();
+            CgImports.cgD3D11SetDevice(v, Device.NativePointer);
+            CgErrorProvider.CheckForCgError(v, "setting Direct3D device");
+            var myCgVertexProfile = CgImports.cgD3D11GetLatestVertexProfile();
+            CgErrorProvider.CheckForCgError(v, "getting latest profile");
+            var profileOpts = CgImports.cgD3D11GetOptimalOptions(myCgVertexProfile);
+            CgErrorProvider.CheckForCgError(v, "getting latest profile options");
+            var myCgVertexProgram = CgImports.cgCreateProgramFromFile(v, CGenum.SOURCE, "Ormeli (3).exe", myCgVertexProfile,
+               "j", profileOpts);
+            CgErrorProvider.CheckForCgError(v, "creating vertex program from file");
+            CgImports.cgD3D11LoadProgram(myCgVertexProgram, 0);
+            CgErrorProvider.CheckForCgError(v, "loading vertex program");
+        }
+
+        public override void Run(Action act)
+        {
+            RenderLoop.Run(renderForm,()=> act());
         }
 
         public override void BeginDraw()
@@ -317,7 +353,9 @@ namespace Ormeli.DirectX11
         }
 
         protected override void OnDispose()
+        
         {
+            renderForm.Close();
             if (SwapChain != null)
             {
                 SwapChain.SetFullscreenState(false, null);
@@ -472,6 +510,13 @@ namespace Ormeli.DirectX11
         public override void TurnZBufferOn()
         {
             DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
+        }
+
+        private static void Save_Release(ref DisposeBase db)
+        {
+            if (db == null) return;
+            db.Dispose();
+            db = null;
         }
     }
 }

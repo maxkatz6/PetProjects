@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -97,11 +98,15 @@
     <Compile Include="App\App.cs" />
     <Compile Include="App\Config.cs" />
     <Compile Include="App\HardwareDescription.cs" />
+    <Compile Include="App\LibManager.cs" />
     <Compile Include="App\Program.cs" />
     <Compile Include="Core\Patterns\Disposable.cs" />
     <Compile Include="Core\Patterns\Singleton.cs" />
     <Compile Include="GAPI\Buffer.cs" />
-    <Compile Include="GAPI\Effect.cs" />
+    <Compile Include="GAPI\CG\CgEnums.cs" />
+    <Compile Include="GAPI\CG\CgErrorProvider.cs" />
+    <Compile Include="GAPI\CG\CgShader.cs" />
+    <Compile Include="GAPI\CG\СgImports.cs" />
     <Compile Include="GAPI\Texture.cs" />
     <Compile Include="Graphics\Mesh.cs" />
     <Compile Include="Graphics\Vertex.cs" />
@@ -117,9 +122,44 @@
     <Compile Include="GAPI\OpenGL3\OGRender.cs" />
     <Compile Include="GAPI\RenderClass.cs" />
     <Compile Include="Math\MathHelper.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GUI\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glut32_32.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cgGL_64.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cgGL_32.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cgD3D11_64.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cgD3D11_32.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cg_64.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cg_32.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glut32_64.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
