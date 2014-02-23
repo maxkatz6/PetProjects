@@ -2,7 +2,6 @@
 using Ormeli.DirectX11;
 using Ormeli.Graphics;
 using Ormeli.Math;
-using Ormeli.OpenGL3;
 
 namespace Ormeli
 {

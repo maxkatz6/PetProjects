@@ -1,4 +1,5 @@
-﻿using Ormeli.CG;
+﻿using System.ComponentModel;
+using Ormeli.CG;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
@@ -312,20 +313,43 @@ namespace Ormeli.DirectX11
 
         public override void InitCG()
         {
-            var v = CgImports.cgCreateContext();
-            CgImports.cgD3D11SetDevice(v, Device.NativePointer);
-            CgErrorProvider.CheckForCgError(v, "setting Direct3D device");
-            var myCgVertexProfile = CgImports.cgD3D11GetLatestVertexProfile();
-            CgErrorProvider.CheckForCgError(v, "getting latest profile");
-            var profileOpts = CgImports.cgD3D11GetOptimalOptions(myCgVertexProfile);
-            CgErrorProvider.CheckForCgError(v, "getting latest profile options");
-            var myCgVertexProgram = CgImports.cgCreateProgramFromFile(v, CGenum.SOURCE, "Ormeli (3).exe", myCgVertexProfile,
-               "j", profileOpts);
-            CgErrorProvider.CheckForCgError(v, "creating vertex program from file");
-            CgImports.cgD3D11LoadProgram(myCgVertexProgram, 0);
-            CgErrorProvider.CheckForCgError(v, "loading vertex program");
+                var v = CgImports.cgCreateContext();
+                CgImports.cgD3D11SetDevice(v, Device.NativePointer);
+                CgErrorProvider.CheckForCgError(v, "setting Direct3D device");
+                var myCgVertexProfile = CgImports.cgD3D11GetLatestVertexProfile();
+                CgErrorProvider.CheckForCgError(v, "getting latest profile");
+                var profileOpts = CgImports.cgD3D11GetOptimalOptions(myCgVertexProfile);
+                CgErrorProvider.CheckForCgError(v, "getting latest profile options");
+                var myCgVertexProgram = CgImports.cgCreateProgramFromFile(v, CGenum.SOURCE, "Ormeli (3).exe",
+                    myCgVertexProfile,
+                    "j", profileOpts);
+                CgErrorProvider.CheckForCgError(v, "creating vertex program from file");
+                CgImports.cgD3D11LoadProgram(myCgVertexProgram, 0);
+                CgErrorProvider.CheckForCgError(v, "loading vertex program");
+                var layout = new[]
+                {
+                    new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0, InputClassification.PerVertexData, 0)
+                };
+                var d = CgImports.cgD3D11GetCompiledProgram(myCgVertexProgram);
+                var pVsBlob = new Blob(d);
+                var byteArr = new byte[pVsBlob.BufferSize];
+                Marshal.Copy(pVsBlob.BufferPointer, byteArr, 0, byteArr.Length);
+                inputLayout = new InputLayout(Device, byteArr, layout);
+
+                var myCgFragmentProfile = CgImports.cgD3D11GetLatestPixelProfile();
+
+                profileOpts = CgImports.cgD3D11GetOptimalOptions(myCgFragmentProfile);
+                CgErrorProvider.CheckForCgError(v, "getting latest profile options");
+
+                var myCgFragmentProgram = CgImports.cgCreateProgramFromFile(v, CGenum.SOURCE, "", myCgFragmentProfile,
+                    "",
+                    profileOpts);
+                CgImports.cgD3D11LoadProgram(myCgFragmentProgram, 0);
+                CgErrorProvider.CheckForCgError(v, "loading fragment program");
+            
         }
 
+        private InputLayout inputLayout;
         public override void Run(Action act)
         {
             RenderLoop.Run(renderForm,()=> act());

@@ -16,6 +16,7 @@ namespace Ormeli
 
         public static void Initialize(RenderClass render)
         {
+            Config.Initialize();
             Render = render;
             Render.CreateWindow();
             RenderType = Render.Initialize();
@@ -34,6 +35,7 @@ namespace Ormeli
                 Render.Dispose();
                 Render = null;
             }
+            Environment.Exit(1);
         }
     }
 }

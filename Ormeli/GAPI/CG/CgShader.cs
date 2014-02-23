@@ -1,4 +1,6 @@
-﻿namespace Ormeli.CG
+﻿using Ormeli.Core;
+
+namespace Ormeli.CG
 {
     public class CgShader
     {

@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using Ormeli.Properties;
 
-namespace Ormeli
+namespace Ormeli.Core
 {
     public static class LibManager
     {
@@ -33,10 +28,7 @@ namespace Ormeli
 
         private static void Save(string res, string file)
         {
-            var dllByte = (byte[])Resources.ResourceManager.GetObject(res);
-
-            using (var stream = new FileStream(DllPath + @"\" + file + ".dll", FileMode.Create))
-                stream.Write(dllByte, 0, dllByte.Length);
+            FileManager.WriteByteArray(file, (byte[])Resources.ResourceManager.GetObject(res));
         }
     }
 }

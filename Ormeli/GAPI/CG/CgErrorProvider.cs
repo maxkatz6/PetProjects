@@ -1,4 +1,5 @@
 ﻿using System;
+using Ormeli.Core;
 
 namespace Ormeli.CG
 {
@@ -10,15 +11,14 @@ namespace Ormeli.CG
 
             if (s.String == null) return;
 
-                Console.WriteLine(
-                    "Program: {0}\n" +
-                    "Situation: {1}\n" +
-                    "Error: {2}\n\n" +
-                    "Cg compiler output...\n{3}",
-                    "Ormeli", situation, s,
-                    CgImports.cgGetLastListing(myCgContext));
+            Console.WriteLine(
+                @"Ormeli: CG error!
+Situation: {0}\n
+Error: {1}\n\n
+Cg compiler output...\n{2}
+", situation, s, CgImports.cgGetLastListing(myCgContext));
 
-            if (exit) App.Exit();
+            ErrorProvider.SendError(s.String, exit);
         }
     }
 }
