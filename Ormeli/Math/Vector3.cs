@@ -5,17 +5,14 @@ using Mono.Simd;
 namespace Ormeli.Math
 {
     [Serializable]
-    [StructLayout(LayoutKind.Explicit, Pack = 0, Size = 12)]
+    [StructLayout(LayoutKind.Sequential, Pack = 0, Size = 12)]
     public struct Vector3 : IEquatable<Vector3>
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(Vector3));
 
-        [FieldOffset(0)]
-        internal Vector4f v4;
 
-        public Vector3(float value)
+        public Vector3(float value):this(value,value,value)
         {
-            v4 = new Vector4f(value);
         }
 
         public Vector3(Vector2 value, float z)
@@ -25,30 +22,32 @@ namespace Ormeli.Math
 
         public Vector3(float x, float y, float z)
         {
-            v4 = new Vector4f(x, y, z, 0f);
+            X = x;
+            Y = y;
+            Z = z;
         }
 
-        internal Vector3(Vector4f v4)
+        public Vector3(Vector4f value)
         {
-            this.v4 = v4;
+            X = value.X;
+            Y = value.Y;
+            Z = value.Z;
         }
+        public float X;
 
-        public float X
-        {
-            get { return v4.X; }
-            set { v4.X = value; }
-        }
+        public float Y;
 
-        public float Y
-        {
-            get { return v4.Y; }
-            set { v4.Y = value; }
-        }
+        public float Z;
 
-        public float Z
+        public Vector4f v4
         {
-            get { return v4.Z; }
-            set { v4.Z = value; }
+            get { return new Vector4f(X, Y, Z, 0); }
+            set
+            {
+                X = value.X;
+                Y = value.Y;
+                Z = value.Z;
+            }
         }
 
         #region Static properties
@@ -119,7 +118,7 @@ namespace Ormeli.Math
 
         public static void Add(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
         {
-            result.v4 = value1.v4 + value2.v4;
+            result = new Vector3 (value1.v4 + value2.v4);
         }
 
         public static Vector3 Divide(Vector3 value1, float value2)
@@ -129,7 +128,7 @@ namespace Ormeli.Math
 
         public static void Divide(ref Vector3 value1, float value2, out Vector3 result)
         {
-            result.v4 = value1.v4/new Vector4f(value2);
+            result=new Vector3(value1.v4/new Vector4f(value2));
         }
 
         public static Vector3 Divide(Vector3 value1, Vector3 value2)
@@ -139,7 +138,7 @@ namespace Ormeli.Math
 
         public static void Divide(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
         {
-            result.v4 = value1.v4/value2.v4;
+            result = new Vector3(value1.v4/value2.v4);
         }
 
         public static Vector3 Multiply(Vector3 value1, float scaleFactor)
@@ -149,7 +148,7 @@ namespace Ormeli.Math
 
         public static void Multiply(ref Vector3 value1, float scaleFactor, out Vector3 result)
         {
-            result.v4 = value1.v4*new Vector4f(scaleFactor);
+            result = new Vector3(value1.v4*new Vector4f(scaleFactor));
         }
 
         public static Vector3 Multiply(Vector3 value1, Vector3 value2)
@@ -159,7 +158,7 @@ namespace Ormeli.Math
 
         public static void Multiply(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
         {
-            result.v4 = value1.v4*value2.v4;
+            result = new Vector3(value1.v4 * value2.v4);
         }
 
         public static Vector3 Negate(Vector3 value)
@@ -169,7 +168,7 @@ namespace Ormeli.Math
 
         public static void Negate(ref Vector3 value, out Vector3 result)
         {
-            result.v4 = value.v4 ^ new Vector4f(-0.0f);
+            result = new Vector3(value.v4 ^ new Vector4f(-0.0f));
         }
 
         public static Vector3 Subtract(Vector3 value1, Vector3 value2)
@@ -179,7 +178,7 @@ namespace Ormeli.Math
 
         public static void Subtract(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
         {
-            result.v4 = value1.v4 - value2.v4;
+            result = new Vector3(value1.v4 - value2.v4);
         }
 
         #endregion Arithmetic
@@ -239,11 +238,11 @@ namespace Ormeli.Math
         public static void CatmullRom(ref Vector3 value1, ref Vector3 value2, ref Vector3 value3, ref Vector3 value4,
             float amount, out Vector3 result)
         {
-            result.v4 = new Vector4f(
+            result = new Vector3(
                 MathHelper.CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
                 MathHelper.CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount),
-                MathHelper.CatmullRom(value1.Z, value2.Z, value3.Z, value4.Z, amount),
-                0);
+                MathHelper.CatmullRom(value1.Z, value2.Z, value3.Z, value4.Z, amount)
+              );
         }
 
         public static Vector3 Hermite(Vector3 value1, Vector3 tangent1, Vector3 value2, Vector3 tangent2, float amount)
@@ -268,7 +267,7 @@ namespace Ormeli.Math
             Vector4f h3 = s3 - 2*s2 + s;
             Vector4f h4 = s3 - s2;
 
-            result.v4 = h1*value1.v4 + h2*value2.v4 + h3*tangent1.v4 + h4*tangent2.v4;
+            result = new Vector3(h1 * value1.v4 + h2 * value2.v4 + h3 * tangent1.v4 + h4 * tangent2.v4);
         }
 
         public static Vector3 Lerp(Vector3 value1, Vector3 value2, float amount)
@@ -279,7 +278,7 @@ namespace Ormeli.Math
 
         public static void Lerp(ref Vector3 value1, ref Vector3 value2, float amount, out Vector3 result)
         {
-            result.v4 = value1.v4 + (value2.v4 - value1.v4)*amount;
+            result = new Vector3(value1.v4 + (value2.v4 - value1.v4) * amount);
         }
 
         public static Vector3 SmoothStep(Vector3 value1, Vector3 value2, float amount)
@@ -292,7 +291,7 @@ namespace Ormeli.Math
         {
             float scale = (amount*amount*(3 - 2*amount));
 
-            result.v4 = value1.v4 + (value2.v4 - value1.v4)*scale;
+            result = new Vector3(value1.v4 + (value2.v4 - value1.v4) * scale);
         }
 
         #endregion Interpolation
@@ -308,11 +307,11 @@ namespace Ormeli.Math
         public static void Barycentric(ref Vector3 value1, ref Vector3 value2, ref Vector3 value3, float amount1,
             float amount2, out Vector3 result)
         {
-            result.v4 = new Vector4f(
+            result = new Vector3(
                 MathHelper.Barycentric(value1.X, value2.X, value3.X, amount1, amount2),
                 MathHelper.Barycentric(value1.Y, value2.Y, value3.Y, amount1, amount2),
-                MathHelper.Barycentric(value1.Z, value2.Z, value3.Z, amount1, amount2),
-                0);
+                MathHelper.Barycentric(value1.Z, value2.Z, value3.Z, amount1, amount2)
+                );
         }
 
         public static Vector3 Clamp(Vector3 value1, Vector3 min, Vector3 max)
@@ -323,7 +322,7 @@ namespace Ormeli.Math
 
         public static void Clamp(ref Vector3 value1, ref Vector3 min, ref Vector3 max, out Vector3 result)
         {
-            result.v4 = value1.v4.Max(min.v4).Min(max.v4);
+            result = new Vector3(value1.v4.Max(min.v4).Min(max.v4));
         }
 
         public static Vector3 Cross(Vector3 vector1, Vector3 vector2)
@@ -335,13 +334,13 @@ namespace Ormeli.Math
 
         public static void Cross(ref Vector3 vector1, ref Vector3 vector2, out Vector3 result)
         {
-            Vector4f r1 = vector1.v4;
-            Vector4f r2 = vector2.v4;
-            result.v4 =
+            var r1 = vector1.v4;
+            var r2 = vector2.v4;
+            result= new Vector3(
                 r1.Shuffle(ShuffleSel.XFromY | ShuffleSel.YFromZ | ShuffleSel.ZFromX | ShuffleSel.WFromW)*
                 r2.Shuffle(ShuffleSel.XFromZ | ShuffleSel.YFromX | ShuffleSel.ZFromY | ShuffleSel.WFromW) -
                 r1.Shuffle(ShuffleSel.XFromZ | ShuffleSel.YFromX | ShuffleSel.ZFromY | ShuffleSel.WFromW)*
-                r2.Shuffle(ShuffleSel.XFromY | ShuffleSel.YFromZ | ShuffleSel.ZFromX | ShuffleSel.WFromW);
+                r2.Shuffle(ShuffleSel.XFromY | ShuffleSel.YFromZ | ShuffleSel.ZFromX | ShuffleSel.WFromW));
         }
 
         public static float Distance(Vector3 value1, Vector3 value2)
@@ -399,7 +398,7 @@ namespace Ormeli.Math
 
         public static void Max(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
         {
-            result.v4 = value1.v4.Max(value2.v4);
+            result = new Vector3(value1.v4.Max(value2.v4));
         }
 
         public static Vector3 Min(Vector3 value1, Vector3 value2)
@@ -410,7 +409,7 @@ namespace Ormeli.Math
 
         public static void Min(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
         {
-            result.v4 = value1.v4.Min(value2.v4);
+            result = new Vector3(value1.v4.Min(value2.v4));
         }
 
         public static Vector3 Normalize(Vector3 value)
@@ -425,7 +424,7 @@ namespace Ormeli.Math
             r0 = r0*r0;
             r0 = r0 + r0.Shuffle(ShuffleSel.Swap);
             r0 = r0 + r0.Shuffle(ShuffleSel.RotateLeft);
-            result.v4 = value.v4/r0.Sqrt();
+            result = new Vector3(value.v4 / r0.Sqrt());
         }
 
         public static Vector3 Reflect(Vector3 vector, Vector3 normal)
@@ -442,7 +441,7 @@ namespace Ormeli.Math
             r0 = r0 + r0.Shuffle(ShuffleSel.Swap);
             r0 = r0 + r0.Shuffle(ShuffleSel.RotateLeft);
             r0 = r0.Sqrt();
-            result.v4 = (r0 + r0)*n - v;
+            result = new Vector3((r0 + r0) * n - v);
         }
 
         public float Length()

@@ -1,1202 +1,1177 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Security;
+using System.Text;
 
 namespace Ormeli.CG
 {
-    public struct PnString
-    {
-        private IntPtr IntPtr;
-
-        public string String
-        {
-            get { return ToString(); }
-        }
-        public override string ToString()
-        {
-            return Marshal.PtrToStringAnsi(IntPtr);
-        }
-    }
-
     public class CgImports
     {
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGenum cgSetLockingPolicy(CGenum lockingPolicy);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate CGbool StateCallbackDelegate(CGstateassignment CGstateassignment);
 
-        [DllImport("cg.dll")]
-        public static extern CGenum cgGetLockingPolicy();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void ErrorCallbackFuncDelegate();
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGenum cgSetSemanticCasePolicy(CGenum casePolicy);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void ErrorHandlerFuncDelegate(CGcontext context, CGerror error, IntPtr appdata);
 
-        [DllImport("cg.dll")]
-        public static extern CGenum cgGetSemanticCasePolicy();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void IncludeCallbackFuncDelegate(CGcontext context, [In]string filename);
 
-        [DllImport("cg.dll")]
-        public static extern IntPtr cgCreateContext();
+        #region Cg
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetContextBehavior(IntPtr context, CGbehavior behavior);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgAddStateEnumerant(CGstate state, [In] string name, int value);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGbehavior cgGetContextBehavior(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgCallStateResetCallback(CGstateassignment stateassignment);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetBehaviorString(CGbehavior behavior);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgCallStateSetCallback(CGstateassignment stateassignment);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern CGbehavior cgGetBehavior(string behavior_string);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgCallStateValidateCallback(CGstateassignment stateassignment);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgDestroyContext(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgCombinePrograms(int n, [In] CGprogram[] exeList);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsContext(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgCombinePrograms2([In] CGprogram program1, [In] CGprogram program2);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetLastListing(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgCombinePrograms3([In] CGprogram program1, [In] CGprogram program2, [In] CGprogram program3);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern void cgSetLastListing(IntPtr handle, string listing);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgCombinePrograms4([In] CGprogram program1, [In] CGprogram program2, [In] CGprogram program3, [In] CGprogram program4);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetAutoCompile(IntPtr context, CGenum autoCompileMode);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgCombinePrograms5([In] CGprogram program1, [In] CGprogram program2, [In] CGprogram program3, [In] CGprogram program4, [In] CGprogram program5);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGenum cgGetAutoCompile(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgCompileProgram(CGprogram program);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameterSettingMode(IntPtr context, CGenum parameterSettingMode);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgConnectParameter(CGparameter from, CGparameter to);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGenum cgGetParameterSettingMode(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGeffect cgCopyEffect(CGeffect effect);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern void cgSetCompilerIncludeString(IntPtr context, string name, string source);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgCopyProgram(CGprogram program);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern void cgSetCompilerIncludeFile(IntPtr context, string name, string filename);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgCreateArraySamplerState(CGcontext context, [In] string name, CGtype type, int nelems);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateProgram(IntPtr context, CGenum program_type, string program,
-            CGprofile profile, string entry, IntPtr args);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgCreateArrayState(CGcontext context, [In] string name, CGtype type, int nelems);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateProgramFromFile(IntPtr context, CGenum program_type, string program_file,
-            CGprofile profile, string entry, IntPtr args);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbuffer cgCreateBuffer(CGcontext context, int size, [In] IntPtr data, CGbufferusage bufferUsage);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCopyProgram(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGcontext cgCreateContext();
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgDestroyProgram(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGeffect cgCreateEffect(CGcontext context, [In] string code, [In] string[] args);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstProgram(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgCreateEffectAnnotation(CGeffect effect, [In]string name, CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetNextProgram(IntPtr current);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGeffect cgCreateEffectFromFile(CGcontext context, [In] string filename, [In] string[] args);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetProgramContext(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgCreateEffectParameter(CGeffect effect, [In]string name, CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsProgram(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgCreateEffectParameterArray(CGeffect effect, [In] string name, CGtype type, int length);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgCompileProgram(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgCreateEffectParameterMultiDimArray(CGeffect effect, [In]string name, CGtype type, int dim, [In]int[] lengths);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsProgramCompiled(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGobj cgCreateObj(CGcontext context, CGenum program_type, [In] string source, CGprofile profile, [In] string[] args);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetProgramString(IntPtr program, CGenum pname);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGobj cgCreateObjFromFile(CGcontext context, CGenum program_type, [In] string source_file, CGprofile profile, [In] string[] args);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGprofile cgGetProgramProfile(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgCreateParameter(CGcontext context, CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetProgramOptions(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgCreateParameterAnnotation(CGparameter parameter, [In]string name, CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetProgramProfile(IntPtr program, CGprofile profile);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgCreateParameterArray(CGcontext context, CGtype type, int length);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGenum cgGetProgramInput(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgCreateParameterMultiDimArray(CGcontext context, CGtype type, int dim, [In] int[] lengths);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGenum cgGetProgramOutput(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGpass cgCreatePass(CGtechnique technique, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetProgramOutputVertices(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgCreatePassAnnotation(CGpass pass, [In]string name, CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetProgramOutputVertices(IntPtr program, int vertices);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgCreateProgram(CGcontext context, CGenum program_type, [In] string program, CGprofile profile, [In] string entry, [In]string[] args);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetPassProgramParameters(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgCreateProgramAnnotation(CGprogram program, [In]string name, CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgUpdateProgramParameters(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgCreateProgramFromEffect(CGeffect effect, CGprofile profile, [In] string entry, [In] string[] args);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgUpdatePassParameters(IntPtr pass);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgCreateProgramFromFile(CGcontext context, CGenum program_type, [In] string program_file, CGprofile profile, [In] string entry, [In] string[] args);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCreateParameter(IntPtr context, CGtype type);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgCreateSamplerState(CGcontext context, [In] string name, CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCreateParameterArray(IntPtr context, CGtype type, int length);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstateassignment cgCreateSamplerStateAssignment(CGparameter parameter, CGstate state);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCreateParameterMultiDimArray(IntPtr context, CGtype type, int dim, IntPtr lengths);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgCreateState(CGcontext context, [In] string name, CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgDestroyParameter(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstateassignment cgCreateStateAssignment(CGpass pass, CGstate state);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgConnectParameter(IntPtr from, IntPtr to);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstateassignment cgCreateStateAssignmentIndex(CGpass pass, CGstate state, int index);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgDisconnectParameter(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtechnique cgCreateTechnique(CGeffect effect, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetConnectedParameter(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgCreateTechniqueAnnotation(CGtechnique technique, [In]string name, CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetNumConnectedToParameters(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgDestroyBuffer(CGbuffer buffer);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetConnectedToParameter(IntPtr param, int index);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgDestroyContext(CGcontext context);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedParameter(IntPtr program, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgDestroyEffect(CGeffect effect);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedProgramParameter(IntPtr program, CGenum name_space, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgDestroyObj(CGobj obj);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedProgramUniformBuffer(IntPtr program, string blockName);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgDestroyParameter(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedEffectUniformBuffer(IntPtr effect, string blockName);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgDestroyProgram(CGprogram program);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetUniformBufferBlockName(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgDisconnectParameter(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstParameter(IntPtr program, CGenum name_space);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgEvaluateProgram(CGprogram program, [In][Out] float[] values, int ncomps, int nx, int ny, int nz);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetNextParameter(IntPtr current);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetAnnotationName(CGannotation annotation);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstLeafParameter(IntPtr program, CGenum name_space);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetAnnotationType(CGannotation annotation);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetNextLeafParameter(IntPtr current);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetArrayDimension(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstStructParameter(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetArrayParameter(CGparameter aparam, int index);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstUniformBufferParameter(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetArraySize(CGparameter param, int dimension);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedStructParameter(IntPtr param, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetArrayTotalSize(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedUniformBufferParameter(IntPtr param, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetArrayType(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstDependentParameter(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetAutoCompile(CGcontext context);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetArrayParameter(IntPtr aparam, int index);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbehavior cgGetBehavior(string behaviorString);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetArrayDimension(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetBehaviorString(CGbehavior behavior);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetArrayType(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetBoolAnnotationValues(CGannotation annotation, out int nvalues);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetArraySize(IntPtr param, int dimension);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool[] cgGetBoolStateAssignmentValues(CGstateassignment stateassignment, int[] nVals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetArrayTotalSize(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int[] cgGetBooleanAnnotationValues(CGannotation annotation, out int nvalues);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetArraySize(IntPtr param, int size);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetBufferSize(CGbuffer buffer);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetMultiDimArraySize(IntPtr param, IntPtr sizes);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IncludeCallbackFuncDelegate cgGetCompilerIncludeCallback(CGcontext context);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetParameterProgram(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetConnectedParameter(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetParameterContext(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetConnectedStateAssignmentParameter(CGstateassignment stateassignment);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsParameter(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetConnectedToParameter(CGparameter param, int index);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetParameterName(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbehavior cgGetContextBehavior(CGcontext context);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetParameterType(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetDependentAnnotationParameter(CGannotation annotation, int index);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetParameterBaseType(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetDependentProgramArrayStateAssignmentParameter(CGstateassignment sa, int index);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGparameterclass cgGetParameterClass(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetDependentStateAssignmentParameter(CGstateassignment stateassignment, int index);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterRows(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGdomain cgGetDomain(string domainString);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterColumns(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetDomainString(CGdomain domain);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetParameterNamedType(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGcontext cgGetEffectContext(CGeffect effect);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetParameterSemantic(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetEffectName(CGeffect effect);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGresource cgGetParameterResource(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbuffer cgGetEffectParameterBuffer(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGresource cgGetParameterBaseResource(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetEffectParameterBySemantic(CGeffect effect, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern ulong cgGetParameterResourceIndex(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetEnum([In] string enum_string);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGenum cgGetParameterVariability(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetEnumString(CGenum en);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGenum cgGetParameterDirection(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsParameterReferenced(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsParameterUsed(IntPtr param, IntPtr handle);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetParameterValues(IntPtr param, CGenum value_type, IntPtr nvalues);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameterValuedr(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameterValuedc(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameterValuefr(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameterValuefc(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameterValueir(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameterValueic(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterValuedr(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterValuedc(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterValuefr(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterValuefc(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterValueir(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterValueic(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterDefaultValuedr(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterDefaultValuedc(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterDefaultValuefr(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterDefaultValuefc(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterDefaultValueir(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterDefaultValueic(IntPtr param, int nelements, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetStringParameterValue(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern void cgSetStringParameterValue(IntPtr param, string str);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterOrdinalNumber(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsParameterGlobal(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterIndex(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameterVariability(IntPtr param, CGenum vary);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern void cgSetParameterSemantic(IntPtr param, string semantic);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter1f(IntPtr param, float x);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter2f(IntPtr param, float x, float y);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter3f(IntPtr param, float x, float y, float z);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter4f(IntPtr param, float x, float y, float z, float w);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter1d(IntPtr param, double x);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter2d(IntPtr param, double x, double y);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter3d(IntPtr param, double x, double y, double z);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter4d(IntPtr param, double x, double y, double z, double w);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter1i(IntPtr param, int x);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter2i(IntPtr param, int x, int y);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter3i(IntPtr param, int x, int y, int z);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter4i(IntPtr param, int x, int y, int z, int w);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter1iv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter2iv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter3iv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter4iv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter1fv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter2fv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter3fv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter4fv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter1dv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter2dv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter3dv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetParameter4dv(IntPtr param, IntPtr v);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetMatrixParameterir(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetMatrixParameterdr(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetMatrixParameterfr(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetMatrixParameteric(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetMatrixParameterdc(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetMatrixParameterfc(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgGetMatrixParameterir(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgGetMatrixParameterdr(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgGetMatrixParameterfr(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgGetMatrixParameteric(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgGetMatrixParameterdc(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgGetMatrixParameterfc(IntPtr param, IntPtr matrix);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGenum cgGetMatrixParameterOrder(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedSubParameter(IntPtr param, string name);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetTypeString(CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern CGtype cgGetType(string type_string);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern CGtype cgGetNamedUserType(IntPtr handle, string name);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetNumUserTypes(IntPtr handle);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetUserType(IntPtr handle, int index);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetNumParentTypes(CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetParentType(CGtype type, int index);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsParentType(CGtype parent, CGtype child);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsInterfaceType(CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetResourceString(CGresource resource);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern CGresource cgGetResource(string resource_string);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetEnumString(CGenum en);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern CGenum cgGetEnum(string enum_string);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetProfileString(CGprofile profile);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern CGprofile cgGetProfile(string profile_string);
-
-        [DllImport("cg.dll")]
-        public static extern int cgGetNumSupportedProfiles();
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGprofile cgGetSupportedProfile(int index);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsProfileSupported(CGprofile profile);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgGetProfileProperty(CGprofile profile, CGenum query);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetParameterClassString(CGparameterclass pc);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern CGparameterclass cgGetParameterClassEnum(string pString);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetDomainString(CGdomain domain);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern CGdomain cgGetDomain(string domain_string);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGdomain cgGetProgramDomain(IntPtr program);
-
-        [DllImport("cg.dll")]
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         public static extern CGerror cgGetError();
 
-        [DllImport("cg.dll")]
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern ErrorCallbackFuncDelegate cgGetErrorCallback();
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern ErrorHandlerFuncDelegate cgGetErrorHandler(out IntPtr data);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetErrorString(CGerror error);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetFirstDependentParameter(CGparameter param);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGeffect cgGetFirstEffect(CGcontext context);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetFirstEffectAnnotation(CGeffect effect);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetFirstEffectParameter(CGeffect effect);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         public static extern CGerror cgGetFirstError();
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetErrorString(CGerror error);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetFirstLeafEffectParameter(CGeffect effect);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetLastErrorString(IntPtr error);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetFirstLeafParameter(CGprogram program, CGenum name_space);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetErrorCallback(IntPtr func);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetFirstParameter(CGprogram prog, CGenum name_space);
 
-        [DllImport("cg.dll")]
-        public static extern IntPtr cgGetErrorCallback();
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetFirstParameterAnnotation(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetErrorHandler(IntPtr func, IntPtr data);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGpass cgGetFirstPass(CGtechnique technique);
 
-        [DllImport("cg.dll")]
-        public static extern IntPtr cgGetErrorHandler();
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetFirstPassAnnotation(CGpass pass);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetString(CGenum sname);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgGetFirstProgram(CGcontext context);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateEffect(IntPtr context, string code, IntPtr args);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetFirstProgramAnnotation(CGprogram prog);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateEffectFromFile(IntPtr context, string filename, IntPtr args);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgGetFirstSamplerState(CGcontext context);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCopyEffect(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstateassignment cgGetFirstSamplerStateAssignment(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgDestroyEffect(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgGetFirstState(CGcontext context);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetEffectContext(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstateassignment cgGetFirstStateAssignment(CGpass pass);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsEffect(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetFirstStructParameter(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstEffect(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtechnique cgGetFirstTechnique(CGeffect effect);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetNextEffect(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetFirstTechniqueAnnotation(CGtechnique technique);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateProgramFromEffect(IntPtr effect, CGprofile profile, string entry,
-            IntPtr args);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern float[] cgGetFloatAnnotationValues(CGannotation annotation, out int nvalues);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstTechnique(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern float[] cgGetFloatStateAssignmentValues(CGstateassignment stateassignment, int[] nvalues);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetNextTechnique(IntPtr tech);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int[] cgGetIntAnnotationValues(CGannotation annotation, out int nvalues);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedTechnique(IntPtr effect, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int[] cgGetIntStateAssignmentValues(CGstateassignment stateassignment, int[] nvalues);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetTechniqueName(IntPtr tech);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetLastErrorString(out CGerror error);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsTechnique(IntPtr tech);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetLastListing(CGcontext context);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgValidateTechnique(IntPtr tech);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetLockingPolicy();
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsTechniqueValidated(IntPtr tech);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetMatrixParameterOrder(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetTechniqueEffect(IntPtr tech);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGetMatrixParameterdc(CGparameter param, [In] double[] matrix);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstPass(IntPtr tech);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGetMatrixParameterdr(CGparameter param, [In] double[] matrix);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedPass(IntPtr tech, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGetMatrixParameterfc(CGparameter param, [In] float[] matrix);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetNextPass(IntPtr pass);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGetMatrixParameterfr(CGparameter param, [In] float[] matrix);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsPass(IntPtr pass);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGetMatrixParameteric(CGparameter param, [In] int[] matrix);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern string cgGetPassName(IntPtr pass);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGetMatrixParameterir(CGparameter param, [In] int[] matrix);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetPassTechnique(IntPtr pass);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGetMatrixSize(CGtype type, out int nrows, out int ncols);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetPassProgram(IntPtr pass, CGdomain domain);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGeffect cgGetNamedEffect(CGcontext context, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetPassState(IntPtr pass);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetNamedEffectAnnotation(CGeffect effect, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgResetPassState(IntPtr pass);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetNamedEffectParameter(CGeffect effect, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstStateAssignment(IntPtr pass);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetNamedParameter(CGprogram program, [In] string parameter);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedStateAssignment(IntPtr pass, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetNamedParameterAnnotation(CGparameter param, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetNextStateAssignment(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGpass cgGetNamedPass(CGtechnique technique, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsStateAssignment(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetNamedPassAnnotation(CGpass pass, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgCallStateSetCallback(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetNamedProgramAnnotation(CGprogram prog, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgCallStateValidateCallback(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetNamedProgramParameter(CGprogram program, CGenum name_space, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgCallStateResetCallback(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgGetNamedSamplerState(CGcontext context, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetStateAssignmentPass(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstateassignment cgGetNamedSamplerStateAssignment(CGparameter param, [In]string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetSamplerStateAssignmentParameter(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgGetNamedState(CGcontext context, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFloatStateAssignmentValues(IntPtr sa, IntPtr nvalues);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstateassignment cgGetNamedStateAssignment(CGpass pass, [In]string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetIntStateAssignmentValues(IntPtr sa, IntPtr nvalues);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetNamedStructParameter(CGparameter param, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetBoolStateAssignmentValues(IntPtr sa, IntPtr nvalues);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetNamedSubParameter(CGparameter param, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetStringStateAssignmentValue(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtechnique cgGetNamedTechnique(CGeffect effect, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetProgramStateAssignmentValue(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetNamedTechniqueAnnotation(CGtechnique technique, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetTextureStateAssignmentValue(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetNamedUserType(CGhandle handle, [In] string name);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetSamplerStateAssignmentValue(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGannotation cgGetNextAnnotation(CGannotation annotation);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetStateAssignmentIndex(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGeffect cgGetNextEffect(CGeffect effect);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetNumDependentStateAssignmentParameters(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetNextLeafParameter(CGparameter current);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetDependentStateAssignmentParameter(IntPtr sa, int index);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetNextParameter(CGparameter current);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetNumDependentProgramArrayStateAssignmentParameters(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGpass cgGetNextPass(CGpass pass);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetDependentProgramArrayStateAssignmentParameter(IntPtr sa, int index);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgGetNextProgram(CGprogram program);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetConnectedStateAssignmentParameter(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgGetNextState(CGstate state);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetStateAssignmentState(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstateassignment cgGetNextStateAssignment(CGstateassignment stateassignment);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetSamplerStateAssignmentState(IntPtr sa);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtechnique cgGetNextTechnique(CGtechnique technique);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateState(IntPtr context, string name, CGtype type);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetNumConnectedToParameters(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateArrayState(IntPtr context, string name, CGtype type, int nelements);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetNumDependentAnnotationParameters(CGannotation annotation);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetStateLatestProfile(IntPtr state, CGprofile profile);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetNumDependentProgramArrayStateAssignmentParameters(CGstateassignment sa);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGprofile cgGetStateLatestProfile(IntPtr state);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetNumDependentStateAssignmentParameters(CGstateassignment stateassignment);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetStateContext(IntPtr state);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetNumParentTypes(CGtype type);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetStateType(IntPtr state);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetNumProgramDomains(CGprogram program);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetStateName(IntPtr state);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetNumStateEnumerants(CGstate state);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedState(IntPtr context, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetNumSupportedProfiles();
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstState(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetNumUserTypes(CGhandle handle);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetNextState(IntPtr state);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGresource cgGetParameterBaseResource(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsState(IntPtr state);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetParameterBaseType(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern void cgAddStateEnumerant(IntPtr state, string name, int value);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterBufferIndex(CGparameter parameter);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateSamplerState(IntPtr context, string name, CGtype type);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterBufferOffset(CGparameter parameter);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateArraySamplerState(IntPtr context, string name, CGtype type, int nelements);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameterclass cgGetParameterClass(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedSamplerState(IntPtr context, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameterclass cgGetParameterClassEnum(string pString);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstSamplerState(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetParameterClassString(CGparameterclass pc);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstSamplerStateAssignment(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterColumns(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedSamplerStateAssignment(IntPtr param, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGcontext cgGetParameterContext(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetSamplerState(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterDefaultValuedc(CGparameter param, int nelements, [Out]double[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedEffectParameter(IntPtr effect, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterDefaultValuedr(CGparameter param, int nelements, [Out] double[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstLeafEffectParameter(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterDefaultValuefc(CGparameter param, int nelements, [Out] float[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstEffectParameter(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterDefaultValuefr(CGparameter param, int nelements, [Out] float[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetEffectParameterBySemantic(IntPtr effect, string semantic);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterDefaultValueic(CGparameter param, int nelements, [Out] int[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstTechniqueAnnotation(IntPtr tech);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterDefaultValueir(CGparameter param, int nelements, [Out] int[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstPassAnnotation(IntPtr pass);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetParameterDirection(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstParameterAnnotation(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGeffect cgGetParameterEffect(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstProgramAnnotation(IntPtr program);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterIndex(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFirstEffectAnnotation(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetParameterName(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetNextAnnotation(IntPtr ann);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterNamedType(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedTechniqueAnnotation(IntPtr tech, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterOrdinalNumber(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedPassAnnotation(IntPtr pass, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgGetParameterProgram(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedParameterAnnotation(IntPtr param, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGresource cgGetParameterResource(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedProgramAnnotation(IntPtr program, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterResourceIndex(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedEffectAnnotation(IntPtr effect, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetParameterResourceName(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsAnnotation(IntPtr ann);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterResourceSize(CGparameter parameter);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetAnnotationName(IntPtr ann);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetParameterResourceType(CGparameter parameter);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetAnnotationType(IntPtr ann);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterRows(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetFloatAnnotationValues(IntPtr ann, IntPtr nvalues);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetParameterSemantic(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetIntAnnotationValues(IntPtr ann, IntPtr nvalues);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetParameterSettingMode(CGcontext context);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetStringAnnotationValue(IntPtr ann);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetParameterType(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetStringAnnotationValues(IntPtr ann, IntPtr nvalues);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterValuedc(CGparameter param, int nelements, [Out] double[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetBoolAnnotationValues(IntPtr ann, IntPtr nvalues);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterValuedr(CGparameter param, int nelements, [Out] double[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetBooleanAnnotationValues(IntPtr ann, IntPtr nvalues);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterValuefc(CGparameter param, int nelements, [Out] float[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetNumDependentAnnotationParameters(IntPtr ann);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterValuefr(CGparameter param, int nelements, [Out] float[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetDependentAnnotationParameter(IntPtr ann, int index);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterValueic(CGparameter param, int nelements, [Out] int[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgEvaluateProgram(IntPtr program, IntPtr buf, int ncomps, int nx, int ny, int nz);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetParameterValueir(CGparameter param, int nelements, [Out] int[] vals);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern bool cgSetEffectName(IntPtr effect, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern double* cgGetParameterValues(CGparameter param, CGenum value_type, int* nvalues);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetEffectName(IntPtr effect);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern double[] cgGetParameterValues(CGparameter param, CGenum value_type, [In] int[] nvalues);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgGetNamedEffect(IntPtr context, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetParameterVariability(CGparameter param);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateEffectParameter(IntPtr effect, string name, CGtype type);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetParentType(CGtype type, int index);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateTechnique(IntPtr effect, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetPassName(CGpass pass);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateEffectParameterArray(IntPtr effect, string name, CGtype type, int length);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgGetPassProgram(CGpass pass, CGdomain domain);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateEffectParameterMultiDimArray(IntPtr effect, string name, CGtype type,
-            int dim, IntPtr lengths);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtechnique cgGetPassTechnique(CGpass pass);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreatePass(IntPtr tech, string name);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprofile cgGetProfile([In] string profile_string);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCreateStateAssignment(IntPtr pass, IntPtr state);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCreateStateAssignmentIndex(IntPtr pass, IntPtr state, int index);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCreateSamplerStateAssignment(IntPtr param, IntPtr state);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetFloatStateAssignment(IntPtr sa, float value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetIntStateAssignment(IntPtr sa, int value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetBoolStateAssignment(IntPtr sa, bool value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern bool cgSetStringStateAssignment(IntPtr sa, string value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetProgramStateAssignment(IntPtr sa, IntPtr program);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetSamplerStateAssignment(IntPtr sa, IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetTextureStateAssignment(IntPtr sa, IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetFloatArrayStateAssignment(IntPtr sa, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetIntArrayStateAssignment(IntPtr sa, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetBoolArrayStateAssignment(IntPtr sa, IntPtr vals);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateTechniqueAnnotation(IntPtr tech, string name, CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreatePassAnnotation(IntPtr pass, string name, CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateParameterAnnotation(IntPtr param, string name, CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateProgramAnnotation(IntPtr program, string name, CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateEffectAnnotation(IntPtr effect, string name, CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetIntAnnotation(IntPtr ann, int value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetFloatAnnotation(IntPtr ann, float value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgSetBoolAnnotation(IntPtr ann, bool value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern bool cgSetStringAnnotation(IntPtr ann, string value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetNumStateEnumerants(IntPtr state);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetStateEnumerant(IntPtr state, int index, IntPtr value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetStateEnumerantName(IntPtr state, int value);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern int cgGetStateEnumerantValue(IntPtr state, string name);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetParameterEffect(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGparameterclass cgGetTypeClass(CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetTypeBase(CGtype type);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgGetTypeSizes(CGtype type, IntPtr nrows, IntPtr ncols);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgGetMatrixSize(CGtype type, IntPtr nrows, IntPtr ncols);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetNumProgramDomains(IntPtr program);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         public static extern CGdomain cgGetProfileDomain(CGprofile profile);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGprofile cgGetProfileSibling(CGprofile profile, CGdomain domain);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgGetProfileProperty(CGprofile profile, CGenum query);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCombinePrograms(int n, IntPtr exeList);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetProfileString(CGprofile profile);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCombinePrograms2(IntPtr exe1, IntPtr exe2);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbuffer cgGetProgramBuffer(CGprogram program, int bufferIndex);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCombinePrograms3(IntPtr exe1, IntPtr exe2, IntPtr exe3);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCombinePrograms4(IntPtr exe1, IntPtr exe2, IntPtr exe3, IntPtr exe4);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCombinePrograms5(IntPtr exe1, IntPtr exe2, IntPtr exe3, IntPtr exe4, IntPtr exe5);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGprofile cgGetProgramDomainProfile(IntPtr program, int index);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetProgramDomainProgram(IntPtr program, int index);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateObj(IntPtr context, CGenum program_type, string source, CGprofile profile,
-            IntPtr args);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgCreateObjFromFile(IntPtr context, CGenum program_type, string source_file,
-            CGprofile profile, IntPtr args);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgDestroyObj(IntPtr obj);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern long cgGetParameterResourceSize(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern CGtype cgGetParameterResourceType(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgGetParameterResourceName(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterBufferIndex(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetParameterBufferOffset(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgCreateBuffer(IntPtr context, int size, IntPtr data, CGbufferusage bufferUsage);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgIsBuffer(IntPtr buffer);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetBufferData(IntPtr buffer, int size, IntPtr data);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetBufferSubData(IntPtr buffer, int offset, int size, IntPtr data);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetProgramBuffer(IntPtr program, int bufferIndex, IntPtr buffer);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetUniformBufferParameter(IntPtr param, IntPtr buffer);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgMapBuffer(IntPtr buffer, CGbufferaccess access);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgUnmapBuffer(IntPtr buffer);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgDestroyBuffer(IntPtr buffer);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetProgramBuffer(IntPtr program, int bufferIndex);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetUniformBufferParameter(IntPtr param);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetBufferSize(IntPtr buffer);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgGetProgramBufferMaxSize(CGprofile profile);
-
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         public static extern int cgGetProgramBufferMaxIndex(CGprofile profile);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetEffectParameterBuffer(IntPtr param);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetProgramBufferMaxSize(CGprofile profile);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetEffectParameterBuffer(IntPtr param, IntPtr buffer);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGcontext cgGetProgramContext(CGprogram program);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetCompilerIncludeCallback(IntPtr context, IntPtr func);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGdomain cgGetProgramDomain(CGprogram program);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetCompilerIncludeCallback(IntPtr context);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprofile cgGetProgramDomainProfile(CGprogram program, int index);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgSetStateCallbacks(IntPtr state, IntPtr set, IntPtr reset, IntPtr validate);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgGetProgramDomainProgram(CGprogram program, int index);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetStateSetCallback(IntPtr state);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetProgramInput(CGprogram program);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetStateResetCallback(IntPtr state);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetProgramOptions(CGprogram prog);
 
-        [DllImport("cg.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgGetStateValidateCallback(IntPtr state);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetProgramOutput(CGprogram program);
 
-        [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgD3D11TranslateHresult(int hr);
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprofile cgGetProgramProfile(CGprogram program);
 
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprogram cgGetProgramStateAssignmentValue(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetProgramString(CGprogram program, CGenum sourceType);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGresource cgGetResource([In] string resource_string);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetResourceString(CGresource resource);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetSamplerStateAssignmentParameter(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgGetSamplerStateAssignmentState(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetSamplerStateAssignmentValue(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgGetSemanticCasePolicy();
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetStateAssignmentIndex(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGpass cgGetStateAssignmentPass(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGstate cgGetStateAssignmentState(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGcontext cgGetStateContext(CGstate state);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetStateEnumerant(CGstate state, int index, out int value);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetStateEnumerantName(CGstate state, int value);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGetStateEnumerantValue(CGstate state, [In] string name);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprofile cgGetStateLatestProfile(CGstate state);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetStateName(CGstate state);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern StateCallbackDelegate cgGetStateResetCallback(CGstate state);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern StateCallbackDelegate cgGetStateSetCallback(CGstate state);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetStateType(CGstate state);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern StateCallbackDelegate cgGetStateValidateCallback(CGstate state);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetString(CGenum sname);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetStringAnnotationValue(CGannotation annotation);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetStringAnnotationValues(CGannotation ann, out int nvalues);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetStringParameterValue(CGparameter param);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetStringStateAssignmentValue(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprofile cgGetSupportedProfile(int index);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGeffect cgGetTechniqueEffect(CGtechnique technique);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern string cgGetTechniqueName(CGtechnique technique);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameter cgGetTextureStateAssignmentValue(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetType([In] string type_string);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetTypeBase(CGtype type);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGparameterclass cgGetTypeClass(CGtype type);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgGetTypeSizes(CGtype type, out int nrows, out int ncols);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGetTypeString(CGtype type);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGtype cgGetUserType(CGhandle handle, int index);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsAnnotation(CGannotation annotation);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsContext(CGcontext context);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsEffect(CGeffect effect);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsInterfaceType(CGtype type);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsParameter(CGparameter param);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsParameterGlobal(CGparameter param);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsParameterReferenced(CGparameter param);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsParameterUsed(CGparameter param, CGhandle handle);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsParentType(CGtype parent, CGtype child);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsPass(CGpass pass);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsProfileSupported(CGprofile profile);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsProgram(CGprogram program);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsProgramCompiled(CGprogram program);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsState(CGstate state);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsStateAssignment(CGstateassignment stateassignment);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsTechnique(CGtechnique technique);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgIsTechniqueValidated(CGtechnique technique);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgMapBuffer(CGbuffer buffer, CGbufferaccess access);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgResetPassState(CGpass pass);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetArraySize(CGparameter param, int size);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetAutoCompile(CGcontext context, CGenum autoCompileMode);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetBoolAnnotation(CGannotation annotation, CGbool value);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetBoolArrayStateAssignment(CGstateassignment stateassignment, [In]CGbool[] vals);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetBoolStateAssignment(CGstateassignment stateassignment, CGbool value);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetBufferData(CGbuffer buffer, int size, [In] IntPtr data);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetBufferSubData(CGbuffer buffer, int offset, int size, [In] IntPtr data);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetCompilerIncludeCallback(CGcontext context, IncludeCallbackFuncDelegate func);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetCompilerIncludeFile(CGcontext context, string name, string filename);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetCompilerIncludeString(CGcontext context, string name, string source);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetContextBehavior(CGcontext context, CGbehavior behavior);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetEffectName(CGeffect effect, [In] string name);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetEffectParameterBuffer(CGparameter param, CGbuffer buffer);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetErrorCallback(ErrorCallbackFuncDelegate func);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetErrorHandler(ErrorHandlerFuncDelegate func, IntPtr data);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetFloatAnnotation(CGannotation annotation, float value);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetFloatArrayStateAssignment(CGstateassignment stateassignment, [In]float[] vals);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetFloatStateAssignment(CGstateassignment stateassignment, float value);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetIntAnnotation(CGannotation annotation, int value);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetIntArrayStateAssignment(CGstateassignment stateassignment, [In]int[] vals);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetIntStateAssignment(CGstateassignment stateassignment, int value);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetLastListing(CGhandle handle, string listing);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgSetLockingPolicy(CGenum lockingPolicy);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetMatrixParameterdc(CGparameter param, [In] double[] matrix);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetMatrixParameterdr(CGparameter param, [In] double[] matrix);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetMatrixParameterfc(CGparameter param, [In] float[] matrix);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetMatrixParameterfr(CGparameter param, [In] float[] matrix);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetMatrixParameteric(CGparameter param, [In] int[] matrix);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetMatrixParameterir(CGparameter param, [In] int[] matrix);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetMultiDimArraySize(CGparameter param, int[] sizes);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter1d(CGparameter param, double x);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter1dv(CGparameter param, [In] double[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter1f(CGparameter param, float x);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter1fv(CGparameter param, [In] float[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter1i(CGparameter param, int x);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter1iv(CGparameter param, [In] int[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter2d(CGparameter param, double x, double y);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter2dv(CGparameter param, [In] double[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter2f(CGparameter param, float x, float y);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter2fv(CGparameter param, [In] float[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter2i(CGparameter param, int x, int y);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter2iv(CGparameter param, [In] int[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter3d(CGparameter param, double x, double y, double z);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter3dv(CGparameter param, [In] double[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter3f(CGparameter param, float x, float y, float z);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter3fv(CGparameter param, [In] float[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter3i(CGparameter param, int x, int y, int z);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter3iv(CGparameter param, [In] int[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter4d(CGparameter param, double x, double y, double z, double w);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter4dv(CGparameter param, [In] double[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter4f(CGparameter param, float x, float y, float z, float w);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter4fv(CGparameter param, [In] float[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter4i(CGparameter param, int x, int y, int z, int w);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameter4iv(CGparameter param, [In] int[] v);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameterSemantic(CGparameter param, [In] string semantic);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameterSettingMode(CGcontext context, CGenum parameterSettingMode);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameterValuedc(CGparameter param, int nelements, [In] double[] vals);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameterValuedr(CGparameter param, int nelements, [In] double[] vals);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameterValuefc(CGparameter param, int nelements, [In] float[] vals);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameterValuefr(CGparameter param, int nelements, [In] float[] vals);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameterValueic(CGparameter param, int nelements, [In] int[] vals);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameterValueir(CGparameter param, int nelements, [In] int[] vals);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetParameterVariability(CGparameter param, CGenum vary);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetPassProgramParameters(CGprogram prog);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetPassState(CGpass pass);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetProgramBuffer(CGprogram program, int bufferIndex, CGbuffer buffer);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetProgramProfile(CGprogram prog, CGprofile profile);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetProgramStateAssignment(CGstateassignment stateassignment, CGprogram program);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetSamplerState(CGparameter param);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetSamplerStateAssignment(CGstateassignment stateassignment, CGparameter parameter);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGenum cgSetSemanticCasePolicy(CGenum casePolicy);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetStateCallbacks(CGstate state, StateCallbackDelegate set, StateCallbackDelegate reset, StateCallbackDelegate validate);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetStateLatestProfile(CGstate state, CGprofile profile);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetStringAnnotation(CGannotation annotation, [In] string value);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgSetStringParameterValue(CGparameter param, [In] string str);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetStringStateAssignment(CGstateassignment stateassignment, [In]string name);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgSetTextureStateAssignment(CGstateassignment stateassignment, CGparameter parameter);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgUnmapBuffer(CGbuffer buffer);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgUpdatePassParameters(CGpass pass);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgUpdateProgramParameters(CGprogram program);
+
+        [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgValidateTechnique(CGtechnique technique);
+
+        #endregion
+
+        #region Dx
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgD3D11GetDevice(IntPtr Context);
-
+        public static extern IntPtr cgD3D11GetDevice(CGcontext Context);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgD3D11SetDevice(IntPtr Context, IntPtr pDevice);
-
+        public static extern int cgD3D11SetDevice(CGcontext Context, IntPtr pDevice);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11SetTextureParameter(IntPtr Parameter, IntPtr pTexture);
-
+        public static extern void cgD3D11SetTextureParameter(CGparameter Parameter, IntPtr pTexture);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11SetSamplerStateParameter(IntPtr Parameter, IntPtr pSamplerState);
-
+        public static extern void cgD3D11SetSamplerStateParameter(CGparameter Parameter, IntPtr pSamplerState);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11SetTextureSamplerStateParameter(IntPtr Parameter, IntPtr pTexture,
-            IntPtr pSamplerState);
-
+        public static extern void cgD3D11SetTextureSamplerStateParameter(CGparameter Parameter, IntPtr pTexture, IntPtr pSamplerState);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgD3D11LoadProgram(IntPtr Program, uint Flags);
-
+        public static extern int cgD3D11LoadProgram(CGprogram Program, uint Flags);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgD3D11GetCompiledProgram(IntPtr Program);
-
+        public static extern IntPtr cgD3D11GetCompiledProgram(CGprogram Program);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgD3D11GetProgramErrors(IntPtr Program);
-
+        public static extern IntPtr cgD3D11GetProgramErrors(CGprogram Program);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgD3D11IsProgramLoaded(IntPtr Program);
-
+        public static extern CGbool cgD3D11IsProgramLoaded(CGprogram Program);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgD3D11BindProgram(IntPtr Program);
-
+        public static extern int cgD3D11BindProgram(CGprogram Program);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11UnloadProgram(IntPtr Program);
-
+        public static extern void cgD3D11UnloadProgram(CGprogram Program);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgD3D11GetBufferByIndex(IntPtr Program, uint Index);
-
+        public static extern IntPtr cgD3D11GetBufferByIndex(CGprogram Program, uint Index);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11RegisterStates(IntPtr Context);
-
+        public static extern void cgD3D11RegisterStates(CGcontext Context);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11SetManageTextureParameters(IntPtr Context, bool Flag);
-
+        public static extern void cgD3D11SetManageTextureParameters(CGcontext Context, CGbool Flag);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgD3D11GetManageTextureParameters(IntPtr Context);
-
+        public static extern CGbool cgD3D11GetManageTextureParameters(CGcontext Context);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgD3D11GetIASignatureByPass(IntPtr Pass);
-
+        public static extern IntPtr cgD3D11GetIASignatureByPass(CGpass Pass);
         [DllImport("cgD3D11.dll")]
         public static extern CGprofile cgD3D11GetLatestVertexProfile();
-
         [DllImport("cgD3D11.dll")]
         public static extern CGprofile cgD3D11GetLatestGeometryProfile();
-
         [DllImport("cgD3D11.dll")]
         public static extern CGprofile cgD3D11GetLatestPixelProfile();
-
         [DllImport("cgD3D11.dll")]
         public static extern CGprofile cgD3D11GetLatestHullProfile();
-
         [DllImport("cgD3D11.dll")]
         public static extern CGprofile cgD3D11GetLatestDomainProfile();
-
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern bool cgD3D11IsProfileSupported(CGprofile Profile);
-
+        public static extern CGbool cgD3D11IsProfileSupported(CGprofile Profile);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
         public static extern int cgD3D11TypeToSize(CGtype Type);
-
         [DllImport("cgD3D11.dll")]
         public static extern int cgD3D11GetLastError();
-
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern IntPtr cgD3D11GetOptimalOptions(CGprofile Profile);
-
+        private static extern IntPtr cgD3D11GetOptimalOptions(CGprofile Profile);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
-        public static extern PnString cgD3D11TranslateCGerror(CGerror Error);
-
+        public static extern string cgD3D11TranslateCGerror(CGerror Error);
+        [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall, CharSet = CharSet.Ansi)]
+        public static extern string cgD3D11TranslateHRESULT(int hr);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11UnbindProgram(IntPtr Program);
-
+        public static extern void cgD3D11UnbindProgram(CGprogram Program);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgD3D11CreateBuffer(IntPtr Context, int size, IntPtr data, uint bufferUsage);
-
+        public static extern CGbuffer cgD3D11CreateBuffer(CGcontext Context, int size, IntPtr data, SharpDX.Direct3D11.ResourceUsage bufferUsage);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgD3D11CreateBufferFromObject(IntPtr Context, IntPtr obj, bool manageObject);
-
+        public static extern CGbuffer cgD3D11CreateBufferFromObject(CGcontext Context, IntPtr obj, CGbool manageObject);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgD3D11GetBufferObject(IntPtr buffer);
+        public static extern IntPtr cgD3D11GetBufferObject(CGbuffer buffer);
+        #endregion
+
+        #region GL
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.ThisCall)]
+        private static extern IntPtr cgGLGetOptimalOptions(CGprofile prog);
+        #endregion
+
+        #region Wrapper
+        public unsafe static string[] GetOptimalOptions(CGprofile profile, RenderType renderType = RenderType.DirectX11)
+        {
+            try
+            {
+                var byteArray =
+                    (byte**)
+                        (renderType == RenderType.OpneGl3
+                            ? cgGLGetOptimalOptions(profile)
+                            : cgD3D11GetOptimalOptions(profile));
+                var buffer = new List<byte>();
+                var lines = new List<string>();
+
+                for (; *byteArray != null; byteArray++)
+                {
+                    for (var b = *byteArray; *b != '\0'; b++)
+                        buffer.Add(*b);
+
+                    lines.Add(new string(Encoding.ASCII.GetChars(buffer.ToArray())));
+                    buffer.Clear();
+                }
+                return lines.ToArray();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        #endregion
     }
 }

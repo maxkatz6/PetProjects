@@ -1,4 +1,6 @@
-﻿namespace Ormeli
+﻿using System.IO;
+
+namespace Ormeli
 {
     public static class Config
     {
@@ -7,14 +9,20 @@
         public static bool VerticalSyncEnabled { get; set; }
         public static bool FullScreen { get; set; }
         public static bool IsDebug { get; set; }
-
-        public static void Initialize()
+        public static readonly string BaseDirectory;
+        public static readonly string ShadersDirectory;
+        static Config ()
         {
-#if DEBUG
+#if DEBUG  
             IsDebug = true;
 #else
             IsDebug = false;
 #endif
+            BaseDirectory = System.AppDomain.CurrentDomain.BaseDirectory + "Resources\\";
+            ShadersDirectory = BaseDirectory + "Shaders\\";
+        }
+        public static void Initialize()
+        {
         }
     }
 }

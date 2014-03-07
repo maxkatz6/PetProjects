@@ -4,20 +4,20 @@
     {
         public int[] Indices;
         public ColorVertex[] Vertices;
-        private Buffer vb, ib;
+        private Buffer _vb, _ib;
 
         public void Initalize(int[] ind, ColorVertex[] vert)
         {
             Indices = ind;
             Vertices = vert;
 
-            vb = App.Render.CreateBuffer(vert, BindFlag.VertexBuffer);
-            ib = App.Render.CreateBuffer(ind, BindFlag.IndexBuffer);
+            _vb = App.Render.CreateBuffer(vert, BindFlag.VertexBuffer, BufferUsage.Default, CpuAccessFlags.None);
+            _ib = App.Render.CreateBuffer(ind, BindFlag.IndexBuffer);
         }
 
         public void Render()
         {
-            App.Render.DrawBuffer(vb, ib, ColorVertex.SizeInBytes, Indices.Length);
+            App.Render.DrawBuffer(_vb, _ib, ColorVertex.SizeInBytes, Indices.Length);
         }
     }
 }

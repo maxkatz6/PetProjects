@@ -18,17 +18,19 @@ namespace Ormeli
         private readonly Mesh mesh = new Mesh();
         public Program()
         {
-            Config.Height = 500;
+
+             Config.Height = 500;
             Config.Width = 500;
             App.Initialize(new DXRender());
             App.Render.ChangeBackColor(Color.Indigo);
 
-            mesh.Initalize(new[] {1, 2, 3}, new[]
+            mesh.Initalize(new[] {0,1,2}, new[]
             {
-                new ColorVertex(new Vector3(10, 0, -10), Color.AliceBlue),
-                new ColorVertex(new Vector3(20, 10, -10), Color.WhiteSmoke),
-                new ColorVertex(new Vector3(30, 0, -10), Color.Indigo)
+                new ColorVertex(new Vector3(-0.8f,  0.8f, 0.0f), Color.Red),
+                new ColorVertex(new Vector3( 0.8f,  0.8f, 0.0f), Color.Green),
+                new ColorVertex(new Vector3(0.0f, -0.8f, 0.0f), Color.Blue)
             });
+
         }
 
         public void Run()
@@ -39,7 +41,7 @@ namespace Ormeli
         private void Draw()
         {
             App.Render.BeginDraw();
-          //  mesh.Render();
+            mesh.Render();
             App.Render.EndDraw();
         }
     }

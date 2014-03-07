@@ -306,7 +306,10 @@ namespace Ormeli.DirectX11
             // Create the blend state using the description.
             AlphaDisableBlendingState = new BlendState(Device, blendStateDesc);
 
+
             #endregion Initialize Blend States
+
+            DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
             return RenderType.DirectX11;
         }
@@ -318,17 +321,18 @@ namespace Ormeli.DirectX11
                 CgErrorProvider.CheckForCgError(v, "setting Direct3D device");
                 var myCgVertexProfile = CgImports.cgD3D11GetLatestVertexProfile();
                 CgErrorProvider.CheckForCgError(v, "getting latest profile");
-                var profileOpts = CgImports.cgD3D11GetOptimalOptions(myCgVertexProfile);
+                var profileOpts = CgImports.GetOptimalOptions(myCgVertexProfile);
                 CgErrorProvider.CheckForCgError(v, "getting latest profile options");
-                var myCgVertexProgram = CgImports.cgCreateProgramFromFile(v, CGenum.SOURCE, "Ormeli (3).exe",
+                myCgVertexProgram = CgImports.cgCreateProgramFromFile(v, CGenum.SOURCE, Config.ShadersDirectory+"vertex.cg",
                     myCgVertexProfile,
-                    "j", profileOpts);
+                    "main", profileOpts);
                 CgErrorProvider.CheckForCgError(v, "creating vertex program from file");
                 CgImports.cgD3D11LoadProgram(myCgVertexProgram, 0);
                 CgErrorProvider.CheckForCgError(v, "loading vertex program");
                 var layout = new[]
                 {
-                    new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0, InputClassification.PerVertexData, 0)
+                new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0, InputClassification.PerVertexData, 0),
+                new InputElement("COLOR", 0, Format.R32G32B32A32_Float, 12, 0, InputClassification.PerVertexData, 0) 
                 };
                 var d = CgImports.cgD3D11GetCompiledProgram(myCgVertexProgram);
                 var pVsBlob = new Blob(d);
@@ -338,18 +342,24 @@ namespace Ormeli.DirectX11
 
                 var myCgFragmentProfile = CgImports.cgD3D11GetLatestPixelProfile();
 
-                profileOpts = CgImports.cgD3D11GetOptimalOptions(myCgFragmentProfile);
+                profileOpts = CgImports.GetOptimalOptions(myCgFragmentProfile);
                 CgErrorProvider.CheckForCgError(v, "getting latest profile options");
 
-                var myCgFragmentProgram = CgImports.cgCreateProgramFromFile(v, CGenum.SOURCE, "", myCgFragmentProfile,
-                    "",
+                myCgFragmentProgram = CgImports.cgCreateProgramFromFile(v, CGenum.SOURCE, Config.ShadersDirectory + "pixel.cg", myCgFragmentProfile,
+                    "main",
                     profileOpts);
                 CgImports.cgD3D11LoadProgram(myCgFragmentProgram, 0);
                 CgErrorProvider.CheckForCgError(v, "loading fragment program");
-            
+
+                CgImports.cgD3D11BindProgram(myCgVertexProgram);
+                CgImports.cgD3D11BindProgram(myCgFragmentProgram);
+                DeviceContext.InputAssembler.InputLayout = inputLayout;
         }
 
         private InputLayout inputLayout;
+        private CGprogram myCgVertexProgram;
+        private CGprogram myCgFragmentProgram;
+
         public override void Run(Action act)
         {
             RenderLoop.Run(renderForm,()=> act());
@@ -357,7 +367,7 @@ namespace Ormeli.DirectX11
 
         public override void BeginDraw()
         {
-            DeviceContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1, 0);
+            DeviceContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
             DeviceContext.ClearRenderTargetView(RenderTargetView, BackColor);
         }
 
@@ -468,6 +478,7 @@ namespace Ormeli.DirectX11
                     vertexStride, 0));
             DeviceContext.InputAssembler.SetIndexBuffer(
                 CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
+
             DeviceContext.DrawIndexed(indexCount, 0, 0);
         }
 
@@ -534,13 +545,6 @@ namespace Ormeli.DirectX11
         public override void TurnZBufferOn()
         {
             DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
-        }
-
-        private static void Save_Release(ref DisposeBase db)
-        {
-            if (db == null) return;
-            db.Dispose();
-            db = null;
         }
     }
 }

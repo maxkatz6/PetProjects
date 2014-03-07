@@ -1,0 +1,15 @@
+struct VerOut {
+  float4 position : POSITION;
+  float4 color    : COLOR;
+};
+
+struct PixOut {  
+  float4 color : COLOR;
+};
+
+PixOut main( VerOut input )
+{
+  PixOut OUT;
+  OUT.color = input.color ;
+  return OUT;
+}

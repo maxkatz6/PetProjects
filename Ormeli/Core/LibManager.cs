@@ -7,16 +7,16 @@ namespace Ormeli.Core
     {
         private static readonly string DllPath = AppDomain.CurrentDomain.BaseDirectory;
 
-        internal const string cg = "cg";
-        internal const string cgDx = "cgD3D11";
-        internal const string cgGL = "cgGL";
-        internal const string cgGlut = "glut32";
+        private const string CG = "cg";
+        private const string cgDx = "cgD3D11";
+        private const string cgGL = "cgGL";
+        private const string cgGlut = "glut32";
 
         internal static void CG_SaveFromResource()
         {
             var e = Environment.Is64BitProcess ? "_64" : "_32";
 
-            Save(cg + e, cg);
+            Save(CG + e, CG);
             if (App.RenderType == RenderType.DirectX11)
                 Save(cgDx + e, cgDx);
             else
