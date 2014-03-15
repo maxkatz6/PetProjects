@@ -3,13 +3,8 @@ struct VerOut {
   float4 color    : COLOR;
 };
 
-struct PixOut {  
-  float4 color : COLOR;
-};
 
-PixOut main( VerOut input )
+float4 main( VerOut input ) : COLOR
 {
-  PixOut OUT;
-  OUT.color = input.color ;
-  return OUT;
+  return input.color;
 }

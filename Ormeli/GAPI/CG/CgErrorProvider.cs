@@ -6,11 +6,7 @@ namespace Ormeli.CG
 {
     public static class CgErrorProvider
     {
-        public static string ToStr(this IntPtr s)
-        {
-            return Marshal.PtrToStringAnsi(s);
-        }
-        public static void CheckForCgError(CGcontext myCgContext, string situation, bool exit = true)
+        public static void CheckForCgError()
         {
             CGerror cGerror;
             var s = CgImports.cgGetLastErrorString(out cGerror).ToStr();
@@ -18,13 +14,12 @@ namespace Ormeli.CG
             if (string.IsNullOrEmpty(s)) return;
 
             Console.WriteLine(
-                @"Ormeli: CG error!
-Situation: {0}\n
-Error: {1}\n\n
-Cg compiler output...\n{2}
-", situation, s, CgImports.cgGetLastListing(myCgContext));
+                @"Ormeli: {2}!
+Error: {0}
+Cg compiler output...{1}
+" ,s, CgImports.cgGetLastListing(CgShader.CGcontext),cGerror);
 
-            ErrorProvider.SendError(s, exit);
+            ErrorProvider.SendError(s,true);
         }
     }
 }

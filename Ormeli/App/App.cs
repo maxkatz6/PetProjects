@@ -1,5 +1,6 @@
 ﻿using System;
 using Ormeli.CG;
+using Ormeli.Core;
 
 namespace Ormeli
 {
@@ -12,15 +13,19 @@ namespace Ormeli
     {
         public static RenderType RenderType;
 
-        internal static RenderClass Render;
+        internal static IRenderClass Render;
 
-        public static void Initialize(RenderClass render)
+        public static void Initialize(IRenderClass render)
         {
             Config.Initialize();
             Render = render;
+            var t = new Timer();
+            t.Initialize();
+            CgShader.InitializeShaderEngine();
             Render.CreateWindow();
             RenderType = Render.Initialize();
-            CgShader.InitializeShaderEngine();
+            t.Frame();
+            Console.WriteLine(t.FrameTime);
         }
 
         public static void Run(Action act)

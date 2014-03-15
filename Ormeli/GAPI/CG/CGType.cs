@@ -39,7 +39,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly Int32 Data; //если что - в жопу риадонли
+        private Int32 Data; //если что - в жопу риадонли
 
         public CGbool(int boolean)
         {
@@ -86,7 +86,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -146,7 +146,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -170,7 +170,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -182,7 +182,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private  IntPtr Data;
     }
 
     /// <summary>
@@ -194,7 +194,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private  IntPtr Data;
     }
 
     /// <summary>
@@ -206,7 +206,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private  IntPtr Data;
     }
 
     /// <summary>
@@ -218,6 +218,6 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private readonly IntPtr Data;
+        private  IntPtr Data;
     }
 }

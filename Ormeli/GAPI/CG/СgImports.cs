@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Ormeli.CG
 {
-    public class CgImports
+    public static class CgImports
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate CGbool StateCallbackDelegate(CGstateassignment CGstateassignment);
@@ -125,7 +125,7 @@ namespace Ormeli.CG
         public static extern IntPtr cgCreateProgramFromEffect(CGeffect effect, CGprofile profile, [In] string entry, [In] string[] args);
 
         [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-        public static extern CGprogram cgCreateProgramFromFile(CGcontext context, CGenum program_type, [In] string program_file, CGprofile profile, [In] string entry, [In] string[] args);
+        public static extern CGprogram cgCreateProgramFromFile(CGcontext context, CGenum program_type, [In] string program_file, CGprofile profile, [In] string entry, IntPtr args);
 
         [DllImport("cg.dll", CallingConvention =  CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         public static extern CGstate cgCreateSamplerState(CGcontext context, [In] string name, CGtype type);
@@ -1076,15 +1076,15 @@ namespace Ormeli.CG
 
         #region Dx
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern IntPtr cgD3D11GetDevice(CGcontext Context);
+        public static extern IntPtr cgD3D11GetDevice(CGcontext context);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern int cgD3D11SetDevice(CGcontext Context, IntPtr pDevice);
+        public static extern int cgD3D11SetDevice(CGcontext context, IntPtr pDevice);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11SetTextureParameter(CGparameter Parameter, IntPtr pTexture);
+        public static extern void cgD3D11SetTextureParameter(CGparameter parameter, IntPtr pTexture);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11SetSamplerStateParameter(CGparameter Parameter, IntPtr pSamplerState);
+        public static extern void cgD3D11SetSamplerStateParameter(CGparameter parameter, IntPtr pSamplerState);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
-        public static extern void cgD3D11SetTextureSamplerStateParameter(CGparameter Parameter, IntPtr pTexture, IntPtr pSamplerState);
+        public static extern void cgD3D11SetTextureSamplerStateParameter(CGparameter parameter, IntPtr pTexture, IntPtr pSamplerState);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
         public static extern int cgD3D11LoadProgram(CGprogram Program, uint Flags);
         [DllImport("cgD3D11.dll", CallingConvention = CallingConvention.ThisCall)]
@@ -1140,23 +1140,573 @@ namespace Ormeli.CG
         #endregion
 
         #region GL
-        [DllImport("cgGL.dll", CallingConvention = CallingConvention.ThisCall)]
-        private static extern IntPtr cgGLGetOptimalOptions(CGprofile prog);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLBindProgram(CGprogram program);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbuffer cgGLCreateBuffer(CGcontext context, int size, IntPtr data, int bufferUsage);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLDisableClientState(CGparameter param);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLDisableProfile(CGprofile profile);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLDisableProgramProfiles(CGprogram program);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLDisableTextureParameter(CGparameter param);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLEnableClientState(CGparameter param);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLEnableProfile(CGprofile profile);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLEnableProgramProfiles(CGprogram program);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLEnableTextureParameter(CGparameter param);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGLGetBufferObject(CGbuffer buffer);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGprofile cgGLGetLatestProfile(CgGLenum profileType);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGLGetManageTextureParameters(CGcontext context);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetMatrixParameterArraydc(CGparameter param, long offset, long nelements, [Out]double* v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterArraydc(CGparameter param, long offset, long nelements, [Out]double[] v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterArraydc(CGparameter param, long offset, long nelements, [Out]IntPtr v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetMatrixParameterArraydr(CGparameter param, long offset, long nelements, [Out]double* v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterArraydr(CGparameter param, long offset, long nelements, [Out]double[] v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterArraydr(CGparameter param, long offset, long nelements, [Out]IntPtr v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetMatrixParameterArrayfc(CGparameter param, long offset, long nelements, [Out]float* v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterArrayfc(CGparameter param, long offset, long nelements, [Out]float[] v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterArrayfc(CGparameter param, long offset, long nelements, [Out]IntPtr v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetMatrixParameterArrayfr(CGparameter param, long offset, long nelements, [Out]float* v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterArrayfr(CGparameter param, long offset, long nelements, [Out]float[] v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterArrayfr(CGparameter param, long offset, long nelements, [Out]IntPtr v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetMatrixParameterdc(CGparameter param, [In]double* matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterdc(CGparameter param, [In]double[] matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterdc(CGparameter param, [In]IntPtr matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetMatrixParameterdr(CGparameter param, [In]double* matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterdr(CGparameter param, [In]double[] matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterdr(CGparameter param, [In]IntPtr matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetMatrixParameterfc(CGparameter param, [In]float* matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterfc(CGparameter param, [In]float[] matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterfc(CGparameter param, [In]IntPtr matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetMatrixParameterfr(CGparameter param, [In]float* matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterfr(CGparameter param, [In]float[] matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetMatrixParameterfr(CGparameter param, [In]IntPtr matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr cgGLGetOptimalOptions(CGprofile profile);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameter1d(CGparameter param, [Out]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter1d(CGparameter param, [Out]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter1d(CGparameter param, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameter1f(CGparameter param, [Out]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter1f(CGparameter param, [Out]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter1f(CGparameter param, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameter2d(CGparameter param, [Out]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter2d(CGparameter param, [Out]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter2d(CGparameter param, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameter2f(CGparameter param, [Out]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter2f(CGparameter param, [Out]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter2f(CGparameter param, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameter3d(CGparameter param, [Out]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter3d(CGparameter param, [Out]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter3d(CGparameter param, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameter3f(CGparameter param, [Out]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter3f(CGparameter param, [Out]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter3f(CGparameter param, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameter4d(CGparameter param, [Out]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter4d(CGparameter param, [Out]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter4d(CGparameter param, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameter4f(CGparameter param, [Out]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter4f(CGparameter param, [Out]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameter4f(CGparameter param, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameterArray1d(CGparameter param, long offset, long nelements, [Out]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray1d(CGparameter param, long offset, long nelements, [Out]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray1d(CGparameter param, long offset, long nelements, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameterArray1f(CGparameter param, long offset, long nelements, [Out]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray1f(CGparameter param, long offset, long nelements, [Out]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray1f(CGparameter param, long offset, long nelements, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameterArray2d(CGparameter param, long offset, long nelements, [Out]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray2d(CGparameter param, long offset, long nelements, [Out]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray2d(CGparameter param, long offset, long nelements, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameterArray2f(CGparameter param, long offset, long nelements, [Out]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray2f(CGparameter param, long offset, long nelements, [Out]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray2f(CGparameter param, long offset, long nelements, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameterArray3d(CGparameter param, long offset, long nelements, [Out]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray3d(CGparameter param, long offset, long nelements, [Out]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray3d(CGparameter param, long offset, long nelements, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameterArray3f(CGparameter param, long offset, long nelements, [Out]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray3f(CGparameter param, long offset, long nelements, [Out]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray3f(CGparameter param, long offset, long nelements, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameterArray4d(CGparameter param, long offset, long nelements, [Out]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray4d(CGparameter param, long offset, long nelements, [Out]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray4d(CGparameter param, long offset, long nelements, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLGetParameterArray4f(CGparameter param, long offset, long nelements, [Out]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray4f(CGparameter param, long offset, long nelements, [Out]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLGetParameterArray4f(CGparameter param, long offset, long nelements, [Out]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGLGetProgramID(CGprogram program);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetDebugMode(CGbool debug);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetManageTextureParameters(CGcontext context, bool flag);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGLGetTextureEnum(CGparameter param);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern int cgGLGetTextureParameter(CGparameter param);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgGLIsProfileSupported(CGprofile profile);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern CGbool cgGLIsProgramLoaded(CGprogram program);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLLoadProgram(CGprogram program);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLRegisterStates(CGcontext context);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetMatrixParameterArraydc(CGparameter param, long offset, long nelements, [In]double* v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterArraydc(CGparameter param, long offset, long nelements, [In]double[] v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterArraydc(CGparameter param, long offset, long nelements, [In]IntPtr v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetMatrixParameterArraydr(CGparameter param, long offset, long nelements, [In]double* v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterArraydr(CGparameter param, long offset, long nelements, [In]double[] v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterArraydr(CGparameter param, long offset, long nelements, [In]IntPtr v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetMatrixParameterArrayfc(CGparameter param, long offset, long nelements, [In]float* v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterArrayfc(CGparameter param, long offset, long nelements, [In]float[] v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterArrayfc(CGparameter param, long offset, long nelements, [In]IntPtr v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetMatrixParameterArrayfr(CGparameter param, long offset, long nelements, [In]float* v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterArrayfr(CGparameter param, long offset, long nelements, [In]float[] v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterArrayfr(CGparameter param, long offset, long nelements, [In]IntPtr v);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetMatrixParameterdc(CGparameter param, [In]double* matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterdc(CGparameter param, [In]double[] matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterdc(CGparameter param, [In]IntPtr matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetMatrixParameterdr(CGparameter param, [In]double* matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterdr(CGparameter param, [In]double[] matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterdr(CGparameter param, [In]IntPtr matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetMatrixParameterfc(CGparameter param, [In]float* matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterfc(CGparameter param, [In]float[] matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterfc(CGparameter param, [In]IntPtr matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetMatrixParameterfr(CGparameter param, [In]float* matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterfr(CGparameter param, [In]float[] matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetMatrixParameterfr(CGparameter param, [In]IntPtr matrix);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetOptimalOptions(CGprofile profile);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter1d(CGparameter param, double x);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter1dv(CGparameter param, [In]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter1dv(CGparameter param, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameter1dv(CGparameter param, [In]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter1f(CGparameter param, float x);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameter1fv(CGparameter param, [In]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter1fv(CGparameter param, [In]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter1fv(CGparameter param, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter2d(CGparameter param, double x, double y);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameter2dv(CGparameter param, [In]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter2dv(CGparameter param, [In]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter2dv(CGparameter param, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter2f(CGparameter param, float x, float y);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameter2fv(CGparameter param, [In]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter2fv(CGparameter param, [In]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter2fv(CGparameter param, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter3d(CGparameter param, double x, double y, double z);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter3dv(CGparameter param, [In]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter3dv(CGparameter param, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameter3dv(CGparameter param, [In]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter3f(CGparameter param, float x, float y, float z);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameter3fv(CGparameter param, [In]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter3fv(CGparameter param, [In]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter3fv(CGparameter param, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter4d(CGparameter param, double x, double y, double z, double w);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameter4dv(CGparameter param, [In]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter4dv(CGparameter param, [In]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter4dv(CGparameter param, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter4f(CGparameter param, float x, float y, float z, float w);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter4fv(CGparameter param, [In]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameter4fv(CGparameter param, [In]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameter4fv(CGparameter param, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameterArray1d(CGparameter param, long offset, long nelements, [In]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray1d(CGparameter param, long offset, long nelements, [In]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray1d(CGparameter param, long offset, long nelements, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameterArray1f(CGparameter param, long offset, long nelements, [In]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray1f(CGparameter param, long offset, long nelements, [In]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray1f(CGparameter param, long offset, long nelements, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameterArray2d(CGparameter param, long offset, long nelements, [In]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray2d(CGparameter param, long offset, long nelements, [In]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray2d(CGparameter param, long offset, long nelements, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameterArray2f(CGparameter param, long offset, long nelements, [In]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray2f(CGparameter param, long offset, long nelements, [In]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray2f(CGparameter param, long offset, long nelements, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameterArray3d(CGparameter param, long offset, long nelements, [In]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray3d(CGparameter param, long offset, long nelements, [In]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray3d(CGparameter param, long offset, long nelements, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameterArray3f(CGparameter param, long offset, long nelements, [In]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray3f(CGparameter param, long offset, long nelements, [In]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray3f(CGparameter param, long offset, long nelements, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameterArray4d(CGparameter param, long offset, long nelements, [In]double* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray4d(CGparameter param, long offset, long nelements, [In]double[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray4d(CGparameter param, long offset, long nelements, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray4f(CGparameter param, long offset, long nelements, [In]IntPtr values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameterArray4f(CGparameter param, long offset, long nelements, [In]float* values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterArray4f(CGparameter param, long offset, long nelements, [In]float[] values);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public unsafe static extern void cgGLSetParameterPointer(CGparameter param, int fsize, int type, int stride, [In]void* pointer);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetParameterPointer(CGparameter param, int fsize, int type, int stride, [In]IntPtr pointer);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetStateMatrixParameter(CGparameter param, int matrix, int transform);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetTextureParameter(CGparameter param, int texobj);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLSetupSampler(CGparameter param, int texobj);
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLUnbindProgram(CGprogram profile);//TODO Было cgGLUnbindProgram(CGprofile profile)
+
+        [DllImport("cgGL.dll", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void cgGLUnloadProgram(CGprogram program);
+
         #endregion
 
         #region Wrapper
-        public unsafe static string[] GetOptimalOptions(CGprofile profile, RenderType renderType = RenderType.DirectX11)
+        public static IntPtr GetOptimalOptions(CGprofile profile)
         {
+            return (App.RenderType == RenderType.OpneGl3
+               ? cgGLGetOptimalOptions(profile)
+               : cgD3D11GetOptimalOptions(profile));
+        }
+
+        public unsafe static string[] ToStrArr(this IntPtr p)
+        {
+            var byteArray =  (byte**) p;
+            var buffer = new List<byte>();
+            var lines = new List<string>();
             try
             {
-                var byteArray =
-                    (byte**)
-                        (renderType == RenderType.OpneGl3
-                            ? cgGLGetOptimalOptions(profile)
-                            : cgD3D11GetOptimalOptions(profile));
-                var buffer = new List<byte>();
-                var lines = new List<string>();
-
                 for (; *byteArray != null; byteArray++)
                 {
                     for (var b = *byteArray; *b != '\0'; b++)
@@ -1165,12 +1715,17 @@ namespace Ormeli.CG
                     lines.Add(new string(Encoding.ASCII.GetChars(buffer.ToArray())));
                     buffer.Clear();
                 }
-                return lines.ToArray();
+                return lines.Count > 0 ? lines.ToArray() : null;
             }
             catch
             {
-                return null;
+                return lines.Count > 0 ?lines.ToArray() : null;
             }
+        }
+
+        public static string ToStr(this IntPtr s)
+        {
+            return Marshal.PtrToStringAnsi(s);
         }
         #endregion
     }

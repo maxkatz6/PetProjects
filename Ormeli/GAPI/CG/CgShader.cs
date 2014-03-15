@@ -1,13 +1,13 @@
-﻿using Ormeli.Core;
-
-namespace Ormeli.CG
+﻿namespace Ormeli.CG
 {
     public class CgShader
     {
+        public  CGprogram VertexProgram, FragmentProgram;
+
+        public static readonly CGcontext CGcontext = CgImports.cgCreateContext();
         internal static void InitializeShaderEngine()
         {
-            LibManager.CG_SaveFromResource();
-            App.Render.InitCG();
+            CgImports.cgSetErrorCallback(CgErrorProvider.CheckForCgError);
         }
     }
 }

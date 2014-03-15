@@ -1,7 +1,10 @@
-﻿using Ormeli.Core.Patterns;
+﻿using System;
+using Ormeli.CG;
+using Ormeli.Core.Patterns;
 using Ormeli.DirectX11;
 using Ormeli.Graphics;
 using Ormeli.Math;
+using Ormeli.OpenGL3;
 
 namespace Ormeli
 {
@@ -9,10 +12,7 @@ namespace Ormeli
     {
         static void Main(string[] args)
         {
-            using (var prog = new Program())
-            {
-                prog.Run();
-            }
+            new Program().Run();
         }
 
         private readonly Mesh mesh = new Mesh();
@@ -21,14 +21,17 @@ namespace Ormeli
 
              Config.Height = 500;
             Config.Width = 500;
-            App.Initialize(new DXRender());
+            App.Initialize(Console.ReadLine() == "1" ? (IRenderClass) new DXRender() : new OGRender());
             App.Render.ChangeBackColor(Color.Indigo);
 
-            mesh.Initalize(new[] {0,1,2}, new[]
+            ShaderManager.Shaders.Add(App.Render.InitCgShader("vertex.cg", "pixel.cg"));
+
+            mesh.Initalize(new[] {0,1,2,0,2,3}, new[]
             {
-                new ColorVertex(new Vector3(-0.8f,  0.8f, 0.0f), Color.Red),
-                new ColorVertex(new Vector3( 0.8f,  0.8f, 0.0f), Color.Green),
-                new ColorVertex(new Vector3(0.0f, -0.8f, 0.0f), Color.Blue)
+                new ColorVertex(new Vector3(-0.8f,  -0.8f,0), Color.Red),
+                new ColorVertex(new Vector3( -0.8f,  0.8f, 0), Color.White),
+                new ColorVertex(new Vector3(0.8f, 0.8f, 0), Color.Blue),
+                new ColorVertex(new Vector3(0.8f,  -0.8f,0), Color.Green),
             });
 
         }

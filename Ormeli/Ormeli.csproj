@@ -34,6 +34,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -101,16 +102,28 @@
     <Compile Include="Core\BinaryOperations.cs" />
     <Compile Include="Core\ErrorProvider.cs" />
     <Compile Include="Core\FileManager.cs" />
-    <Compile Include="Core\LibManager.cs" />
     <Compile Include="App\Program.cs" />
     <Compile Include="Core\Patterns\Disposable.cs" />
     <Compile Include="Core\Patterns\Singleton.cs" />
+    <Compile Include="Core\Timer.cs" />
     <Compile Include="GAPI\Buffer.cs" />
-    <Compile Include="GAPI\CG\CgEnums.cs" />
     <Compile Include="GAPI\CG\CgErrorProvider.cs" />
     <Compile Include="GAPI\CG\CgShader.cs" />
     <Compile Include="GAPI\CG\CGType.cs" />
+    <Compile Include="GAPI\CG\Enums\CgBehaviorEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgBufferAccessEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgBufferusageEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgDomainEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgErrorEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgGLEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgParameterClassEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgProfileEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgResourceEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\CgTypeEnum.cs" />
+    <Compile Include="GAPI\CG\Enums\HelperEnum.cs" />
     <Compile Include="GAPI\CG\СgImports.cs" />
+    <Compile Include="GAPI\ShaderManager.cs" />
     <Compile Include="GAPI\Texture.cs" />
     <Compile Include="Graphics\Mesh.cs" />
     <Compile Include="Graphics\Vertex.cs" />
