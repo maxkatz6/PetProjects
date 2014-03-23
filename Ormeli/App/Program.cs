@@ -4,7 +4,7 @@ using Ormeli.Core.Patterns;
 using Ormeli.DirectX11;
 using Ormeli.Graphics;
 using Ormeli.Math;
-using Ormeli.OpenGL3;
+using Ormeli.OpenGL;
 
 namespace Ormeli
 {
@@ -22,9 +22,10 @@ namespace Ormeli
              Config.Height = 500;
             Config.Width = 500;
             App.Initialize(Console.ReadLine() == "1" ? (IRenderClass) new DXRender() : new OGRender());
+            HardwareDescription.VideoCardMemory = 0;
             App.Render.ChangeBackColor(Color.Indigo);
 
-            ShaderManager.Shaders.Add(App.Render.InitCgShader("vertex.cg", "pixel.cg"));
+            ShaderManager.Shaders.Add(new CgEffect("effect.cgfx"));
 
             mesh.Initalize(new[] {0,1,2,0,2,3}, new[]
             {

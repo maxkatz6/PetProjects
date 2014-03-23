@@ -1,4 +1,5 @@
 ﻿using Ormeli.CG;
+using Ormeli.Core;
 using Ormeli.Core.Patterns;
 using SharpDX;
 using SharpDX.Direct3D;
@@ -13,32 +14,14 @@ using Resource = SharpDX.Direct3D11.Resource;
 
 namespace Ormeli.DirectX11
 {
-    internal class DXRender : Disposable, IRenderClass
+    internal sealed class DXRender : Disposable, IRenderClass
     {
         private readonly Color4 _blendFactor = new Color4(0, 0, 0, 0);
         public Color4 BackColor;
-
         public Device Device;
-
         public DeviceContext DeviceContext;
-
         public SwapChain SwapChain;
-
         private RenderForm _renderForm;
-
-        public DepthStencilState DepthStencilState { get; set; }
-
-        public RenderTargetView RenderTargetView { get; set; }
-
-        public Texture2D DepthStencilBuffer { get; set; }
-
-        public DepthStencilView DepthStencilView { get; set; }
-
-        public bool Enable4xMSAA { get; set; }
-
-        public Rational Rational { get; set; }
-
-        public RasterizerState RasterState { get; set; }
 
         public BlendState AlphaDisableBlendingState { get; set; }
 
@@ -46,12 +29,155 @@ namespace Ormeli.DirectX11
 
         public DepthStencilState DepthDisabledStencilState { get; set; }
 
+        public Texture2D DepthStencilBuffer { get; set; }
+
+        public DepthStencilState DepthStencilState { get; set; }
+
+        public DepthStencilView DepthStencilView { get; set; }
+
+        public bool Enable4xMSAA { get; set; }
+
+        public RasterizerState RasterState { get; set; }
+
+        public Rational Rational { get; set; }
+
+        public RenderTargetView RenderTargetView { get; set; }
+
+        public void AlphaBlending(bool turn)
+        {
+            DeviceContext.OutputMerger.SetBlendState(turn ? AlphaEnableBlendingState : AlphaDisableBlendingState,
+                _blendFactor);
+        }
+
+        public void BeginDraw()
+        {
+            DeviceContext.ClearDepthStencilView(DepthStencilView,
+                DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
+            DeviceContext.ClearRenderTargetView(RenderTargetView, BackColor);
+        }
+
+        public void ChangeBackColor(Color color)
+        {
+            BackColor = ToDXColor(color);
+        }
+
+        public Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
+            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
+        {
+            var vbd = new BufferDescription(
+                Marshal.SizeOf(typeof(T)),
+                (ResourceUsage)bufferUsage,
+                (BindFlags)bufferTarget,
+                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+                ResourceOptionFlags.None,
+                0
+                );
+            return new Buffer(new SharpDX.Direct3D11.Buffer(Device, vbd).NativePointer, bufferTarget, bufferUsage,
+                cpuAccessFlags);
+        }
+
+        public Buffer CreateBuffer<T>(T obj, BindFlag bufferTarget,
+            BufferUsage bufferUsage = BufferUsage.Dynamic,
+            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
+        {
+            var vbd = new BufferDescription(
+                Marshal.SizeOf(typeof(T)),
+                (ResourceUsage)bufferUsage,
+                (BindFlags)bufferTarget,
+                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+                ResourceOptionFlags.None,
+                0
+                );
+            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, ref obj, vbd).NativePointer, bufferTarget,
+                bufferUsage, cpuAccessFlags);
+        }
+
+        public Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget,
+            BufferUsage bufferUsage = BufferUsage.Dynamic,
+            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
+        {
+            var vbd = new BufferDescription(
+                objs.Length * Marshal.SizeOf(typeof(T)),
+                (ResourceUsage)bufferUsage,
+                (BindFlags)bufferTarget,
+                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+                ResourceOptionFlags.None, 0
+                );
+            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, objs, vbd).NativePointer, bufferTarget,
+                bufferUsage, cpuAccessFlags);
+        }
+
         public void CreateWindow()
         {
             _renderForm = new RenderForm
             {
                 Height = Config.Height,
                 Width = Config.Width
+            };
+        }
+
+        public void Draw(CgEffect cgEffect, Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
+        {
+            DeviceContext.InputAssembler.SetVertexBuffers(0,
+                new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer.Handle),
+                    vertexStride, 0));
+            DeviceContext.InputAssembler.SetIndexBuffer(
+                CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
+
+            CGpass pass = CgImports.cgGetFirstPass(cgEffect.CGtechnique);
+
+            while (pass)
+            {
+
+                var pVsBlob = new Blob(CgImports.cgD3D11GetIASignatureByPass(pass));
+                var byteArr = new byte[pVsBlob.BufferSize];
+                Marshal.Copy(pVsBlob.BufferPointer, byteArr, 0, byteArr.Length);
+                DeviceContext.InputAssembler.InputLayout = new InputLayout(Device, byteArr, new[]
+                {
+                    new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0, InputClassification.PerVertexData, 0),
+                    new InputElement("COLOR", 0, Format.R32G32B32_Float, 12, 0, InputClassification.PerVertexData, 0)
+                });
+
+                CgImports.cgSetPassState(pass);
+
+                DeviceContext.DrawIndexed(indexCount, 0, 0);
+
+                CgImports.cgResetPassState(pass);
+                pass = CgImports.cgGetNextPass(pass);
+            }
+        }
+
+        public void EndDraw()
+        {
+            SwapChain.Present(Config.VerticalSyncEnabled ? 1 : 0, PresentFlags.None);
+        }
+
+        public CgEffect InitCgShader(string file)
+        {
+            CGeffect cgEffect = CgImports.cgCreateEffectFromFile(CgEffect.CGcontext, Config.ShadersDirectory + file,
+                null);
+            CGtechnique myCgTechnique = CgImports.cgGetFirstTechnique(cgEffect);
+
+            while (myCgTechnique && CgImports.cgValidateTechnique(myCgTechnique) != 1)
+            {
+                Console.WriteLine("Ormeli: Technique {0} did not validate.  Skipping.\n",
+                    CgImports.cgGetTechniqueName(myCgTechnique).ToStr());
+                myCgTechnique = CgImports.cgGetNextTechnique(myCgTechnique);
+            }
+
+            if (myCgTechnique)
+            {
+                Console.WriteLine("Ormeli: Use technique {0}.\n", CgImports.cgGetTechniqueName(myCgTechnique).ToStr());
+            }
+            else
+            {
+                ErrorProvider.SendError("Ormeli: No valid technique.", true);
+            }
+
+            return new CgEffect
+            {
+                CGeffect = cgEffect,
+                CGtechnique = myCgTechnique
             };
         }
 
@@ -85,7 +211,7 @@ namespace Ormeli.DirectX11
             #region Создаем SwapChain, Device, и DeviceContext
 
             //TODO DriverType
-            Device = new Device(DriverType.Hardware,
+            Device = new Device(DriverType.Reference,
                 Config.IsDebug ? DeviceCreationFlags.Debug : DeviceCreationFlags.None, FeatureLevel.Level_11_0,
                 FeatureLevel.Level_10_1,
                 FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
@@ -315,45 +441,11 @@ namespace Ormeli.DirectX11
 
             DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            CgImports.cgD3D11SetDevice(CgShader.CGcontext, Device.NativePointer);
+            CgImports.cgD3D11SetDevice(CgEffect.CGcontext, Device.NativePointer);
+            CgImports.cgD3D11RegisterStates(CgEffect.CGcontext);
+
+            CgImports.cgD3D11SetManageTextureParameters(CgEffect.CGcontext, 1);
             return RenderType.DirectX11;
-        }
-
-        public CgShader InitCgShader(string v, string p)
-        {
-            CGprofile myCgVertexProfile = CgImports.cgD3D11GetLatestVertexProfile();
-
-            IntPtr profileOpts = CgImports.GetOptimalOptions(myCgVertexProfile);
-
-            CGprogram myCgVertexProgram = CgImports.cgCreateProgramFromFile(
-                CgShader.CGcontext,
-                CGenum.Source,
-                Config.ShadersDirectory + v,
-                myCgVertexProfile,
-                "main",
-                profileOpts);
-
-            CgImports.cgD3D11LoadProgram(myCgVertexProgram, 0);
-
-            CGprofile myCgFragmentProfile = CgImports.cgD3D11GetLatestPixelProfile();
-
-            profileOpts = CgImports.GetOptimalOptions(myCgFragmentProfile);
-
-            CGprogram myCgFragmentProgram = CgImports.cgCreateProgramFromFile(
-                CgShader.CGcontext,
-                CGenum.Source,
-                Config.ShadersDirectory + p,
-                myCgFragmentProfile,
-                "main",
-                profileOpts);
-            CgImports.cgD3D11LoadProgram(myCgFragmentProgram, 0);
-
-
-            return new CgShader
-            {
-                FragmentProgram = myCgFragmentProgram,
-                VertexProgram = myCgVertexProgram
-            };
         }
 
         public void Run(Action act)
@@ -361,110 +453,15 @@ namespace Ormeli.DirectX11
             RenderLoop.Run(_renderForm, () => act());
         }
 
-        public void BeginDraw()
-        {
-            DeviceContext.ClearDepthStencilView(DepthStencilView,
-                DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
-            DeviceContext.ClearRenderTargetView(RenderTargetView, BackColor);
-        }
-
-        public void ChangeBackColor(Color color)
-        {
-            BackColor = ToDXColor(color);
-        }
-
-        public void EndDraw()
-        {
-            SwapChain.Present(Config.VerticalSyncEnabled ? 1 : 0, PresentFlags.None);
-        }
-
-
-        public void Draw(CgShader cgShader, Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
-        {
-            CgImports.cgD3D11BindProgram(cgShader.VertexProgram);
-            CgImports.cgD3D11BindProgram(cgShader.FragmentProgram);
-
-            var pVsBlob = new Blob(CgImports.cgD3D11GetCompiledProgram(cgShader.VertexProgram));
-            var byteArr = new byte[pVsBlob.BufferSize];
-            Marshal.Copy(pVsBlob.BufferPointer, byteArr, 0, byteArr.Length);
-            DeviceContext.InputAssembler.InputLayout = new InputLayout(Device, byteArr, new[]
-            {
-                new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0, InputClassification.PerVertexData, 0),
-                new InputElement("COLOR", 0, Format.R32G32B32_Float, 12, 0, InputClassification.PerVertexData, 0)
-            });
-
-            DeviceContext.InputAssembler.SetVertexBuffers(0,
-                new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer.Handle),
-                    vertexStride, 0));
-            DeviceContext.InputAssembler.SetIndexBuffer(
-                CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
-
-            DeviceContext.DrawIndexed(indexCount, 0, 0);
-
-            CgImports.cgD3D11UnbindProgram(cgShader.VertexProgram);
-            CgImports.cgD3D11UnbindProgram(cgShader.FragmentProgram);
-        }
-
-        public Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
-            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
-        {
-            var vbd = new BufferDescription(
-                Marshal.SizeOf(typeof(T)),
-                (ResourceUsage)bufferUsage,
-                (BindFlags)bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
-                ResourceOptionFlags.None,
-                0
-                );
-            return new Buffer(new SharpDX.Direct3D11.Buffer(Device, vbd).NativePointer, bufferTarget, bufferUsage,
-                cpuAccessFlags);
-        }
-
-        public Buffer CreateBuffer<T>(T obj, BindFlag bufferTarget,
-            BufferUsage bufferUsage = BufferUsage.Dynamic,
-            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
-        {
-            var vbd = new BufferDescription(
-                Marshal.SizeOf(typeof(T)),
-                (ResourceUsage)bufferUsage,
-                (BindFlags)bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
-                ResourceOptionFlags.None,
-                0
-                );
-            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, ref obj, vbd).NativePointer, bufferTarget,
-                bufferUsage, cpuAccessFlags);
-        }
-
-        public Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget,
-            BufferUsage bufferUsage = BufferUsage.Dynamic,
-            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
-        {
-            var vbd = new BufferDescription(
-                objs.Length * Marshal.SizeOf(typeof(T)),
-                (ResourceUsage)bufferUsage,
-                (BindFlags)bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
-                ResourceOptionFlags.None, 0
-                );
-            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, objs, vbd).NativePointer, bufferTarget,
-                bufferUsage, cpuAccessFlags);
-        }
-
-        public void AlphaBlending(bool turn)
-        {
-            DeviceContext.OutputMerger.SetBlendState(turn ? AlphaEnableBlendingState : AlphaDisableBlendingState,
-                _blendFactor);
-        }
-
         public void ZBuffer(bool turn)
         {
             DeviceContext.OutputMerger.SetDepthStencilState(turn ? DepthStencilState : DepthDisabledStencilState, 1);
         }
 
-        private static Color4 ToDXColor(Color d)
+        public void SetBackBufferRenderTarget()
         {
-            return new Color4(d.R, d.G, d.B, d.A);
+            // Bind the render target view and depth stencil buffer to the output render pipeline.
+            DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
         }
 
         protected override void OnDispose()
@@ -536,10 +533,9 @@ namespace Ormeli.DirectX11
             }
         }
 
-        public void SetBackBufferRenderTarget()
+        private static Color4 ToDXColor(Color d)
         {
-            // Bind the render target view and depth stencil buffer to the output render pipeline.
-            DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
+            return new Color4(d.R, d.G, d.B, d.A);
         }
     }
 }

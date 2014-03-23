@@ -1,6 +1,5 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using Ormeli.Core;
+﻿using Ormeli.Core;
+using System;
 
 namespace Ormeli.CG
 {
@@ -9,7 +8,7 @@ namespace Ormeli.CG
         public static void CheckForCgError()
         {
             CGerror cGerror;
-            var s = CgImports.cgGetLastErrorString(out cGerror).ToStr();
+            string s = CgImports.cgGetLastErrorString(out cGerror).ToStr();
 
             if (string.IsNullOrEmpty(s)) return;
 
@@ -17,9 +16,9 @@ namespace Ormeli.CG
                 @"Ormeli: {2}!
 Error: {0}
 Cg compiler output...{1}
-" ,s, CgImports.cgGetLastListing(CgShader.CGcontext),cGerror);
+", s, CgImports.cgGetLastListing(CgEffect.CGcontext), cGerror);
 
-            ErrorProvider.SendError(s,true);
+            ErrorProvider.SendError(s, true);
         }
     }
 }

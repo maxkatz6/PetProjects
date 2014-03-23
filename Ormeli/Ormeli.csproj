@@ -100,6 +100,7 @@
     <Compile Include="App\Config.cs" />
     <Compile Include="App\HardwareDescription.cs" />
     <Compile Include="Core\BinaryOperations.cs" />
+    <Compile Include="Core\Cin.cs" />
     <Compile Include="Core\ErrorProvider.cs" />
     <Compile Include="Core\FileManager.cs" />
     <Compile Include="App\Program.cs" />
@@ -108,7 +109,7 @@
     <Compile Include="Core\Timer.cs" />
     <Compile Include="GAPI\Buffer.cs" />
     <Compile Include="GAPI\CG\CgErrorProvider.cs" />
-    <Compile Include="GAPI\CG\CgShader.cs" />
+    <Compile Include="GAPI\CG\CgEffect.cs" />
     <Compile Include="GAPI\CG\CGType.cs" />
     <Compile Include="GAPI\CG\Enums\CgBehaviorEnum.cs" />
     <Compile Include="GAPI\CG\Enums\CgBufferAccessEnum.cs" />
@@ -136,7 +137,7 @@
     <Compile Include="Math\Vector4.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GAPI\DirectX11\DXRender.cs" />
-    <Compile Include="GAPI\OpenGL3\OGRender.cs" />
+    <Compile Include="GAPI\OpenGL\OGRender.cs" />
     <Compile Include="GAPI\RenderClass.cs" />
     <Compile Include="Math\MathHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -156,6 +157,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\glut32_32.dll" />
+    <None Include="Resources\Shaders\effect.cgfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\Shaders\vertex.cg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

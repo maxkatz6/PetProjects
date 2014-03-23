@@ -8,11 +8,11 @@ namespace Ormeli
     {
         void CreateWindow();
         RenderType Initialize();
-        CgShader InitCgShader(string v, string p);
+        CgEffect InitCgShader(string file);
         void Run(Action act);
         void BeginDraw();
         void ChangeBackColor(Color color);
-        void Draw(CgShader cgShader, Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount);
+        void Draw(CgEffect cgEffect, Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount);
         void EndDraw();
         void ZBuffer(bool turn);
         void AlphaBlending(bool turn);

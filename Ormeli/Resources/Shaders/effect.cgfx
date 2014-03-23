@@ -1,0 +1,44 @@
+﻿struct VOutput 
+{
+  float4 position : POSITION;
+  float4 color    : COLOR;
+};
+
+VOutput vs( float3 position : POSITION , float4 color : COLOR)
+{	
+  VOutput OUT;
+
+  OUT.position = float4( position, 1 );
+  OUT.color = color;
+
+  return OUT;
+}
+
+struct POutput
+{
+  float4 color : COLOR;
+};
+
+POutput ps( VOutput input )
+{
+  POutput OUT;
+  OUT.color = input.color;
+  return OUT;
+}
+
+technique Dx11
+{
+  pass Hi
+  {
+      VertexProgram = compile vs_5_0 vs();
+      FragmentProgram = compile ps_5_0 ps();
+  }
+}
+technique OGl
+{
+  pass Hi
+  {
+      VertexProgram = compile gp5vp  vs();
+      FragmentProgram = compile gp5fp  ps();
+  }
+}

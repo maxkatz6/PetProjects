@@ -1,5 +1,6 @@
 ﻿#region License
-/*  
+
+/*
 MIT License
 OpenCg v1.0 Copyright (c) 2011 Péter Primusz
 primuszpeter.blogspot.com
@@ -23,13 +24,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#endregion
+
+#endregion License
 
 using System;
 using System.Runtime.InteropServices;
 
 namespace Ormeli.CG
 {
+    /// <summary>
+    /// Represent a Cg annotation object.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CGannotation
+    {
+        /// <summary>
+        /// Keeps the struct from being garbage collected prematurely.
+        /// </summary>
+        private IntPtr Data;
+    }
+
     /// <summary>
     /// Represent a Cg bool.
     /// </summary>
@@ -78,34 +92,22 @@ namespace Ormeli.CG
     }
 
     /// <summary>
+    /// Represent a Cg Buffer object.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CGbuffer
+    {
+        /// <summary>
+        /// Keeps the struct from being garbage collected prematurely.
+        /// </summary>
+        private IntPtr Data;
+    }
+
+    /// <summary>
     /// Represent a Cg context.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct CGcontext
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg handle.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGhandle
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg program.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGprogram
     {
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
@@ -126,34 +128,10 @@ namespace Ormeli.CG
     }
 
     /// <summary>
-    /// Represent a Cg technique object.
+    /// Represent a Cg handle.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct CGtechnique
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg Buffer object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGbuffer
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg parameter object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGparameter
+    public struct CGhandle
     {
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
@@ -174,6 +152,18 @@ namespace Ormeli.CG
     }
 
     /// <summary>
+    /// Represent a Cg parameter object.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CGparameter
+    {
+        /// <summary>
+        /// Keeps the struct from being garbage collected prematurely.
+        /// </summary>
+        private IntPtr Data;
+    }
+
+    /// <summary>
     /// Represent a Cg pass object.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
@@ -182,7 +172,24 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private  IntPtr Data;
+        private IntPtr Data;
+
+        public static implicit operator bool(CGpass boolean)
+        {
+            return boolean.Data != IntPtr.Zero;
+        }
+    }
+
+    /// <summary>
+    /// Represent a Cg program.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CGprogram
+    {
+        /// <summary>
+        /// Keeps the struct from being garbage collected prematurely.
+        /// </summary>
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -194,7 +201,7 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private  IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
@@ -206,18 +213,23 @@ namespace Ormeli.CG
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private  IntPtr Data;
+        private IntPtr Data;
     }
 
     /// <summary>
-    /// Represent a Cg annotation object.
+    /// Represent a Cg technique object.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct CGannotation
+    public struct CGtechnique
     {
         /// <summary>
         /// Keeps the struct from being garbage collected prematurely.
         /// </summary>
-        private  IntPtr Data;
+        private IntPtr Data;
+
+        public static implicit operator bool(CGtechnique boolean)
+        {
+            return boolean.Data != IntPtr.Zero;
+        }
     }
 }

@@ -5,6 +5,6 @@ namespace Ormeli
 {
     public static class ShaderManager
     {
-        public static List<CgShader> Shaders = new List<CgShader>(); 
+        public static List<CgEffect> Shaders = new List<CgEffect>(); 
     }
 }

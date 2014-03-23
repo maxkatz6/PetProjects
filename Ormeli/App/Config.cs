@@ -9,6 +9,7 @@ namespace Ormeli
         public static bool VerticalSyncEnabled { get; set; }
         public static bool FullScreen { get; set; }
         public static bool IsDebug { get; set; }
+        public static string RenderVersion; 
         public static readonly string BaseDirectory;
         public static readonly string ShadersDirectory;
         static Config ()

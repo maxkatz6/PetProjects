@@ -21,7 +21,6 @@ namespace Ormeli
             Render = render;
             var t = new Timer();
             t.Initialize();
-            CgShader.InitializeShaderEngine();
             Render.CreateWindow();
             RenderType = Render.Initialize();
             t.Frame();
