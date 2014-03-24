@@ -73,27 +73,16 @@
     <Reference Include="SharpDX">
       <HintPath>..\..\TDF\VBExample\bin\Debug\Новая папка\SharpDX.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.D3DCompiler">
-      <HintPath>..\..\TDF\VBExample\bin\Debug\Новая папка\SharpDX.D3DCompiler.dll</HintPath>
-    </Reference>
     <Reference Include="SharpDX.Direct3D11">
       <HintPath>..\..\TDF\VBExample\bin\Debug\Новая папка\SharpDX.Direct3D11.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D11.Effects">
-      <HintPath>..\..\TDF\VBExample\bin\Debug\Новая папка\SharpDX.Direct3D11.Effects.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DXGI">
       <HintPath>..\..\TDF\VBExample\bin\Debug\Новая папка\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App\App.cs" />
@@ -124,8 +113,11 @@
     <Compile Include="GAPI\CG\Enums\CgTypeEnum.cs" />
     <Compile Include="GAPI\CG\Enums\HelperEnum.cs" />
     <Compile Include="GAPI\CG\СgImports.cs" />
-    <Compile Include="GAPI\ShaderManager.cs" />
-    <Compile Include="GAPI\Texture.cs" />
+    <Compile Include="GAPI\DirectX11\DxAttribs.cs" />
+    <Compile Include="GAPI\Interfaces\IEffectAttribs.cs" />
+    <Compile Include="GAPI\EffectManager.cs" />
+    <Compile Include="GAPI\Interfaces\ITexture.cs" />
+    <Compile Include="GAPI\OpenGL\GlAttribs.cs" />
     <Compile Include="Graphics\Mesh.cs" />
     <Compile Include="Graphics\Vertex.cs" />
     <Compile Include="Math\Color.cs" />
@@ -138,7 +130,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GAPI\DirectX11\DXRender.cs" />
     <Compile Include="GAPI\OpenGL\OGRender.cs" />
-    <Compile Include="GAPI\RenderClass.cs" />
+    <Compile Include="GAPI\Interfaces\IRenderClass.cs" />
     <Compile Include="Math\MathHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -157,13 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\glut32_32.dll" />
-    <None Include="Resources\Shaders\effect.cgfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\vertex.cg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Shaders\pixel.cg">
+    <None Include="Resources\Effects\effect.cgfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

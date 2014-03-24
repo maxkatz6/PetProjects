@@ -1,4 +1,7 @@
-﻿using Ormeli.CG;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Ormeli.CG;
 using Ormeli.Core;
 using Ormeli.Core.Patterns;
 using SharpDX;
@@ -6,8 +9,6 @@ using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Windows;
-using System;
-using System.Runtime.InteropServices;
 using Color = Ormeli.Math.Color;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
@@ -43,6 +44,8 @@ namespace Ormeli.DirectX11
 
         public RenderTargetView RenderTargetView { get; set; }
 
+        private int lastAttrNum = -1;
+
         public void AlphaBlending(bool turn)
         {
             DeviceContext.OutputMerger.SetBlendState(turn ? AlphaEnableBlendingState : AlphaDisableBlendingState,
@@ -61,14 +64,21 @@ namespace Ormeli.DirectX11
             BackColor = ToDXColor(color);
         }
 
+        public IAttribsContainer InitAttribs(Attrib[] attribs, IntPtr ptr)
+        {
+            var a = new DxAttribs(DeviceContext);
+            a.Initialize(attribs,ptr);
+            return a;
+        }
+
         public Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
             CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
         {
             var vbd = new BufferDescription(
-                Marshal.SizeOf(typeof(T)),
-                (ResourceUsage)bufferUsage,
-                (BindFlags)bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+                Marshal.SizeOf(typeof (T)),
+                (ResourceUsage) bufferUsage,
+                (BindFlags) bufferTarget,
+                (SharpDX.Direct3D11.CpuAccessFlags) ((long) cpuAccessFlags*65536),
                 ResourceOptionFlags.None,
                 0
                 );
@@ -76,31 +86,15 @@ namespace Ormeli.DirectX11
                 cpuAccessFlags);
         }
 
-        public Buffer CreateBuffer<T>(T obj, BindFlag bufferTarget,
-            BufferUsage bufferUsage = BufferUsage.Dynamic,
-            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
-        {
-            var vbd = new BufferDescription(
-                Marshal.SizeOf(typeof(T)),
-                (ResourceUsage)bufferUsage,
-                (BindFlags)bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
-                ResourceOptionFlags.None,
-                0
-                );
-            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, ref obj, vbd).NativePointer, bufferTarget,
-                bufferUsage, cpuAccessFlags);
-        }
-
         public Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget,
             BufferUsage bufferUsage = BufferUsage.Dynamic,
             CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
         {
             var vbd = new BufferDescription(
-                objs.Length * Marshal.SizeOf(typeof(T)),
-                (ResourceUsage)bufferUsage,
-                (BindFlags)bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+                objs.Length*Marshal.SizeOf(typeof (T)),
+                (ResourceUsage) bufferUsage,
+                (BindFlags) bufferTarget,
+                (SharpDX.Direct3D11.CpuAccessFlags) ((long) cpuAccessFlags*65536),
                 ResourceOptionFlags.None, 0
                 );
             return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, objs, vbd).NativePointer, bufferTarget,
@@ -116,7 +110,7 @@ namespace Ormeli.DirectX11
             };
         }
 
-        public void Draw(CgEffect cgEffect, Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
+        public void Draw(CgEffect.TechInfo techInfo, Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
         {
             DeviceContext.InputAssembler.SetVertexBuffers(0,
                 new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer.Handle),
@@ -124,20 +118,15 @@ namespace Ormeli.DirectX11
             DeviceContext.InputAssembler.SetIndexBuffer(
                 CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
 
-            CGpass pass = CgImports.cgGetFirstPass(cgEffect.CGtechnique);
+            var pass = CgImports.cgGetFirstPass(techInfo.CGtechnique);
+            if (lastAttrNum != techInfo.AttribsContainerNumber)
+            {
+                EffectManager.AttribsContainers[techInfo.AttribsContainerNumber].Accept();
+                lastAttrNum = techInfo.AttribsContainerNumber;
+            }
 
             while (pass)
             {
-
-                var pVsBlob = new Blob(CgImports.cgD3D11GetIASignatureByPass(pass));
-                var byteArr = new byte[pVsBlob.BufferSize];
-                Marshal.Copy(pVsBlob.BufferPointer, byteArr, 0, byteArr.Length);
-                DeviceContext.InputAssembler.InputLayout = new InputLayout(Device, byteArr, new[]
-                {
-                    new InputElement("POSITION", 0, Format.R32G32B32_Float, 0, 0, InputClassification.PerVertexData, 0),
-                    new InputElement("COLOR", 0, Format.R32G32B32_Float, 12, 0, InputClassification.PerVertexData, 0)
-                });
-
                 CgImports.cgSetPassState(pass);
 
                 DeviceContext.DrawIndexed(indexCount, 0, 0);
@@ -150,35 +139,6 @@ namespace Ormeli.DirectX11
         public void EndDraw()
         {
             SwapChain.Present(Config.VerticalSyncEnabled ? 1 : 0, PresentFlags.None);
-        }
-
-        public CgEffect InitCgShader(string file)
-        {
-            CGeffect cgEffect = CgImports.cgCreateEffectFromFile(CgEffect.CGcontext, Config.ShadersDirectory + file,
-                null);
-            CGtechnique myCgTechnique = CgImports.cgGetFirstTechnique(cgEffect);
-
-            while (myCgTechnique && CgImports.cgValidateTechnique(myCgTechnique) != 1)
-            {
-                Console.WriteLine("Ormeli: Technique {0} did not validate.  Skipping.\n",
-                    CgImports.cgGetTechniqueName(myCgTechnique).ToStr());
-                myCgTechnique = CgImports.cgGetNextTechnique(myCgTechnique);
-            }
-
-            if (myCgTechnique)
-            {
-                Console.WriteLine("Ormeli: Use technique {0}.\n", CgImports.cgGetTechniqueName(myCgTechnique).ToStr());
-            }
-            else
-            {
-                ErrorProvider.SendError("Ormeli: No valid technique.", true);
-            }
-
-            return new CgEffect
-            {
-                CGeffect = cgEffect,
-                CGtechnique = myCgTechnique
-            };
         }
 
         public RenderType Initialize()
@@ -211,7 +171,7 @@ namespace Ormeli.DirectX11
             #region Создаем SwapChain, Device, и DeviceContext
 
             //TODO DriverType
-            Device = new Device(DriverType.Reference,
+            Device = new Device(DriverType.Hardware,
                 Config.IsDebug ? DeviceCreationFlags.Debug : DeviceCreationFlags.None, FeatureLevel.Level_11_0,
                 FeatureLevel.Level_10_1,
                 FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);

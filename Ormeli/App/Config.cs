@@ -20,7 +20,7 @@ namespace Ormeli
             IsDebug = false;
 #endif
             BaseDirectory = System.AppDomain.CurrentDomain.BaseDirectory + "Resources\\";
-            ShadersDirectory = BaseDirectory + "Shaders\\";
+            ShadersDirectory = BaseDirectory + "Effects\\";
         }
         public static void Initialize()
         {

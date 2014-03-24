@@ -18,7 +18,7 @@
 
         public void Render()
         {
-            App.Render.Draw(ShaderManager.Shaders[ShaderNum], _vb, _ib, ColorVertex.SizeInBytes, Indices.Length);
+            App.Render.Draw(EffectManager.Effects[ShaderNum].Techs[0], _vb, _ib, ColorVertex.SizeInBytes, Indices.Length);
         }
     }
 }

@@ -1826,7 +1826,7 @@ namespace Ormeli.CG
 
         public static IntPtr GetOptimalOptions(CGprofile profile)
         {
-            return (App.RenderType == RenderType.OpneGl3
+            return (App.RenderType == RenderType.OpenGl3
                 ? cgGLGetOptimalOptions(profile)
                 : cgD3D11GetOptimalOptions(profile));
         }

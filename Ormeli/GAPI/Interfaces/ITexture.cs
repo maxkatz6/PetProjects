@@ -1,6 +1,6 @@
 ﻿namespace Ormeli
 {
-    public class Texture
+    public interface ITexture
     {
     }
 }

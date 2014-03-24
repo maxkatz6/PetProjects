@@ -43,31 +43,5 @@ namespace Ormeli
         }
     }
 
-    /*  public enum BindFlag
-   {
-       ArrayBuffer = 34961 + 1 ,
-       ElementArrayBuffer = 34961 + 2,
-       PixelPackBuffer = 34961 + 90,
-       PixelUnpackBuffer = 34961 + 91,
-       UniformBuffer =0x8a11,
-       TextureBuffer =34961 + 921,
-       TransformFeedbackBuffer = 34961 + 1021,
-       CopyReadBuffer = 34961 + 1701,
-       CopyWriteBuffer = 34961 + 1702,
-   } //og
-/*   public enum BindFlag
-  {
-      None = 0,
-      VertexBuffer = 1,
-      IndexBuffer = 2,
-      ConstantBuffer = 4,
-      ShaderResource = 8,
-      StreamOutput = 16,
-      RenderTarget = 32,
-      DepthStencil = 64,
-      UnorderedAccess = 128,
-      Decoder = 512,
-      VideoEncoder = 1024
-  }*/
-    //dx
+
 }

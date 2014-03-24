@@ -1,5 +1,4 @@
 ﻿using System;
-using Ormeli.CG;
 using Ormeli.Core;
 
 namespace Ormeli
@@ -7,7 +6,7 @@ namespace Ormeli
     public enum RenderType
     {
         DirectX11,
-        OpneGl3
+        OpenGl3
     }
     public static class App
     {
