@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using Ormeli.Core.Patterns;
 
 namespace Ormeli.Core
 {
     /// <summary>
     /// Timer helper class
     /// </summary>
-    public class Timer
+    public class Timer : Disposable
     {
         private Stopwatch _stopWatch;
 
@@ -26,7 +27,7 @@ namespace Ormeli.Core
         public static long Run(Action act)
         {
             var timer = new Timer();
-            timer.Initialize();
+            timer.Start();
             act.BeginInvoke(null, null);
             timer._stopWatch.Stop();
             return timer.Time();
@@ -42,7 +43,7 @@ namespace Ormeli.Core
         public static long Run(Action act, int times, bool returnMid = false)
         {
             var timer = new Timer();
-            timer.Initialize();
+            timer.Start();
             for (int i = 0; i < times; i++) act.BeginInvoke(null, null);
             timer._stopWatch.Stop();
             return returnMid ? timer.Time() / times : timer.Time();
@@ -64,7 +65,7 @@ namespace Ormeli.Core
         /// Initializes this instance.
         /// </summary>
         /// <returns></returns>
-        public bool Initialize()
+        public bool Start()
         {
             // Check to see if this system supports high performance timers.
             if (Stopwatch.Frequency == 0)
@@ -82,6 +83,12 @@ namespace Ormeli.Core
         public long Time()
         {
             return _stopWatch.ElapsedMilliseconds;
+        }
+
+        protected override void OnDispose()
+        {
+            _stopWatch.Stop();
+            _stopWatch = null;
         }
     }
 }

@@ -1,29 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Ormeli.CG;
+using Ormeli.Cg;
 using Ormeli.Core;
 using Ormeli.Core.Patterns;
+using Ormeli.Graphics;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Windows;
+using Buffer = Ormeli.Graphics.Buffer;
 using Color = Ormeli.Math.Color;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
 
 namespace Ormeli.DirectX11
 {
-    internal sealed class DXRender : Disposable, IRenderClass
+    internal sealed class DxRender : Disposable, IRender
     {
         private readonly Color4 _blendFactor = new Color4(0, 0, 0, 0);
-        public Color4 BackColor;
+
+        public Color BackColor
+        {
+            get
+            {
+                return new Color((byte) (color.Red*255), (byte) (color.Green*255), (byte) (color.Blue*255),
+                    (byte) (color.Alpha*255));
+            }
+            set
+            {
+                color = new Color4(value.R, value.G, value.B, value.A);
+            }
+        }
+
+        private Color4 color;
         public Device Device;
         public DeviceContext DeviceContext;
         public SwapChain SwapChain;
         private RenderForm _renderForm;
-
+        private DxCreator creator;
         public BlendState AlphaDisableBlendingState { get; set; }
 
         public BlendState AlphaEnableBlendingState { get; set; }
@@ -44,7 +58,7 @@ namespace Ormeli.DirectX11
 
         public RenderTargetView RenderTargetView { get; set; }
 
-        private int lastAttrNum = -1;
+        private int _lastAttrNum = -1;
 
         public void AlphaBlending(bool turn)
         {
@@ -56,49 +70,7 @@ namespace Ormeli.DirectX11
         {
             DeviceContext.ClearDepthStencilView(DepthStencilView,
                 DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
-            DeviceContext.ClearRenderTargetView(RenderTargetView, BackColor);
-        }
-
-        public void ChangeBackColor(Color color)
-        {
-            BackColor = ToDXColor(color);
-        }
-
-        public IAttribsContainer InitAttribs(Attrib[] attribs, IntPtr ptr)
-        {
-            var a = new DxAttribs(DeviceContext);
-            a.Initialize(attribs,ptr);
-            return a;
-        }
-
-        public Buffer CreateBuffer<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
-            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
-        {
-            var vbd = new BufferDescription(
-                Marshal.SizeOf(typeof (T)),
-                (ResourceUsage) bufferUsage,
-                (BindFlags) bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags) ((long) cpuAccessFlags*65536),
-                ResourceOptionFlags.None,
-                0
-                );
-            return new Buffer(new SharpDX.Direct3D11.Buffer(Device, vbd).NativePointer, bufferTarget, bufferUsage,
-                cpuAccessFlags);
-        }
-
-        public Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget,
-            BufferUsage bufferUsage = BufferUsage.Dynamic,
-            CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
-        {
-            var vbd = new BufferDescription(
-                objs.Length*Marshal.SizeOf(typeof (T)),
-                (ResourceUsage) bufferUsage,
-                (BindFlags) bufferTarget,
-                (SharpDX.Direct3D11.CpuAccessFlags) ((long) cpuAccessFlags*65536),
-                ResourceOptionFlags.None, 0
-                );
-            return new Buffer(SharpDX.Direct3D11.Buffer.Create(Device, objs, vbd).NativePointer, bufferTarget,
-                bufferUsage, cpuAccessFlags);
+            DeviceContext.ClearRenderTargetView(RenderTargetView, color);
         }
 
         public void CreateWindow()
@@ -118,21 +90,21 @@ namespace Ormeli.DirectX11
             DeviceContext.InputAssembler.SetIndexBuffer(
                 CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
 
-            var pass = CgImports.cgGetFirstPass(techInfo.CGtechnique);
-            if (lastAttrNum != techInfo.AttribsContainerNumber)
+            var pass = CG.GetFirstPass(techInfo.Technique);
+            if (_lastAttrNum != techInfo.AttribsContainerNumber)
             {
                 EffectManager.AttribsContainers[techInfo.AttribsContainerNumber].Accept();
-                lastAttrNum = techInfo.AttribsContainerNumber;
+                _lastAttrNum = techInfo.AttribsContainerNumber;
             }
 
             while (pass)
             {
-                CgImports.cgSetPassState(pass);
+                CG.SetPassState(pass);
 
                 DeviceContext.DrawIndexed(indexCount, 0, 0);
 
-                CgImports.cgResetPassState(pass);
-                pass = CgImports.cgGetNextPass(pass);
+                CG.ResetPassState(pass);
+                pass = CG.GetNextPass(pass);
             }
         }
 
@@ -151,15 +123,13 @@ namespace Ormeli.DirectX11
 
             if (Config.VerticalSyncEnabled)
             {
-                ModeDescription[] modes = adapter.Outputs[0].GetDisplayModeList(Format.R8G8B8A8_UNorm,
+                var modes = adapter.Outputs[0].GetDisplayModeList(Format.R8G8B8A8_UNorm,
                     DisplayModeEnumerationFlags.Interlaced);
                 for (int i = 0; i < modes.Length; i++)
                 {
-                    if (modes[i].Width == Config.Width && modes[i].Height == Config.Height)
-                    {
-                        Rational = new Rational(modes[i].RefreshRate.Numerator, modes[i].RefreshRate.Denominator);
-                        break;
-                    }
+                    if (modes[i].Width != Config.Width || modes[i].Height != Config.Height) continue;
+                    Rational = new Rational(modes[i].RefreshRate.Numerator, modes[i].RefreshRate.Denominator);
+                    break;
                 }
             }
 
@@ -177,7 +147,7 @@ namespace Ormeli.DirectX11
                 FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
 
             DeviceContext = Device.ImmediateContext;
-
+            creator = new DxCreator(Device);
             int m4XMsaaQuality = Device.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, 4);
 
             var swapChainDesc = new SwapChainDescription
@@ -221,13 +191,12 @@ namespace Ormeli.DirectX11
 
             // Get the pointer to the back buffer.
             using (var backBuffer = Resource.FromSwapChain<Texture2D>(SwapChain, 0))
-            {
                 // Create the render target view with the back buffer pointer.
                 RenderTargetView = new RenderTargetView(Device, backBuffer);
-            }
 
-            // Initialize and set up the description of the depth buffer.
-            var depthBufferDesc = new Texture2DDescription
+
+            // Create the texture for the depth buffer 
+            DepthStencilBuffer = new Texture2D(Device, new Texture2DDescription
             {
                 Width = Config.Width,
                 Height = Config.Height,
@@ -240,17 +209,13 @@ namespace Ormeli.DirectX11
                 BindFlags = BindFlags.DepthStencil,
                 CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags.None,
                 OptionFlags = ResourceOptionFlags.None
-            };
-
-            // Create the texture for the depth buffer using the filled out description.
-            DepthStencilBuffer = new Texture2D(Device, depthBufferDesc);
+            });
 
             #endregion Initialize buffers
 
-            #region Initialize Depth Enabled Stencil
+            #region Initialize Depth Stencil
 
-            // Initialize and set up the description of the stencil state.
-            var depthStencilDesc = new DepthStencilStateDescription
+            var desc = new DepthStencilStateDescription
             {
                 IsDepthEnabled = true,
                 DepthWriteMask = DepthWriteMask.All,
@@ -276,18 +241,24 @@ namespace Ormeli.DirectX11
                 }
             };
 
+            // Set the depth stencil state.
+            DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
+
+            ////////////////////
             // Create the depth stencil state.
-            DepthStencilState = new DepthStencilState(Device, depthStencilDesc);
+            DepthStencilState = new DepthStencilState(Device, desc);
+
+            desc.IsDepthEnabled = false;
+
+            // Create the depth stencil state.
+            DepthDisabledStencilState = new DepthStencilState(Device, desc);
 
             #endregion Initialize Depth Enabled Stencil
 
             #region Initialize Output Merger
 
-            // Set the depth stencil state.
-            DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
-
-            // Initialize and set up the depth stencil view.
-            var depthStencilViewDesc = new DepthStencilViewDescription
+            // Create the depth stencil view.
+            DepthStencilView = new DepthStencilView(Device, DepthStencilBuffer, new DepthStencilViewDescription
             {
                 Format = Format.D24_UNorm_S8_UInt,
                 Dimension = Enable4xMSAA
@@ -297,10 +268,7 @@ namespace Ormeli.DirectX11
                 {
                     MipSlice = 0
                 },
-            };
-
-            // Create the depth stencil view.
-            DepthStencilView = new DepthStencilView(Device, DepthStencilBuffer, depthStencilViewDesc);
+            });
 
             // Bind the render target view and depth stencil buffer to the output render pipeline.
             DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
@@ -309,8 +277,8 @@ namespace Ormeli.DirectX11
 
             #region Initialize Raster State
 
-            // Setup the raster description which will determine how and what polygon will be drawn.
-            var rasterDesc = new RasterizerStateDescription
+            // Create the rasterizer state from the description
+            RasterState = new RasterizerState(Device, new RasterizerStateDescription
             {
                 IsAntialiasedLineEnabled = Enable4xMSAA,
                 CullMode = CullMode.Back,
@@ -322,10 +290,7 @@ namespace Ormeli.DirectX11
                 IsMultisampleEnabled = Enable4xMSAA,
                 IsScissorEnabled = false,
                 SlopeScaledDepthBias = .0f
-            };
-
-            // Create the rasterizer state from the description we just filled out.
-            RasterState = new RasterizerState(Device, rasterDesc);
+            });
 
             #endregion Initialize Raster State
 
@@ -339,42 +304,6 @@ namespace Ormeli.DirectX11
             DeviceContext.Rasterizer.SetViewport(0, 0, Config.Width, Config.Height);
 
             #endregion Initialize Rasterizer
-
-            #region Initialize Depth Disabled Stencil
-
-            // Now create a second depth stencil state which turns off the Z buffer for 2D rendering.
-            // The difference is that DepthEnable is set to false.
-            // All other parameters are the same as the other depth stencil state.
-            var depthDisabledStencilDesc = new DepthStencilStateDescription
-            {
-                IsDepthEnabled = false,
-                DepthWriteMask = DepthWriteMask.All,
-                DepthComparison = Comparison.Less,
-                IsStencilEnabled = true,
-                StencilReadMask = 0xFF,
-                StencilWriteMask = 0xFF,
-                // Stencil operation if pixel front-facing.
-                FrontFace = new DepthStencilOperationDescription
-                {
-                    FailOperation = StencilOperation.Keep,
-                    DepthFailOperation = StencilOperation.Increment,
-                    PassOperation = StencilOperation.Keep,
-                    Comparison = Comparison.Always
-                },
-                // Stencil operation if pixel is back-facing.
-                BackFace = new DepthStencilOperationDescription
-                {
-                    FailOperation = StencilOperation.Keep,
-                    DepthFailOperation = StencilOperation.Decrement,
-                    PassOperation = StencilOperation.Keep,
-                    Comparison = Comparison.Always
-                }
-            };
-
-            // Create the depth stencil state.
-            DepthDisabledStencilState = new DepthStencilState(Device, depthDisabledStencilDesc);
-
-            #endregion Initialize Depth Disabled Stencil
 
             #region Initialize Blend States
 
@@ -400,12 +329,23 @@ namespace Ormeli.DirectX11
             #endregion Initialize Blend States
 
             DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+         
+/*   var vp = new Viewport { Width = (Config.Width), Height = (Config.Height), MinDepth = 0.0f, MaxDepth = 1.0f, X = 0, Y = 0 };
+            DeviceContext.Rasterizer.SetViewport(vp);*/
 
-            CgImports.cgD3D11SetDevice(CgEffect.CGcontext, Device.NativePointer);
-            CgImports.cgD3D11RegisterStates(CgEffect.CGcontext);
+            CG.DX11.SetDevice(CgEffect.Context, Device.NativePointer);
+            CG.DX11.RegisterStates(CgEffect.Context);
+            CG.DX11.SetManageTextureParameters(CgEffect.Context, CG.True);
 
-            CgImports.cgD3D11SetManageTextureParameters(CgEffect.CGcontext, 1);
+
+
             return RenderType.DirectX11;
+        }
+
+        public ICreator GetCreator()
+        {
+            if (creator == null) ErrorProvider.SendError("ICreator is not inited", true);
+            return creator;
         }
 
         public void Run(Action act)
@@ -430,6 +370,8 @@ namespace Ormeli.DirectX11
             if (SwapChain != null)
             {
                 SwapChain.SetFullscreenState(false, null);
+                SwapChain.Dispose();
+                SwapChain = null;
             }
 
             if (AlphaEnableBlendingState != null)
@@ -491,11 +433,6 @@ namespace Ormeli.DirectX11
                 SwapChain.Dispose();
                 SwapChain = null;
             }
-        }
-
-        private static Color4 ToDXColor(Color d)
-        {
-            return new Color4(d.R, d.G, d.B, d.A);
         }
     }
 }

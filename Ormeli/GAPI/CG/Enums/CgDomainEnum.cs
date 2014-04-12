@@ -1,16 +1,19 @@
 ﻿using System;
 
-namespace Ormeli.CG
+namespace Ormeli.Cg
 {
-    [Serializable]
-    public enum CGdomain
+    public partial class CG
     {
-        Unknown = 0,
-        First = 1,
-        Vertex = 1,
-        Fragment = 2,
-        Geometry = 3,
-        TessellationControl = 4,
-        TessellationEvaluation = 5
+        [Serializable]
+        public enum Domain
+        {
+            Unknown = 0,
+            First = 1,
+            Vertex = 1,
+            Fragment = 2,
+            Geometry = 3,
+            TessellationControl = 4,
+            TessellationEvaluation = 5
+        }
     }
 }

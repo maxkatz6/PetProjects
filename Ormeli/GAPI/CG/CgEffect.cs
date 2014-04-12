@@ -1,50 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
 using Ormeli.Core;
+using Ormeli.Graphics;
 using Ormeli.Math;
 
-namespace Ormeli.CG
+namespace Ormeli.Cg
 {
     public class CgEffect
     {
-        public static readonly CGcontext CGcontext = CgImports.cgCreateContext();
-        public CGeffect CGeffect;
+        public static readonly CG.Context Context = CG.CreateContext();
+        protected CG.Effect Effect;
         public TechInfo[] Techs;
         public Dictionary<string, int> TechNum = new Dictionary<string, int>();
  
         public struct TechInfo
         {
-            public CGtechnique CGtechnique;
+            public CG.Technique Technique;
             public int AttribsContainerNumber;
         }
 
         static CgEffect()
         {
-            CgImports.cgSetErrorCallback(CgErrorProvider.CheckForCgError);
+            CG.SetErrorCallback(() =>
+            {
+                CG.Error cGerror;
+                var s = CG.GetLastErrorString(out cGerror).ToStr();
+
+                if (string.IsNullOrEmpty(s)) return;
+
+                Console.WriteLine(
+                    @"Ormeli: {2}!
+Error: {0}
+Cg compiler output...{1}
+", s, CG.GetLastListing(Context), cGerror);
+
+                ErrorProvider.SendError(s, true);
+            });
         }
 
-        public CgEffect(string file, int defaultAttrContainerNum)
+        protected CgEffect(string file, int defaultAttrContainerNum = 0)
         {
-            CGeffect = CgImports.cgCreateEffectFromFile(CGcontext, Config.ShadersDirectory + file,
+            Effect = CG.CreateEffectFromFile(Context, Config.EffectDirectory + file,
                 null);
-            var myCgTechnique = CgImports.cgGetFirstTechnique(CGeffect);
+            var myCgTechnique = CG.GetFirstTechnique(Effect);
             var list = new List<TechInfo>();
             while (myCgTechnique)
             {
-                var c = CgImports.cgGetTechniqueName(myCgTechnique).ToStr();
-                if (CgImports.cgValidateTechnique(myCgTechnique) != 1)
+                var c = CG.GetTechniqueName(myCgTechnique).ToStr();
+                if (CG.ValidateTechnique(myCgTechnique) != 1)
                     Console.WriteLine(@"Ormeli: Technique {0} did not validate.  Skipping.", c);
                 else
                 {
                     Console.WriteLine(@"Ormeli: Technique {0} is valid.", c);
                     list.Add(new TechInfo
                     {
-                        CGtechnique = myCgTechnique,
+                        Technique = myCgTechnique,
                         AttribsContainerNumber = defaultAttrContainerNum
                     });
-                    TechNum.Add(c, list.Count-1);
+                    TechNum.Add(c.Substring(5), list.Count-1);
                 }
-                myCgTechnique = CgImports.cgGetNextTechnique(myCgTechnique);
+                myCgTechnique = CG.GetNextTechnique(myCgTechnique);
             }
 
             if (list.Count == 0)
@@ -54,48 +69,37 @@ namespace Ormeli.CG
             Techs = list.ToArray();
         }
 
-        public object this[string s]
-        {
-            get { return GetVariable(s); }
-            set { SetVariable(s, value); }
-        }
-
-        public void SetAttribNum(int techNum, int attrNum)
+        protected void SetAttribNum(int techNum, int attrNum)
         {
             Techs[techNum].AttribsContainerNumber = attrNum;
             if (EffectManager.AttribsContainers[attrNum] == null)
-                EffectManager.AttribsContainers[attrNum] = App.Render.InitAttribs(EffectManager.Attribs[attrNum],
-                    CgImports.cgD3D11GetIASignatureByPass(CgImports.cgGetFirstPass(Techs[techNum].CGtechnique)));
+                EffectManager.AttribsContainers[attrNum] = App.Creator.InitAttribs(EffectManager.Attribs[attrNum],
+                    CG.DX11.GetIASignatureByPass(CG.GetFirstPass(Techs[techNum].Technique)));
         }
-        public void SetAttribNum(string tech, int attrNum)
+        protected void SetAttribNum(string tech, int attrNum)
         {
             SetAttribNum(TechNum[tech], attrNum);
         }
 
-        public void SetMatrix(string name, Matrix mt)
+        protected void SetMatrix(string name, Matrix mt)
         {
-        //    CgImports.cgGLSetMatrixParameterfr(CgImports.cgGetNamedEffectParameter(CGeffect,name),mt);
+            SetMatrix(CG.GetNamedEffectParameter(Effect, name), mt);
+        }
+        protected void SetMatrix(CG.Parameter param, Matrix mt)
+        {
+            if (App.RenderType == RenderType.OpenGl3) CG.GL.SetMatrixParameterfr(param, mt.GetFloatArray());
+            else CG.SetMatrixParameterfr(param, mt.GetFloatArray());
         }
 
-        public void SetTexture(string name, ITexture tex)
+        protected void SetTexture(string name, Texture tex)
         {
-       //     FxEffect.GetVariableByName(name).AsShaderResource().SetResource(srv);
+            SetTexture(CG.GetNamedEffectParameter(Effect, name), tex);
         }
-
-        public void SetTextureArray(string name, ITexture[] textures)
+        protected void SetTexture(CG.Parameter param, Texture tex)
         {
-         //   FxEffect.GetVariableByName(name).AsShaderResource().SetResourceArray(srv);
-        }
-
-        public void SetVariable<T>(string name, T obj)
-        {
-           // FxEffect.GetVariableByName(name).WriteValue(obj);
-        }
-
-        public object GetVariable(string name)
-        {
-            return null;
-            // FxEffect.GetVariableByName(name).WriteValue(obj);
+            if (App.RenderType == RenderType.OpenGl3) CG.GL.SetTextureParameter(param, tex.Handle.ToInt32());
+            else CG.DX11.SetTextureParameter(param, tex.Handle);
+            CG.SetSamplerState(param);
         }
     }
 }

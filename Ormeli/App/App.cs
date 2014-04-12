@@ -12,18 +12,25 @@ namespace Ormeli
     {
         public static RenderType RenderType;
 
-        internal static IRenderClass Render;
+        internal static IRender Render;
+        internal static ICreator Creator;
 
-        public static void Initialize(IRenderClass render)
+        public static void Initialize(IRender render)
         {
             Config.Initialize();
             Render = render;
-            var t = new Timer();
-            t.Initialize();
-            Render.CreateWindow();
-            RenderType = Render.Initialize();
-            t.Frame();
-            Console.WriteLine(t.FrameTime);
+
+            using (var t = new Timer())
+            {
+                t.Start();
+
+                Render.CreateWindow();
+                RenderType = Render.Initialize();
+                Creator = Render.GetCreator();
+
+                t.Frame();
+                Console.WriteLine(t.FrameTime);
+            }
         }
 
         public static void Run(Action act)

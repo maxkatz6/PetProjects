@@ -1,12 +1,18 @@
-﻿struct VOutput 
+﻿struct VColorOutput 
 {
   float4 position : POSITION;
   float4 color    : COLOR;
 };
+struct VTextureOutput 
+{
+  float4 position : POSITION;
+  float2 tex    : TEXCOORD0;
+};
 
-VOutput vs( float3 position : POSITION , float4 color : COLOR)
+
+VColorOutput VertexColor( float3 position : POSITION , float4 color : COLOR)
 {	
-  VOutput OUT;
+  VColorOutput OUT;
 
   OUT.position = float4( position, 1 );
   OUT.color = color;
@@ -14,31 +20,62 @@ VOutput vs( float3 position : POSITION , float4 color : COLOR)
   return OUT;
 }
 
-struct POutput
+float4 PixelColor( VColorOutput input ) : COLOR
 {
-  float4 color : COLOR;
-};
+  return input.color;
+}
 
-POutput ps( VOutput input )
-{
-  POutput OUT;
-  OUT.color = input.color;
+VTextureOutput VertexTexture( float3 position : POSITION , float2 tex : TEXCOORD0)
+{	
+  VTextureOutput OUT;
+
+  OUT.position = float4( position, 1 );
+  OUT.tex = tex;
+
   return OUT;
 }
 
-technique Dx11
+float4 PixelTexture( VTextureOutput input, uniform sampler2D decal : TEX0 ) : COLOR
 {
-  pass Hi
+  return tex2D(decal, input.tex );
+}
+
+technique Dx11_Color
+{
+  pass P0
   {
-      VertexProgram = compile vs_5_0 vs();
-      FragmentProgram = compile ps_5_0 ps();
+      VertexProgram = compile vs_5_0 VertexColor();
+      FragmentProgram = compile ps_5_0 PixelColor();
   }
 }
-technique OGl
+technique OpGl_Color
 {
-  pass Hi
+  pass P0
   {
-      VertexProgram = compile gp5vp  vs();
-      FragmentProgram = compile gp5fp  ps();
+      VertexProgram = compile gp5vp  VertexColor();
+      FragmentProgram = compile gp5fp  PixelColor();
+  }
+}
+
+sampler2D Decal = sampler_state
+{
+    AddressU = Mirror;
+    AddressV = Mirror;
+};
+
+technique Dx11_Texture
+{
+  pass P0
+  {  
+      VertexProgram = compile vs_5_0 VertexTexture();
+      FragmentProgram = compile ps_5_0 PixelTexture(Decal );
+  }
+}
+technique OpGl_Texture
+{
+  pass P0
+  {
+      VertexProgram = compile gp5vp  VertexTexture();
+      FragmentProgram = compile gp5fp  PixelTexture(Decal );
   }
 }

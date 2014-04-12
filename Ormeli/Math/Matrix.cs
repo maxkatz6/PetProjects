@@ -115,6 +115,18 @@ namespace Ormeli.Math
             R3 = m.R3;
         }
 
+
+        public float[] GetFloatArray()
+        {
+            return new[]
+            {
+                R0.X, R0.Y, R0.Z, R0.W,
+                R1.X, R1.Y, R1.Z, R1.W,
+                R2.X, R2.Y, R2.Z, R2.W,
+                R3.X, R3.Y, R3.Z, R3.W,
+            };
+        }
+
         #region Vector Properties
 
         public Vector3 Backward

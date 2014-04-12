@@ -1,17 +1,20 @@
 ﻿using System;
 
-namespace Ormeli.CG
+namespace Ormeli.Cg
 {
-    [Serializable]
-    public enum CGparameterclass
+    public partial class CG
     {
-        Unknown = 0,
-        Scalar = 1,
-        Vector = 2,
-        Matrix = 3,
-        Struct = 4,
-        Array = 5,
-        Sampler = 6,
-        Object = 7
+        [Serializable]
+        public enum ParameterClass
+        {
+            Unknown = 0,
+            Scalar = 1,
+            Vector = 2,
+            Matrix = 3,
+            Struct = 4,
+            Array = 5,
+            Sampler = 6,
+            Object = 7
+        }
     }
 }

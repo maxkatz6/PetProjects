@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Ormeli
+﻿namespace Ormeli
 {
     public static class Config
     {
@@ -9,9 +7,10 @@ namespace Ormeli
         public static bool VerticalSyncEnabled { get; set; }
         public static bool FullScreen { get; set; }
         public static bool IsDebug { get; set; }
-        public static string RenderVersion; 
+        public static string RenderVersion;
         public static readonly string BaseDirectory;
-        public static readonly string ShadersDirectory;
+        public static readonly string EffectDirectory;
+        public static readonly string TextureDirectory;
         static Config ()
         {
 #if DEBUG  
@@ -20,7 +19,8 @@ namespace Ormeli
             IsDebug = false;
 #endif
             BaseDirectory = System.AppDomain.CurrentDomain.BaseDirectory + "Resources\\";
-            ShadersDirectory = BaseDirectory + "Effects\\";
+            EffectDirectory = BaseDirectory + "Effects\\";
+            TextureDirectory = BaseDirectory + "Textures\\";
         }
         public static void Initialize()
         {

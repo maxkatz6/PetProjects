@@ -1,18 +1,21 @@
 ﻿using System;
 
-namespace Ormeli.CG
+namespace Ormeli.Cg
 {
-    [Serializable]
-    public enum CGbufferusage
+    public partial class CG
     {
-        StreamDraw = 0,
-        StreamRead = 1,
-        StreamCopy = 2,
-        StaticDraw = 3,
-        StaticRead = 4,
-        StaticCopy = 5,
-        DynamicDraw = 6,
-        DynamicRead = 7,
-        DynamicCopy = 8
+        [Serializable]
+        public enum BufferUsage
+        {
+            StreamDraw = 0,
+            StreamRead = 1,
+            StreamCopy = 2,
+            StaticDraw = 3,
+            StaticRead = 4,
+            StaticCopy = 5,
+            DynamicDraw = 6,
+            DynamicRead = 7,
+            DynamicCopy = 8
+        }
     }
 }

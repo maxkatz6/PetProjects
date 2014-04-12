@@ -17,7 +17,7 @@ namespace Ormeli
         FogCoord = 5, // 	Input fog coordinate, Generic Attribute 5
         PSize = 6, //Input point size, Generic Attribute 6
         BlendIindices = 7, //	Generic Attribute 7
-        TexCoord0 = 8,
+        TexCoord = 8,
         TexCoord1 = 9,
         TexCoord2 = 10,
         TexCoord3 = 11,

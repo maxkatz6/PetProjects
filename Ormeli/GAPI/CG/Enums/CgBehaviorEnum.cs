@@ -1,23 +1,29 @@
 ﻿using System;
 
-namespace Ormeli.CG
+namespace Ormeli.Cg
 {
-    [Serializable]
-    public enum CGbehavior
+    public partial class CG
     {
-        Unknown = 0,
-        /// <summary>
-        /// Latest behavior supported at runtime. 
-        /// </summary>
-        Latest = 1,
-        Behavior2200 = 1000,
-        /// <summary>
-        /// Default behavior.
-        /// </summary>
-        Behavior3000 = 2000,
-        /// <summary>
-        /// Latest behavior supported at compile time.
-        /// </summary>
-        Current = Behavior3000
+        [Serializable]
+        public enum Behavior
+        {
+            Unknown = 0,
+
+            /// <summary>
+            /// Latest behavior supported at runtime. 
+            /// </summary>
+            Latest = 1,
+            Behavior2200 = 1000,
+
+            /// <summary>
+            /// Default behavior.
+            /// </summary>
+            Behavior3000 = 2000,
+
+            /// <summary>
+            /// Latest behavior supported at compile time.
+            /// </summary>
+            Current = Behavior3000
+        }
     }
 }

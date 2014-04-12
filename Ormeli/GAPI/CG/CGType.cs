@@ -30,206 +30,215 @@ SOFTWARE.
 using System;
 using System.Runtime.InteropServices;
 
-namespace Ormeli.CG
+namespace Ormeli.Cg
 {
-    /// <summary>
-    /// Represent a Cg annotation object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGannotation
+    public partial class CG
     {
         /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
+        /// Represent a Cg annotation object.
         /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg bool.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGbool
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private Int32 Data; //если что - в жопу риадонли
-
-        public CGbool(int boolean)
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Annotation
         {
-            Data = boolean;
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
         }
 
-        public static implicit operator CGbool(int boolean)
+        /// <summary>
+        /// Represent a Cg bool.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Bool
         {
-            return new CGbool(boolean);
+
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private Int32 Data; //если что - в жопу риадонли
+
+            public Bool(int boolean)
+            {
+                Data = boolean;
+            }
+
+            public static implicit operator Bool(int boolean)
+            {
+                return new Bool(boolean);
+            }
+
+            public static implicit operator bool(Bool boolean)
+            {
+                return boolean.Data == 1;
+            }
+
+            public static Bool operator ==(Bool me, Bool other)
+            {
+                return me.Data == other.Data ? (1) : (0);
+            }
+
+            public static Bool operator !=(Bool me, Bool other)
+            {
+                return me.Data != other.Data ? (1) : (0);
+            }
+
+            public bool Equals(Bool other)
+            {
+                return (Equals(this, other));
+            }
+
+            public override int GetHashCode()
+            {
+                return Data.GetHashCode();
+            }
         }
 
-        public static implicit operator bool(CGbool boolean)
+        /// <summary>
+        /// Represent a Cg Buffer object.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Buffer
         {
-            return boolean.Data == 1;
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
         }
 
-        public static CGbool operator ==(CGbool me, CGbool other)
+        /// <summary>
+        /// Represent a Cg context.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Context
         {
-            return me.Data == other.Data ? (1) : (0);
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
         }
 
-        public static CGbool operator !=(CGbool me, CGbool other)
+        /// <summary>
+        /// Represent a Cg effect.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Effect
         {
-            return me.Data != other.Data ? (1) : (0);
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
         }
 
-        public bool Equals(CGbool other)
+        /// <summary>
+        /// Represent a Cg handle.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Handle
         {
-            return (Equals(this, other));
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
         }
 
-        public override int GetHashCode()
+        /// <summary>
+        /// Represent a Cg object.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Obj
         {
-            return Data.GetHashCode();
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
         }
-    }
 
-    /// <summary>
-    /// Represent a Cg Buffer object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGbuffer
-    {
         /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
+        /// Represent a Cg parameter object.
         /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg context.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGcontext
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg effect.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGeffect
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg handle.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGhandle
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGobj
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg parameter object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGparameter
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg pass object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGpass
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-
-        public static implicit operator bool(CGpass boolean)
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Parameter
         {
-            return boolean.Data != IntPtr.Zero;
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
+
+            public static implicit operator string(Parameter param)
+            {
+                return GetParameterName(param).ToStr();
+            }
         }
-    }
 
-    /// <summary>
-    /// Represent a Cg program.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGprogram
-    {
         /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
+        /// Represent a Cg pass object.
         /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg state object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGstate
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg stateassignment object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGstateassignment
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-    }
-
-    /// <summary>
-    /// Represent a Cg technique object.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct CGtechnique
-    {
-        /// <summary>
-        /// Keeps the struct from being garbage collected prematurely.
-        /// </summary>
-        private IntPtr Data;
-
-        public static implicit operator bool(CGtechnique boolean)
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Pass
         {
-            return boolean.Data != IntPtr.Zero;
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
+
+            public static implicit operator bool(Pass boolean)
+            {
+                return boolean.Data != IntPtr.Zero;
+            }
+        }
+
+        /// <summary>
+        /// Represent a Cg program.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Program
+        {
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
+        }
+
+        /// <summary>
+        /// Represent a Cg state object.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct State
+        {
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
+        }
+
+        /// <summary>
+        /// Represent a Cg stateassignment object.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct StateAssignment
+        {
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
+        }
+
+        /// <summary>
+        /// Represent a Cg technique object.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Technique
+        {
+            /// <summary>
+            /// Keeps the struct from being garbage collected prematurely.
+            /// </summary>
+            private IntPtr Data;
+
+            public static implicit operator bool(Technique boolean)
+            {
+                return boolean.Data != IntPtr.Zero;
+            }
         }
     }
 }

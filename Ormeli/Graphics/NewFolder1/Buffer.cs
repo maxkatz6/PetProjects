@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ormeli
+namespace Ormeli.Graphics
 {
     public enum BindFlag
     {
@@ -42,6 +42,4 @@ namespace Ormeli
             CpuAccessFlags = cpuAccessFlags;
         }
     }
-
-
 }

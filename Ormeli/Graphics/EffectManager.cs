@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using Ormeli.CG;
-using Ormeli.Graphics;
+using Ormeli.Cg;
 
-namespace Ormeli
+namespace Ormeli.Graphics
 {
     public static class EffectManager
     {
@@ -15,6 +14,7 @@ namespace Ormeli
         static EffectManager()
         {
             Attribs[ColorVertex.Number] = ColorVertex.Attribs;
+            Attribs[TextureVertex.Number] = TextureVertex.Attribs;
         }
     }
 }
