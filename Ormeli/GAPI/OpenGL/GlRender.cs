@@ -1,6 +1,5 @@
 ﻿using Buffer = Ormeli.Graphics.Buffer;
 #pragma warning disable 618
-using Ormeli.Graphics;
 using OpenTK;
 using OpenTK.Graphics;
 using Ormeli.Cg;
@@ -13,8 +12,6 @@ namespace Ormeli.OpenGL
     internal sealed class GlRender : Disposable, IRender
     {
         private GameWindow _gameWindow;
-
-        private int lastAttrNum = -1;
 
         public Color BackColor
         {
@@ -51,7 +48,7 @@ namespace Ormeli.OpenGL
             GL.Viewport(0, 0, _gameWindow.Width, _gameWindow.Height);
             GL.Ortho(0, 0, _gameWindow.Width, _gameWindow.Height, -1, +1);
 
-            CG.GL.SetDebugMode(0);
+            CG.GL.SetDebugMode(CG.True);
             CG.SetParameterSettingMode(CgEffect.Context, CG.Enum.DeferredParameterSetting);
             CG.GL.RegisterStates(CgEffect.Context);
             HardwareDescription.VideoCardDescription = GL.GetString(StringName.Vendor).Split(' ')[0] +
@@ -98,30 +95,19 @@ namespace Ormeli.OpenGL
             else GL.Disable(EnableCap.AlphaTest);
         }
 
-        //http://3dgep.com/?p=2665
-        public void Draw(CgEffect.TechInfo techInfo, Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
+
+        public void SetBuffers(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, (uint)vertexBuffer.Handle);
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, (uint)indexBuffer.Handle);
+        }
 
-            var pass = CG.GetFirstPass(techInfo.Technique);
-            if (lastAttrNum != techInfo.AttribsContainerNumber)
-            {
-                EffectManager.AttribsContainers[techInfo.AttribsContainerNumber].Accept();
-                lastAttrNum = techInfo.AttribsContainerNumber;
-            }
-
-            while (pass)
-            {
-                CG.SetPassState(pass);
-
-                GL.DrawElements(BeginMode.Triangles, indexCount,
-                    DrawElementsType.UnsignedInt, IntPtr.Zero);
-
-                CG.ResetPassState(pass);
-                pass = CG.GetNextPass(pass);
-            }
+        //http://3dgep.com/?p=2665
+        public void Draw(int indexCount)
+        {
+            GL.DrawElements(BeginMode.Triangles, indexCount,
+                DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
     }
 }

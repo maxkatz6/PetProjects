@@ -97,7 +97,7 @@
     <Compile Include="Core\Patterns\Disposable.cs" />
     <Compile Include="Core\Patterns\Singleton.cs" />
     <Compile Include="Core\Timer.cs" />
-    <Compile Include="Graphics\NewFolder1\Buffer.cs" />
+    <Compile Include="Graphics\Components\Buffer.cs" />
     <Compile Include="GAPI\Cg\CgEffect.cs" />
     <Compile Include="GAPI\Cg\CgType.cs" />
     <Compile Include="GAPI\Cg\Enums\CgBehaviorEnum.cs" />
@@ -117,13 +117,13 @@
     <Compile Include="GAPI\DirectX11\DxCreator.cs" />
     <Compile Include="GAPI\Interfaces\ICreator.cs" />
     <Compile Include="GAPI\Interfaces\IEffectAttribs.cs" />
-    <Compile Include="Graphics\EffectManager.cs" />
     <Compile Include="GAPI\OpenGL\GlCreator.cs" />
-    <Compile Include="Graphics\NewFolder1\Texture.cs" />
+    <Compile Include="Graphics\Components\Texture.cs" />
     <Compile Include="GAPI\OpenGL\GlAttribs.cs" />
+    <Compile Include="Graphics\EffectManager.cs" />
     <Compile Include="Graphics\Effects\ColTexEffect.cs" />
-    <Compile Include="Graphics\NewFolder1\Mesh.cs" />
-    <Compile Include="Graphics\NewFolder1\Vertex.cs" />
+    <Compile Include="Graphics\Components\Mesh.cs" />
+    <Compile Include="Graphics\Components\Vertex.cs" />
     <Compile Include="Math\Color.cs" />
     <Compile Include="Math\Matrix.cs" />
     <Compile Include="Math\Plane.cs" />

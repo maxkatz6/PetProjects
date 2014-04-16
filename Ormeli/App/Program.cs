@@ -12,9 +12,6 @@ namespace Ormeli
     public class Program : Disposable
     {
         /*          TODO необходимое
-         * исправить баги
-         * Каждый Мэш должен знать свой эффект и нужную технику  
-         * ОТДЕЛИТЬ РЕНДЕР ОТ ИНИЦИАЛИЗАЦИИ
          * Инпут
          * Работа с камерами (копи паст из ЕВЫ)
          * Доработать цикл. ФПС
@@ -29,25 +26,24 @@ namespace Ormeli
         /*          TODO Возможно
          * Можно заполнить CG types функциями и методами, которые вызывают DllImport функции
          * Добавить HLSL, конвертер в него с CG
-         * Поддержка винфона, андроида  */
+         * Поддержка винфона, андроида  
+         * ОТДЕЛИТЬ РЕНДЕР ОТ ИНИЦИАЛИЗАЦИИ
+         * /
 
         /*          TODO Problems
          * Загрузка текстуры в шейдер в DirectX11 (что за фигня?) */
 
         /*          TODO Срок - 1 июля. Если до этого момента я не закончу необходимое, то бросаю проект как неудавшийся  */
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var t = new Timer();
-            t.Start();
-            var pr =  new Program();
-            t.Frame();
-            Console.WriteLine(t.FrameTime);
-            t.Dispose();
-            App.Render.Run(pr.Draw);
+            using (var p = new Program())
+            {
+                App.Render.Run(p.Draw);
+            }
         }
 
-        private readonly Mesh<ColorVertex> mesh = new Mesh<ColorVertex>();
+        private readonly Mesh<TextureVertex> mesh = new Mesh<TextureVertex>();
 
         public Program()
         {
@@ -62,19 +58,20 @@ namespace Ormeli
             effect.SetTexture(App.Creator.LoadTexture("NVIDIA.png"));
             EffectManager.Effects.Add(effect);
 
-                    mesh.Initalize(new[] { 0, 1, 2}, new[]
-                     {
-                         new ColorVertex(new Vector3(-1, 1,0), Color.Wheat),
-                         new ColorVertex(new Vector3( 1, 1, 0), Color.Yellow),
-                         new ColorVertex(new Vector3( 0, -1, 0), Color.AliceBlue)
-                     });
-         /*   mesh.Initalize(new[] { 0, 1, 2, 0, 2, 3 }, new[]
+            /*mesh.Initalize(0, new[] {0, 1, 2, 0, 2, 3}, new[]
+            {
+                new ColorVertex(new Vector3(-0.8f, -0.8f, 0), Color.Red),
+                new ColorVertex(new Vector3(-0.8f, 0.8f, 0), Color.White),
+                new ColorVertex(new Vector3(0.8f, 0.8f, 0), Color.Blue),
+                new ColorVertex(new Vector3(0.8f, -0.8f, 0), Color.Green),
+            });*/
+               mesh.Initalize(0,new[] { 0, 1, 2, 0, 2, 3 }, new[]
             {
                 new TextureVertex(new Vector3(-0.8f,  -0.8f,0), new Vector2(0,0)),
                 new TextureVertex(new Vector3( -0.8f,  0.8f, 0),new Vector2(1,0)),
                 new TextureVertex(new Vector3(0.8f, 0.8f, 0), new Vector2(1,1)),
                 new TextureVertex(new Vector3(0.8f,  -0.8f,0), new Vector2(0,1)),
-            });*/
+            });
         }
 
         private void Draw()

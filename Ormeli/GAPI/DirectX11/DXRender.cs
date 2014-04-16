@@ -23,21 +23,21 @@ namespace Ormeli.DirectX11
         {
             get
             {
-                return new Color((byte) (color.Red*255), (byte) (color.Green*255), (byte) (color.Blue*255),
-                    (byte) (color.Alpha*255));
+                return new Color((byte) (_color.Red*255), (byte) (_color.Green*255), (byte) (_color.Blue*255),
+                    (byte) (_color.Alpha*255));
             }
             set
             {
-                color = new Color4(value.R, value.G, value.B, value.A);
+                _color = new Color4(value.R, value.G, value.B, value.A);
             }
         }
 
-        private Color4 color;
+        private Color4 _color;
         public Device Device;
         public DeviceContext DeviceContext;
         public SwapChain SwapChain;
         private RenderForm _renderForm;
-        private DxCreator creator;
+        private DxCreator _creator;
         public BlendState AlphaDisableBlendingState { get; set; }
 
         public BlendState AlphaEnableBlendingState { get; set; }
@@ -58,8 +58,6 @@ namespace Ormeli.DirectX11
 
         public RenderTargetView RenderTargetView { get; set; }
 
-        private int _lastAttrNum = -1;
-
         public void AlphaBlending(bool turn)
         {
             DeviceContext.OutputMerger.SetBlendState(turn ? AlphaEnableBlendingState : AlphaDisableBlendingState,
@@ -70,7 +68,7 @@ namespace Ormeli.DirectX11
         {
             DeviceContext.ClearDepthStencilView(DepthStencilView,
                 DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
-            DeviceContext.ClearRenderTargetView(RenderTargetView, color);
+            DeviceContext.ClearRenderTargetView(RenderTargetView, _color);
         }
 
         public void CreateWindow()
@@ -82,30 +80,18 @@ namespace Ormeli.DirectX11
             };
         }
 
-        public void Draw(CgEffect.TechInfo techInfo, Buffer vertexBuffer, Buffer indexBuffer, int vertexStride, int indexCount)
+        public void SetBuffers(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride)
         {
             DeviceContext.InputAssembler.SetVertexBuffers(0,
                 new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer.Handle),
                     vertexStride, 0));
             DeviceContext.InputAssembler.SetIndexBuffer(
                 CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
+        }
 
-            var pass = CG.GetFirstPass(techInfo.Technique);
-            if (_lastAttrNum != techInfo.AttribsContainerNumber)
-            {
-                EffectManager.AttribsContainers[techInfo.AttribsContainerNumber].Accept();
-                _lastAttrNum = techInfo.AttribsContainerNumber;
-            }
-
-            while (pass)
-            {
-                CG.SetPassState(pass);
-
-                DeviceContext.DrawIndexed(indexCount, 0, 0);
-
-                CG.ResetPassState(pass);
-                pass = CG.GetNextPass(pass);
-            }
+        public void Draw(int indexCount)
+        {
+            DeviceContext.DrawIndexed(indexCount, 0, 0);
         }
 
         public void EndDraw()
@@ -147,7 +133,7 @@ namespace Ormeli.DirectX11
                 FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
 
             DeviceContext = Device.ImmediateContext;
-            creator = new DxCreator(Device);
+            _creator = new DxCreator(Device);
             int m4XMsaaQuality = Device.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, 4);
 
             var swapChainDesc = new SwapChainDescription
@@ -344,8 +330,8 @@ namespace Ormeli.DirectX11
 
         public ICreator GetCreator()
         {
-            if (creator == null) ErrorProvider.SendError("ICreator is not inited", true);
-            return creator;
+            if (_creator == null) ErrorProvider.SendError("ICreator is not inited", true);
+            return _creator;
         }
 
         public void Run(Action act)

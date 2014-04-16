@@ -3,6 +3,7 @@ using Ormeli.Math;
 
 namespace Ormeli.Graphics
 {
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ColorVertex
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(ColorVertex));
@@ -23,6 +24,7 @@ namespace Ormeli.Graphics
         }
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TextureVertex
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(TextureVertex));

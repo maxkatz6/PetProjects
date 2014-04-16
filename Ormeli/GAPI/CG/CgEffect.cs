@@ -10,14 +10,9 @@ namespace Ormeli.Cg
     {
         public static readonly CG.Context Context = CG.CreateContext();
         protected CG.Effect Effect;
-        public TechInfo[] Techs;
+        public CG.Technique[] Techs;
         public Dictionary<string, int> TechNum = new Dictionary<string, int>();
- 
-        public struct TechInfo
-        {
-            public CG.Technique Technique;
-            public int AttribsContainerNumber;
-        }
+
 
         static CgEffect()
         {
@@ -43,7 +38,7 @@ Cg compiler output...{1}
             Effect = CG.CreateEffectFromFile(Context, Config.EffectDirectory + file,
                 null);
             var myCgTechnique = CG.GetFirstTechnique(Effect);
-            var list = new List<TechInfo>();
+            var list = new List<CG.Technique>();
             while (myCgTechnique)
             {
                 var c = CG.GetTechniqueName(myCgTechnique).ToStr();
@@ -52,11 +47,7 @@ Cg compiler output...{1}
                 else
                 {
                     Console.WriteLine(@"Ormeli: Technique {0} is valid.", c);
-                    list.Add(new TechInfo
-                    {
-                        Technique = myCgTechnique,
-                        AttribsContainerNumber = defaultAttrContainerNum
-                    });
+                    list.Add(myCgTechnique);
                     TechNum.Add(c.Substring(5), list.Count-1);
                 }
                 myCgTechnique = CG.GetNextTechnique(myCgTechnique);
@@ -69,16 +60,15 @@ Cg compiler output...{1}
             Techs = list.ToArray();
         }
 
-        protected void SetAttribNum(int techNum, int attrNum)
+        protected void InitAttrib(int techNum, int attrNum)
         {
-            Techs[techNum].AttribsContainerNumber = attrNum;
             if (EffectManager.AttribsContainers[attrNum] == null)
                 EffectManager.AttribsContainers[attrNum] = App.Creator.InitAttribs(EffectManager.Attribs[attrNum],
-                    CG.DX11.GetIASignatureByPass(CG.GetFirstPass(Techs[techNum].Technique)));
+                    CG.DX11.GetIASignatureByPass(CG.GetFirstPass(Techs[techNum])));
         }
-        protected void SetAttribNum(string tech, int attrNum)
+        protected void InitAttrib(string tech, int attrNum)
         {
-            SetAttribNum(TechNum[tech], attrNum);
+            InitAttrib(TechNum[tech], attrNum);
         }
 
         protected void SetMatrix(string name, Matrix mt)
@@ -100,6 +90,28 @@ Cg compiler output...{1}
             if (App.RenderType == RenderType.OpenGl3) CG.GL.SetTextureParameter(param, tex.Handle.ToInt32());
             else CG.DX11.SetTextureParameter(param, tex.Handle);
             CG.SetSamplerState(param);
+        }
+
+        private int _lastAttrNum = -1;
+        public void Render(int techN, int indexCount)
+        {
+            var tech = Techs[techN];
+            var pass = CG.GetFirstPass(tech);
+            if (_lastAttrNum != techN)
+            {
+                EffectManager.AttribsContainers[techN].Accept();
+                _lastAttrNum = techN;
+            }
+
+            while (pass)
+            {
+                CG.SetPassState(pass);
+
+                App.Render.Draw(indexCount);
+
+                CG.ResetPassState(pass);
+                pass = CG.GetNextPass(pass);
+            }
         }
     }
 }
