@@ -3,7 +3,6 @@
 using System.Text.RegularExpressions;
 using SharpDX;
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 using TDF.Core;
 using TDF.Graphics.Cameras;
@@ -24,7 +23,7 @@ namespace ShaderViewer
 
         #region ketwords
 
-        private List<string> _keywords = new List<string>
+        private readonly string[] _keywords = 
         {
             "AppendStructuredBuffer",
             "asm",
@@ -152,11 +151,11 @@ namespace ShaderViewer
             "while"
         };
 
-        private List<string> _registers = new List<string>
+        private readonly string[] _registers = 
         {
             "\"",
             "'",
-            "@",
+            "@"
         };
 
         #endregion ketwords
@@ -166,15 +165,15 @@ namespace ShaderViewer
             InitializeComponent();
 
             _freeCamera = new FreeCamera(new Vector3(0, 25, -150), 0, 0, true);
-            DirectX11.Initialize(directXPanel1.Handle, _freeCamera, true);
+            DirectX11.Initialize(directXPanel1.Handle, _freeCamera,"config.ini", true);
 
             _plos = GeometryGenerator.GenereateModel<TextureVertex>(GeometryGenerator.CreateGrid(1000, 1000, 3, 3));
 
             Shown += (sender, args) => directXPanel1.Run(Update, Draw);
             textBox1.Text = EffectManager.TextureShader;
             richTextBox1.Text = EffectManager.ColorShader;
-            colorText(textBox1);
-            colorText(richTextBox1 );
+            ColorText(textBox1);
+            ColorText(richTextBox1 );
         }
 
         public void Draw()
@@ -224,7 +223,7 @@ namespace ShaderViewer
             {
                 MessageBox.Show("Error if HLSL code");
             }
-            colorText(textBox1);
+            ColorText(textBox1);
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
@@ -249,10 +248,10 @@ namespace ShaderViewer
             {
                 MessageBox.Show("Error if HLSL code");
             }
-            colorText(richTextBox1);
+            ColorText(richTextBox1);
         }
 
-        public void colorText(RichTextBox rt)
+        public void ColorText(RichTextBox rt)
         {
             foreach (var keyword in _keywords)
             {

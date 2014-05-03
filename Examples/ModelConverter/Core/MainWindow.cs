@@ -1,11 +1,7 @@
 ﻿#region Using
 
-using System.Linq;
-using System.Threading.Tasks;
 using SharpDX;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Windows.Forms;
 using TDF.Core;
 using TDF.Graphics.Cameras;
@@ -22,7 +18,7 @@ namespace TDFExample_ModelConverter.Core
     public partial class MainWindow : Form
     {
         private readonly FreeCamera _freeCamera;
-        private DxModel plos;
+        private readonly DxModel _plos;
         private readonly DxModel _model = new DxModel();
 
         public MainWindow()
@@ -30,16 +26,16 @@ namespace TDFExample_ModelConverter.Core
             InitializeComponent();
 
             _freeCamera = new FreeCamera(new Vector3(0, 25, -150), 0, 0, true);
-            DirectX11.Initialize(dxPanel.Handle, _freeCamera, true);
+            DirectX11.Initialize(dxPanel.Handle, _freeCamera, "config.ini", true);
             
-            plos = GeometryGenerator.GenereateModel<TextureVertex>(GeometryGenerator.CreateGrid(1000,1000,3,3));
+            _plos = GeometryGenerator.GenereateModel<TextureVertex>(GeometryGenerator.CreateGrid(1000,1000,3,3));
 
             Shown += (sender, args) => dxPanel.Run(Update, Draw);
         }
 
         public void Draw()
         {
-            plos.Render();
+            _plos.Render();
             _model.Render();
 
             toolStripStatusLabel1.Text = dxPanel.FPS + "\r" +_freeCamera.Position + "\r"+ Input.MouseState.Vector;
@@ -89,10 +85,10 @@ namespace TDFExample_ModelConverter.Core
             EffectManager.Effects[1] = te;
         }
 
-        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+   /*     private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _model.AsyncLoadModel(@"C:\Users\Максим\Desktop\Paris2010_0.obj");
-        }
+        }*/
 
     }
 }

@@ -114,6 +114,12 @@ namespace TDF.Graphics.Render
             return Initialize(windowHandle, _4xMSAA);
         }
 
+        public static void Initialize(IntPtr windowHandle, string configIni, bool _4xMSAA)
+        {
+            Config.Initialize(configIni);
+            Initialize(windowHandle, _4xMSAA);
+        }
+
         public static bool Initialize(IntPtr windowHandle, bool _4xMSAA = false)
         {
             LibManager.SaveFromResource();

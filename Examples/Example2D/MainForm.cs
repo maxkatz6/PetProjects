@@ -17,7 +17,7 @@ namespace Example2D
         public MainForm()
         {
             InitializeComponent();
-            DirectX11.Initialize(directXPanel1.Handle, null, "config.ini", true);
+            DirectX11.Initialize(directXPanel1.Handle, "config.ini", true);
 
             Height = Config.Height;
             Width = Config.Width;

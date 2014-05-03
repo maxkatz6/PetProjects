@@ -57,18 +57,8 @@ namespace TDF.Graphics.Cameras
 
         public void Rotate(float yawChange, float pitchChange)
         {
-            Yaw += yawChange;
-            Pitch += pitchChange;
-
-            if (Yaw < -PI)
-                Yaw += PI2;
-            if (Yaw > PI)
-                Yaw -= PI2;
-
-            if (Pitch < -PI)
-                Pitch += PI2;
-            if (Pitch > PI)
-                Yaw -= PI2;
+            Yaw = (Yaw > Pi ? Yaw - TwoPi : (Yaw < -Pi ? Yaw + TwoPi : Yaw)) + yawChange;
+            Pitch = (Pitch > Pi ? Pitch - TwoPi : (Pitch < -Pi ? Pitch + TwoPi : Pitch)) + pitchChange;
         }
 
         public void RotateWithMouse()
@@ -133,11 +123,11 @@ namespace TDF.Graphics.Cameras
             return matrix;
         }
 
-        private const float PI = (float) Math.PI;
-        private const float PI2 = 2 * PI;
-        private const float HalfPI = PI / 2;
-        private const float QuadPI = 4 / PI;
-        private const float HalfPI2 = 4/(PI * PI);
+        private const float Pi = (float) Math.PI;
+        private const float TwoPi = 2 * Pi;
+        private const float HalfPI = Pi / 2;
+        private const float QuadPI = 4 / Pi;
+        private const float HalfPI2 = 4/(Pi * Pi);
 
         public static float Sin(float x)
         {
@@ -148,8 +138,8 @@ namespace TDF.Graphics.Cameras
         public static float Cos(float x)
         {
             x += HalfPI;
-            if (x > PI)
-                x -= PI2;
+            if (x > Pi)
+                x -= TwoPi;
 
             if (x < 0)
                 return x * (QuadPI + HalfPI2 * x);

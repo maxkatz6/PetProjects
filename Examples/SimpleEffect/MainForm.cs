@@ -21,14 +21,11 @@ namespace SimpleEffect
             InitializeComponent();
             _freeCamera = new FreeCamera(new Vector3(0, 25, -150), 0, 0, true);
             DirectX11.Initialize(directXPanel1.Handle, _freeCamera, "config.ini", true);
-            var te = new TextureEffect();
-            te.InitializeFromFile("Grayscale.fx");
-            EffectManager.Effects[1] = te;
 
-            var srv = new Texture("dragonTexture.dds");
+            EffectManager.Effects[1] = Effect.FromFile<TextureEffect>("Grayscale.fx");
 
             _model = GeometryGenerator.GenereateModel<TextureVertex>(GeometryGenerator.CreateGrid(1000, 1000, 20, 20),
-                srv);
+                new Texture("dragonTexture.dds"));
 
             Shown += (sender, args) => directXPanel1.Run(Update, Draw);
         }

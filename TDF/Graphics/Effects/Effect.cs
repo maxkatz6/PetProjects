@@ -25,6 +25,18 @@ namespace TDF.Graphics.Effects
 #endif
         protected EffectTechnique FxTech;
 
+        public static T FromFile<T>(string f) where T : Effect, new()
+        {
+            var ef = new T();
+            ef.InitializeFromFile(f);
+            return ef;
+        }
+        public static T FromMemory<T>(string f) where T : Effect, new()
+        {
+            var ef = new T();
+            ef.InitializeFromMemory(f);
+            return ef;
+        }
         protected int PassCount
         {
             get { return FxTech.Description.PassCount; }
