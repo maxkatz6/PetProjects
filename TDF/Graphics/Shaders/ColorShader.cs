@@ -1,4 +1,4 @@
-﻿using TDF.Graphics.Data;
+﻿/*using TDF.Graphics.Data;
 using TDF.Core;
 using TDF.Graphics.Render;
 using SharpDX;
@@ -184,4 +184,4 @@ namespace TDF.Graphics.Shaders
             }
         }
     }
-}
+}*/

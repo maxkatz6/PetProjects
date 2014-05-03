@@ -27,9 +27,10 @@ PixelInputType VS(VertexInputType vin)
 	return vin;
 }
 
-float4 PS(PixelInputType pin) : SV_Target
+float4 PS(float4 position : SV_POSITION,
+	float4 color : COLOR) : SV_Target
 {
-	return pin.color;
+	return color;
 }
 
 technique11 Color_DirectX10

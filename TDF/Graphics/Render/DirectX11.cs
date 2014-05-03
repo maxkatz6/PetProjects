@@ -9,7 +9,6 @@ using TDF.Core;
 using TDF.Graphics.Cameras;
 using TDF.Graphics.Data;
 using TDF.Graphics.Effects;
-using TDF.Graphics.Shaders;
 using TDF.Inputs;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
@@ -117,7 +116,6 @@ namespace TDF.Graphics.Render
 
         public static bool Initialize(IntPtr windowHandle, bool _4xMSAA = false)
         {
-            Log.Initialize();
             LibManager.SaveFromResource();
             if (!Config.IsInited) Config.Initialize("Default Title",1260,720);
             if (!isCameraInited) CurrentCamera = new Camera();
@@ -341,7 +339,7 @@ namespace TDF.Graphics.Render
 
                 // Setup and create the viewport for rendering.
 
-                DeviceContext.Rasterizer.SetViewport(0, 0, Config.Width, Config.Height, 0, 1);
+                DeviceContext.Rasterizer.SetViewport(0, 0, Config.Width, Config.Height);
 
                 #endregion Initialize Rasterizer
 
@@ -430,7 +428,7 @@ namespace TDF.Graphics.Render
 
         public static void Resize()
         {
-            var modeDescription = new ModeDescription
+     /*       var modeDescription = new ModeDescription
             {
                 Format = Format.R8G8B8A8_UNorm,
                 Width = Config.Width,
@@ -441,7 +439,7 @@ namespace TDF.Graphics.Render
             };
             SwapChain.ResizeTarget(ref modeDescription);
             //         SwapChain.ResizeBuffers(3,Config.Width,Config.Height, Format.R8G8B8A8_UNorm, SwapChainFlags.AllowModeSwitch);
-            CurrentCamera.UpdateScrennMatrices();
+            CurrentCamera.UpdateScrennMatrices();*/
         }
 
         public static void SetBackBufferRenderTarget()
@@ -518,8 +516,6 @@ namespace TDF.Graphics.Render
                 SwapChain = null;
             }
 
-            BitmapShader.Shutdown();
-            ColorShader.Shutdown();
             Log.Shutdown();
         }
 

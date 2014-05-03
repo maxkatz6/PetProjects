@@ -103,6 +103,7 @@ namespace TDF.Graphics.Effects
 
         public void SetTexture(string name, ShaderResourceView srv)
         {
+            WinAPI.MessageBox(srv.NativePointer.ToInt32().ToString());
             FxEffect.GetVariableByName(name).AsShaderResource().SetResource(srv);
         }
 

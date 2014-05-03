@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using TDF.Graphics.Cameras;
 using TDF.Graphics.Render;
 using SharpDX.Direct3D;
-using TDF.Properties;
 
 namespace TDF.Core
 {
@@ -152,6 +150,7 @@ namespace TDF.Core
         /// <param name="configFilePath">The configuration file path.</param>
         public static void Initialize(string configFilePath)
         {
+            Log.Initialize();
             if (!File.Exists(configFilePath))
             {
                 ErrorProvider.Send(new Exception(
@@ -303,6 +302,7 @@ namespace TDF.Core
             ModelFilePath = DataFilePath + @"Models\";
             TextureFilePath = DataFilePath + @"Textures\";
             IsInited = true;
+            Log.Initialize();
         }
 
         #endregion Инициализвация

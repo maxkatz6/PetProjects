@@ -6,6 +6,7 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using TDF.Core;
 using TDF.Graphics.Data;
 using TDF.Graphics.Effects;
 using TDF.Graphics.Render;
@@ -37,9 +38,7 @@ namespace TDF.Graphics.Models
         public void Render()
         {
             for (int i = 0; i < Meshes.Count; i++)
-            {
                 Meshes[i].Render((Matrix ?? SharpDX.Matrix.Identity) *DirectX11.ViewMatrix * DirectX11.ProjectionMatrix);
-            }
         }
 
         public void SetMeshes(params Mesh[] meshes)
@@ -113,7 +112,6 @@ namespace TDF.Graphics.Models
         {
             VertexCount = vert.Length;
             VertexStride = Marshal.SizeOf(typeof(T));
-
             var vbd = new BufferDescription(
                 VertexStride * VertexCount,
                 ResourceUsage.Dynamic,
@@ -123,6 +121,7 @@ namespace TDF.Graphics.Models
                 0
                 );
             VertexBuffer = Buffer.Create(DirectX11.Device, vert, vbd);
+
             _isInitedVb = true;
         }
 

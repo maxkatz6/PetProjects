@@ -62,11 +62,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TDF.WinFormsPanel\TDF.WinFormsPanel.csproj">
+    <ProjectReference Include="..\..\TDF.WinFormsPanel\TDF.WinFormsPanel.csproj">
       <Project>{63808066-6feb-4ac2-b319-858e8ffbd8e4}</Project>
       <Name>TDF.WinFormsPanel</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TDF\TDF.csproj">
+    <ProjectReference Include="..\..\TDF\TDF.csproj">
       <Project>{6b3ab776-9024-443e-974e-4b597edf275e}</Project>
       <Name>TDF</Name>
     </ProjectReference>

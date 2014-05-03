@@ -49,7 +49,7 @@ namespace TDFExample_ModelConverter.Core
         {
             Input.SetMouseCoord(WinAPI.GetCurPos());
 
-            _freeCamera.RotateWithMouse(Input.MouseState);
+            _freeCamera.RotateWithMouse();
 
             if (Input.IsKeyDown(Key.W))
             {
