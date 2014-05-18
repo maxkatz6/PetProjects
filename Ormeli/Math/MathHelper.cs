@@ -1,15 +1,98 @@
-﻿namespace Ormeli.Math
+﻿using System.Runtime.InteropServices;
+
+namespace Ormeli.Math
 {
     public static class MathHelper
     {
+        [StructLayout(LayoutKind.Explicit)]
+        private struct FloatIntUnion
+        {
+            [FieldOffset(0)]
+            public float f;
+
+            [FieldOffset(0)]
+            public int tmp;
+        }
+
         public const float ZeroTolerance = 1e-6f;
-        public const float E = (float)System.Math.E;
         public const float Log10E = 0.4342944819032f;
         public const float Log2E = 1.442695040888f;
         public const float Pi = (float)System.Math.PI;
-        public const float PiOver2 = (float)(System.Math.PI / 2.0);
-        public const float PiOver4 = (float)(System.Math.PI / 4.0);
-        public const float TwoPi = (float)(System.Math.PI * 2.0);
+        public const float PiOver2 = Pi / 2.0f;
+        public const float PiOver4 = Pi/ 4.0f;
+        public const float TwoPi = Pi * 2.0f;
+
+        private const float QuadPi = 4 / Pi;
+        private const float PiConst = 4 / (Pi * Pi);
+
+        public static float FastSqrt(float z)
+        {
+            FloatIntUnion u;
+            u.tmp = 0;
+            float xhalf = 0.5f * z;
+            u.f = z;
+            u.tmp = 0x5f375a86 - (u.tmp >> 1);  // what the fuck?
+            u.f = u.f * (1.5f - xhalf * u.f * u.f);
+            return u.f * z;
+        }
+
+        public static float FastestSqrt(float z)
+        {
+            FloatIntUnion u;
+            u.tmp = 0;
+            u.f = z;
+            u.tmp -= 1 << 23; /* Subtract 2^m. */
+            u.tmp >>= 1; /* Divide by 2. */
+            u.tmp += 1 << 29; /* Add ((b + 1) / 2) * 2^m. */
+            return u.f;
+        }
+
+        public static float FastestSin(float x)
+        {
+            if (x < -Pi)
+                x += TwoPi;
+            else if (x > Pi)
+                x -= TwoPi;
+
+            return (x < 0 ? x * (QuadPi + PiConst * x) : x * (QuadPi - PiConst * x));
+        }
+        public static float FastestCos(float x)
+        {
+            x += PiOver2;
+            if (x < -Pi)
+                x += TwoPi;
+            else if (x > Pi)
+                if ((x -= TwoPi) > Pi)
+                    x -= TwoPi;
+
+            return (x < 0 ? x*(QuadPi + PiConst*x) : x*(QuadPi - PiConst*x));
+        }
+
+        public static float FastSin(float x)
+        {
+            if (x < -Pi)
+                x += TwoPi;
+            else if (x > Pi)
+                x -= TwoPi;
+
+            var sin = (x < 0 ? x*(QuadPi + PiConst*x) : x*(QuadPi - PiConst*x));
+
+            return (sin < 0 ? .225f*(sin*-sin - sin) + sin : .225f*(sin*sin - sin) + sin);
+        }
+
+        public static float FastCos(float x)
+        {
+            x += PiOver2;
+            if (x < -Pi)
+                x += TwoPi;
+            else if (x > Pi)
+                if ((x -= TwoPi) > Pi)
+                    x -= TwoPi;
+
+            float cos = (x < 0 ? x * (QuadPi + PiConst * x) : x * (QuadPi - PiConst * x));
+
+            return (cos < 0 ? .225f * (cos * -cos - cos) + cos : .225f * (cos * cos - cos) + cos);
+        }
 
         public static float Barycentric(float value1, float value2, float value3, float amount1, float amount2)
         {

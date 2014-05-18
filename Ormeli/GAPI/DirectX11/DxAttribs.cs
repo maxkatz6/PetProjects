@@ -6,7 +6,7 @@ using SharpDX.DXGI;
 
 namespace Ormeli.DirectX11
 {
-    public class DxAttribs : IAttribsContainer
+    public struct DxAttribs : IAttribsContainer
     {
         private InputLayout _inputLayout;
         private readonly DeviceContext _deviceContext;
@@ -14,6 +14,7 @@ namespace Ormeli.DirectX11
         public DxAttribs(DeviceContext dC)
         {
             _deviceContext = dC;
+            _inputLayout = null;
         }
 
         public void Initialize(Attrib[] attribs, IntPtr blobPointer)

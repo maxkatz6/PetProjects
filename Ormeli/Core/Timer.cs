@@ -82,7 +82,7 @@ namespace Ormeli.Core
         /// <returns>Time in milliseconds</returns>
         public long Time()
         {
-            return _stopWatch.ElapsedMilliseconds;
+          return _stopWatch.ElapsedMilliseconds;
         }
 
         protected override void OnDispose()

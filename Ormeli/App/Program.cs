@@ -1,84 +1,115 @@
 ﻿using System;
-using Ormeli.Core;
 using Ormeli.Core.Patterns;
-using Ormeli.DirectX11;
 using Ormeli.Graphics;
+using Ormeli.Graphics.Cameras;
 using Ormeli.Graphics.Effects;
 using Ormeli.Math;
-using Ormeli.OpenGL;
 
 namespace Ormeli
 {
     public class Program : Disposable
     {
         /*          TODO необходимое
-         * Инпут
-         * Работа с камерами (копи паст из ЕВЫ)
-         * Доработать цикл. ФПС
-         * Рендер 3D, повороты моделей
-         * Система сцен 
          * 2D графика.
-         * Сравнение с ЕВОЙ
-         * Использование дополнительный библиотек для запуска OpenGL версии под линуксом
-         * 
-         * Развитие дальше. Поздравляю, ты догнал ЕВУ, надеюсь, будет быстрее */
+         * ...перекур...
+         * Система сцен 
+         * Система частиц
+         * */
 
         /*          TODO Возможно
          * Можно заполнить CG types функциями и методами, которые вызывают DllImport функции
          * Добавить HLSL, конвертер в него с CG
          * Поддержка винфона, андроида  
          * ОТДЕЛИТЬ РЕНДЕР ОТ ИНИЦИАЛИЗАЦИИ
-         * /
-
-        /*          TODO Problems
-         * Загрузка текстуры в шейдер в DirectX11 (что за фигня?) */
-
-        /*          TODO Срок - 1 июля. Если до этого момента я не закончу необходимое, то бросаю проект как неудавшийся  */
+         * +-Математическая либа - доделать.
+         */
 
         private static void Main(string[] args)
         {
             using (var p = new Program())
             {
-                App.Render.Run(p.Draw);
+                Loop.Run(p.Draw, p.Update);
             }
         }
 
-        private readonly Mesh<TextureVertex> mesh = new Mesh<TextureVertex>();
+        private readonly Model _model = new Model();
+        private readonly Model _plos = new Model();
+        private readonly FreeCamera _freeCamera;
 
         public Program()
         {
-            Config.Height = 500;
-            Config.Width = 500;
+            Config.Initialize();
+            Config.Fps = 0;
+            Config.VerticalSyncEnabled = false;
+            Config.FullScreen = false;
+            Config.Width = 1920;
+            Config.Height = 1080;
+            Config.Enable4xMSAA = true;
 
-            App.Initialize(Console.ReadLine() == "1" ? (IRender) new DxRender() : new GlRender());
+            App.Initialize((RenderType)int.Parse(Console.ReadLine()));
             App.Render.BackColor = Color.Indigo;
+            
+            var effect = new ColTexEffect( "ColTexEffect.cgfx" );
+            EffectManager.AddEffect( effect );
 
+            _freeCamera = new FreeCamera( new Vector3( 0,3,0 ), 0, 0, true ){Speed = 10};
 
-            var effect = new ColTexEffect("effect.cgfx");
-            effect.SetTexture(App.Creator.LoadTexture("NVIDIA.png"));
-            EffectManager.Effects.Add(effect);
+            _plos.SetMeshes(GeometryGenerator.CreateGrid(100, 100), CreateColorGrid(1000, 1000));
+            
+            _model.SetMeshes(GeometryGenerator.CreateBox(20, 20,20));
+            _model.GetMesh<TextureMesh>(0).TextureNum = Texture.GetNumber("NVIDIA.png");
 
-            /*mesh.Initalize(0, new[] {0, 1, 2, 0, 2, 3}, new[]
-            {
-                new ColorVertex(new Vector3(-0.8f, -0.8f, 0), Color.Red),
-                new ColorVertex(new Vector3(-0.8f, 0.8f, 0), Color.White),
-                new ColorVertex(new Vector3(0.8f, 0.8f, 0), Color.Blue),
-                new ColorVertex(new Vector3(0.8f, -0.8f, 0), Color.Green),
-            });*/
-               mesh.Initalize(0,new[] { 0, 1, 2, 0, 2, 3 }, new[]
-            {
-                new TextureVertex(new Vector3(-0.8f,  -0.8f,0), new Vector2(0,0)),
-                new TextureVertex(new Vector3( -0.8f,  0.8f, 0),new Vector2(1,0)),
-                new TextureVertex(new Vector3(0.8f, 0.8f, 0), new Vector2(1,1)),
-                new TextureVertex(new Vector3(0.8f,  -0.8f,0), new Vector2(0,1)),
-            });
+            App.Render.ZBuffer(true);
         }
-
         private void Draw()
         {
             App.Render.BeginDraw();
-            mesh.Render();
+
+            _plos.Render();
+
+            for (int i = 0; i < 10; i++)
+                for (int j = 0; j < 15; j++)
+                    for (int k = 0; k < 10; k++)
+                    {
+                        _model.SetWorldMatrix(Matrix.Translation(21*i, 21*j + 500, 21*k));
+                        _model.Render();
+                    }
+
             App.Render.EndDraw();
+        }
+
+        void Update()
+        {
+            if (Input.IsKeyDown(Key.Escape)) App.Exit();
+        //    _freeCamera.Rotate(0.01f,0);
+            if (Input.IsKeyDown(Key.W)) //ловим нажатие и двигаемся
+                _freeCamera.DirectionMove(Vector3.Forward);
+            else if (Input.IsKeyDown(Key.S))
+                _freeCamera.DirectionMove(Vector3.Backward);
+            else if (Input.IsKeyDown(Key.A))
+                _freeCamera.DirectionMove(Vector3.Left);
+            else if (Input.IsKeyDown(Key.D))
+                _freeCamera.DirectionMove(Vector3.Right);
+            _freeCamera.Update(); // обновляем камеру
+
+            Console.Title = Loop.GetFPS().ToString();
+        }
+
+
+        private static ColorMesh CreateColorGrid(int width, int depth)
+        {
+            var w2 = 0.5f * width;
+            var d2 = 0.5f * depth;
+            var mV = new[]
+            {
+                new ColorVertex(new Vector3(-w2,-1,-d2), Color.Aqua), 
+                new ColorVertex(new Vector3(w2,-1,-d2), Color.Aqua),
+                new ColorVertex(new Vector3(w2,-1,d2), Color.Indigo),
+                new ColorVertex(new Vector3(-w2,-1,d2), Color.Indigo)
+            };
+            var m = new ColorMesh();
+            m.Initialize(new[] { 0, 1, 2, 0, 2, 3 }, mV);
+            return m;
         }
     }
 }

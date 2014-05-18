@@ -26,20 +26,26 @@ namespace Ormeli.Graphics
 
     public struct Buffer
     {
-        public BindFlag BindFlag;
+        private readonly IntPtr _handle;
 
-        public BufferUsage BufferUsage;
+        public int VertexType { get { return _vertexType; }}
+        private readonly int _vertexType;
 
-        public CpuAccessFlags CpuAccessFlags;
-
-        public IntPtr Handle;
-
-        public Buffer(IntPtr handle, BindFlag bufferTarget, BufferUsage bufferUsage, CpuAccessFlags cpuAccessFlags)
+        public Buffer(IntPtr handle, int vertexType = -1)
         {
-            Handle = handle;
-            BindFlag = bufferTarget;
-            BufferUsage = bufferUsage;
-            CpuAccessFlags = cpuAccessFlags;
+            _handle = handle;
+            _vertexType = vertexType;
+        }
+
+        public static implicit operator IntPtr(Buffer buf)
+        {
+            return buf._handle;
+        }
+
+        public static implicit operator int(Buffer buf)
+        {
+            return (int)buf._handle;
         }
     }
+
 }

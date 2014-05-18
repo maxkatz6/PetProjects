@@ -1,9 +1,8 @@
 ﻿using System;
-using OpenTK.Graphics;
-
+using OpenTK.Graphics.OpenGL;
 namespace Ormeli.OpenGL
 {
-    public class GlAttribs : IAttribsContainer
+    public struct GlAttribs : IAttribsContainer
     {
         private Attrib[] _attribs;
         private VertexAttribPointerType[] _types;

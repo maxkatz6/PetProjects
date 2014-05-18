@@ -6,9 +6,9 @@ namespace Ormeli
     public interface IRender
     {
         Color BackColor { get; set; }
-        void CreateWindow();
         RenderType Initialize();
         ICreator GetCreator();
+        void CreateWindow();
         void Run(System.Action act);
         void BeginDraw();
         void SetBuffers(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride);

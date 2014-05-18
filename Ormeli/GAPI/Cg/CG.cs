@@ -1,4 +1,5 @@
-﻿using SharpDX.Direct3D11;
+﻿using Ormeli.Math;
+using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -1223,7 +1224,7 @@ namespace Ormeli.Cg
 
         [DllImport("cg.dll", EntryPoint = "cgSetMatrixParameterfr", CallingConvention = CallingConvention.Cdecl),
          SuppressUnmanagedCodeSecurity]
-        public static extern void SetMatrixParameterfr(Parameter param, [In] float[] matrix);
+        public static extern void SetMatrixParameterfr(Parameter param, [In] Matrix matrix);
 
         [DllImport("cg.dll", EntryPoint = "cgSetMatrixParameteric", CallingConvention = CallingConvention.Cdecl),
          SuppressUnmanagedCodeSecurity]
@@ -2091,7 +2092,7 @@ namespace Ormeli.Cg
 
             [DllImport("cgGL.dll", EntryPoint = "cgGLSetMatrixParameterfr", CallingConvention = CallingConvention.Cdecl),
              SuppressUnmanagedCodeSecurity]
-            public static extern void SetMatrixParameterfr(Parameter param, [In] float[] matrix);
+            public static extern void SetMatrixParameterfr(Parameter param, [In] Matrix matrix);
 
             [DllImport("cgGL.dll", EntryPoint = "cgGLSetMatrixParameterfr", CallingConvention = CallingConvention.Cdecl),
              SuppressUnmanagedCodeSecurity]

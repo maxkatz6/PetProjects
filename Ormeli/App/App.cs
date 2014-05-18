@@ -1,13 +1,16 @@
 ﻿using System;
-using Ormeli.Core;
+using Ormeli.DirectX11;
+using Ormeli.OpenGL;
+using Timer = Ormeli.Core.Timer;
 
 namespace Ormeli
 {
     public enum RenderType
     {
-        DirectX11,
+        DirectX11=1,
         OpenGl3
     }
+
     public static class App
     {
         public static RenderType RenderType;
@@ -15,37 +18,30 @@ namespace Ormeli
         internal static IRender Render;
         internal static ICreator Creator;
 
-        public static void Initialize(IRender render)
+        public static void Initialize(RenderType render)
         {
-            Config.Initialize();
-            Render = render;
+            RenderType = render;
+
+            if (RenderType == RenderType.DirectX11)
+                Render = new DxRender();
+            else Render = new GlRender();
 
             using (var t = new Timer())
             {
                 t.Start();
 
                 Render.CreateWindow();
-                RenderType = Render.Initialize();
+                Render.Initialize();
                 Creator = Render.GetCreator();
 
                 t.Frame();
-                Console.WriteLine(t.FrameTime);
+                Console.WriteLine(render + " renderer started in " + t.FrameTime + " microseconds");
             }
-        }
-
-        public static void Run(Action act)
-        {
-            Render.Run(act);
         }
 
         public static void Exit()
         {
-            if (Render != null)
-            {
-                Render.Dispose();
-                Render = null;
-            }
-            Environment.Exit(1);
+            Environment.Exit(0);
         }
     }
 }

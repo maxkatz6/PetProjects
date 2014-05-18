@@ -2,7 +2,7 @@
 
 namespace Ormeli.Math
 {
-    [StructLayout(LayoutKind.Sequential, Size = 4)]
+    [StructLayout(LayoutKind.Sequential, Pack =  0, Size = 16)]
     public struct Color
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof (Color));
@@ -18,6 +18,14 @@ namespace Ormeli.Math
             G = (float) g/255;
             B = (float) b/255;
             A = (float) a/255;
+        }
+
+        public Color(float r, float g, float b, float a)
+        {
+            R = r;
+            G = g;
+            B = b;
+            A = a;
         }
 
         public Color(uint argb) : this(

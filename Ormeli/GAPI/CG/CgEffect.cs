@@ -11,7 +11,7 @@ namespace Ormeli.Cg
         public static readonly CG.Context Context = CG.CreateContext();
         protected CG.Effect Effect;
         public CG.Technique[] Techs;
-        public Dictionary<string, int> TechNum = new Dictionary<string, int>();
+        public Dictionary<string, int> TechNum = new Dictionary<string, int>(10);
 
 
         static CgEffect()
@@ -33,9 +33,14 @@ Cg compiler output...{1}
             });
         }
 
-        protected CgEffect(string file, int defaultAttrContainerNum = 0)
+        public static T Get<T>(int num) where T:CgEffect
         {
-            Effect = CG.CreateEffectFromFile(Context, Config.EffectDirectory + file,
+            return (T) EffectManager.Effects[num];
+        }
+
+        protected CgEffect(string file)
+        {
+            Effect = CG.CreateEffectFromFile(Context, Config.GetEffectPath(file),
                 null);
             var myCgTechnique = CG.GetFirstTechnique(Effect);
             var list = new List<CG.Technique>();
@@ -43,19 +48,19 @@ Cg compiler output...{1}
             {
                 var c = CG.GetTechniqueName(myCgTechnique).ToStr();
                 if (CG.ValidateTechnique(myCgTechnique) != 1)
-                    Console.WriteLine(@"Ormeli: Technique {0} did not validate.  Skipping.", c);
+                    Console.WriteLine(@"Ormeli: Effect {1}: Technique {0} did not validate.  Skipping.", c, file);
                 else
                 {
-                    Console.WriteLine(@"Ormeli: Technique {0} is valid.", c);
+                    Console.WriteLine(@"Ormeli: Effect {1}: Technique {0} is valid.", c, file);
                     list.Add(myCgTechnique);
-                    TechNum.Add(c.Substring(5), list.Count-1);
+                    TechNum.Add(c, list.Count-1);
                 }
                 myCgTechnique = CG.GetNextTechnique(myCgTechnique);
             }
 
             if (list.Count == 0)
             {
-                ErrorProvider.SendError("Ormeli: No valid technique.", true);
+                ErrorProvider.SendError("Ormeli: Effect "+file+": No valid technique.", true);
             }
             Techs = list.ToArray();
         }
@@ -64,7 +69,9 @@ Cg compiler output...{1}
         {
             if (EffectManager.AttribsContainers[attrNum] == null)
                 EffectManager.AttribsContainers[attrNum] = App.Creator.InitAttribs(EffectManager.Attribs[attrNum],
-                    CG.DX11.GetIASignatureByPass(CG.GetFirstPass(Techs[techNum])));
+                    App.RenderType == RenderType.DirectX11
+                        ? CG.DX11.GetIASignatureByPass(CG.GetFirstPass(Techs[techNum]))
+                        : IntPtr.Zero);
         }
         protected void InitAttrib(string tech, int attrNum)
         {
@@ -77,8 +84,8 @@ Cg compiler output...{1}
         }
         protected void SetMatrix(CG.Parameter param, Matrix mt)
         {
-            if (App.RenderType == RenderType.OpenGl3) CG.GL.SetMatrixParameterfr(param, mt.GetFloatArray());
-            else CG.SetMatrixParameterfr(param, mt.GetFloatArray());
+            if (App.RenderType == RenderType.OpenGl3) CG.GL.SetMatrixParameterfr(param, mt);
+            else CG.SetMatrixParameterfr(param, mt);
         }
 
         protected void SetTexture(string name, Texture tex)
@@ -87,21 +94,15 @@ Cg compiler output...{1}
         }
         protected void SetTexture(CG.Parameter param, Texture tex)
         {
-            if (App.RenderType == RenderType.OpenGl3) CG.GL.SetTextureParameter(param, tex.Handle.ToInt32());
-            else CG.DX11.SetTextureParameter(param, tex.Handle);
+            if (App.RenderType == RenderType.OpenGl3) CG.GL.SetTextureParameter(param, tex);
+            else CG.DX11.SetTextureParameter(param, tex);
             CG.SetSamplerState(param);
         }
 
-        private int _lastAttrNum = -1;
         public void Render(int techN, int indexCount)
         {
             var tech = Techs[techN];
             var pass = CG.GetFirstPass(tech);
-            if (_lastAttrNum != techN)
-            {
-                EffectManager.AttribsContainers[techN].Accept();
-                _lastAttrNum = techN;
-            }
 
             while (pass)
             {
@@ -112,6 +113,10 @@ Cg compiler output...{1}
                 CG.ResetPassState(pass);
                 pass = CG.GetNextPass(pass);
             }
+        }
+        public void Render(string tech, int indexCount)
+        {
+            Render(TechNum[tech], indexCount);
         }
     }
 }

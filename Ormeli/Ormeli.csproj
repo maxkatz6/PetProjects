@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -71,13 +71,13 @@
       <HintPath>..\..\..\..\..\Program Files\OpenTK\1.1\Binaries\OpenTK\Release\OpenTK.Compatibility.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>..\..\TDF\VBExample\bin\Debug\Новая папка\SharpDX.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files\SharpDX\2,5,1\Bin\DirectX11-Signed-net40\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D11">
-      <HintPath>..\..\TDF\VBExample\bin\Debug\Новая папка\SharpDX.Direct3D11.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files\SharpDX\2,5,1\Bin\DirectX11-Signed-net40\SharpDX.Direct3D11.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DXGI">
-      <HintPath>..\..\TDF\VBExample\bin\Debug\Новая папка\SharpDX.DXGI.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files\SharpDX\2,5,1\Bin\DirectX11-Signed-net40\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -94,9 +94,17 @@
     <Compile Include="Core\ErrorProvider.cs" />
     <Compile Include="Core\FileManager.cs" />
     <Compile Include="App\Program.cs" />
+    <Compile Include="Core\FPS.cs" />
     <Compile Include="Core\Patterns\Disposable.cs" />
     <Compile Include="Core\Patterns\Singleton.cs" />
+    <Compile Include="Core\Reflection.cs" />
     <Compile Include="Core\Timer.cs" />
+    <Compile Include="Graphics\GeometryGenerator.cs" />
+    <Compile Include="Graphics\Components\Model.cs" />
+    <Compile Include="Graphics\Loop.cs" />
+    <Compile Include="Graphics\Cameras\Camera.cs" />
+    <Compile Include="Graphics\Cameras\FreeCamera.cs" />
+    <Compile Include="Graphics\Cameras\TargetCamera.cs" />
     <Compile Include="Graphics\Components\Buffer.cs" />
     <Compile Include="GAPI\Cg\CgEffect.cs" />
     <Compile Include="GAPI\Cg\CgType.cs" />
@@ -124,10 +132,15 @@
     <Compile Include="Graphics\Effects\ColTexEffect.cs" />
     <Compile Include="Graphics\Components\Mesh.cs" />
     <Compile Include="Graphics\Components\Vertex.cs" />
+    <Compile Include="Input\Input.cs" />
+    <Compile Include="Input\Key.cs" />
     <Compile Include="Math\Color.cs" />
     <Compile Include="Math\Matrix.cs" />
     <Compile Include="Math\Plane.cs" />
+    <Compile Include="Math\Point.cs" />
     <Compile Include="Math\Quaternion.cs" />
+    <Compile Include="Math\Rectangle.cs" />
+    <Compile Include="Math\RectangleF.cs" />
     <Compile Include="Math\Vector2.cs" />
     <Compile Include="Math\Vector3.cs" />
     <Compile Include="Math\Vector4.cs" />
@@ -142,9 +155,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="GUI\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -152,8 +163,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Resources\glut32_32.dll" />
-    <None Include="Resources\Effects\effect.cgfx">
+    <None Include="Resources\Effects\ColTexEffect.cgfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -181,12 +193,6 @@
   <ItemGroup>
     <Content Include="Resources\DevIL.dll" />
     <Content Include="Resources\ILU.dll" />
-    <Content Include="Resources\Textures\null.dds">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Textures\null.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\Textures\NVIDIA.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

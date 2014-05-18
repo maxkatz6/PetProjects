@@ -84,7 +84,13 @@ namespace Ormeli.Math
             R2 = r2;
             R3 = r3;
         }
-
+        public Matrix(Vector4 r0, Vector4 r1, Vector4 r2, Vector4 r3)
+        {
+            R0 = r0._v4;
+            R1 = r1._v4;
+            R2 = r2._v4;
+            R3 = r3._v4;
+        }
         public Matrix(float[] values)
         {
             if (values == null)
@@ -123,7 +129,7 @@ namespace Ormeli.Math
                 R0.X, R0.Y, R0.Z, R0.W,
                 R1.X, R1.Y, R1.Z, R1.W,
                 R2.X, R2.Y, R2.Z, R2.W,
-                R3.X, R3.Y, R3.Z, R3.W,
+                R3.X, R3.Y, R3.Z, R3.W
             };
         }
 
@@ -229,8 +235,8 @@ namespace Ormeli.Math
             float x = axis.X;
             float y = axis.Y;
             float z = axis.Z;
-            var sin = (float)System.Math.Sin(angle);
-            var cos = (float)System.Math.Cos(angle);
+            var sin = MathHelper.FastSin(angle);
+            var cos = MathHelper.FastCos(angle);
             float xx = x * x;
             float yy = y * y;
             float zz = z * z;
@@ -290,84 +296,66 @@ namespace Ormeli.Math
             return result;
         }
 
-        public static void FromYawPitchRoll(float yaw, float pitch, float roll, out Matrix result)
+        public static void FromYawPitchRoll(float yaw, float pitch, float roll, out Matrix matrix)
         {
-            Quaternion quat;
-            Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll, out quat);
-            FromQuaternion(ref quat, out result);
+            matrix = new Matrix();
+            // Get the cosine and sin of the yaw, pitch, and roll.
+            var cYaw = MathHelper.FastCos(yaw);
+            var cPitch = MathHelper.FastCos(pitch);
+            var cRoll = MathHelper.FastCos(roll);
+
+            var sYaw = MathHelper.FastSin(yaw);
+            var sPitch = MathHelper.FastSin(pitch);
+            var sRoll = MathHelper.FastSin(roll);
+
+            // Calculate the yaw, pitch, roll rotation matrix.
+            matrix[0, 0] = (cRoll * cYaw) + (sRoll * sPitch * sYaw);
+            matrix[0, 1] = (sRoll * cPitch);
+            matrix[0, 2] = (cRoll * -sYaw) + (sRoll * sPitch * cYaw);
+
+            matrix[1, 0] = (-sRoll * cYaw) + (cRoll * sPitch * sYaw);
+            matrix[1, 1] = (cRoll * cPitch);
+            matrix[1, 2] = (sRoll * sYaw) + (cRoll * sPitch * cYaw);
+
+            matrix[2, 0] = (cPitch * sYaw);
+            matrix[2, 1] = -sPitch;
+            matrix[2, 2] = (cPitch * cYaw);
+
+            matrix[3, 3] = 1;
         }
 
-        /// <summary>
-        ///     Creates a left-handed spherical billboard that rotates around a specified object position.
-        /// </summary>
-        /// <param name="objectPosition">The position of the object around which the billboard will rotate.</param>
-        /// <param name="cameraPosition">The position of the camera.</param>
-        /// <param name="cameraUpVector">The up vector of the camera.</param>
-        /// <param name="cameraForwardVector">The forward vector of the camera.</param>
-        /// <param name="result">When the method completes, contains the created billboard matrix.</param>
-        public static void BillboardLH(ref Vector3 objectPosition, ref Vector3 cameraPosition,
-            ref Vector3 cameraUpVector, ref Vector3 cameraForwardVector, out Matrix result)
-        {
-            Vector3 crossed;
-            Vector3 final;
-            Vector3 difference = objectPosition - cameraPosition;
-
-            float lengthSq = difference.LengthSquared();
-            if (lengthSq == 0)
-                difference = -cameraForwardVector;
-            else
-                difference *= (float)(1.0 / System.Math.Sqrt(lengthSq));
-
-            Vector3.Cross(ref cameraUpVector, ref difference, out crossed);
-            crossed.Normalize();
-            Vector3.Cross(ref difference, ref crossed, out final);
-
-            result = new Matrix
-            {
-                M11 = crossed.X,
-                M12 = crossed.Y,
-                M13 = crossed.Z,
-                M14 = 0.0f,
-                M21 = final.X,
-                M22 = final.Y,
-                M23 = final.Z,
-                M24 = 0.0f,
-                M31 = difference.X,
-                M32 = difference.Y,
-                M33 = difference.Z,
-                M34 = 0.0f,
-                M41 = objectPosition.X,
-                M42 = objectPosition.Y,
-                M43 = objectPosition.Z,
-                M44 = 1.0f
-            };
-        }
-
-        /// <summary>
-        ///     Creates a left-handed spherical billboard that rotates around a specified object position.
-        /// </summary>
-        /// <param name="objectPosition">The position of the object around which the billboard will rotate.</param>
-        /// <param name="cameraPosition">The position of the camera.</param>
-        /// <param name="cameraUpVector">The up vector of the camera.</param>
-        /// <param name="cameraForwardVector">The forward vector of the camera.</param>
-        /// <returns>The created billboard matrix.</returns>
-        public static Matrix BillboardLH(Vector3 objectPosition, Vector3 cameraPosition, Vector3 cameraUpVector,
-            Vector3 cameraForwardVector)
+        public static Matrix FromYawPitch(float yaw, float pitch)
         {
             Matrix result;
-            BillboardLH(ref objectPosition, ref cameraPosition, ref cameraUpVector, ref cameraForwardVector, out result);
+            FromYawPitchRoll(yaw, pitch, out result);
             return result;
         }
 
-        /// <summary>
-        ///     Creates a right-handed spherical billboard that rotates around a specified object position.
-        /// </summary>
-        /// <param name="objectPosition">The position of the object around which the billboard will rotate.</param>
-        /// <param name="cameraPosition">The position of the camera.</param>
-        /// <param name="cameraUpVector">The up vector of the camera.</param>
-        /// <param name="cameraForwardVector">The forward vector of the camera.</param>
-        /// <param name="result">When the method completes, contains the created billboard matrix.</param>
-        public static void BillboardRH(ref Vector3 objectPosition, ref Vector3 cameraPosition,
+        public static void FromYawPitchRoll(float yaw, float pitch, out Matrix matrix)
+        {
+            matrix = new Matrix();
+            // Get the cosine and sin of the yaw, pitch, and roll.
+            float cPitch = MathHelper.FastCos(pitch),
+                sPitch = MathHelper.FastSin(pitch),
+                cYaw = MathHelper.FastCos(yaw),
+                sYaw = MathHelper.FastSin(yaw);
+
+            // Calculate the yaw, pitch, roll rotation matrix.
+            matrix[0, 0] = cYaw;
+            matrix[0, 2] = -sYaw;
+
+            matrix[1, 0] = sPitch * sYaw;
+            matrix[1, 1] = cPitch;
+            matrix[1, 2] = sPitch * cYaw;
+
+            matrix[2, 0] = cPitch * sYaw;
+            matrix[2, 1] = -sPitch;
+            matrix[2, 2] = cPitch * cYaw;
+
+            matrix[3, 3] = 1;
+        }
+
+        public static void Billboard(ref Vector3 objectPosition, ref Vector3 cameraPosition,
             ref Vector3 cameraUpVector, ref Vector3 cameraForwardVector, out Matrix result)
         {
             Vector3 crossed;
@@ -413,178 +401,87 @@ namespace Ormeli.Math
         /// <param name="cameraUpVector">The up vector of the camera.</param>
         /// <param name="cameraForwardVector">The forward vector of the camera.</param>
         /// <returns>The created billboard matrix.</returns>
-        public static Matrix BillboardRH(Vector3 objectPosition, Vector3 cameraPosition, Vector3 cameraUpVector,
+        public static Matrix Billboard(Vector3 objectPosition, Vector3 cameraPosition, Vector3 cameraUpVector,
             Vector3 cameraForwardVector)
         {
             Matrix result;
-            BillboardRH(ref objectPosition, ref cameraPosition, ref cameraUpVector, ref cameraForwardVector, out result);
+            Billboard(ref objectPosition, ref cameraPosition, ref cameraUpVector, ref cameraForwardVector, out result);
             return result;
         }
-
-        /// <summary>
-        ///     Creates a left-handed, look-at matrix.
-        /// </summary>
-        /// <param name="eye">The position of the viewer's eye.</param>
-        /// <param name="target">The camera look-at target.</param>
-        /// <param name="up">The camera's up vector.</param>
-        /// <param name="result">When the method completes, contains the created look-at matrix.</param>
-        public static void LookAtLH(ref Vector3 eye, ref Vector3 target, ref Vector3 up, out Matrix result)
+        public static void LookAt(ref Vector3 eye, ref Vector3 target, ref Vector3 up, out Matrix result)
         {
             Vector3 xaxis, yaxis, zaxis;
-            Vector3.Subtract(ref target, ref eye, out zaxis);
-            zaxis.Normalize();
-            Vector3.Cross(ref up, ref zaxis, out xaxis);
-            xaxis.Normalize();
+            Vector3.Subtract(ref eye, ref target, out zaxis); zaxis.Normalize();
+            Vector3.Cross(ref up, ref zaxis, out xaxis); xaxis.Normalize();
             Vector3.Cross(ref zaxis, ref xaxis, out yaxis);
 
             result = Identity;
-            result.M11 = xaxis.X;
-            result.M21 = xaxis.Y;
-            result.M31 = xaxis.Z;
-            result.M12 = yaxis.X;
-            result.M22 = yaxis.Y;
-            result.M32 = yaxis.Z;
-            result.M13 = zaxis.X;
-            result.M23 = zaxis.Y;
-            result.M33 = zaxis.Z;
+            result.M11 = xaxis.X; result.M21 = xaxis.Y; result.M31 = xaxis.Z;
+            result.M12 = yaxis.X; result.M22 = yaxis.Y; result.M32 = yaxis.Z;
+            result.M13 = zaxis.X; result.M23 = zaxis.Y; result.M33 = zaxis.Z;
 
-            float t;
-            Vector3.Dot(ref xaxis, ref eye, out t);
-            result.M41 = -t;
-            Vector3.Dot(ref yaxis, ref eye, out t);
-            result.M42 = -t;
-            Vector3.Dot(ref zaxis, ref eye, out t);
-            result.M43 = -t;
+            result.M41 = -Vector3.Dot(xaxis, eye);
+            result.M42 = -Vector3.Dot(yaxis, eye);
+            result.M43 = -Vector3.Dot(zaxis, eye);
         }
-
-        /// <summary>
-        ///     Creates a left-handed, look-at matrix.
-        /// </summary>
-        /// <param name="eye">The position of the viewer's eye.</param>
-        /// <param name="target">The camera look-at target.</param>
-        /// <param name="up">The camera's up vector.</param>
-        /// <returns>The created look-at matrix.</returns>
-        public static Matrix LookAtLH(Vector3 eye, Vector3 target, Vector3 up)
+        public static Matrix LookAt(Vector3 eye, Vector3 target, Vector3 up)
         {
             Matrix result;
-            LookAtLH(ref eye, ref target, ref up, out result);
+            LookAt(ref eye, ref target, ref up, out result);
+            return result;
+        }
+
+        public static void LookAt(ref Vector3 eye, ref Vector3 target, out Matrix result)
+        {           
+            var zaxis = Vector3.Normalize(Vector3.Subtract(eye, target));
+            result = new Matrix {M13 = zaxis.X, M23 = zaxis.Y, M33 = zaxis.Z, M43 = -Vector3.Dot(zaxis, eye), M44 = 1};
+        }
+        public static Matrix LookAt(Vector3 eye, Vector3 target)
+        {
+            Matrix result;
+            LookAt(ref eye, ref target, out result);
             return result;
         }
 
         /// <summary>
-        ///     Creates a right-handed, look-at matrix.
-        /// </summary>
-        /// <param name="eye">The position of the viewer's eye.</param>
-        /// <param name="target">The camera look-at target.</param>
-        /// <param name="up">The camera's up vector.</param>
-        /// <param name="result">When the method completes, contains the created look-at matrix.</param>
-        public static void LookAtRH(ref Vector3 eye, ref Vector3 target, ref Vector3 up, out Matrix result)
-        {
-            Vector3 xaxis, yaxis, zaxis;
-            Vector3.Subtract(ref eye, ref target, out zaxis);
-            zaxis.Normalize();
-            Vector3.Cross(ref up, ref zaxis, out xaxis);
-            xaxis.Normalize();
-            Vector3.Cross(ref zaxis, ref xaxis, out yaxis);
-
-            result = Identity;
-            result.M11 = xaxis.X;
-            result.M21 = xaxis.Y;
-            result.M31 = xaxis.Z;
-            result.M12 = yaxis.X;
-            result.M22 = yaxis.Y;
-            result.M32 = yaxis.Z;
-            result.M13 = zaxis.X;
-            result.M23 = zaxis.Y;
-            result.M33 = zaxis.Z;
-
-            float t;
-            Vector3.Dot(ref xaxis, ref eye, out t);
-            result.M41 = -t;
-            Vector3.Dot(ref yaxis, ref eye, out t);
-            result.M42 = -t;
-            Vector3.Dot(ref zaxis, ref eye, out t);
-            result.M43 = -t;
-        }
-
-        /// <summary>
-        ///     Creates a right-handed, look-at matrix.
-        /// </summary>
-        /// <param name="eye">The position of the viewer's eye.</param>
-        /// <param name="target">The camera look-at target.</param>
-        /// <param name="up">The camera's up vector.</param>
-        /// <returns>The created look-at matrix.</returns>
-        public static Matrix LookAtRH(Vector3 eye, Vector3 target, Vector3 up)
-        {
-            Matrix result;
-            LookAtRH(ref eye, ref target, ref up, out result);
-            return result;
-        }
-
-        /// <summary>
-        ///     Creates a left-handed, orthographic projection matrix.
+        /// Creates a right-handed, orthographic projection matrix.
         /// </summary>
         /// <param name="width">Width of the viewing volume.</param>
         /// <param name="height">Height of the viewing volume.</param>
         /// <param name="znear">Minimum z-value of the viewing volume.</param>
         /// <param name="zfar">Maximum z-value of the viewing volume.</param>
         /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void OrthoLH(float width, float height, float znear, float zfar, out Matrix result)
+        public static void Ortho(float width, float height, float znear, float zfar, out Matrix result)
         {
-            float halfWidth = width * 0.5f;
-            float halfHeight = height * 0.5f;
+            var zRange = 1.0f / (zfar - znear);
 
-            OrthoOffCenterLH(-halfWidth, halfWidth, -halfHeight, halfHeight, znear, zfar, out result);
+            result = new Matrix
+            {
+                M11 = 2.0f / width,
+                M22 = 2.0f/ height,
+                M33 = -zRange,
+                M43 = -znear*zRange,
+                M44 = 1
+            };
         }
 
         /// <summary>
-        ///     Creates a left-handed, orthographic projection matrix.
+        /// Creates a right-handed, orthographic projection matrix.
         /// </summary>
         /// <param name="width">Width of the viewing volume.</param>
         /// <param name="height">Height of the viewing volume.</param>
         /// <param name="znear">Minimum z-value of the viewing volume.</param>
         /// <param name="zfar">Maximum z-value of the viewing volume.</param>
         /// <returns>The created projection matrix.</returns>
-        public static Matrix OrthoLH(float width, float height, float znear, float zfar)
+        public static Matrix Ortho(float width, float height, float znear, float zfar)
         {
             Matrix result;
-            OrthoLH(width, height, znear, zfar, out result);
+            Ortho(width, height, znear, zfar, out result);
             return result;
         }
 
         /// <summary>
-        ///     Creates a right-handed, orthographic projection matrix.
-        /// </summary>
-        /// <param name="width">Width of the viewing volume.</param>
-        /// <param name="height">Height of the viewing volume.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void OrthoRH(float width, float height, float znear, float zfar, out Matrix result)
-        {
-            float halfWidth = width * 0.5f;
-            float halfHeight = height * 0.5f;
-
-            OrthoOffCenterRH(-halfWidth, halfWidth, -halfHeight, halfHeight, znear, zfar, out result);
-        }
-
-        /// <summary>
-        ///     Creates a right-handed, orthographic projection matrix.
-        /// </summary>
-        /// <param name="width">Width of the viewing volume.</param>
-        /// <param name="height">Height of the viewing volume.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <returns>The created projection matrix.</returns>
-        public static Matrix OrthoRH(float width, float height, float znear, float zfar)
-        {
-            Matrix result;
-            OrthoRH(width, height, znear, zfar, out result);
-            return result;
-        }
-
-        /// <summary>
-        ///     Creates a left-handed, customized orthographic projection matrix.
+        /// Creates a right-handed, customized orthographic projection matrix.
         /// </summary>
         /// <param name="left">Minimum x-value of the viewing volume.</param>
         /// <param name="right">Maximum x-value of the viewing volume.</param>
@@ -593,22 +490,21 @@ namespace Ormeli.Math
         /// <param name="znear">Minimum z-value of the viewing volume.</param>
         /// <param name="zfar">Maximum z-value of the viewing volume.</param>
         /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void OrthoOffCenterLH(float left, float right, float bottom, float top, float znear, float zfar,
-            out Matrix result)
+        public static void OrthoOffCenter(float left, float right, float bottom, float top, float znear, float zfar, out Matrix result)
         {
             float zRange = 1.0f / (zfar - znear);
 
             result = Identity;
             result.M11 = 2.0f / (right - left);
             result.M22 = 2.0f / (top - bottom);
-            result.M33 = zRange;
+            result.M33 = -zRange;
             result.M41 = (left + right) / (left - right);
             result.M42 = (top + bottom) / (bottom - top);
             result.M43 = -znear * zRange;
         }
 
         /// <summary>
-        ///     Creates a left-handed, customized orthographic projection matrix.
+        /// Creates a right-handed, customized orthographic projection matrix.
         /// </summary>
         /// <param name="left">Minimum x-value of the viewing volume.</param>
         /// <param name="right">Maximum x-value of the viewing volume.</param>
@@ -617,15 +513,14 @@ namespace Ormeli.Math
         /// <param name="znear">Minimum z-value of the viewing volume.</param>
         /// <param name="zfar">Maximum z-value of the viewing volume.</param>
         /// <returns>The created projection matrix.</returns>
-        public static Matrix OrthoOffCenterLH(float left, float right, float bottom, float top, float znear, float zfar)
+        public static Matrix OrthoOffCenter(float left, float right, float bottom, float top, float znear, float zfar)
         {
             Matrix result;
-            OrthoOffCenterLH(left, right, bottom, top, znear, zfar, out result);
+            OrthoOffCenter(left, right, bottom, top, znear, zfar, out result);
             return result;
         }
-
         /// <summary>
-        ///     Creates a right-handed, customized orthographic projection matrix.
+        /// Creates a right-handed, customized perspective projection matrix.
         /// </summary>
         /// <param name="left">Minimum x-value of the viewing volume.</param>
         /// <param name="right">Maximum x-value of the viewing volume.</param>
@@ -633,190 +528,25 @@ namespace Ormeli.Math
         /// <param name="top">Maximum y-value of the viewing volume.</param>
         /// <param name="znear">Minimum z-value of the viewing volume.</param>
         /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void OrthoOffCenterRH(float left, float right, float bottom, float top, float znear, float zfar,
-            out Matrix result)
+        /// <param name="result">Matrix</param>
+        public static void PerspectiveOffCenter(float left, float right, float bottom, float top, float znear, float zfar, out Matrix result)
         {
-            OrthoOffCenterLH(left, right, bottom, top, znear, zfar, out result);
-            result.M33 *= -1.0f;
-        }
-
-        /// <summary>
-        ///     Creates a right-handed, customized orthographic projection matrix.
-        /// </summary>
-        /// <param name="left">Minimum x-value of the viewing volume.</param>
-        /// <param name="right">Maximum x-value of the viewing volume.</param>
-        /// <param name="bottom">Minimum y-value of the viewing volume.</param>
-        /// <param name="top">Maximum y-value of the viewing volume.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <returns>The created projection matrix.</returns>
-        public static Matrix OrthoOffCenterRH(float left, float right, float bottom, float top, float znear, float zfar)
-        {
-            Matrix result;
-            OrthoOffCenterRH(left, right, bottom, top, znear, zfar, out result);
-            return result;
-        }
-
-        /// <summary>
-        ///     Creates a left-handed, perspective projection matrix.
-        /// </summary>
-        /// <param name="width">Width of the viewing volume.</param>
-        /// <param name="height">Height of the viewing volume.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void PerspectiveLH(float width, float height, float znear, float zfar, out Matrix result)
-        {
-            float halfWidth = width * 0.5f;
-            float halfHeight = height * 0.5f;
-
-            PerspectiveOffCenterLH(-halfWidth, halfWidth, -halfHeight, halfHeight, znear, zfar, out result);
-        }
-
-        /// <summary>
-        ///     Creates a left-handed, perspective projection matrix.
-        /// </summary>
-        /// <param name="width">Width of the viewing volume.</param>
-        /// <param name="height">Height of the viewing volume.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <returns>The created projection matrix.</returns>
-        public static Matrix PerspectiveLH(float width, float height, float znear, float zfar)
-        {
-            Matrix result;
-            PerspectiveLH(width, height, znear, zfar, out result);
-            return result;
-        }
-
-        /// <summary>
-        ///     Creates a right-handed, perspective projection matrix.
-        /// </summary>
-        /// <param name="width">Width of the viewing volume.</param>
-        /// <param name="height">Height of the viewing volume.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void PerspectiveRH(float width, float height, float znear, float zfar, out Matrix result)
-        {
-            float halfWidth = width * 0.5f;
-            float halfHeight = height * 0.5f;
-
-            PerspectiveOffCenterRH(-halfWidth, halfWidth, -halfHeight, halfHeight, znear, zfar, out result);
-        }
-
-        /// <summary>
-        ///     Creates a right-handed, perspective projection matrix.
-        /// </summary>
-        /// <param name="width">Width of the viewing volume.</param>
-        /// <param name="height">Height of the viewing volume.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <returns>The created projection matrix.</returns>
-        public static Matrix PerspectiveRH(float width, float height, float znear, float zfar)
-        {
-            Matrix result;
-            PerspectiveRH(width, height, znear, zfar, out result);
-            return result;
-        }
-
-        /// <summary>
-        ///     Creates a left-handed, perspective projection matrix based on a field of view.
-        /// </summary>
-        /// <param name="fov">Field of view in the y direction, in radians.</param>
-        /// <param name="aspect">Aspect ratio, defined as view space width divided by height.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void PerspectiveFovLH(float fov, float aspect, float znear, float zfar, out Matrix result)
-        {
-            var yScale = (float)(1.0 / System.Math.Tan(fov * 0.5f));
-            float xScale = yScale / aspect;
-
-            float halfWidth = znear / xScale;
-            float halfHeight = znear / yScale;
-
-            PerspectiveOffCenterLH(-halfWidth, halfWidth, -halfHeight, halfHeight, znear, zfar, out result);
-        }
-
-        /// <summary>
-        ///     Creates a left-handed, perspective projection matrix based on a field of view.
-        /// </summary>
-        /// <param name="fov">Field of view in the y direction, in radians.</param>
-        /// <param name="aspect">Aspect ratio, defined as view space width divided by height.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <returns>The created projection matrix.</returns>
-        public static Matrix PerspectiveFovLH(float fov, float aspect, float znear, float zfar)
-        {
-            Matrix result;
-            PerspectiveFovLH(fov, aspect, znear, zfar, out result);
-            return result;
-        }
-
-        /// <summary>
-        ///     Creates a right-handed, perspective projection matrix based on a field of view.
-        /// </summary>
-        /// <param name="fov">Field of view in the y direction, in radians.</param>
-        /// <param name="aspect">Aspect ratio, defined as view space width divided by height.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void PerspectiveFovRH(float fov, float aspect, float znear, float zfar, out Matrix result)
-        {
-            var yScale = (float)(1.0 / System.Math.Tan(fov * 0.5f));
-            float xScale = yScale / aspect;
-
-            float halfWidth = znear / xScale;
-            float halfHeight = znear / yScale;
-
-            PerspectiveOffCenterRH(-halfWidth, halfWidth, -halfHeight, halfHeight, znear, zfar, out result);
-        }
-
-        /// <summary>
-        ///     Creates a right-handed, perspective projection matrix based on a field of view.
-        /// </summary>
-        /// <param name="fov">Field of view in the y direction, in radians.</param>
-        /// <param name="aspect">Aspect ratio, defined as view space width divided by height.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <returns>The created projection matrix.</returns>
-        public static Matrix PerspectiveFovRH(float fov, float aspect, float znear, float zfar)
-        {
-            Matrix result;
-            PerspectiveFovRH(fov, aspect, znear, zfar, out result);
-            return result;
-        }
-
-        /// <summary>
-        ///     Creates a left-handed, customized perspective projection matrix.
-        /// </summary>
-        /// <param name="left">Minimum x-value of the viewing volume.</param>
-        /// <param name="right">Maximum x-value of the viewing volume.</param>
-        /// <param name="bottom">Minimum y-value of the viewing volume.</param>
-        /// <param name="top">Maximum y-value of the viewing volume.</param>
-        /// <param name="znear">Minimum z-value of the viewing volume.</param>
-        /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void PerspectiveOffCenterLH(float left, float right, float bottom, float top, float znear,
-            float zfar, out Matrix result)
-        {
-            float zRange = zfar / (zfar - znear);
-
+            var zRange = zfar / (zfar - znear);
             result = new Matrix
             {
-                M11 = 2.0f * znear / (right - left),
-                M22 = 2.0f * znear / (top - bottom),
-                M31 = (left + right) / (left - right),
-                M32 = (top + bottom) / (bottom - top),
-                M33 = zRange,
-                M34 = 1.0f,
-                M43 = -znear * zRange
+                M11 = 2.0f*znear/(right - left),
+                M22 = 2.0f*znear/(top - bottom),
+                M31 = -(left + right)/(left - right),
+                M32 = -(top + bottom)/(bottom - top),
+                M33 = -zRange,
+                M34 = -1.0f,
+                M43 = -znear*zRange,
+                M44 = 1
             };
         }
 
         /// <summary>
-        ///     Creates a left-handed, customized perspective projection matrix.
+        /// Creates a right-handed, customized perspective projection matrix.
         /// </summary>
         /// <param name="left">Minimum x-value of the viewing volume.</param>
         /// <param name="right">Maximum x-value of the viewing volume.</param>
@@ -825,52 +555,50 @@ namespace Ormeli.Math
         /// <param name="znear">Minimum z-value of the viewing volume.</param>
         /// <param name="zfar">Maximum z-value of the viewing volume.</param>
         /// <returns>The created projection matrix.</returns>
-        public static Matrix PerspectiveOffCenterLH(float left, float right, float bottom, float top, float znear,
-            float zfar)
+        public static Matrix PerspectiveOffCenter(float left, float right, float bottom, float top, float znear, float zfar)
         {
             Matrix result;
-            PerspectiveOffCenterLH(left, right, bottom, top, znear, zfar, out result);
+            PerspectiveOffCenter(left, right, bottom, top, znear, zfar, out result);
             return result;
         }
 
         /// <summary>
-        ///     Creates a right-handed, customized perspective projection matrix.
+        /// Creates a right-handed, perspective projection matrix based on a field of view.
         /// </summary>
-        /// <param name="left">Minimum x-value of the viewing volume.</param>
-        /// <param name="right">Maximum x-value of the viewing volume.</param>
-        /// <param name="bottom">Minimum y-value of the viewing volume.</param>
-        /// <param name="top">Maximum y-value of the viewing volume.</param>
+        /// <param name="fov">Field of view in the y direction, in radians.</param>
+        /// <param name="aspect">Aspect ratio, defined as view space width divided by height.</param>
         /// <param name="znear">Minimum z-value of the viewing volume.</param>
         /// <param name="zfar">Maximum z-value of the viewing volume.</param>
-        /// <param name="result">When the method completes, contains the created projection matrix.</param>
-        public static void PerspectiveOffCenterRH(float left, float right, float bottom, float top, float znear,
-            float zfar, out Matrix result)
+        /// <param name="result">Matrix</param>
+        public static void PerspectiveFov(float fov, float aspect, float znear, float zfar, out Matrix result)
         {
-            PerspectiveOffCenterLH(left, right, bottom, top, znear, zfar, out result);
-            result.M31 *= -1.0f;
-            result.M32 *= -1.0f;
-            result.M33 *= -1.0f;
-            result.M34 *= -1.0f;
+            var yScale = (float)(1.0 / System.Math.Tan(fov * 0.5f));
+            var zRange = zfar / (zfar - znear);
+            result = new Matrix
+            {
+                M11 = yScale / aspect,
+                M22 = yScale,
+                M33 = -zRange,
+                M34 = -1.0f,
+                M43 = -znear * zRange,
+                M44 = 1
+            };
         }
 
         /// <summary>
-        ///     Creates a right-handed, customized perspective projection matrix.
+        /// Creates a right-handed, perspective projection matrix based on a field of view.
         /// </summary>
-        /// <param name="left">Minimum x-value of the viewing volume.</param>
-        /// <param name="right">Maximum x-value of the viewing volume.</param>
-        /// <param name="bottom">Minimum y-value of the viewing volume.</param>
-        /// <param name="top">Maximum y-value of the viewing volume.</param>
+        /// <param name="fov">Field of view in the y direction, in radians.</param>
+        /// <param name="aspect">Aspect ratio, defined as view space width divided by height.</param>
         /// <param name="znear">Minimum z-value of the viewing volume.</param>
         /// <param name="zfar">Maximum z-value of the viewing volume.</param>
         /// <returns>The created projection matrix.</returns>
-        public static Matrix PerspectiveOffCenterRH(float left, float right, float bottom, float top, float znear,
-            float zfar)
+        public static Matrix PerspectiveFov(float fov, float aspect, float znear, float zfar)
         {
             Matrix result;
-            PerspectiveOffCenterRH(left, right, bottom, top, znear, zfar, out result);
+            PerspectiveFov(fov, aspect, znear, zfar, out result);
             return result;
         }
-
         /// <summary>
         ///     Builds a matrix that can be used to reflect vectors about a plane.
         /// </summary>
@@ -988,8 +716,8 @@ namespace Ormeli.Math
 
         public static void RotationX(float radians, out Matrix result)
         {
-            var cos = (float)System.Math.Cos(radians);
-            var sin = (float)System.Math.Sin(radians);
+            var cos = MathHelper.FastCos(radians);
+            var sin = MathHelper.FastSin(radians);
 
             result = new Matrix { M11 = 1.0f, M22 = cos, M23 = sin, M32 = -sin, M33 = cos, M44 = 1.0f };
         }
@@ -1003,8 +731,8 @@ namespace Ormeli.Math
 
         public static void RotationY(float radians, out Matrix result)
         {
-            var cos = (float)System.Math.Cos(radians);
-            var sin = (float)System.Math.Sin(radians);
+            var cos = MathHelper.FastCos(radians);
+            var sin = MathHelper.FastSin(radians);
 
             result = new Matrix { M11 = cos, M13 = -sin, M22 = 1.0f, M31 = sin, M33 = cos, M44 = 1.0f };
         }
@@ -1018,8 +746,8 @@ namespace Ormeli.Math
 
         public static void RotationZ(float radians, out Matrix result)
         {
-            var cos = (float)System.Math.Cos(radians);
-            var sin = (float)System.Math.Sin(radians);
+            var cos = MathHelper.FastCos(radians);
+            var sin = MathHelper.FastSin(radians);
 
             result = new Matrix { M11 = cos, M12 = sin, M21 = -sin, M22 = cos, M33 = 1.0f, M44 = 1.0f };
         }
@@ -1170,24 +898,21 @@ namespace Ormeli.Math
 
         public static void Multiply(ref Matrix left, ref Matrix right, out Matrix result)
         {
-            Vector4f t1, t2;
-            Vector4f out0, out1, out2, out3;
-
-            t1 = (left.R0.Shuffle(ShuffleSel.ExpandX) * right.R0) + (left.R0.Shuffle(ShuffleSel.ExpandY) * right.R1);
-            t2 = (left.R0.Shuffle(ShuffleSel.ExpandZ) * right.R2) + (left.R0.Shuffle(ShuffleSel.ExpandW) * right.R3);
-            out0 = t1 + t2;
+           var t1 = (left.R0.Shuffle(ShuffleSel.ExpandX) * right.R0) + (left.R0.Shuffle(ShuffleSel.ExpandY) * right.R1);
+            var t2 = (left.R0.Shuffle(ShuffleSel.ExpandZ) * right.R2) + (left.R0.Shuffle(ShuffleSel.ExpandW) * right.R3);
+            var out0 = t1 + t2;
 
             t1 = (left.R1.Shuffle(ShuffleSel.ExpandX) * right.R0) + (left.R1.Shuffle(ShuffleSel.ExpandY) * right.R1);
             t2 = (left.R1.Shuffle(ShuffleSel.ExpandZ) * right.R2) + (left.R1.Shuffle(ShuffleSel.ExpandW) * right.R3);
-            out1 = t1 + t2;
+            var out1 = t1 + t2;
 
             t1 = (left.R2.Shuffle(ShuffleSel.ExpandX) * right.R0) + (left.R2.Shuffle(ShuffleSel.ExpandY) * right.R1);
             t2 = (left.R2.Shuffle(ShuffleSel.ExpandZ) * right.R2) + (left.R2.Shuffle(ShuffleSel.ExpandW) * right.R3);
-            out2 = t1 + t2;
+            var out2 = t1 + t2;
 
             t1 = (left.R3.Shuffle(ShuffleSel.ExpandX) * right.R0) + (left.R3.Shuffle(ShuffleSel.ExpandY) * right.R1);
             t2 = (left.R3.Shuffle(ShuffleSel.ExpandZ) * right.R2) + (left.R3.Shuffle(ShuffleSel.ExpandW) * right.R3);
-            out3 = t1 + t2;
+            var out3 = t1 + t2;
 
             result =  new Matrix(out0, out1, out2, out3);
         }
@@ -1473,9 +1198,9 @@ namespace Ormeli.Math
             //Scaling is the length of the rows.
             scale = new Vector3
             {
-                X = (float)System.Math.Sqrt((M11 * M11) + (M12 * M12) + (M13 * M13)),
-                Y = (float)System.Math.Sqrt((M21 * M21) + (M22 * M22) + (M23 * M23)),
-                Z = (float)System.Math.Sqrt((M31 * M31) + (M32 * M32) + (M33 * M33))
+                X = MathHelper.FastSqrt((M11 * M11) + (M12 * M12) + (M13 * M13)),
+                Y = MathHelper.FastSqrt((M21 * M21) + (M22 * M22) + (M23 * M23)),
+                Z = MathHelper.FastSqrt((M31 * M31) + (M32 * M32) + (M33 * M33))
             };
 
             //If any of the scaling factors are zero, than the rotation matrix can not exist.
@@ -1637,36 +1362,25 @@ namespace Ormeli.Math
             return obj is Matrix && ((Matrix)obj) == this;
         }
 
-        public override int GetHashCode()
+        public override unsafe int GetHashCode()
         {
-#if UNSAFE
-			unsafe {
-				Vector4f f = R0;
-				Vector4i i = *((Vector4i*)&f);
-				i = i ^ i.Shuffle (ShuffleSel.Swap);
-				i = i ^ i.Shuffle (ShuffleSel.RotateLeft);
-				f = R1;
-				Vector4i j =  *((Vector4i*)&f);
-				j = j ^ j.Shuffle (ShuffleSel.Swap);
-				j = j ^ j.Shuffle (ShuffleSel.RotateLeft);
-				f = R2;
-				Vector4i k =  *((Vector4i*)&f);
-				k = k ^ k.Shuffle (ShuffleSel.Swap);
-				k = k ^ k.Shuffle (ShuffleSel.RotateLeft);
-				f = R3;
-				Vector4i l =  *((Vector4i*)&f);
-				l = l ^ l.Shuffle (ShuffleSel.Swap);
-				l = l ^ l.Shuffle (ShuffleSel.RotateLeft);
-				return (i ^ j ^ k ^ l).X;
-			}
-
-#else
-            return
-                M11.GetHashCode() ^ M12.GetHashCode() ^ M13.GetHashCode() ^ M14.GetHashCode() ^
-                M21.GetHashCode() ^ M22.GetHashCode() ^ M23.GetHashCode() ^ M24.GetHashCode() ^
-                M31.GetHashCode() ^ M32.GetHashCode() ^ M33.GetHashCode() ^ M34.GetHashCode() ^
-                M41.GetHashCode() ^ M42.GetHashCode() ^ M43.GetHashCode() ^ M44.GetHashCode();
-#endif
+            var f = R0;
+            var i = *((Vector4i*) &f);
+            i = i ^ i.Shuffle(ShuffleSel.Swap);
+            i = i ^ i.Shuffle(ShuffleSel.RotateLeft);
+            f = R1;
+            var j = *((Vector4i*) &f);
+            j = j ^ j.Shuffle(ShuffleSel.Swap);
+            j = j ^ j.Shuffle(ShuffleSel.RotateLeft);
+            f = R2;
+            var k = *((Vector4i*) &f);
+            k = k ^ k.Shuffle(ShuffleSel.Swap);
+            k = k ^ k.Shuffle(ShuffleSel.RotateLeft);
+            f = R3;
+            var l = *((Vector4i*) &f);
+            l = l ^ l.Shuffle(ShuffleSel.Swap);
+            l = l ^ l.Shuffle(ShuffleSel.RotateLeft);
+            return (i ^ j ^ k ^ l).X;
         }
 
         # endregion
@@ -1674,12 +1388,10 @@ namespace Ormeli.Math
         public override string ToString()
         {
             return string.Format(
-                "{{" +
-                "{{M11:{0} M12:{1} M13:{2} M14:{3}}} " +
-                "{{M21:{4} M22:{5} M23:{6} M24:{7}}} " +
-                "{{M31:{8} M32:{9} M33:{10} M34:{11}}} " +
-                "{{M41:{12} M42:{13} M43:{14} M44:{15}}}" +
-                "}}",
+                "[ {0} | {1} | {2} | {3} ]  " +
+                "[ {4} | {5} | {6} | {7} ]  " +
+                "[ {8} | {9} | {10} | {11} ]  " +
+                "[ {12} | {13} | {14} | {15} ]",
                 M11, M12, M13, M14,
                 M21, M22, M23, M24,
                 M31, M32, M33, M34,
@@ -1698,7 +1410,7 @@ namespace Ormeli.Math
 
             if (trace > Single.Epsilon)
             {
-                float s = 0.5f / (float)System.Math.Sqrt(trace);
+                float s = 0.5f / MathHelper.FastSqrt(trace);
 
                 quat.X = (R2.Y - R1.Z) * s;
                 quat.Y = (R0.Z - R2.X) * s;
@@ -1709,7 +1421,7 @@ namespace Ormeli.Math
             {
                 if (R0.X > R1.Y && R0.X > R2.Z)
                 {
-                    float s = 2.0f * (float)System.Math.Sqrt(1.0f + R0.X - R1.Y - R2.Z);
+                    float s = 2.0f * MathHelper.FastSqrt(1.0f + R0.X - R1.Y - R2.Z);
 
                     quat.X = 0.25f * s;
                     quat.Y = (R0.Y + R1.X) / s;
@@ -1718,7 +1430,7 @@ namespace Ormeli.Math
                 }
                 else if (R1.Y > R2.Z)
                 {
-                    float s = 2.0f * (float)System.Math.Sqrt(1.0f + R1.Y - R0.X - R2.Z);
+                    float s = 2.0f * MathHelper.FastSqrt(1.0f + R1.Y - R0.X - R2.Z);
 
                     quat.X = (R0.Y + R1.X) / s;
                     quat.Y = 0.25f * s;
@@ -1727,7 +1439,7 @@ namespace Ormeli.Math
                 }
                 else
                 {
-                    float s = 2.0f * (float)System.Math.Sqrt(1.0f + R2.Z - R0.X - R1.Y);
+                    float s = 2.0f * MathHelper.FastSqrt(1.0f + R2.Z - R0.X - R1.Y);
 
                     quat.X = (R0.Z + R2.X) / s;
                     quat.Y = (R1.Z + R2.Y) / s;
@@ -1754,12 +1466,12 @@ namespace Ormeli.Math
                 cx = R2.Z / cy;
                 sx = (-R1.Z) / cy;
 
-                angleX = (float)System.Math.Atan2(sx, cx);
+                angleX = System.Math.Atan2(sx, cx);
 
                 cz = R0.X / cy;
                 sz = (-R0.Y) / cy;
 
-                angleZ = (float)System.Math.Atan2(sz, cz);
+                angleZ = System.Math.Atan2(sz, cz);
             }
             else
             {

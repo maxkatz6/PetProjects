@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Windows.Forms;
 using Ormeli.Cg;
-using Ormeli.Core;
 using Ormeli.Core.Patterns;
 using Ormeli.Graphics;
+using Ormeli.Graphics.Cameras;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
@@ -10,6 +11,7 @@ using SharpDX.DXGI;
 using SharpDX.Windows;
 using Buffer = Ormeli.Graphics.Buffer;
 using Color = Ormeli.Math.Color;
+using CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
 
@@ -18,6 +20,7 @@ namespace Ormeli.DirectX11
     internal sealed class DxRender : Disposable, IRender
     {
         private readonly Color4 _blendFactor = new Color4(0, 0, 0, 0);
+
 
         public Color BackColor
         {
@@ -37,7 +40,7 @@ namespace Ormeli.DirectX11
         public DeviceContext DeviceContext;
         public SwapChain SwapChain;
         private RenderForm _renderForm;
-        private DxCreator _creator;
+
         public BlendState AlphaDisableBlendingState { get; set; }
 
         public BlendState AlphaEnableBlendingState { get; set; }
@@ -49,8 +52,6 @@ namespace Ormeli.DirectX11
         public DepthStencilState DepthStencilState { get; set; }
 
         public DepthStencilView DepthStencilView { get; set; }
-
-        public bool Enable4xMSAA { get; set; }
 
         public RasterizerState RasterState { get; set; }
 
@@ -67,26 +68,67 @@ namespace Ormeli.DirectX11
         public void BeginDraw()
         {
             DeviceContext.ClearDepthStencilView(DepthStencilView,
-                DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
+                DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 8);
             DeviceContext.ClearRenderTargetView(RenderTargetView, _color);
         }
 
         public void CreateWindow()
         {
-            _renderForm = new RenderForm
+            _renderForm = new RenderForm(Config.Tittle)
             {
                 Height = Config.Height,
                 Width = Config.Width
             };
+            _renderForm.ResizeEnd += (sender, args) => Camera.Current.UpdateScrennMatrices();
+            _renderForm.KeyPress += (s, e) => Input.CharInput(e.KeyChar);
+            _renderForm.KeyDown += (s, e) => Input.KeyDown((Key) e.KeyValue);
+            _renderForm.KeyUp += (s, e) => Input.KeyUp((Key) e.KeyValue);
+            _renderForm.MouseMove += (s, e) => Input.SetMouseCoord(e.X, e.Y);
+            _renderForm.MouseDown += (s, e) =>
+            {
+                switch (e.Button)
+                {
+                    case MouseButtons.Left:
+                        Input.LeftButton(true);
+                        break;
+                    case MouseButtons.Right:
+                        Input.RightButton(true);
+                        break;
+                    case MouseButtons.Middle:
+                        Input.MiddleButton(true);
+                        break;
+                }
+            };
+            _renderForm.MouseUp += (s, e) =>
+            {
+                switch (e.Button)
+                {
+                    case MouseButtons.Left:
+                        Input.LeftButton(false);
+                        break;
+                    case MouseButtons.Right:
+                        Input.RightButton(false);
+                        break;
+                    case MouseButtons.Middle:
+                        Input.MiddleButton(false);
+                        break;
+                }
+            };
         }
 
+        private static int _lastAttrNum = -1;
         public void SetBuffers(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride)
         {
             DeviceContext.InputAssembler.SetVertexBuffers(0,
-                new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer.Handle),
+                new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer),
                     vertexStride, 0));
+            if (App.RenderType == RenderType.DirectX11 && _lastAttrNum != vertexBuffer.VertexType)
+            {
+                EffectManager.AttribsContainers[vertexBuffer.VertexType].Accept();
+                _lastAttrNum = vertexBuffer.VertexType;
+            }
             DeviceContext.InputAssembler.SetIndexBuffer(
-                CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer.Handle), Format.R32_UInt, 0);
+                CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(indexBuffer), Format.R32_UInt, 0);
         }
 
         public void Draw(int indexCount)
@@ -133,7 +175,6 @@ namespace Ormeli.DirectX11
                 FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
 
             DeviceContext = Device.ImmediateContext;
-            _creator = new DxCreator(Device);
             int m4XMsaaQuality = Device.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, 4);
 
             var swapChainDesc = new SwapChainDescription
@@ -156,7 +197,7 @@ namespace Ormeli.DirectX11
                 OutputHandle = _renderForm.Handle,
                 // Turn multisampling off.
                 SampleDescription =
-                    (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
+                    (Config.Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
                 // Set to full screen or windowed mode.
                 IsWindowed = !Config.FullScreen,
                 // Don't set the advanced flags.
@@ -190,10 +231,10 @@ namespace Ormeli.DirectX11
                 ArraySize = 1,
                 Format = Format.D24_UNorm_S8_UInt,
                 SampleDescription =
-                    (Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
+                    (Config.Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
                 Usage = ResourceUsage.Default,
                 BindFlags = BindFlags.DepthStencil,
-                CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags.None,
+                CpuAccessFlags = CpuAccessFlags.None,
                 OptionFlags = ResourceOptionFlags.None
             });
 
@@ -227,12 +268,12 @@ namespace Ormeli.DirectX11
                 }
             };
 
-            // Set the depth stencil state.
-            DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
-
             ////////////////////
             // Create the depth stencil state.
             DepthStencilState = new DepthStencilState(Device, desc);
+
+            // Set the depth stencil state.
+            DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
 
             desc.IsDepthEnabled = false;
 
@@ -247,7 +288,7 @@ namespace Ormeli.DirectX11
             DepthStencilView = new DepthStencilView(Device, DepthStencilBuffer, new DepthStencilViewDescription
             {
                 Format = Format.D24_UNorm_S8_UInt,
-                Dimension = Enable4xMSAA
+                Dimension = Config.Enable4xMSAA
                     ? DepthStencilViewDimension.Texture2DMultisampled
                     : DepthStencilViewDimension.Texture2D,
                 Texture2D = new DepthStencilViewDescription.Texture2DResource
@@ -266,14 +307,14 @@ namespace Ormeli.DirectX11
             // Create the rasterizer state from the description
             RasterState = new RasterizerState(Device, new RasterizerStateDescription
             {
-                IsAntialiasedLineEnabled = Enable4xMSAA,
-                CullMode = CullMode.Back,
+                IsAntialiasedLineEnabled = Config.Enable4xMSAA,
+                CullMode = CullMode.None,
                 DepthBias = 0,
                 DepthBiasClamp = .0f,
                 IsDepthClipEnabled = true,
                 FillMode = FillMode.Solid,
                 IsFrontCounterClockwise = false,
-                IsMultisampleEnabled = Enable4xMSAA,
+                IsMultisampleEnabled = Config.Enable4xMSAA,
                 IsScissorEnabled = false,
                 SlopeScaledDepthBias = .0f
             });
@@ -315,14 +356,10 @@ namespace Ormeli.DirectX11
             #endregion Initialize Blend States
 
             DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-         
-/*   var vp = new Viewport { Width = (Config.Width), Height = (Config.Height), MinDepth = 0.0f, MaxDepth = 1.0f, X = 0, Y = 0 };
-            DeviceContext.Rasterizer.SetViewport(vp);*/
 
             CG.DX11.SetDevice(CgEffect.Context, Device.NativePointer);
             CG.DX11.RegisterStates(CgEffect.Context);
             CG.DX11.SetManageTextureParameters(CgEffect.Context, CG.True);
-
 
 
             return RenderType.DirectX11;
@@ -330,8 +367,7 @@ namespace Ormeli.DirectX11
 
         public ICreator GetCreator()
         {
-            if (_creator == null) ErrorProvider.SendError("ICreator is not inited", true);
-            return _creator;
+            return new DxCreator(Device);
         }
 
         public void Run(Action act)

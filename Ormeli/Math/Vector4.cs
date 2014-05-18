@@ -1,16 +1,16 @@
-﻿using System.Runtime.InteropServices;
-using Mono.Simd;
+﻿using Mono.Simd;
 using System;
+using System.Runtime.InteropServices;
 
 namespace Ormeli.Math
 {
     [Serializable]
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential, Pack = 0, Size = 16)]
     public struct Vector4 : IEquatable<Vector4>
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(Vector4));
 
-        private Vector4f _v4;
+        internal Vector4f _v4;
 
         private Vector4(Vector4f v4)
         {
@@ -38,44 +38,49 @@ namespace Ormeli.Math
         {
             _v4 = new Vector4f(x, y, z, w);
         }
+        public Vector4(double x, double y, double z, double w)
+        {
+            _v4 = new Vector4f((float)x, (float)y, (float)z, (float)w);
+        }
 
         #endregion Constructors
 
         #region Static properties
 
         /// <summary>
-        /// A <see cref="SharpDX.Vector4"/> with all of its components set to zero.
+        ///     A <see cref="SharpDX.Vector4" /> with all of its components set to zero.
         /// </summary>
         public static readonly Vector4 Zero = new Vector4();
 
         /// <summary>
-        /// The X unit <see cref="SharpDX.Vector4"/> (1, 0, 0, 0).
+        ///     The X unit <see cref="SharpDX.Vector4" /> (1, 0, 0, 0).
         /// </summary>
         public static readonly Vector4 UnitX = new Vector4(1.0f, 0.0f, 0.0f, 0.0f);
 
         /// <summary>
-        /// The Y unit <see cref="SharpDX.Vector4"/> (0, 1, 0, 0).
+        ///     The Y unit <see cref="SharpDX.Vector4" /> (0, 1, 0, 0).
         /// </summary>
         public static readonly Vector4 UnitY = new Vector4(0.0f, 1.0f, 0.0f, 0.0f);
 
         /// <summary>
-        /// The Z unit <see cref="SharpDX.Vector4"/> (0, 0, 1, 0).
+        ///     The Z unit <see cref="SharpDX.Vector4" /> (0, 0, 1, 0).
         /// </summary>
         public static readonly Vector4 UnitZ = new Vector4(0.0f, 0.0f, 1.0f, 0.0f);
 
         /// <summary>
-        /// The W unit <see cref="SharpDX.Vector4"/> (0, 0, 0, 1).
+        ///     The W unit <see cref="SharpDX.Vector4" /> (0, 0, 0, 1).
         /// </summary>
         public static readonly Vector4 UnitW = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 
         /// <summary>
-        /// A <see cref="SharpDX.Vector4"/> with all of its components set to one.
+        ///     A <see cref="SharpDX.Vector4" /> with all of its components set to one.
         /// </summary>
         public static readonly Vector4 One = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
         #endregion Static properties
 
         #region Arithmetic
+
         public bool IsNormalized
         {
             get { return System.Math.Abs((X * X) + (Y * Y) + (Z * Z) + (W * W) - 1f) < MathHelper.ZeroTolerance; }
@@ -199,7 +204,7 @@ namespace Ormeli.Math
 
         #region Interpolation
 
-          public static Vector4 CatmullRom(Vector4 value1, Vector4 value2, Vector4 value3, Vector4 value4, float amount)
+        public static Vector4 CatmullRom(Vector4 value1, Vector4 value2, Vector4 value3, Vector4 value4, float amount)
         {
             CatmullRom(ref value1, ref value2, ref value3, ref value4, amount, out value1);
             return value1;
@@ -208,11 +213,11 @@ namespace Ormeli.Math
         public static void CatmullRom(ref Vector4 value1, ref Vector4 value2, ref Vector4 value3, ref Vector4 value4,
             float amount, out Vector4 result)
         {
-			result = new Vector4(new Vector4f (
-				MathHelper.CatmullRom (value1.X, value2.X, value3.X, value4.X, amount),
-				MathHelper.CatmullRom (value1.Y, value2.Y, value3.Y, value4.Y, amount),
-				MathHelper.CatmullRom (value1.Z, value2.Z, value3.Z, value4.Z, amount),
-				MathHelper.CatmullRom (value1.W, value2.W, value3.W, value4.W, amount)));
+            result = new Vector4(new Vector4f(
+                MathHelper.CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
+                MathHelper.CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount),
+                MathHelper.CatmullRom(value1.Z, value2.Z, value3.Z, value4.Z, amount),
+                MathHelper.CatmullRom(value1.W, value2.W, value3.W, value4.W, amount)));
         }
 
         public static Vector4 Hermite(Vector4 value1, Vector4 tangent1, Vector4 value2, Vector4 tangent2, float amount)
@@ -267,7 +272,7 @@ namespace Ormeli.Math
 
         #region Other maths
 
-        /*    public static Vector4 Barycentric(Vector4 value1, Vector4 value2, Vector4 value3, float amount1, float amount2)
+        public static Vector4 Barycentric(Vector4 value1, Vector4 value2, Vector4 value3, float amount1, float amount2)
         {
             Barycentric(ref value1, ref value2, ref value3, amount1, amount2, out value1);
             return value1;
@@ -276,13 +281,12 @@ namespace Ormeli.Math
         public static void Barycentric(ref Vector4 value1, ref Vector4 value2, ref Vector4 value3, float amount1,
             float amount2, out Vector4 result)
         {
-			result = new Vector4 (
-				MathHelper.Barycentric (value1.X, value2.X, value3.X, amount1, amount2),
-				MathHelper.Barycentric (value1.Y, value2.Y, value3.Y, amount1, amount2),
-				MathHelper.Barycentric (value1.Z, value2.Z, value3.Z, amount1, amount2),
-				MathHelper.Barycentric (value1.W, value2.W, value3.Z, amount1, amount2));
+            result = new Vector4(
+                MathHelper.Barycentric(value1.X, value2.X, value3.X, amount1, amount2),
+                MathHelper.Barycentric(value1.Y, value2.Y, value3.Y, amount1, amount2),
+                MathHelper.Barycentric(value1.Z, value2.Z, value3.Z, amount1, amount2),
+                MathHelper.Barycentric(value1.W, value2.W, value3.Z, amount1, amount2));
         }
-        */
 
         public static Vector4 Clamp(Vector4 value1, Vector4 min, Vector4 max)
         {
@@ -414,28 +418,56 @@ namespace Ormeli.Math
 
         #region Transform
 
-        public static Vector4 Transform(Vector2 position, Matrix matrix)
+        /// <summary>
+        ///     Transforms a 2D vector by the given <see cref="SharpDX.Matrix" />.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="transform">The transformation <see cref="SharpDX.Matrix" />.</param>
+        /// <param name="result">When the method completes, contains the transformed <see cref="SharpDX.Vector4" />.</param>
+        public static void Transform(ref Vector2 vector, ref Matrix transform, out Vector4 result)
+        {
+            result = new Vector4(
+                (vector.X * transform.M11) + (vector.Y * transform.M21) + transform.M41,
+                (vector.X * transform.M12) + (vector.Y * transform.M22) + transform.M42,
+                (vector.X * transform.M13) + (vector.Y * transform.M23) + transform.M43,
+                (vector.X * transform.M14) + (vector.Y * transform.M24) + transform.M44);
+        }
+
+        /// <summary>
+        ///     Transforms a 2D vector by the given <see cref="SharpDX.Matrix" />.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="transform">The transformation <see cref="SharpDX.Matrix" />.</param>
+        /// <returns>The transformed <see cref="SharpDX.Vector4" />.</returns>
+        public static Vector4 Transform(Vector2 vector, Matrix transform)
         {
             Vector4 result;
-            Transform(ref position, ref matrix, out result);
+            Transform(ref vector, ref transform, out result);
             return result;
         }
 
-        public static void Transform(ref Vector2 position, ref Matrix matrix, out Vector4 result)
+        /// <summary>
+        ///     Transforms an array of 2D vectors by the given <see cref="SharpDX.Matrix" />.
+        /// </summary>
+        /// <param name="source">The array of vectors to transform.</param>
+        /// <param name="transform">The transformation <see cref="SharpDX.Matrix" />.</param>
+        /// <param name="destination">The array for which the transformed vectors are stored.</param>
+        /// <exception cref="ArgumentNullException">
+        ///     Thrown when <paramref name="source" /> or <paramref name="destination" /> is
+        ///     <c>null</c>.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Thrown when <paramref name="destination" /> is shorter in length than
+        ///     <paramref name="source" />.
+        /// </exception>
+        public static void Transform(Vector2[] source, ref Matrix transform, Vector4[] destination)
         {
-            throw new NotImplementedException();
-        }
+            CheckArrayArgs(source, destination);
 
-        public static Vector4 Transform(Vector2 value, Quaternion rotation)
-        {
-            Vector4 result;
-            Transform(ref value, ref rotation, out result);
-            return result;
-        }
-
-        public static void Transform(ref Vector2 value, ref Quaternion rotation, out Vector4 result)
-        {
-            throw new NotImplementedException();
+            for (int i = 0; i < source.Length; ++i)
+            {
+                Transform(ref source[i], ref transform, out destination[i]);
+            }
         }
 
         public static Vector4 Transform(Vector3 position, Matrix matrix)
@@ -445,10 +477,25 @@ namespace Ormeli.Math
             return result;
         }
 
-        public static void Transform(ref Vector3 position, ref Matrix matrix, out Vector4 result)
+        public static void Transform(ref Vector3 vector, ref Matrix transform, out Vector4 result)
         {
-            throw new NotImplementedException();
+            result = new Vector4(
+                (vector.X * transform.M11) + (vector.Y * transform.M21) + (vector.Z * transform.M31) + transform.M41,
+                (vector.X * transform.M12) + (vector.Y * transform.M22) + (vector.Z * transform.M32) + transform.M42,
+                (vector.X * transform.M13) + (vector.Y * transform.M23) + (vector.Z * transform.M33) + transform.M43,
+                (vector.X * transform.M14) + (vector.Y * transform.M24) + (vector.Z * transform.M34) + transform.M44);
         }
+
+        public static void Transform(Vector3[] source, ref Matrix transform, Vector4[] destination)
+        {
+            CheckArrayArgs(source, destination);
+
+            for (int i = 0; i < source.Length; ++i)
+            {
+                Transform(ref source[i], ref transform, out destination[i]);
+            }
+        }
+
 
         public static Vector4 Transform(Vector3 value, Quaternion rotation)
         {
@@ -459,7 +506,24 @@ namespace Ormeli.Math
 
         public static void Transform(ref Vector3 value, ref Quaternion rotation, out Vector4 result)
         {
-            throw new NotImplementedException();
+            float x = rotation.X + rotation.X;
+            float y = rotation.Y + rotation.Y;
+            float z = rotation.Z + rotation.Z;
+            float wx = rotation.W * x;
+            float wy = rotation.W * y;
+            float wz = rotation.W * z;
+            float xx = rotation.X * x;
+            float xy = rotation.X * y;
+            float xz = rotation.X * z;
+            float yy = rotation.Y * y;
+            float yz = rotation.Y * z;
+            float zz = rotation.Z * z;
+
+            result = new Vector4(
+                ((value.X * ((1.0f - yy) - zz)) + (value.Y * (xy - wz))) + (value.Z * (xz + wy)),
+                ((value.X * (xy + wz)) + (value.Y * ((1.0f - xx) - zz))) + (value.Z * (yz - wx)),
+                ((value.X * (xz - wy)) + (value.Y * (yz + wx))) + (value.Z * ((1.0f - xx) - yy)),
+                1);
         }
 
         public static Vector4 Transform(Vector4 position, Matrix matrix)
@@ -469,9 +533,17 @@ namespace Ormeli.Math
             return result;
         }
 
-        public static void Transform(ref Vector4 position, ref Matrix matrix, out Vector4 result)
+        public static void Transform(ref Vector4 vector, ref Matrix transform, out Vector4 result)
         {
-            throw new NotImplementedException();
+            result = new Vector4(
+                (vector.X * transform.M11) + (vector.Y * transform.M21) + (vector.Z * transform.M31) +
+                (vector.W * transform.M41),
+                (vector.X * transform.M12) + (vector.Y * transform.M22) + (vector.Z * transform.M32) +
+                (vector.W * transform.M42),
+                (vector.X * transform.M13) + (vector.Y * transform.M23) + (vector.Z * transform.M33) +
+                (vector.W * transform.M43),
+                (vector.X * transform.M14) + (vector.Y * transform.M24) + (vector.Z * transform.M34) +
+                (vector.W * transform.M44));
         }
 
         public static Vector4 Transform(Vector4 value, Quaternion rotation)
@@ -483,7 +555,24 @@ namespace Ormeli.Math
 
         public static void Transform(ref Vector4 value, ref Quaternion rotation, out Vector4 result)
         {
-            throw new NotImplementedException();
+            float x = rotation.X + rotation.X;
+            float y = rotation.Y + rotation.Y;
+            float z = rotation.Z + rotation.Z;
+            float wx = rotation.W * x;
+            float wy = rotation.W * y;
+            float wz = rotation.W * z;
+            float xx = rotation.X * x;
+            float xy = rotation.X * y;
+            float xz = rotation.X * z;
+            float yy = rotation.Y * y;
+            float yz = rotation.Y * z;
+            float zz = rotation.Z * z;
+
+            result = new Vector4(
+                ((value.X * ((1.0f - yy) - zz)) + (value.Y * (xy - wz))) + (value.Z * (xz + wy)),
+                ((value.X * (xy + wz)) + (value.Y * ((1.0f - xx) - zz))) + (value.Z * (yz - wx)),
+                ((value.X * (xz - wy)) + (value.Y * (yz + wx))) + (value.Z * ((1.0f - xx) - yy)),
+                value.W);
         }
 
         public static void Transform(Vector4[] sourceArray, int sourceIndex, ref Matrix matrix,
@@ -514,12 +603,41 @@ namespace Ormeli.Math
                 Transform(ref sourceArray[i], ref matrix, out destinationArray[i]);
         }
 
-        public static void Transform(Vector4[] sourceArray, ref Quaternion rotation, Vector4[] destinationArray)
+        public static void Transform(Vector4[] source, ref Quaternion rotation, Vector4[] destination)
         {
-            CheckArrayArgs(sourceArray, destinationArray);
+            CheckArrayArgs(source, destination);
 
-            for (int i = 0; i < sourceArray.Length; i++)
-                Transform(ref sourceArray[i], ref rotation, out destinationArray[i]);
+            float x = rotation.X + rotation.X;
+            float y = rotation.Y + rotation.Y;
+            float z = rotation.Z + rotation.Z;
+            float wx = rotation.W * x;
+            float wy = rotation.W * y;
+            float wz = rotation.W * z;
+            float xx = rotation.X * x;
+            float xy = rotation.X * y;
+            float xz = rotation.X * z;
+            float yy = rotation.Y * y;
+            float yz = rotation.Y * z;
+            float zz = rotation.Z * z;
+
+            float num1 = ((1.0f - yy) - zz);
+            float num2 = (xy - wz);
+            float num3 = (xz + wy);
+            float num4 = (xy + wz);
+            float num5 = ((1.0f - xx) - zz);
+            float num6 = (yz - wx);
+            float num7 = (xz - wy);
+            float num8 = (yz + wx);
+            float num9 = ((1.0f - xx) - yy);
+
+            for (int i = 0; i < source.Length; ++i)
+            {
+                destination[i] = new Vector4(
+                    ((source[i].X * num1) + (source[i].Y * num2)) + (source[i].Z * num3),
+                    ((source[i].X * num4) + (source[i].Y * num5)) + (source[i].Z * num6),
+                    ((source[i].X * num7) + (source[i].Y * num8)) + (source[i].Z * num9),
+                    source[i].W);
+            }
         }
 
         private static void CheckArrayArgs(Vector4[] sourceArray, int sourceIndex, Vector4[] destinationArray,
@@ -536,6 +654,25 @@ namespace Ormeli.Math
         }
 
         private static void CheckArrayArgs(Vector4[] sourceArray, Vector4[] destinationArray)
+        {
+            if (sourceArray == null)
+                throw new ArgumentNullException("sourceArray");
+            if (destinationArray == null)
+                throw new ArgumentNullException("destinationArray");
+            if (destinationArray.Length < sourceArray.Length)
+                throw new ArgumentException("Destination is smaller than source", "destinationArray");
+        }
+        private static void CheckArrayArgs(Vector2[] sourceArray, Vector4[] destinationArray)
+        {
+            if (sourceArray == null)
+                throw new ArgumentNullException("sourceArray");
+            if (destinationArray == null)
+                throw new ArgumentNullException("destinationArray");
+            if (destinationArray.Length < sourceArray.Length)
+                throw new ArgumentException("Destination is smaller than source", "destinationArray");
+        }
+
+        private static void CheckArrayArgs(Vector3[] sourceArray, Vector4[] destinationArray)
         {
             if (sourceArray == null)
                 throw new ArgumentNullException("sourceArray");
@@ -612,7 +749,7 @@ namespace Ormeli.Math
 
         public override string ToString()
         {
-            return string.Format("{{X:{0} Y:{1} Z:{2} W:{3}}}", X, Y, Z, W);
+            return String.Format("{{X:{0} Y:{1} Z:{2} W:{3}}}", X, Y, Z, W);
         }
     }
 }
