@@ -1,5 +1,5 @@
 ﻿using System;
-//using Ormeli.DirectX11;
+using Ormeli.DirectX11;
 using Ormeli.OpenGL;
 using Timer = Ormeli.Core.Timer;
 
@@ -22,9 +22,9 @@ namespace Ormeli
         {
             RenderType = render;
 
-          /*  if (RenderType == RenderType.DirectX11)
+           if (RenderType == RenderType.DirectX11)
                 Render = new DxRender();
-            else*/ Render = new GlRender();
+            else Render = new GlRender();
 
             using (var t = new Timer())
             {
