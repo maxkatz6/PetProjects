@@ -42,11 +42,11 @@ namespace Ormeli
             Config.Fps = 0;
             Config.VerticalSyncEnabled = false;
             Config.FullScreen = false;
-            Config.Width = 1920;
-            Config.Height = 1080;
+            Config.Width = 1020;
+            Config.Height = 750;
             Config.Enable4xMSAA = true;
 
-            App.Initialize((RenderType)int.Parse(Console.ReadLine()));
+            App.Initialize(Config.IsMono ? RenderType.OpenGl3 : (RenderType)int.Parse(Console.ReadLine()));
             App.Render.BackColor = Color.Indigo;
             
             var effect = new ColTexEffect( "ColTexEffect.cgfx" );

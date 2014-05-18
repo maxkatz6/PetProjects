@@ -1,0 +1,34 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Ormeli/app.config">
+    <Files>
+      <File FileName="Ormeli/App/Program.cs" Line="14" Column="25" />
+      <File FileName="Ormeli/App/App.cs" Line="1" Column="1" />
+      <File FileName="Ormeli/GAPI/OpenGL/GlRender.cs" Line="1" Column="1" />
+      <File FileName="Ormeli/app.config" Line="6" Column="1" />
+      <File FileName="Ormeli/GAPI/Cg/CG.cs" Line="1" Column="1" />
+      <File FileName="../../../../../../../home/tirraon/Загрузки/ormeli/Ormeli/GAPI/Cg/CG.cs" Line="1" Column="1" />
+      <File FileName="Ormeli/GAPI/Cg/CgEffect.cs" Line="1" Column="1" />
+      <File FileName="Ormeli/GAPI/OpenGL/GlAttribs.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Ormeli" expanded="True">
+            <Node name="App" expanded="True" />
+            <Node name="GAPI" expanded="True">
+              <Node name="Cg" expanded="True" />
+              <Node name="OpenGL" expanded="True" />
+            </Node>
+            <Node name="Graphics" expanded="True" />
+            <Node name="app.config" selected="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
