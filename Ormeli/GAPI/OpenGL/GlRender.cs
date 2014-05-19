@@ -80,6 +80,8 @@ namespace Ormeli.OpenGL
         public RenderType Initialize()
         {
             GL.Viewport(0, 0, _gameWindow.Width, _gameWindow.Height);
+            GL.Color4(0, 0, 0, 0f);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Front);
             CG.GL.SetDebugMode(CG.True);
@@ -123,8 +125,8 @@ namespace Ormeli.OpenGL
 
         public void AlphaBlending(bool turn)
         {
-            if (turn) GL.Enable(EnableCap.AlphaTest);
-            else GL.Disable(EnableCap.AlphaTest);
+            if (turn) GL.Enable(EnableCap.Blend);
+            else GL.Disable(EnableCap.Blend);
         }
 
 
