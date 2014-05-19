@@ -8,7 +8,7 @@ namespace Ormeli.Graphics
     [StructLayout(LayoutKind.Sequential)]
     public struct Texture
     {
-        private IntPtr Handle;
+        private readonly IntPtr Handle;
 
         public static List<Texture> Textures = new List<Texture>(100);
         private static readonly Dictionary<string, int> textures = new Dictionary<string, int>(100); 
@@ -28,13 +28,14 @@ namespace Ormeli.Graphics
         {
             Textures.Add(App.Creator.CreateTexture(new[,]
                 {
-                    {new Color(0, 0, 0, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1)},
-                    {new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1)},
-                    {new Color(0, 0, 0, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1)},
-                    {new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1)},
-                    {new Color(0, 0, 0, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1)}
+                    {new Color(0, 0, 0, 1f), new Color(0, 1f, 0, 1),new Color(0, 0, 0f, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1f)},
+                    {new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1f)},
+                    {new Color(0, 0, 0, 1f), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1f), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1f)},
+                    {new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1f)},
+                    {new Color(0, 0, 0, 1f), new Color(0, 1f, 0, 1),new Color(0, 0, 0f, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1f)}
                 })); // number 0 texture//
                      // null texture    //
+            NullTexture = Textures.Count - 1;
         }
 
         public Texture(IntPtr handle)
@@ -49,7 +50,9 @@ namespace Ormeli.Graphics
 
         public static implicit operator int(Texture tex)
         {
-            return (int)tex.Handle;
+            return tex.Handle.ToInt32();
         }
+
+        public static readonly int NullTexture;
     }
 }
