@@ -1,0 +1,15 @@
+﻿namespace Ormeli.Graphics.Effects
+{
+    public class Effect2D : ColTexEffect
+    {
+        public Effect2D(string file)
+            : base(file)
+        {
+        }
+
+        protected override void InitEffect()
+        {
+            InitAttrib("Texture", BitmapVertex.Number);
+        }
+    }
+}

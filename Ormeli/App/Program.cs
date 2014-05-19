@@ -35,6 +35,7 @@ namespace Ormeli
         private readonly Model _model = new Model();
         private readonly Model _plos = new Model();
         private readonly FreeCamera _freeCamera;
+        private readonly Bitmap b = new Bitmap();
 
         public Program()
         {
@@ -48,9 +49,12 @@ namespace Ormeli
 
             App.Initialize(Config.IsMono ? RenderType.OpenGl3 : (RenderType)int.Parse(Console.ReadLine()));
             App.Render.BackColor = Color.Indigo;
-            
-            var effect = new ColTexEffect( "ColTexEffect.cgfx" );
-            EffectManager.AddEffect( effect );
+
+            var effect = new ColTexEffect("ColTexEffect.cgfx");
+            EffectManager.AddEffect(effect);
+
+            var _2DEffect = new Effect2D("2DEffect.cgfx");
+            EffectManager.AddEffect(_2DEffect);
 
             _freeCamera = new FreeCamera( new Vector3( 0,3,0 ), 0, 0, true ){Speed = 10};
 
@@ -59,7 +63,9 @@ namespace Ormeli
             _model.SetMeshes(GeometryGenerator.CreateBox(20, 20,20));
             _model.GetMesh<TextureMesh>(0).TextureNum = Texture.GetNumber("NVIDIA.png");
 
-            App.Render.ZBuffer(true);
+            b.Initialize(new Point(200,200), new Point(0,0));
+
+            App.Render.AlphaBlending(true);
         }
         private void Draw()
         {
@@ -74,6 +80,10 @@ namespace Ormeli
                         _model.SetWorldMatrix(Matrix.Translation(21*i, 21*j + 500, 21*k));
                         _model.Render();
                     }
+
+            App.Render.ZBuffer(false);
+            b.Render();
+            App.Render.ZBuffer(true);
 
             App.Render.EndDraw();
         }
@@ -95,16 +105,16 @@ namespace Ormeli
             Console.Title = Loop.GetFPS().ToString();
         }
 
-
+         
         private static ColorMesh CreateColorGrid(int width, int depth)
         {
             var w2 = 0.5f * width;
             var d2 = 0.5f * depth;
             var mV = new[]
             {
-                new ColorVertex(new Vector3(-w2,-1,-d2), Color.Aqua), 
-                new ColorVertex(new Vector3(w2,-1,-d2), Color.Aqua),
-                new ColorVertex(new Vector3(w2,-1,d2), Color.Indigo),
+                new ColorVertex(new Vector3(-w2,-1,-d2), new Color(0,0,0,0)), 
+                new ColorVertex(new Vector3(w2,-1,-d2), new Color(0,0,0,0)),
+                new ColorVertex(new Vector3(w2,-1,d2), new Color(0,0,0,0)),
                 new ColorVertex(new Vector3(-w2,-1,d2), Color.Indigo)
             };
             var m = new ColorMesh();

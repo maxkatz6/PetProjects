@@ -13,10 +13,15 @@ namespace Ormeli.Graphics.Effects
         public ColTexEffect(string file)
             : base(file)
         {
-            InitAttrib("Color", ColorVertex.Number);
-            InitAttrib("Texture", TextureVertex.Number);
             _texture = CG.GetNamedEffectParameter(Effect, TEXTUREName);
             _matrix = CG.GetNamedEffectParameter(Effect, MATRIXName);
+            InitEffect();
+        }
+
+        protected virtual void InitEffect()
+        {
+            InitAttrib("Color", ColorVertex.Number);
+            InitAttrib("Texture", TextureVertex.Number);
         }
 
         public void SetTexture(Texture tex)

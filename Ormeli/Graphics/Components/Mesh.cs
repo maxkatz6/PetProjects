@@ -43,7 +43,7 @@ namespace Ormeli.Graphics
     {
         public int TextureNum { get; set; }
 
-        public static int LastTexture;
+        protected static int LastTexture;
 
         public void Initialize(int[] ind, TextureVertex[] vert)
         {
@@ -58,6 +58,16 @@ namespace Ormeli.Graphics
                 LastTexture = TextureNum;
             }
             base.Render(matrix);                                                            
+        }
+
+        public void SetTexture(int index)
+        {
+            TextureNum = index;
+        }
+
+        public void SetTexture(string fileName)
+        {
+            TextureNum = Texture.GetNumber(fileName);
         }
     }
     public class ColorMesh : StaticMesh

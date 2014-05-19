@@ -19,7 +19,7 @@ namespace Ormeli.DirectX11
 {
     internal sealed class DxRender : Disposable, IRender
     {
-        private readonly Color4 _blendFactor = new Color4(0, 0, 0, 0);
+        private readonly Color4 _blendFactor = new Color4(0, 0, 0, 0f);
 
 
         public Color BackColor
@@ -58,11 +58,13 @@ namespace Ormeli.DirectX11
         public Rational Rational { get; set; }
 
         public RenderTargetView RenderTargetView { get; set; }
+        
 
         public void AlphaBlending(bool turn)
         {
-            DeviceContext.OutputMerger.SetBlendState(turn ? AlphaEnableBlendingState : AlphaDisableBlendingState,
+            DeviceContext.OutputMerger.SetBlendState( AlphaEnableBlendingState ,
                 _blendFactor);
+
         }
 
         public void BeginDraw()
@@ -336,14 +338,15 @@ namespace Ormeli.DirectX11
 
             // Create an alpha enabled blend state description.
             var blendStateDesc = new BlendStateDescription();
-            blendStateDesc.RenderTarget[0].IsBlendEnabled = true;
-            blendStateDesc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
-            blendStateDesc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
-            blendStateDesc.RenderTarget[0].BlendOperation = BlendOperation.Add;
-            blendStateDesc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
-            blendStateDesc.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
-            blendStateDesc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
-            blendStateDesc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+            blendStateDesc.RenderTarget[0] = new RenderTargetBlendDescription
+                (   true,
+                    BlendOption.SourceAlpha,
+                    BlendOption.InverseSourceAlpha,
+                    BlendOperation.Add,
+                    BlendOption.One,
+                    BlendOption.Zero,
+                    BlendOperation.Add,
+                    ColorWriteMaskFlags.All);
 
             // Create the blend state using the description.
             AlphaEnableBlendingState = new BlendState(Device, blendStateDesc);

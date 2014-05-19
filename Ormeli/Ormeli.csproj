@@ -99,6 +99,8 @@
     <Compile Include="Core\Patterns\Singleton.cs" />
     <Compile Include="Core\Reflection.cs" />
     <Compile Include="Core\Timer.cs" />
+    <Compile Include="Graphics\2D\Bitmap.cs" />
+    <Compile Include="Graphics\Effects\Effect2D.cs" />
     <Compile Include="Graphics\GeometryGenerator.cs" />
     <Compile Include="Graphics\Components\Model.cs" />
     <Compile Include="Graphics\Loop.cs" />
@@ -153,6 +155,9 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="app.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Effects\2DEffect.cgfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\glut32_32.dll" />

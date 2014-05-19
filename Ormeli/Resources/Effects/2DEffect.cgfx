@@ -1,0 +1,67 @@
+﻿struct VColorOutput 
+{
+  float4 position : POSITION;
+  float4 color    : COLOR;
+};
+struct VTextureOutput 
+{
+  float4 position : POSITION;
+  float2 tex    : TEXCOORD0;
+};
+
+
+VColorOutput VertexColor( float2 position : POSITION , float4 color : COLOR, uniform float4x4 modelViewProj)
+{	
+  VColorOutput OUT;
+
+  OUT.position = mul(float4( position, -1,1 ), modelViewProj);
+  OUT.color = color;
+
+  return OUT;
+}
+
+float4 PixelColor( VColorOutput input ) : COLOR
+{
+  return input.color;
+}
+
+VTextureOutput VertexTexture( float2 position : POSITION , float2 tex : TEXCOORD0, uniform float4x4 modelViewProj)
+{	
+  VTextureOutput OUT;
+  
+  OUT.position =mul( float4( position, -1,1 ),modelViewProj);
+  OUT.tex = tex;
+
+  return OUT;
+}
+
+float4 PixelTexture( VTextureOutput input, uniform sampler2D decal : TEX0 ) : COLOR
+{
+  return tex2D(decal, input.tex );
+}
+
+float4x4 WVP;
+
+technique Color
+{
+  pass P0
+  {
+      VertexProgram = compile latest  VertexColor(WVP);
+      FragmentProgram = compile latest  PixelColor();
+  }
+}
+
+sampler2D Decal = sampler_state
+{
+    AddressU = Mirror;
+    AddressV = Mirror;
+};
+
+technique Texture
+{
+  pass P0
+  {
+      VertexProgram = compile latest  VertexTexture(WVP);
+      FragmentProgram = compile latest  PixelTexture(Decal );
+  }
+}
