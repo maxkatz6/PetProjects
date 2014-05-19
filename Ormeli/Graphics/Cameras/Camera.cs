@@ -18,11 +18,7 @@ namespace Ormeli.Graphics.Cameras
 
         public void UpdateScrennMatrices()
         {
-            Projection = Matrix.PerspectiveFov(1, //MathHelper.ToRadians(45);
-                (float) Config.Width/Config.Height, Config.ScreenNear,
-                Config.ScreenDepth);
-
-            Ortho = Matrix.Ortho(Config.Width, Config.Height, Config.ScreenNear, Config.ScreenDepth);
+            UpdateScrennMatrices(Config.Width, Config.Height);
         }
 
         public void UpdateScrennMatrices(int width, int height)

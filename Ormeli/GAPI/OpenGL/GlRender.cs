@@ -79,7 +79,6 @@ namespace Ormeli.OpenGL
 
         public RenderType Initialize()
         {
-            GL.Viewport(0, 0, _gameWindow.Width, _gameWindow.Height);
             GL.Color4(0, 0, 0, 0f);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Enable(EnableCap.CullFace);
@@ -107,8 +106,7 @@ namespace Ormeli.OpenGL
 
         public void BeginDraw()
         {
-            GL.Viewport(0, 0, Config.Width, Config.Height);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
         }
 
 
