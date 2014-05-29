@@ -2,7 +2,7 @@
 
 namespace Ormeli.Math
 {
-    [StructLayout(LayoutKind.Sequential, Pack =  0, Size = 16)]
+    [StructLayout(LayoutKind.Sequential, Pack =  0)]
     public struct Color
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof (Color));

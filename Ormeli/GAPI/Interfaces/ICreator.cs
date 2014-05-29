@@ -15,5 +15,7 @@ namespace Ormeli
 
         Buffer CreateBuffer<T>(T[] objs, BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
             CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct;
+
+        EffectBase CreateEffect(string file);
     }
 }

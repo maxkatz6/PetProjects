@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace Ormeli.Math
 {
     [Serializable]
-    [StructLayout(LayoutKind.Sequential, Pack = 0, Size = 8)]
+    [StructLayout(LayoutKind.Sequential, Pack = 0)]
     public struct Vector2 : IEquatable<Vector2>
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(Vector2));
@@ -704,11 +704,13 @@ namespace Ormeli.Math
         public float X
         {
             get { return _x; }
+            set { _x = value; }
         }
 
         public float Y
         {
             get { return _y; }
+            set { _y = value; }
         }
 
         public static bool operator !=(Vector2 a, Vector2 b)

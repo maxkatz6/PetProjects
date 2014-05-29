@@ -62,7 +62,7 @@ namespace Ormeli.DirectX11
 
         public void AlphaBlending(bool turn)
         {
-            DeviceContext.OutputMerger.SetBlendState( AlphaEnableBlendingState ,
+            DeviceContext.OutputMerger.SetBlendState( turn ? AlphaEnableBlendingState : AlphaDisableBlendingState ,
                 _blendFactor);
 
         }
@@ -119,8 +119,14 @@ namespace Ormeli.DirectX11
         }
 
         private static int _lastAttrNum = -1;
+        private static IntPtr _lastBuffer = IntPtr.Zero;
+
         public void SetBuffers(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride)
         {
+            if (_lastBuffer == vertexBuffer)
+                return;
+            _lastBuffer = vertexBuffer;
+
             DeviceContext.InputAssembler.SetVertexBuffers(0,
                 new VertexBufferBinding(CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(vertexBuffer),
                     vertexStride, 0));
@@ -360,13 +366,12 @@ namespace Ormeli.DirectX11
 
             DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            CG.DX11.SetDevice(CgEffect.Context, Device.NativePointer);
-            CG.DX11.RegisterStates(CgEffect.Context);
-            CG.DX11.SetManageTextureParameters(CgEffect.Context, CG.True);
 
+            if (App.EffectLanguage == EffectLanguage.CG) CgEffectBase.InitDirectX11(Device.NativePointer);
 
             return RenderType.DirectX11;
         }
+
 
         public ICreator GetCreator()
         {

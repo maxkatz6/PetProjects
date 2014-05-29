@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using Ormeli.Cg;
+﻿using System.Runtime.InteropServices;
 using Ormeli.Graphics.Effects;
 using Ormeli.Math;
 
@@ -33,7 +31,7 @@ namespace Ormeli.Graphics
 
         public override void Render(Matrix matrix)
         {
-            CgEffect.Get<ColTexEffect>(ShaderNum).SetMatrix(matrix);
+            EffectBase.Get<ColTexEffect>(ShaderNum).SetMatrix(matrix);
             App.Render.SetBuffers(Vb, Ib, _size);
             EffectManager.Effects[ShaderNum].Render(_tech, _indCount);
         }
@@ -41,9 +39,7 @@ namespace Ormeli.Graphics
 
     public class TextureMesh : StaticMesh
     {
-        public int TextureNum { get; set; }
-
-        protected static int LastTexture;
+        public int TextureN;
 
         public void Initialize(int[] ind, TextureVertex[] vert)
         {
@@ -52,22 +48,18 @@ namespace Ormeli.Graphics
 
         public override void Render(Matrix matrix)
         {
-            if (LastTexture != TextureNum)
-            {
-                CgEffect.Get<ColTexEffect>(ShaderNum).SetTexture(Texture.Textures[TextureNum]);
-                LastTexture = TextureNum;
-            }
+            EffectBase.Get<ColTexEffect>(ShaderNum).SetTexture(TextureN);
             base.Render(matrix);                                                            
         }
 
         public void SetTexture(int index)
         {
-            TextureNum = index;
+            TextureN = index;
         }
 
         public void SetTexture(string fileName)
         {
-            TextureNum = Texture.GetNumber(fileName);
+            SetTexture(Texture.GetNumber(fileName));
         }
     }
     public class ColorMesh : StaticMesh

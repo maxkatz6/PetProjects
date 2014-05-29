@@ -21,7 +21,8 @@ namespace Ormeli
 
         public static string RenderVersion;
 
-        public static readonly string BaseDirectory; static readonly string EffectDirectory;
+        static readonly string BaseDirectory; 
+        static readonly string EffectDirectory;
         static readonly string TextureDirectory;
 
         public static string GetEffectPath(string fileName)
@@ -31,6 +32,11 @@ namespace Ormeli
         public static string GetTexturePath(string fileName)
         {
             return Path.Combine(TextureDirectory, fileName);
+        }
+
+        public static string GetDataPath(string fileName, params string[] pathDirs)
+        {
+            return Path.Combine(BaseDirectory, Path.Combine(pathDirs), fileName);
         }
 
         static Config ()

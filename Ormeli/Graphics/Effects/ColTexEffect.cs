@@ -1,37 +1,36 @@
-﻿using Ormeli.Cg;
+﻿using System;
 using Ormeli.Math;
 
 namespace Ormeli.Graphics.Effects
 {
-    public class ColTexEffect : CgEffect
+    public class ColTexEffect : Effect
     {
         private const string TEXTUREName = "Decal";
         private const string MATRIXName = "WVP";
-        private readonly CG.Parameter _texture;
-        private readonly CG.Parameter _matrix;
+        private readonly IntPtr _texture;
+        private readonly IntPtr _matrix;
 
-        public ColTexEffect(string file)
-            : base(file)
+        public ColTexEffect(string file) : base(file)
         {
-            _texture = CG.GetNamedEffectParameter(Effect, TEXTUREName);
-            _matrix = CG.GetNamedEffectParameter(Effect, MATRIXName);
-            InitEffect();
+            _texture = Base.GetParameterByName(TEXTUREName);
+            _matrix = Base.GetParameterByName(MATRIXName);
         }
 
-        protected virtual void InitEffect()
+        protected override void InitEffect()
         {
-            InitAttrib("Color", ColorVertex.Number);
-            InitAttrib("Texture", TextureVertex.Number);
+            Base.InitAttrib("Color", ColorVertex.Number);
+            Base.InitAttrib("Texture", TextureVertex.Number);
         }
 
-        public void SetTexture(Texture tex)
+        public void SetTexture(int tex)
         {
-            SetTexture(_texture, tex);
+            Base.SetTexture(_texture, tex);
         }
 
         public void SetMatrix(Matrix mt)
         {
-            SetMatrix(_matrix, mt);
+            Base.SetMatrix(_matrix, mt);
         }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Ormeli.Cg;
 using Ormeli.Core;
 using Ormeli.Graphics;
 using SharpDX;
@@ -25,7 +26,7 @@ namespace Ormeli.DirectX11
         public unsafe Texture LoadTexture(string fileName)
         {
             fileName = Config.GetTexturePath(fileName);
-            ImageInformation fileInfo = ImageInformation.FromFile(fileName).Value;
+            var fileInfo = ImageInformation.FromFile(fileName).Value;
 
             var v = new ImageLoadInformation
             {
@@ -42,24 +43,25 @@ namespace Ormeli.DirectX11
                 MipFilter = FilterFlags.None,
                 PSrcInfo = new IntPtr(&fileInfo)
             };
-            return new Texture(Resource.FromFile(_device, fileName, v).NativePointer);
+            return new Texture(Resource.FromFile(_device, fileName, v).NativePointer, fileInfo.Width, fileInfo.Height);
         
         }
 
         public unsafe Texture CreateTexture(Color[,] array)
         {
-            //ToDo next
+            var w = array.GetLength(1);
+            var h = array.GetLength(0);
             var boxTexDesc = new Texture2DDescription
             {
                 ArraySize = 1,
                 BindFlags = BindFlags.ShaderResource,
                 CpuAccessFlags = 0,
                 Format = Format.R32G32B32A32_Float,
-                Height = array.GetLength(0),
+                Height = h,
                 MipLevels = 1,
                 OptionFlags = 0,
                 Usage = ResourceUsage.Default,
-                Width = array.GetLength(1),
+                Width = w,
                 SampleDescription = new SampleDescription(1, 0),
             };
 
@@ -72,7 +74,7 @@ namespace Ormeli.DirectX11
                         boxTexDesc.Width*(int) FormatHelper.SizeOfInBytes(boxTexDesc.Format), 0)
                 };
 
-            return new Texture (new Texture2D(_device, boxTexDesc, v).NativePointer);
+            return new Texture (new Texture2D(_device, boxTexDesc, v).NativePointer, w,h);
         }
 
         public IAttribsContainer InitAttribs(Attrib[] attribs, IntPtr ptr)
@@ -111,6 +113,23 @@ namespace Ormeli.DirectX11
                 );
             return new Buffer(SharpDX.Direct3D11.Buffer.Create(_device, objs, vbd).NativePointer,
                 bufferTarget == BindFlag.VertexBuffer ? Reflection.GetStatic<int, T>("Number") : -1);
+        }
+
+        public EffectBase CreateEffect(string file)
+        {
+            EffectBase _base;
+            switch (App.EffectLanguage)
+            {
+                case EffectLanguage.HLSL:
+                    throw new Exception("Not supported yet");
+                case EffectLanguage.CG:
+                    _base = new CgEffectBase();
+                    break;
+                default:
+                    throw new Exception("Not supported effect language");
+            }
+            _base.LoadEffect(file);
+            return _base;
         }
     }
 }

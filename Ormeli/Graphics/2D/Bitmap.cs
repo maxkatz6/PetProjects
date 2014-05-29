@@ -1,8 +1,7 @@
-﻿using Ormeli.Graphics;
-using Ormeli.Graphics.Cameras;
+﻿using Ormeli.Graphics.Cameras;
 using Ormeli.Math;
 
-namespace Ormeli.Graphic
+namespace Ormeli.Graphics
 {
     public class Bitmap : TextureMesh
     {

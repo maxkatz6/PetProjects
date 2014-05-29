@@ -9,7 +9,7 @@
 
         protected override void InitEffect()
         {
-            InitAttrib("Texture", BitmapVertex.Number);
+            Base.InitAttrib("Texture", BitmapVertex.Number);
         }
     }
 }

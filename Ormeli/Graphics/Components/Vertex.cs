@@ -3,13 +3,7 @@ using Ormeli.Math;
 
 namespace Ormeli.Graphics
 {
-    public enum VertexType
-    {
-        Color = 0,
-        Texture = 1
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 16)]
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
     public struct BitmapVertex
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(ColorVertex));
@@ -20,17 +14,38 @@ namespace Ormeli.Graphics
         };
         public const int Number = 0;
 
+        [FieldOffset(0)]
         public Vector2 Position;
+
+        [FieldOffset(8)]
         public Vector2 TexCoord;
+
+        [FieldOffset(0)]
+        public float X;
+        [FieldOffset(4)]
+        public float Y;
+        [FieldOffset(8)]
+        public float U;
+        [FieldOffset(12)]
+        public float V;
 
         public BitmapVertex(Vector2 pos, Vector2 texCoord)
         {
+            X = Y = U = V = 0;
             Position = pos;
             TexCoord = texCoord;
         }
+        public BitmapVertex(float x, float y, float u, float v)
+        {
+            Position = TexCoord = Vector2.Zero;
+            X = x;
+            Y = y;
+            U = u;
+            V = v;
+        }
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 28)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ColorVertex
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(ColorVertex));
@@ -51,7 +66,7 @@ namespace Ormeli.Graphics
         }
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 20)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TextureVertex
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(TextureVertex));

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace Ormeli.Math
 {
     [Serializable]
-    [StructLayout(LayoutKind.Sequential, Pack = 0, Size = 12)]
+    [StructLayout(LayoutKind.Sequential, Pack = 0)]
     public struct Vector3 : IEquatable<Vector3>
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(Vector3));

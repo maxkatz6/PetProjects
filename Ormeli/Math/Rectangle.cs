@@ -119,7 +119,8 @@ namespace Ormeli.Math
             get { return Bottom - Top; }
             set { Top = Bottom + value; }
         }
-
+        public int X { get { return Left; } set { Left = value; } }
+        public int Y { get { return Top; } set { Top = value; } }
         /// <summary>
         /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
         /// </summary>

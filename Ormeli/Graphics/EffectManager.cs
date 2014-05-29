@@ -1,5 +1,4 @@
-﻿using Ormeli.Cg;
-
+﻿
 namespace Ormeli.Graphics
 {
     public static class EffectManager
@@ -7,7 +6,7 @@ namespace Ormeli.Graphics
         private const int MaxAttrContainers = 20;
         private const int MaxEffectCount = 10;
 
-        public static CgEffect[] Effects = new CgEffect[MaxEffectCount];
+        public static Effect[] Effects = new Effect[MaxEffectCount];
         public static IAttribsContainer[] AttribsContainers = new IAttribsContainer[MaxAttrContainers];
         public static Attrib[][] Attribs = new Attrib[MaxAttrContainers][];
 
@@ -19,7 +18,7 @@ namespace Ormeli.Graphics
             Attribs[TextureVertex.Number] = TextureVertex.Attribs;
         }
 
-        public static int AddEffect(CgEffect effect)
+        public static int AddEffect(Effect effect)
         {
             Effects[_lastAddedEffect++] = effect;
             return _lastAddedEffect;

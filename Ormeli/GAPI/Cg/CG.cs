@@ -832,7 +832,7 @@ namespace Ormeli.Cg
 
         [DllImport(CgLib, EntryPoint = "cgGetPassName", CallingConvention = CallingConvention.Cdecl),
          SuppressUnmanagedCodeSecurity]
-        public static extern string GetPassName(Pass pass);
+        public static extern IntPtr GetPassName(Pass pass);
 
         [DllImport(CgLib, EntryPoint = "cgGetPassProgram", CallingConvention = CallingConvention.Cdecl),
          SuppressUnmanagedCodeSecurity]

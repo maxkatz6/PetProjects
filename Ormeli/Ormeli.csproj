@@ -64,6 +64,10 @@
     <Reference Include="Mono.Simd">
       <HintPath>..\..\..\..\..\Program Files\Mono-3.2.3\lib\mono\4.0\Mono.Simd.dll</HintPath>
     </Reference>
+    <Reference Include="Squid, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5ba804b1072f6e05, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Users\Максим\Desktop\Squid.Samples\lib\AnyCPU\Squid.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -99,8 +103,14 @@
     <Compile Include="Core\Patterns\Singleton.cs" />
     <Compile Include="Core\Reflection.cs" />
     <Compile Include="Core\Timer.cs" />
+    <Compile Include="GAPI\Interfaces\IEffect.cs" />
     <Compile Include="Graphics\2D\Bitmap.cs" />
+    <Compile Include="Graphics\2D\Box.cs" />
+    <Compile Include="Graphics\2D\Font.cs" />
+    <Compile Include="Graphics\2D\GuiRenderer.cs" />
+    <Compile Include="Graphics\2D\SpriteBatch.cs" />
     <Compile Include="Graphics\Effects\Effect2D.cs" />
+    <Compile Include="Graphics\Effects\FontEffect.cs" />
     <Compile Include="Graphics\GeometryGenerator.cs" />
     <Compile Include="Graphics\Components\Model.cs" />
     <Compile Include="Graphics\Loop.cs" />
@@ -108,7 +118,7 @@
     <Compile Include="Graphics\Cameras\FreeCamera.cs" />
     <Compile Include="Graphics\Cameras\TargetCamera.cs" />
     <Compile Include="Graphics\Components\Buffer.cs" />
-    <Compile Include="GAPI\Cg\CgEffect.cs" />
+    <Compile Include="GAPI\Cg\CgEffectBase.cs" />
     <Compile Include="GAPI\Cg\CgType.cs" />
     <Compile Include="GAPI\Cg\Enums\CgBehaviorEnum.cs" />
     <Compile Include="GAPI\Cg\Enums\CgBufferAccessEnum.cs" />
@@ -152,12 +162,19 @@
     <Compile Include="GAPI\Interfaces\IRender.cs" />
     <Compile Include="Math\MathHelper.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Net\" />
+    <Folder Include="Sound\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Effects\2DEffect.cgfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Effects\FontEffect.cgfx" />
+    <None Include="Resources\Font\font.fnt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\glut32_32.dll" />
@@ -197,6 +214,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\DevIL.dll" />
+    <Content Include="Resources\Textures\font.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\ILU.dll" />
     <Content Include="Resources\Textures\NVIDIA.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

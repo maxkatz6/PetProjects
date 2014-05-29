@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Ormeli.Math
 {
-    [StructLayout(LayoutKind.Explicit, Pack = 0, Size = 64)]
+    [StructLayout(LayoutKind.Explicit, Pack = 0)]
     public struct Matrix
     {
         public static readonly int SizeInBytes = Marshal.SizeOf(typeof(Matrix));

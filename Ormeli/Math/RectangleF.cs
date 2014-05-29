@@ -100,6 +100,9 @@ namespace Ormeli.Math
             set { Top = Bottom + value; }
         }
 
+        public float X { get { return Left; } set { Left = value; } }
+        public float Y { get { return Top; } set { Top = value; } }
+
         /// <summary>
         ///     Determines whether the specified <see cref="System.Object" /> is equal to this instance.
         /// </summary>

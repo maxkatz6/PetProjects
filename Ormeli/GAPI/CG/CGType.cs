@@ -103,7 +103,7 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
         }
 
         /// <summary>
@@ -127,7 +127,12 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
+
+            public Parameter GetParameterByName(string s)
+            {
+                return GetNamedEffectParameter(this, s);
+            }
         }
 
         /// <summary>
@@ -139,7 +144,7 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
         }
 
         /// <summary>
@@ -151,23 +156,39 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
         }
 
         /// <summary>
         /// Represent a Cg parameter object.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        public struct Parameter
+        public struct Parameter 
         {
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
 
+            public Parameter(Effect ef, string s)
+            {
+                Data = ef.GetParameterByName(s).Data;
+            }
+            public Parameter(IntPtr intPtr)
+            {
+                Data = intPtr;
+            }
             public static implicit operator string(Parameter param)
             {
                 return GetParameterName(param).ToStr();
+            }
+            public static implicit operator IntPtr(Parameter param)
+            {
+                return param.Data;
+            }
+            public static implicit operator Parameter(IntPtr param)
+            {
+                return new Parameter(param);
             }
         }
 
@@ -175,16 +196,42 @@ namespace Ormeli.Cg
         /// Represent a Cg pass object.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        public struct Pass
+        public struct Pass 
         {
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
 
-            public static implicit operator bool(Pass boolean)
+            public static implicit operator bool(Pass pass)
             {
-                return boolean.Data != IntPtr.Zero;
+                return pass.Data != IntPtr.Zero;
+            }
+            public static implicit operator string(Pass pass)
+            {
+                return GetPassName(pass).ToStr();
+            }
+
+            public Pass GetNextPass()
+            {
+                return CG.GetNextPass(this);
+            }
+
+            public void Enable()
+            {
+                SetPassState(this);
+            }
+
+            public void Disable()
+            {
+                ResetPassState(this);
+            }
+
+            public IntPtr GetSignature()
+            {
+                return App.RenderType == RenderType.DirectX11
+                    ? DX11.GetIASignatureByPass(this)
+                    : IntPtr.Zero;
             }
         }
 
@@ -238,6 +285,20 @@ namespace Ormeli.Cg
             public static implicit operator bool(Technique boolean)
             {
                 return boolean.Data != IntPtr.Zero;
+            }
+            public static implicit operator string(Technique tech)
+            {
+                return GetTechniqueName(tech).ToStr();
+            }
+
+            public Pass GetFirstPass()
+            {
+                return CG.GetFirstPass(this);
+            }
+
+            public IntPtr GetSignatureByFirstPass()
+            {
+                return GetFirstPass().GetSignature();
             }
         }
     }

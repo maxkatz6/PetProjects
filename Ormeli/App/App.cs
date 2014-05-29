@@ -11,20 +11,30 @@ namespace Ormeli
         OpenGl3
     }
 
+    public enum EffectLanguage
+    {
+        CG,
+        HLSL,
+        GLSL
+    }
+
     public static class App
     {
         public static RenderType RenderType;
+        public static EffectLanguage EffectLanguage;
 
         internal static IRender Render;
         internal static ICreator Creator;
 
-        public static void Initialize(RenderType render)
+        public static void Initialize(RenderType render, EffectLanguage effectLanguage = EffectLanguage.CG)
         {
             RenderType = render;
+            EffectLanguage = effectLanguage;
 
-           if (RenderType == RenderType.DirectX11)
+            if (RenderType == RenderType.DirectX11)
                 Render = new DxRender();
             else Render = new GlRender();
+
 
             using (var t = new Timer())
             {

@@ -3,8 +3,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
+using Ormeli.Cg;
 using Ormeli.Core;
 using Ormeli.Graphics;
+using Bitmap = System.Drawing.Bitmap;
 using Buffer = Ormeli.Graphics.Buffer;
 using Color = Ormeli.Math.Color;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
@@ -30,7 +32,7 @@ namespace Ormeli.OpenGL
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
-            return new Texture(new IntPtr(_pointer));
+            return new Texture(new IntPtr(_pointer), bmpData.Width, bmpData.Height);
         }
 
         public unsafe Texture CreateTexture(Color[,] array)
@@ -48,7 +50,7 @@ namespace Ormeli.OpenGL
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
-            return new Texture(new IntPtr(_pointer));
+            return new Texture(new IntPtr(_pointer), v,s);
         }
 
         public IAttribsContainer InitAttribs(Attrib[] attribs, IntPtr ptr)
@@ -88,6 +90,23 @@ namespace Ormeli.OpenGL
 
             GL.BindBuffer(bf, 0);
             return new Buffer((IntPtr)_pointer);
+        }
+
+        public EffectBase CreateEffect(string file)
+        {
+            EffectBase _base;
+            switch (App.EffectLanguage)
+            {
+                case EffectLanguage.GLSL:
+                    throw new Exception("Not supported effect yet");
+                case EffectLanguage.CG:
+                    _base = new CgEffectBase();
+                    break;
+                default:
+                    throw new Exception("Not supported effect language");
+            }
+            _base.LoadEffect(file);
+            return _base;
         }
 
         private static BufferUsageHint GetFromOrmeliEnum(BufferUsage bu, CpuAccessFlags cpu)

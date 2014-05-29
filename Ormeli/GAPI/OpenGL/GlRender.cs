@@ -83,12 +83,13 @@ namespace Ormeli.OpenGL
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Front);
-            CG.GL.SetDebugMode(CG.True);
-            CG.SetParameterSettingMode(CgEffect.Context, CG.Enum.DeferredParameterSetting);
-            CG.GL.RegisterStates(CgEffect.Context);
             HardwareDescription.VideoCardDescription = GL.GetString(StringName.Vendor).Split(' ')[0] +
                                                        GL.GetString(StringName.Renderer).Split('/')[0];
             HardwareDescription.VideoCardMemory = 0;
+
+            if (App.EffectLanguage == EffectLanguage.CG)
+                CgEffectBase.InitOpenGl();
+
             return RenderType.OpenGl3;
         }
 
@@ -127,9 +128,12 @@ namespace Ormeli.OpenGL
             else GL.Disable(EnableCap.Blend);
         }
 
-
+        private static int _lastBuffer;
         public void SetBuffers(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride)
         {
+            if (_lastBuffer == vertexBuffer)
+                return;
+            _lastBuffer = vertexBuffer;
             GL.BindVertexArray(vertexBuffer);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer);
         }

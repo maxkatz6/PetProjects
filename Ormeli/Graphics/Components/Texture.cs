@@ -10,12 +10,15 @@ namespace Ormeli.Graphics
     {
         private readonly IntPtr Handle;
 
+        public readonly int Height;
+        public readonly int Width;
+
         public static List<Texture> Textures = new List<Texture>(100);
         private static readonly Dictionary<string, int> textures = new Dictionary<string, int>(100); 
 
         public static int GetNumber(string file)
         {
-            if (file == null || file.Contains("null")) return 0;
+            if (string.IsNullOrEmpty(file) || file.Contains("null")) return 0;
             if (textures.ContainsKey(file)) return textures[file];
 
             Textures.Add(App.Creator.LoadTexture(file));
@@ -38,9 +41,11 @@ namespace Ormeli.Graphics
             NullTexture = Textures.Count - 1;
         }
 
-        public Texture(IntPtr handle)
+        public Texture(IntPtr handle, int w, int h)
         {
             Handle = handle;
+            Width = w;
+            Height = h;
         }
 
         public static implicit operator IntPtr(Texture tex)

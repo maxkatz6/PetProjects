@@ -71,9 +71,9 @@ namespace Ormeli.Math
         public static float FastSin(float x)
         {
             if (x < -Pi)
-                x += TwoPi;
+                FastSin(TwoPi + x);
             else if (x > Pi)
-                x -= TwoPi;
+                FastSin(x - TwoPi);
 
             var sin = (x < 0 ? x*(QuadPi + PiConst*x) : x*(QuadPi - PiConst*x));
 
@@ -82,12 +82,14 @@ namespace Ormeli.Math
 
         public static float FastCos(float x)
         {
-            x += PiOver2;
             if (x < -Pi)
-                x += TwoPi;
+                FastCos(TwoPi + x);
             else if (x > Pi)
-                if ((x -= TwoPi) > Pi)
-                    x -= TwoPi;
+                FastCos(x - TwoPi);
+
+            x += PiOver2;
+            if (x > Pi)
+               x -= TwoPi;
 
             float cos = (x < 0 ? x * (QuadPi + PiConst * x) : x * (QuadPi - PiConst * x));
 

@@ -2,14 +2,15 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Ormeli/App/Program.cs">
     <Files>
-      <File FileName="Ormeli/App/Program.cs" Line="45" Column="33" />
-      <File FileName="Ormeli/App/App.cs" Line="30" Column="14" />
+      <File FileName="Ormeli/App/Program.cs" Line="25" Column="45" />
+      <File FileName="Ormeli/App/App.cs" Line="1" Column="1" />
       <File FileName="Ormeli/GAPI/OpenGL/GlRender.cs" Line="1" Column="1" />
-      <File FileName="Ormeli/app.config" Line="6" Column="1" />
+      <File FileName="Ormeli/app.config" Line="1" Column="1" />
       <File FileName="Ormeli/GAPI/Cg/CG.cs" Line="1" Column="1" />
       <File FileName="../../../../../../../home/tirraon/Загрузки/ormeli/Ormeli/GAPI/Cg/CG.cs" Line="1" Column="1" />
       <File FileName="Ormeli/GAPI/Cg/CgEffect.cs" Line="1" Column="1" />
       <File FileName="Ormeli/GAPI/OpenGL/GlAttribs.cs" Line="1" Column="1" />
+      <File FileName="Ormeli/Input/Input.cs" Line="33" Column="3" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -23,6 +24,7 @@
               <Node name="OpenGL" expanded="True" />
             </Node>
             <Node name="Graphics" expanded="True" />
+            <Node name="Input" expanded="True" />
           </Node>
         </State>
       </Pad>

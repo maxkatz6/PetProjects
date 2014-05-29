@@ -2,7 +2,7 @@
 
 namespace Ormeli.Math
 {
-    [StructLayout(LayoutKind.Sequential, Size = 1)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct Point
     {
         private int _x, _y;
