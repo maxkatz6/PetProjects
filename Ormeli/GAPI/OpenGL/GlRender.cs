@@ -111,21 +111,35 @@ namespace Ormeli.OpenGL
         }
 
 
+
+
         public void EndDraw()
         {
             _gameWindow.SwapBuffers();
         }
 
-        public void ZBuffer(bool turn)
+        private bool t;
+        private bool oldAlpha;
+        private bool oldZ;
+
+        public bool ZBuffer(bool turn)
         {
+            if (turn == oldZ) return oldZ;
             if (turn) GL.Enable(EnableCap.DepthTest);
             else GL.Disable(EnableCap.DepthTest);
+            t = oldZ;
+            oldZ = turn;
+            return t;
         }
 
-        public void AlphaBlending(bool turn)
+        public bool AlphaBlending(bool turn)
         {
+            if (turn == oldAlpha) return oldAlpha;
             if (turn) GL.Enable(EnableCap.Blend);
             else GL.Disable(EnableCap.Blend);
+            t = oldAlpha;
+            oldAlpha = turn;
+            return t;
         }
 
         private static int _lastBuffer;
@@ -138,10 +152,14 @@ namespace Ormeli.OpenGL
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer);
         }
 
-        //http://3dgep.com/?p=2665
         public void Draw(int indexCount)
         {
-            GL.DrawElements(BeginMode.Triangles, indexCount,
+            GL.DrawElements(PrimitiveType.Triangles, indexCount,
+                DrawElementsType.UnsignedInt, IntPtr.Zero);
+        }
+        public void Draw(int indexCount, int startIndex)
+        {
+            GL.DrawRangeElements(PrimitiveType.TriangleStrip, startIndex, startIndex+indexCount, indexCount,
                 DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
     }

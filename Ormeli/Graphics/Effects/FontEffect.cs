@@ -8,16 +8,16 @@ namespace Ormeli.Graphics.Effects
 
         private const string TEXTUREName = "FontTexture";
         private const string MATRIXName = "Ortho";
-        private readonly IntPtr _texture;
-        private readonly IntPtr _matrix;
+        private IntPtr _texture;
+        private IntPtr _matrix;
 
-        public FontEffect(string file) : base(file)
+        protected override void InitEffect()
         {
             _texture = Base.GetParameterByName(TEXTUREName);
             _matrix = Base.GetParameterByName(MATRIXName);
         }
 
-        protected override void InitEffect()
+        protected override void InitAttribs()
         {
             Base.InitAttrib("Font", ColorVertex.Number);
         }

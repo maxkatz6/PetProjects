@@ -46,6 +46,11 @@ namespace Ormeli.Graphics
         {
             return (int)buf._handle;
         }
+
+        public void SetDynamicData(Action<IntPtr> action, int offsetInBytes, SetDataOptions options = SetDataOptions.Discard)
+        {
+            App.Creator.SetDynamicData(this, action, offsetInBytes, options);
+        }
     }
 
 }

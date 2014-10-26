@@ -12,6 +12,7 @@ namespace Ormeli.Cg
 
         public CG.Effect Effect;
         public CG.Technique[] Techs = new CG.Technique[MaxTechCount];
+        private string _file;
 
         static CgEffectBase()
         {
@@ -19,7 +20,6 @@ namespace Ormeli.Cg
             {
                 CG.Error cGerror;
                 string s = CG.GetLastErrorString(out cGerror).ToStr();
-
                 if (string.IsNullOrEmpty(s)) return;
 
                 Console.WriteLine(
@@ -46,10 +46,51 @@ Cg compiler output...{1}
             CG.GL.RegisterStates(Context);
         }
 
+        public override void LoadFromFile(string s)
+        {
+            Effect = CG.CreateEffectFromFile(Context, Config.GetEffectPath(s),
+                null);
+            _file = s;
+            LoadEff();
+        }
+
+        public override void LoadFromMemory(string s)
+        {
+            Effect = CG.CreateEffect(Context, s,
+                null);
+            _file = s;
+            LoadEff();
+        }
+
+        private void LoadEff()
+        {
+            var myCgTechnique = CG.GetFirstTechnique(Effect);
+            var list = new List<CG.Technique>();
+            while (myCgTechnique)
+            {
+                string c = CG.GetTechniqueName(myCgTechnique).ToStr();
+                if (CG.ValidateTechnique(myCgTechnique) != 1)
+                    Console.WriteLine(@"Ormeli: Effect {1}: Technique {0} did not validate.  Skipping.", c, _file);
+                else
+                {
+                    Console.WriteLine(@"Ormeli: Effect {1}: Technique {0} is valid.", c, _file);
+                    list.Add(myCgTechnique);
+                    TechNum.Add(c, list.Count - 1);
+                }
+                myCgTechnique = CG.GetNextTechnique(myCgTechnique);
+            }
+
+            if (list.Count == 0)
+            {
+                ErrorProvider.SendError("Ormeli: Effect " + _file + ": No valid technique.", true);
+            }
+            Techs = list.ToArray();
+        }
+
         public override void Render(int techN, int indexCount)
         {
-            CG.Technique tech = Techs[techN];
-            CG.Pass pass = tech.GetFirstPass();
+            var tech = Techs[techN];
+            var pass = tech.GetFirstPass();
 
             while (pass)
             {
@@ -62,35 +103,23 @@ Cg compiler output...{1}
             }
         }
 
-        public override void LoadEffect(string file)
+        public override void Render(int techN, Action act)
         {
-            Effect = CG.CreateEffectFromFile(Context, Config.GetEffectPath(file),
-                null);
+            var tech = Techs[techN];
+            var pass = tech.GetFirstPass();
 
-            var myCgTechnique = CG.GetFirstTechnique(Effect);
-            var list = new List<CG.Technique>();
-            while (myCgTechnique)
+            while (pass)
             {
-                string c = CG.GetTechniqueName(myCgTechnique).ToStr();
-                if (CG.ValidateTechnique(myCgTechnique) != 1)
-                    Console.WriteLine(@"Ormeli: Effect {1}: Technique {0} did not validate.  Skipping.", c, file);
-                else
-                {
-                    Console.WriteLine(@"Ormeli: Effect {1}: Technique {0} is valid.", c, file);
-                    list.Add(myCgTechnique);
-                    TechNum.Add(c, list.Count - 1);
-                }
-                myCgTechnique = CG.GetNextTechnique(myCgTechnique);
-            }
+                pass.Enable();
 
-            if (list.Count == 0)
-            {
-                ErrorProvider.SendError("Ormeli: Effect " + file + ": No valid technique.", true);
+                act.Invoke();
+
+                pass.Disable();
+                pass = pass.GetNextPass();
             }
-            Techs = list.ToArray();
         }
 
-        protected override IntPtr GetSignature(int techNum)
+        public override IntPtr GetSignature(int techNum)
         {
             return Techs[techNum].GetSignatureByFirstPass();
         }
@@ -101,13 +130,11 @@ Cg compiler output...{1}
             else CG.SetMatrixParameterfr(param, mt);
         }
 
-        public override void SetTexture(IntPtr param, int tex)
+        protected override void setTexture(IntPtr param, int tex)
         {
-            if (LastTexture == tex) return;
-            if (App.RenderType == RenderType.OpenGl3) CG.GL.SetTextureParameter(param, Texture.Textures[tex]);
-            else CG.DX11.SetTextureParameter(param, Texture.Textures[tex]);
+            if (App.RenderType == RenderType.OpenGl3) CG.GL.SetTextureParameter(param, Texture.Get(tex));
+            else CG.DX11.SetTextureParameter(param, Texture.Get(tex));
             CG.SetSamplerState(param);
-            LastTexture = tex;
         }
 
         public override IntPtr GetParameterByName(string name)

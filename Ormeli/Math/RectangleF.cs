@@ -32,12 +32,20 @@ namespace Ormeli.Math
         /// <param name="top">The top.</param>
         /// <param name="right">The right.</param>
         /// <param name="bottom">The bottom.</param>
-        public RectangleF(float left, float top, float right, float bottom)
+        public RectangleF(float x, float y, float width, float height)
         {
-            _left = left;
-            _top = top;
-            _right = right;
-            _bottom = bottom;
+            _left = x;
+            _top = y;
+            _right = x + width;
+            _bottom = y + height;
+        }
+
+        public RectangleF(Rectangle value)
+        {
+            _top = value.Top;
+            _bottom = value.Bottom;
+            _left = value.Left;
+            _right = value.Right;
         }
 
         /// <summary>

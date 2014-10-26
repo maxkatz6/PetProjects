@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.Threading;
 using Ormeli.DirectX11;
 using Ormeli.OpenGL;
 using Timer = Ormeli.Core.Timer;
@@ -28,6 +31,8 @@ namespace Ormeli
 
         public static void Initialize(RenderType render, EffectLanguage effectLanguage = EffectLanguage.CG)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
             RenderType = render;
             EffectLanguage = effectLanguage;
 
@@ -35,17 +40,22 @@ namespace Ormeli
                 Render = new DxRender();
             else Render = new GlRender();
 
-
             using (var t = new Timer())
             {
                 t.Start();
 
                 Render.CreateWindow();
                 Render.Initialize();
+                Render.ZBuffer(true);
+                Render.AlphaBlending(true);
+
                 Creator = Render.GetCreator();
 
                 t.Frame();
                 Console.WriteLine(render + " renderer started in " + t.FrameTime + " microseconds");
+                Console.WriteLine(HardwareDescription.VideoCardDescription);
+                Console.WriteLine("VideoCard Memory: " + HardwareDescription.VideoCardMemory);
+                Console.WriteLine("----------------------------------------------");
             }
         }
 

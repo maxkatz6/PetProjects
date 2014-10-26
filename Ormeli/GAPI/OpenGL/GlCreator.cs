@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using Ormeli.Cg;
@@ -92,7 +93,15 @@ namespace Ormeli.OpenGL
             return new Buffer((IntPtr)_pointer);
         }
 
-        public EffectBase CreateEffect(string file)
+        public unsafe void SetDynamicData(Buffer buf, Action<IntPtr> fromData, int offsetInBytes = 0, SetDataOptions options = SetDataOptions.Discard)
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, buf);
+            var p = GL.MapBuffer(BufferTarget.ArrayBuffer, BufferAccess.WriteOnly);
+            fromData((IntPtr) ((byte*) p + offsetInBytes));
+            GL.UnmapBuffer(BufferTarget.ArrayBuffer);
+        }
+
+        public EffectBase CreateEffect()
         {
             EffectBase _base;
             switch (App.EffectLanguage)
@@ -105,7 +114,6 @@ namespace Ormeli.OpenGL
                 default:
                     throw new Exception("Not supported effect language");
             }
-            _base.LoadEffect(file);
             return _base;
         }
 

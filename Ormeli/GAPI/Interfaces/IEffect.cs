@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using Ormeli.Core.Patterns;
 using Ormeli.Graphics;
 using Ormeli.Math;
 
 namespace Ormeli
 {
-    public abstract class Effect
+    public abstract class Effect : Disposable
     {
-        public EffectBase Base { get; set; }
+        protected EffectBase Base { get; set; }
 
-        protected Effect(string file)
+        public static T Get<T>(int num) where T : Effect
         {
-            Base = App.Creator.CreateEffect(file);
-            InitEffect();
+            return (T)EffectManager.Effects[num];
+        }
+
+        protected Effect()
+        {
+            Base = App.Creator.CreateEffect();
         }
 
         public void Render(string tech, int indCount)
         {
-            Base.Render(tech, indCount);
+            Render(Base.TechNum[tech], indCount);
         }
 
         public void Render(int tech, int indCount)
@@ -25,28 +30,49 @@ namespace Ormeli
             Base.Render(tech, indCount);
         }
 
+        public void Render(string tech, Action act)
+        {
+            Render(Base.TechNum[tech], act);
+        }
+
+        public void Render(int tech, Action act)
+        {
+            Base.Render(tech, act);
+        }
+
+        public static T LoadFromFile<T>(string s) where T : Effect, new()
+        {
+            var ef = new T();
+            ef.Base.LoadFromFile(s);
+            ef.InitEffect();
+            ef.InitAttribs();
+            return ef;
+        }
+
+        public static T LoadFromMemory<T>(string s) where T : Effect, new()
+        {
+            var ef = new T();
+            ef.Base.LoadFromMemory(s);
+            ef.InitEffect();
+            ef.InitAttribs();
+            return ef;
+        }
+
         protected abstract void InitEffect();
+        protected abstract void InitAttribs();
     }
 
     public abstract class EffectBase
     {
         protected const int MaxTechCount = 10;
-        protected readonly Dictionary<string, int> TechNum = new Dictionary<string, int>(MaxTechCount);
+        public readonly Dictionary<string, int> TechNum = new Dictionary<string, int>(MaxTechCount);
         protected int LastTexture = -1;
 
-        public static T Get<T>(int num) where T : Effect
-        {
-            return (T) EffectManager.Effects[num];
-        }
-
-        public abstract void LoadEffect(string file);
-
-        public void Render(string tech, int indexCount)
-        {
-            Render(TechNum[tech], indexCount);
-        }
+        public abstract void LoadFromFile(string s);
+        public abstract void LoadFromMemory(string s);
 
         public abstract void Render(int techN, int indexCount);
+        public abstract void Render(int techN, Action act);
 
 
         public void InitAttrib(string tech, int attrNum)
@@ -73,9 +99,16 @@ namespace Ormeli
             SetTexture(GetParameterByName(name), tex);
         }
 
-        public abstract void SetTexture(IntPtr param, int tex);
+        public void SetTexture(IntPtr param, int tex)
+        {
+            if (tex == LastTexture) return;
+            setTexture(param, tex);
+            LastTexture = tex;
+        }
+
+        protected abstract void setTexture(IntPtr param, int tex);
 
         public abstract IntPtr GetParameterByName(string name);
-        protected abstract IntPtr GetSignature(int techNum);
+        public abstract IntPtr GetSignature(int techNum);
     }
 }

@@ -13,10 +13,10 @@ namespace Ormeli.Graphics
         public readonly int Height;
         public readonly int Width;
 
-        public static List<Texture> Textures = new List<Texture>(100);
+        private static readonly List<Texture> Textures = new List<Texture>(100);
         private static readonly Dictionary<string, int> textures = new Dictionary<string, int>(100); 
 
-        public static int GetNumber(string file)
+        public static int Get(string file)
         {
             if (string.IsNullOrEmpty(file) || file.Contains("null")) return 0;
             if (textures.ContainsKey(file)) return textures[file];
@@ -25,6 +25,11 @@ namespace Ormeli.Graphics
             textures.Add(file, Textures.Count - 1);
 
             return Textures.Count - 1;
+        }
+        public static Texture Get(int t)
+        {
+            if (t > Textures.Count - 1) throw new Exception("Invalid texture number");
+            return Textures[t];
         }
 
         static Texture()

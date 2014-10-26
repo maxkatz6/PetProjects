@@ -8,14 +8,15 @@ namespace Ormeli.Graphics
     {
         protected Buffer Vb, Ib;
         public abstract void Render(Matrix matrix);
+        public abstract void Render(Effect ef, Matrix matrix);
     }
 
     public abstract class StaticMesh : Mesh
     {
         protected int ShaderNum;
-        private string _tech;
-        private int _size;
-        private int _indCount;
+        protected string _tech;
+        protected int _size;
+        protected int _indCount;
 
         protected void Initalize<T>( int[] ind, T[] vert, int shader, string tech) where T:struct 
         {
@@ -31,9 +32,31 @@ namespace Ormeli.Graphics
 
         public override void Render(Matrix matrix)
         {
-            EffectBase.Get<ColTexEffect>(ShaderNum).SetMatrix(matrix);
+            Effect.Get<ColTexEffect>(ShaderNum).SetMatrix(matrix);
             App.Render.SetBuffers(Vb, Ib, _size);
             EffectManager.Effects[ShaderNum].Render(_tech, _indCount);
+        }
+
+        public override void Render(Effect effect, Matrix matrix)
+        {
+            ((ColTexEffect)effect).SetMatrix(matrix);
+            App.Render.SetBuffers(Vb, Ib, _size);
+            effect.Render(_tech, _indCount);
+        }
+    }
+
+    public abstract class DynamicMesh : StaticMesh
+    {
+        protected new void Initalize<T>(int[] ind, T[] vert, int shader, string tech) where T : struct
+        {
+            ShaderNum = shader;
+
+            _indCount = ind.Length;
+            _tech = tech;
+            _size = Marshal.SizeOf(vert[0]);
+
+            Vb = App.Creator.CreateBuffer(vert, BindFlag.VertexBuffer);
+            Ib = App.Creator.CreateBuffer(ind, BindFlag.IndexBuffer, BufferUsage.Default, CpuAccessFlags.None);
         }
     }
 
@@ -48,7 +71,7 @@ namespace Ormeli.Graphics
 
         public override void Render(Matrix matrix)
         {
-            EffectBase.Get<ColTexEffect>(ShaderNum).SetTexture(TextureN);
+            Effect.Get<ColTexEffect>(ShaderNum).SetTexture(TextureN);
             base.Render(matrix);                                                            
         }
 
@@ -59,7 +82,7 @@ namespace Ormeli.Graphics
 
         public void SetTexture(string fileName)
         {
-            SetTexture(Texture.GetNumber(fileName));
+            SetTexture(Texture.Get(fileName));
         }
     }
     public class ColorMesh : StaticMesh

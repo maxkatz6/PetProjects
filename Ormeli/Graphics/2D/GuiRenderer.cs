@@ -17,11 +17,11 @@ namespace Ormeli.Graphics
 
         private const string DefaultFont = "font.fnt";
 
-     //   private SpriteBatch Batch;
+        private readonly Batch Batch = new Batch();
 
         public int GetTexture(string name)
         {
-            return Texture.GetNumber(name);
+            return Texture.Get(name);
         }
 
         public int GetFont(string name)
@@ -31,14 +31,15 @@ namespace Ormeli.Graphics
             if (FontIdByName.TryGetValue(name, out tempId))
                 return tempId;
 
-            var font = new Font();
+            int index = FontIdByName.Count;
+
+     /*       var font = new Font();
             font.Initialize(name);
 
-            int index = FontIdByName.Count;
 
             FontIdByName.Add(name, index);
             FontById.Add(index, font);
-
+            */
             return index;
         }
 
@@ -49,7 +50,7 @@ namespace Ormeli.Graphics
 
         public Point GetTextureSize(int texture)
         {
-            var tex = Texture.Textures[texture];
+            var tex = Texture.Get(texture);
             return new Point(tex.Width, tex.Height);
         }
 
@@ -58,9 +59,9 @@ namespace Ormeli.Graphics
 
         }
 
-        private Color ColorFromtInt32(int color)
+        private static Color ColorFromtInt32(int color)
         {
-            Byte[] bytes = BitConverter.GetBytes(color);
+            var bytes = BitConverter.GetBytes(color);
             return new Color(bytes[2], bytes[1], bytes[0], bytes[3]);
         }
 
@@ -70,15 +71,14 @@ namespace Ormeli.Graphics
 
         public void DrawText(string text, int x, int y, int font, int color)
         {
-            FontById[font].PrintText(text, x, y, ColorFromtInt32(color));
+            //FontById[font].PrintText(text, x, y, ColorFromtInt32(color));
         }
 
         public void DrawTexture(int texture, int x, int y, int w, int h, Rectangle source, int color)
         {
-            var destination = new Math.Rectangle(x, y, w, h);
             var s = new Math.Rectangle {X = source.Left, Y = source.Top, Width = source.Width, Height = source.Height};
 
-    //        Batch.Draw(texture, destination, s, ColorFromtInt32(color));
+            Batch.Draw(texture, new RectangleF(x, y ,w,h),s, ColorFromtInt32(color));
         }
 
         public bool TranslateKey(int scancode, ref char character)

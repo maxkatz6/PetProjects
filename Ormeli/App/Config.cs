@@ -19,8 +19,6 @@ namespace Ormeli
         public static float ScreenDepth { get; set; }
         public static uint Fps { get; set; }
 
-        public static string RenderVersion;
-
         static readonly string BaseDirectory; 
         static readonly string EffectDirectory;
         static readonly string TextureDirectory;
@@ -48,7 +46,7 @@ namespace Ormeli
 #endif
             IsMono = Type.GetType ("Mono.Runtime") != null;
 
-            Tittle = "Test";
+            Tittle = "Default";
             BaseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
             EffectDirectory = Path.Combine(BaseDirectory, "Effects");
             TextureDirectory = Path.Combine(BaseDirectory, "Textures");
@@ -56,11 +54,8 @@ namespace Ormeli
             Fps = 60;
             ScreenNear = 0.1f;
             ScreenDepth = 10000;
-            Height = 500;
-            Width = 1000;
-        }
-        public static void Initialize()
-        {
+            Height = 750;
+            Width = 1020;
         }
     }
 }

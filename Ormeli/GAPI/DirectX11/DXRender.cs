@@ -21,7 +21,7 @@ namespace Ormeli.DirectX11
     {
         private readonly Color4 _blendFactor = new Color4(0, 0, 0, 0f);
 
-
+        private Color4 _color;
         public Color BackColor
         {
             get
@@ -35,7 +35,6 @@ namespace Ormeli.DirectX11
             }
         }
 
-        private Color4 _color;
         public Device Device;
         public DeviceContext DeviceContext;
         public SwapChain SwapChain;
@@ -58,13 +57,27 @@ namespace Ormeli.DirectX11
         public Rational Rational { get; set; }
 
         public RenderTargetView RenderTargetView { get; set; }
-        
 
-        public void AlphaBlending(bool turn)
+        private bool t;
+        private bool oldAlpha;
+        public bool AlphaBlending(bool turn)
         {
-            DeviceContext.OutputMerger.SetBlendState( turn ? AlphaEnableBlendingState : AlphaDisableBlendingState ,
+            if (oldAlpha == turn) return oldAlpha;
+            DeviceContext.OutputMerger.SetBlendState(turn ? AlphaEnableBlendingState : AlphaDisableBlendingState,
                 _blendFactor);
+            t = oldAlpha;
+            oldAlpha = turn;
+            return t;
+        }
 
+        private bool oldZ;
+        public bool ZBuffer(bool turn)
+        {
+            if (oldZ == turn) return oldZ;
+            DeviceContext.OutputMerger.SetDepthStencilState(turn ? DepthStencilState : DepthDisabledStencilState, 1);
+            t = oldZ;
+            oldZ = turn;
+            return t;
         }
 
         public void BeginDraw()
@@ -141,7 +154,12 @@ namespace Ormeli.DirectX11
 
         public void Draw(int indexCount)
         {
-            DeviceContext.DrawIndexed(indexCount, 0, 0);
+            Draw(indexCount, 0);
+        }
+
+        public void Draw(int indexCount, int startIndex)
+        {
+            DeviceContext.DrawIndexed(indexCount, startIndex, 0);
         }
 
         public void EndDraw()
@@ -383,10 +401,6 @@ namespace Ormeli.DirectX11
             RenderLoop.Run(_renderForm, () => act());
         }
 
-        public void ZBuffer(bool turn)
-        {
-            DeviceContext.OutputMerger.SetDepthStencilState(turn ? DepthStencilState : DepthDisabledStencilState, 1);
-        }
 
         public void SetBackBufferRenderTarget()
         {

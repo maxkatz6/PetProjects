@@ -10,6 +10,7 @@ using Buffer = Ormeli.Graphics.Buffer;
 using Color = Ormeli.Math.Color;
 using CpuAccessFlags = Ormeli.Graphics.CpuAccessFlags;
 using Device = SharpDX.Direct3D11.Device;
+using MapFlags = SharpDX.Direct3D11.MapFlags;
 using Resource = SharpDX.Direct3D11.Resource;
 
 namespace Ormeli.DirectX11
@@ -115,7 +116,15 @@ namespace Ormeli.DirectX11
                 bufferTarget == BindFlag.VertexBuffer ? Reflection.GetStatic<int, T>("Number") : -1);
         }
 
-        public EffectBase CreateEffect(string file)
+        public unsafe void SetDynamicData(Buffer buf, Action<IntPtr> fromData, int offsetInBytes = 0, SetDataOptions options = SetDataOptions.Discard)
+        {
+            var b = CppObject.FromPointer<SharpDX.Direct3D11.Buffer>(buf);
+            var box = _device.ImmediateContext.MapSubresource(b, 0, options == SetDataOptions.Discard ? MapMode.WriteDiscard : MapMode.WriteNoOverwrite, MapFlags.None); // TODO
+            fromData((IntPtr)((byte*)box.DataPointer + offsetInBytes));
+            _device.ImmediateContext.UnmapSubresource(b, 0);
+        }
+
+        public EffectBase CreateEffect()
         {
             EffectBase _base;
             switch (App.EffectLanguage)
@@ -128,7 +137,6 @@ namespace Ormeli.DirectX11
                 default:
                     throw new Exception("Not supported effect language");
             }
-            _base.LoadEffect(file);
             return _base;
         }
     }

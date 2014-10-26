@@ -78,7 +78,7 @@ namespace Ormeli.Graphics
 
                 // поделим на 1000 т.к. с секундами мысленно работать проще,
                 // чем с миллисекундами.
-                update(dt / 1000);
+                update((double)dt / 1000);
                 if (!IsRender) return;
                 render();
                 if (CountFPS) FPS.Frame();

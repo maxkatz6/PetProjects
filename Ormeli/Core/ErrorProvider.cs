@@ -1,10 +1,11 @@
 ﻿using System;
+using System.IO;
 
 namespace Ormeli.Core
 {
     public static class ErrorProvider
     {
-        private static readonly FileManager FileManager = new FileManager("log.txt");
+        private static readonly StreamWriter FileManager = new StreamWriter("log.txt");
 
         public static void SendError(string s, bool sendExp = false)
         {

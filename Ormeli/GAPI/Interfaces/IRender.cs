@@ -13,9 +13,20 @@ namespace Ormeli
         void BeginDraw();
         void SetBuffers(Buffer vertexBuffer, Buffer indexBuffer, int vertexStride);
         void Draw(int indexCount);
+        void Draw(int indexCount, int startIndex);
         void EndDraw();
-        void ZBuffer(bool turn);
-        void AlphaBlending(bool turn);
+        /// <summary>
+        /// Sets Z Buffer on
+        /// </summary>
+        /// <param name="turn">New state</param>
+        /// <returns>Old state</returns>
+        bool ZBuffer(bool turn);
+        /// <summary>
+        /// Sets Alpha Blending on
+        /// </summary>
+        /// <param name="turn">New state</param>
+        /// <returns>Old state</returns>
+        bool AlphaBlending(bool turn);
         void Dispose();
     }
 }

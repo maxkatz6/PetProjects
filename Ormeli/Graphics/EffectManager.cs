@@ -1,5 +1,4 @@
-﻿
-namespace Ormeli.Graphics
+﻿namespace Ormeli.Graphics
 {
     public static class EffectManager
     {
@@ -16,6 +15,11 @@ namespace Ormeli.Graphics
             Attribs[BitmapVertex.Number] = BitmapVertex.Attribs;
             Attribs[ColorVertex.Number] = ColorVertex.Attribs;
             Attribs[TextureVertex.Number] = TextureVertex.Attribs;
+        }
+
+        public static void AddAttribute(int num, Attrib[] a)
+        {
+            Attribs[num] = a;
         }
 
         public static int AddEffect(Effect effect)

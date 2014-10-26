@@ -2,12 +2,7 @@
 {
     public class Effect2D : ColTexEffect
     {
-        public Effect2D(string file)
-            : base(file)
-        {
-        }
-
-        protected override void InitEffect()
+        protected override void InitAttribs()
         {
             Base.InitAttrib("Texture", BitmapVertex.Number);
         }
