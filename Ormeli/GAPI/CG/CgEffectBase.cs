@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Ormeli.Core;
 using Ormeli.Graphics;
 using Ormeli.Math;
+using SharpDX;
 
 namespace Ormeli.Cg
 {

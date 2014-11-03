@@ -1,6 +1,6 @@
 ﻿using System;
 using Ormeli.Graphics;
-using Ormeli.Math;
+using SharpDX;
 using Buffer = Ormeli.Graphics.Buffer;
 
 namespace Ormeli
@@ -13,7 +13,7 @@ namespace Ormeli
     public interface ICreator
     {
         Texture LoadTexture(string path);
-        Texture CreateTexture(Color[,] array);
+        Texture CreateTexture(Color4[,] array);
 
         IAttribsContainer InitAttribs(Attrib[] attribs, IntPtr ptr);
 

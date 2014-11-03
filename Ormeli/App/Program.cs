@@ -1,13 +1,12 @@
 ﻿using System;
-using Ormeli.Core.Patterns;
 using Ormeli.Graphics;
 using Ormeli.Graphics.Cameras;
 using Ormeli.Graphics.Effects;
-using Ormeli.Math;
+using SharpDX;
 
 namespace Ormeli
 {
-    public class Program : Disposable
+    public class Program
     {
         /*          TODO необходимое
          * Фиксинг
@@ -23,55 +22,46 @@ namespace Ormeli
          * ОТДЕЛИТЬ РЕНДЕР ОТ ИНИЦИАЛИЗАЦИИ
          * +-Математическая либа - доделать.
          */
+        private static readonly Model Plos = new Model();
+        private static readonly FreeCamera FreeCamera = new FreeCamera(new Vector3(0,3,0)) {Speed = 10};
 
         private static void Main()
         {
-            using (var p = new Program())
-            {
-                Loop.Run(p.Draw, p.Update);
-            }
-        }
-
-        private readonly Model _plos = new Model();
-        private readonly FreeCamera _freeCamera;
-
-        public Program()
-		{
             App.Initialize(RenderType.DirectX11);
             App.Render.BackColor = Color.Indigo;
 
             EffectManager.AddEffect(Effect.LoadFromFile<ColTexEffect>("ColTexEffect.cgfx"));
 
-            _freeCamera = new FreeCamera( new Vector3( 0,3,0 ), 0, 0, true ){Speed = 10};
+            Plos.SetMeshes(GeometryGenerator.CreateGrid(1200, 1200));
 
-            _plos.SetMeshes(GeometryGenerator.CreateGrid(1200, 1200));
-		}
+            App.Run(Draw, Update);
+        }
 
-        void Draw()
+        static void Draw()
         {
             App.Render.BeginDraw();
             
-            _plos.Render();
+            Plos.Render();
 
             App.Render.EndDraw();
         }
 
-        void Update()
+        static void Update()
         {
             if (Input.IsKeyDown(Key.Escape)) App.Exit();
 
-            if (Input.IsKeyDown(Key.W)) //ловим нажатие и двигаемся
-                _freeCamera.DirectionMove(Vector3.Forward);
+            if (Input.IsKeyDown(Key.W))
+                FreeCamera.DirectionMove(Vector3.ForwardRH);
             else if (Input.IsKeyDown(Key.S))
-                _freeCamera.DirectionMove(Vector3.Backward);
-            else if (Input.IsKeyDown(Key.A))
-                _freeCamera.DirectionMove(Vector3.Left);
+                FreeCamera.DirectionMove(Vector3.BackwardRH);
+            if (Input.IsKeyDown(Key.A))
+                FreeCamera.DirectionMove(Vector3.Left);
             else if (Input.IsKeyDown(Key.D))
-                _freeCamera.DirectionMove(Vector3.Right);
+                FreeCamera.DirectionMove(Vector3.Right);
 
-            _freeCamera.Update(); // обновляем камеру
+            FreeCamera.Update(); // обновляем камеру
 
-            Console.Title = Loop.GetFPS().ToString();
+            Console.Title = App.Loop.FPS.ToString();
         }
     }
 }

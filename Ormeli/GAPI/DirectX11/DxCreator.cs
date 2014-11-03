@@ -7,7 +7,6 @@ using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using Buffer = Ormeli.Graphics.Buffer;
-using Color = Ormeli.Math.Color;
 using CpuAccessFlags = Ormeli.Graphics.CpuAccessFlags;
 using Device = SharpDX.Direct3D11.Device;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
@@ -48,7 +47,7 @@ namespace Ormeli.DirectX11
         
         }
 
-        public unsafe Texture CreateTexture(Color[,] array)
+        public unsafe Texture CreateTexture(Color4[,] array)
         {
             var w = array.GetLength(1);
             var h = array.GetLength(0);

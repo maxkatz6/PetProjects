@@ -1,5 +1,6 @@
 ﻿using System;
 using Ormeli.Math;
+using SharpDX;
 
 namespace Ormeli.Graphics.Effects
 {

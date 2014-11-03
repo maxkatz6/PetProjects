@@ -1,4 +1,5 @@
 ﻿using Ormeli.Math;
+using SharpDX;
 
 namespace Ormeli.Graphics.Cameras
 {
@@ -17,7 +18,7 @@ namespace Ormeli.Graphics.Cameras
 
         public float RotateFactor { get; set; }
 
-        public FreeCamera(Vector3 position, float yaw, float pitch, bool pressedOnlyMouseRotate = false, bool negativeRot = true)
+        public FreeCamera(Vector3 position, float yaw = 0, float pitch = 0, bool pressedOnlyMouseRotate = true, bool negativeRot = true)
         {
             Position = position;
             Yaw = yaw;
@@ -41,8 +42,7 @@ namespace Ormeli.Graphics.Cameras
 
         public void DirectionMove(Vector3 direction)
         {
-            _translation = direction * Speed;
-            _needViewUpdate = true;
+            Move(direction * Speed);
         }
 
         public void Move(Vector3 translation)
@@ -66,7 +66,7 @@ namespace Ormeli.Graphics.Cameras
                 var deltaX = _lastMousePos.X - mouseState.X;
                 var deltaY = _lastMousePos.Y - mouseState.Y;
 
-                if (deltaX == 0 && deltaY == 0) return;
+                if (System.Math.Abs(deltaX) < MathHelper.ZeroTolerance && System.Math.Abs(deltaY) < MathHelper.ZeroTolerance) return;
 
                 Rotate(_negativeFactor * deltaX * RotateFactor, _negativeFactor * deltaY * RotateFactor);
             }
@@ -78,9 +78,9 @@ namespace Ormeli.Graphics.Cameras
         {
             RotateWithMouse();
             if (!_needViewUpdate) return;
-            var rotation = Matrix.FromYawPitch(Yaw, Pitch);
+            var rotation = Matrix.RotationYawPitchRoll(Yaw, Pitch,0);
             // Смещение позиции и сброс переменной translation
-            Position += Vector3.Transform(_translation, rotation);
+            Position += Vector3.TransformCoordinate(_translation, rotation);
             _translation = Vector3.Zero;
 
             //Some optimisations.
@@ -94,12 +94,11 @@ namespace Ormeli.Graphics.Cameras
             var zaxis = new Vector3(sinYaw * cosPitch, -sinPitch, cosPitch * cosYaw);
 
             ViewProjection = new Matrix(
-                new Vector4(xaxis.X, yaxis.X, zaxis.X, 0),
-                new Vector4(xaxis.Y, yaxis.Y, zaxis.Y, 0),
-                new Vector4(xaxis.Z, yaxis.Z, zaxis.Z, 0),
-                new Vector4(-Vector3.Dot(xaxis, Position), -Vector3.Dot(yaxis, Position), -Vector3.Dot(zaxis, Position),
-                    1)
-                ) * Projection;
+                xaxis.X, yaxis.X, zaxis.X, 0,
+                xaxis.Y, yaxis.Y, zaxis.Y, 0,
+                xaxis.Z, yaxis.Z, zaxis.Z, 0,
+                -Vector3.Dot(xaxis, Position), -Vector3.Dot(yaxis, Position), -Vector3.Dot(zaxis, Position), 1)*
+                             Projection;
             _needViewUpdate = false;
         }
     }

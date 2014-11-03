@@ -1,4 +1,5 @@
 ﻿using Ormeli.Math;
+using SharpDX;
 
 namespace Ormeli.Graphics.Cameras
 {
@@ -14,7 +15,7 @@ namespace Ormeli.Graphics.Cameras
 
         public override void Update()
         {
-            ViewProjection = Matrix.LookAt(Position, Target, Vector3.Zero) * Projection;
+            ViewProjection = Matrix.LookAtLH(Position, Target, Vector3.Zero) * Projection;
         }
     }
 }

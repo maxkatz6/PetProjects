@@ -3,23 +3,25 @@ using Ormeli.Core;
 
 namespace Ormeli.Graphics
 {
-    public static class Loop
+    public class Loop
     {
-        public static bool IsRender { get; set; }
-        public static bool CountFPS { get; set; }
+        public bool IsRender { get; set; }
+        public bool CountFPS { get; set; }
 
-        private static readonly Timer Timer = new Timer();
+        private readonly Timer Timer = new Timer();
         private const int MaxFrameSkip = 10;
-        private static uint _frameDuration;
-        private static readonly Fps FPS = new Fps(); 
+        private uint _frameDuration;
+        private readonly Fps _fps = new Fps();
 
-        static Loop()
+        public uint FPS { get { return (uint)_fps.Value; } }
+
+        public Loop()
         {
             IsRender = true;
             CountFPS = true;
         }
 
-        public static void Run(Action render, Action update)
+        public void Run(Action render, Action update)
         {
             
             if (Config.VerticalSyncEnabled || Config.Fps == 0)
@@ -29,7 +31,7 @@ namespace Ormeli.Graphics
                     update();
                     if (!IsRender) return;
                     render();
-                    if (CountFPS) FPS.Frame();
+                    if (CountFPS) _fps.Frame();
                 });
             }
             else
@@ -51,7 +53,7 @@ namespace Ormeli.Graphics
                         if (IsRender)
                         {
                             render();
-                            if (CountFPS) FPS.Frame();
+                            if (CountFPS) _fps.Frame();
                         }
 
                         nextFrameTime += _frameDuration;
@@ -62,7 +64,7 @@ namespace Ormeli.Graphics
             }
         }
         //http://habrahabr.ru/post/150640/
-        public static void Run(Action render, Action<double> update)
+        public void Run(Action render, Action<double> update)
         {
             Timer.Start();
             
@@ -81,13 +83,8 @@ namespace Ormeli.Graphics
                 update((double)dt / 1000);
                 if (!IsRender) return;
                 render();
-                if (CountFPS) FPS.Frame();
+                if (CountFPS) _fps.Frame();
             });
-        }
-
-        public static uint GetFPS()
-        {
-            return (uint)FPS.Value;
         }
     }
 }

@@ -4,7 +4,8 @@ using Ormeli.Core.Patterns;
 ﻿using Ormeli.Graphics.Cameras;
 ﻿using Ormeli.Graphics.Effects;
 ﻿using Ormeli.Math;
-
+﻿using SharpDX;
+/*
 namespace Ormeli.Graphics
 {
     public class Batch : Disposable
@@ -204,4 +205,4 @@ namespace Ormeli.Graphics
         #endregion
 
     }
-}
+}*/

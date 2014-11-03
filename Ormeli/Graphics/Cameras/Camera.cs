@@ -1,4 +1,4 @@
-﻿using Ormeli.Math;
+﻿using SharpDX;
 
 namespace Ormeli.Graphics.Cameras
 {
@@ -23,11 +23,11 @@ namespace Ormeli.Graphics.Cameras
 
         public void UpdateScrennMatrices(int width, int height)
         {
-            Projection = Matrix.PerspectiveFov(1, //MathHelper.ToRadians(45);
+            Projection = Matrix.PerspectiveFovRH(1, //MathHelper.ToRadians(45);
                 (float)width / height, Config.ScreenNear,
                 Config.ScreenDepth);
 
-            Ortho = Matrix.Ortho(width, height, Config.ScreenNear, Config.ScreenDepth);
+            Ortho = Matrix.OrthoRH(width, height, Config.ScreenNear, Config.ScreenDepth);
         }
         public void SetCurrent()
         {

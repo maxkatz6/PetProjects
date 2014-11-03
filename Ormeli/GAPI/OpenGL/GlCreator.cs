@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Drawing;
 using System.Drawing.Imaging;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using Ormeli.Cg;
 using Ormeli.Core;
 using Ormeli.Graphics;
+using SharpDX;
 using Bitmap = System.Drawing.Bitmap;
 using Buffer = Ormeli.Graphics.Buffer;
-using Color = Ormeli.Math.Color;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Ormeli.OpenGL
 {
@@ -36,7 +35,7 @@ namespace Ormeli.OpenGL
             return new Texture(new IntPtr(_pointer), bmpData.Width, bmpData.Height);
         }
 
-        public unsafe Texture CreateTexture(Color[,] array)
+        public unsafe Texture CreateTexture(Color4[,] array)
         {
             _pointer = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, _pointer);

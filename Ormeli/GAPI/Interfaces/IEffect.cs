@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Ormeli.Core.Patterns;
 using Ormeli.Graphics;
-using Ormeli.Math;
+using SharpDX;
 
 namespace Ormeli
 {

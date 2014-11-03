@@ -10,7 +10,6 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Windows;
 using Buffer = Ormeli.Graphics.Buffer;
-using Color = Ormeli.Math.Color;
 using CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
@@ -22,16 +21,16 @@ namespace Ormeli.DirectX11
         private readonly Color4 _blendFactor = new Color4(0, 0, 0, 0f);
 
         private Color4 _color;
-        public Color BackColor
+        public Color4 BackColor
         {
             get
             {
-                return new Color((byte) (_color.Red*255), (byte) (_color.Green*255), (byte) (_color.Blue*255),
+                return new Color4((byte)(_color.Red * 255), (byte)(_color.Green * 255), (byte)(_color.Blue * 255),
                     (byte) (_color.Alpha*255));
             }
             set
             {
-                _color = new Color4(value.R, value.G, value.B, value.A);
+                _color = new Color4(value.Red, value.Green, value.Blue, value.Alpha);
             }
         }
 

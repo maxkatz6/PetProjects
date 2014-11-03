@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Ormeli.Math;
 using System;
 using System.Runtime.InteropServices;
+using SharpDX;
 
 namespace Ormeli.Graphics
 {
@@ -36,11 +36,11 @@ namespace Ormeli.Graphics
         {
             Textures.Add(App.Creator.CreateTexture(new[,]
                 {
-                    {new Color(0, 0, 0, 1f), new Color(0, 1f, 0, 1),new Color(0, 0, 0f, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1f)},
-                    {new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1f)},
-                    {new Color(0, 0, 0, 1f), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1f), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1f)},
-                    {new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1), new Color(0, 0f, 0,1),new Color(0f, 1, 0, 1f)},
-                    {new Color(0, 0, 0, 1f), new Color(0, 1f, 0, 1),new Color(0, 0, 0f, 1), new Color(0, 1f, 0, 1),new Color(0, 0, 0, 1f)}
+                    {new Color4(0, 0, 0, 1f), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0f, 1), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0, 1f)},
+                    {new Color4(0f, 1, 0, 1), new Color4(0, 0f, 0,1),new Color4(0f, 1, 0, 1), new Color4(0, 0f, 0,1),new Color4(0f, 1, 0, 1f)},
+                    {new Color4(0, 0, 0, 1f), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0, 1f), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0, 1f)},
+                    {new Color4(0f, 1, 0, 1), new Color4(0, 0f, 0,1),new Color4(0f, 1, 0, 1), new Color4(0, 0f, 0,1),new Color4(0f, 1, 0, 1f)},
+                    {new Color4(0, 0, 0, 1f), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0f, 1), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0, 1f)}
                 })); // number 0 texture//
                      // null texture    //
             NullTexture = Textures.Count - 1;

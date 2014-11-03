@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using Ormeli.DirectX11;
+using Ormeli.Graphics;
 using Ormeli.OpenGL;
 using Timer = Ormeli.Core.Timer;
 
@@ -23,6 +23,7 @@ namespace Ormeli
 
     public static class App
     {
+        public static readonly Loop Loop = new Loop();
         public static RenderType RenderType;
         public static EffectLanguage EffectLanguage;
 
@@ -57,6 +58,11 @@ namespace Ormeli
                 Console.WriteLine("VideoCard Memory: " + HardwareDescription.VideoCardMemory);
                 Console.WriteLine("----------------------------------------------");
             }
+        }
+
+        public static void Run(Action drawAction, Action updateAction)
+        {
+            Loop.Run(drawAction, updateAction);
         }
 
         public static void Exit()

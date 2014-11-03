@@ -1,11 +1,11 @@
-﻿using Ormeli.Math;
-using Ormeli.Graphics;
+﻿using Ormeli.Graphics;
+using SharpDX;
 
 namespace Ormeli
 {
     public interface IRender
     {
-        Color BackColor { get; set; }
+        Color4 BackColor { get; set; }
         RenderType Initialize();
         ICreator GetCreator();
         void CreateWindow();

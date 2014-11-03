@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Ormeli.Core.Patterns;
 using Ormeli.Graphics.Cameras;
-using Ormeli.Math;
+using SharpDX;
 
 namespace Ormeli.Graphics
 {

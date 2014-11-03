@@ -5,7 +5,7 @@ using Ormeli.Math;
 using Squid;
 using Point = Squid.Point;
 using Rectangle = Squid.Rectangle;
-
+/*
 namespace Ormeli.Graphics
 {
     public class GuiRenderer : Disposable, ISquidRenderer
@@ -33,13 +33,13 @@ namespace Ormeli.Graphics
 
             int index = FontIdByName.Count;
 
-     /*       var font = new Font();
-            font.Initialize(name);
+          //  var font = new Font();
+       //     font.Initialize(name);
 
 
-            FontIdByName.Add(name, index);
-            FontById.Add(index, font);
-            */
+  ///          FontIdByName.Add(name, index);
+  //          FontById.Add(index, font);
+            
             return index;
         }
 
@@ -97,3 +97,4 @@ namespace Ormeli.Graphics
         }
     }
 }
+*/

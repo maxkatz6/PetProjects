@@ -1,10 +1,10 @@
-﻿using Buffer = Ormeli.Graphics.Buffer;
+﻿using SharpDX;
+using Buffer = Ormeli.Graphics.Buffer;
 using MouseButtons = OpenTK.Input.MouseButton;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using Ormeli.Cg;
 using Ormeli.Core.Patterns;
-using Ormeli.Math;
 using Ormeli.Graphics.Cameras;
 using System;
 
@@ -15,7 +15,7 @@ namespace Ormeli.OpenGL
     {
         private GameWindow _gameWindow;
 
-        public Color BackColor
+        public Color4 BackColor
         {
             get
             {
@@ -24,11 +24,11 @@ namespace Ormeli.OpenGL
             set
             {
                 _color = value;
-                GL.ClearColor(_color.R, _color.G, _color.B, _color.A);
+                GL.ClearColor(_color.Red, _color.Green, _color.Blue, _color.Alpha);
             }
         }
 
-        private Color _color;
+        private Color4 _color;
 
         public void CreateWindow()
         {
