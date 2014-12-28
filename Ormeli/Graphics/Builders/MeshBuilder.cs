@@ -6,9 +6,9 @@ namespace Ormeli.Graphics.Builders
 {
     public class MeshBuilder : Builder<Mesh, MeshBuilder>
     {
-        public MeshBuilder SetTexture(int index)
+        public MeshBuilder SetTexture(Texture tex)
         {
-            Template.TextureN = index;
+            Template.Texture = tex;
             return this;
         }
         public MeshBuilder SetTexture(string fileName)

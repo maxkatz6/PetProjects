@@ -61,9 +61,9 @@ namespace Ormeli
             }
         }
 
-        public static void Exit()
+        public static void Exit(int code = 0)
         {
-            Environment.Exit(0);
+            Environment.Exit(code);
         }
     }
 }

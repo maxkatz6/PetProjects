@@ -11,7 +11,7 @@ namespace Ormeli.Graphics
 
         public bool IsDynamic { get; set; }
         public int ShaderN { get; set; }
-        public int TextureN { get; set; }
+        public Texture Texture { get; set; }
         public int VertexSize { get; set; }
         public int IndexCount { get; set; }
         public string Tech { get; set; }

@@ -131,10 +131,11 @@ Cg compiler output...{1}
             else CG.SetMatrixParameterfr(param, mt);
         }
 
-        protected override void setTexture(IntPtr param, int tex)
+        protected override void setTexture(IntPtr param, Texture tex)
         {
-            if (App.RenderType == RenderType.OpenGl3) CG.GL.SetTextureParameter(param, Texture.Get(tex));
-            else CG.DX11.SetTextureParameter(param, Texture.Get(tex));
+            if (App.RenderType == RenderType.OpenGl3)
+                CG.GL.SetTextureParameter(param, tex);
+            else CG.DX11.SetTextureParameter(param, tex);
             CG.SetSamplerState(param);
         }
 

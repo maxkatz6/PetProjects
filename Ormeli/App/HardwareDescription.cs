@@ -1,5 +1,4 @@
-﻿
-namespace Ormeli
+﻿namespace Ormeli
 {
     public static class HardwareDescription
     {

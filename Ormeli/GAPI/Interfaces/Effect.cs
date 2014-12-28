@@ -73,7 +73,7 @@ namespace Ormeli.GAPI.Interfaces
     {
         protected const int MaxTechCount = 10;
         public readonly Dictionary<string, int> TechNum = new Dictionary<string, int>(MaxTechCount);
-        protected int LastTexture = -1;
+        protected Texture LastTexture;
 
         public abstract void LoadFromFile(string s);
         public abstract void LoadFromMemory(string s);
@@ -101,19 +101,19 @@ namespace Ormeli.GAPI.Interfaces
 
         public abstract void SetMatrix(IntPtr param, Matrix mt);
 
-        public void SetTexture(string name, int tex)
+        public void SetTexture(string name, Texture tex)
         {
             SetTexture(GetParameterByName(name), tex);
         }
 
-        public void SetTexture(IntPtr param, int tex)
+        public void SetTexture(IntPtr param, Texture tex)
         {
             if (tex == LastTexture) return;
             setTexture(param, tex);
             LastTexture = tex;
         }
 
-        protected abstract void setTexture(IntPtr param, int tex);
+        protected abstract void setTexture(IntPtr param, Texture tex);
 
         public abstract IntPtr GetParameterByName(string name);
         public abstract IntPtr GetSignature(int techNum);

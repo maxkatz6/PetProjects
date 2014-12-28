@@ -9,28 +9,24 @@ namespace Ormeli.Graphics
     [StructLayout(LayoutKind.Sequential)]
     public struct Texture : IDrawable
     {
+        public static readonly Texture Null;
+
         private readonly IntPtr Handle;
 
         public readonly int Height;
         public readonly int Width;
 
-        private static readonly List<Texture> Textures = new List<Texture>(100);
-        private static readonly Dictionary<string, int> textures = new Dictionary<string, int>(100); 
+        private static readonly Dictionary<string, Texture> textures = new Dictionary<string, Texture>(100); 
 
-        public static int Get(string file)
+        public static Texture Get(string file)
         {
-            if (string.IsNullOrEmpty(file) || file.Contains("null")) return 0;
+            if (string.IsNullOrEmpty(file) || file.Contains("null")) return Null;
             if (textures.ContainsKey(file)) return textures[file];
 
-            Textures.Add(App.Creator.LoadTexture(file));
-            textures.Add(file, Textures.Count - 1);
+            var t = App.Creator.LoadTexture(file);
+            textures.Add(file, t);
 
-            return Textures.Count - 1;
-        }
-        public static Texture Get(int t)
-        {
-            if (t > Textures.Count - 1) throw new Exception("Invalid texture number");
-            return Textures[t];
+            return t;
         }
 
         public void Draw(Matrix m)
@@ -40,17 +36,23 @@ namespace Ormeli.Graphics
 
         static Texture()
         {
-            Textures.Add(App.Creator.CreateTexture(new[,]
+            Null = App.Creator.CreateTexture(new[,]
                 {
                     {new Color4(0, 0, 0, 1f), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0f, 1), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0, 1f)},
                     {new Color4(0f, 1, 0, 1), new Color4(0, 0f, 0,1),new Color4(0f, 1, 0, 1), new Color4(0, 0f, 0,1),new Color4(0f, 1, 0, 1f)},
                     {new Color4(0, 0, 0, 1f), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0, 1f), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0, 1f)},
                     {new Color4(0f, 1, 0, 1), new Color4(0, 0f, 0,1),new Color4(0f, 1, 0, 1), new Color4(0, 0f, 0,1),new Color4(0f, 1, 0, 1f)},
                     {new Color4(0, 0, 0, 1f), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0f, 1), new Color4(0, 1f, 0, 1),new Color4(0, 0, 0, 1f)}
-                })); // number 0 texture//
-                     // null texture    //
-            NullTexture = Textures.Count - 1;
+                });
         }
+
+        public Texture()
+        {
+            Handle = Null.Handle;
+            Width = Null.Width;
+            Height = Null.Height;
+        }
+
 
         public Texture(IntPtr handle, int w, int h)
         {
@@ -58,6 +60,9 @@ namespace Ormeli.Graphics
             Width = w;
             Height = h;
         }
+
+        public bool IsNull => Handle.ToInt32() == 0;
+
 
         public static implicit operator IntPtr(Texture tex)
         {
@@ -68,7 +73,30 @@ namespace Ormeli.Graphics
         {
             return tex.Handle.ToInt32();
         }
+        public static bool operator ==(Texture me, Texture other)
+        {
+            return me.Handle == other.Handle;
+        }
 
-        public static readonly int NullTexture;
+        public static bool operator !=(Texture me, Texture other)
+        {
+            return !(me == other);
+        }
+        public bool Equals(Texture other)
+        {
+            return Handle.Equals(other.Handle);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is Texture && Equals((Texture)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return Handle.GetHashCode();
+        }
+
     }
 }

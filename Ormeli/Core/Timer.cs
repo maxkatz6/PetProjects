@@ -28,7 +28,7 @@ namespace Ormeli.Core
         {
             var timer = new Timer();
             timer.Start();
-            act.BeginInvoke(null, null);
+            act?.BeginInvoke(null, null);
             timer._stopWatch.Stop();
             return timer.Time();
         }
@@ -87,8 +87,7 @@ namespace Ormeli.Core
 
         protected override void OnDispose()
         {
-            _stopWatch.Stop();
-            _stopWatch = null;
+            _stopWatch?.Stop();
         }
     }
 }

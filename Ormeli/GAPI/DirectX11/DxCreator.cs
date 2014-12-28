@@ -29,7 +29,7 @@ namespace Ormeli.GAPI.DirectX11
         {
             var fi = ImageInformation.FromFile(fileName);
             if (!fi.HasValue)
-                return Texture.Get(Texture.NullTexture);
+                return Texture.Null;
             var fileInfo = fi.Value;
 
             var v = new ImageLoadInformation

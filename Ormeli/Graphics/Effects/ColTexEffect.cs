@@ -20,14 +20,9 @@ namespace Ormeli.Graphics.Effects
             Base.InitAttrib("Texture", TextureVertex.Number);
         }
 
-        public void SetTexture(int tex)
-        {
-            Base.SetTexture(_texture, tex);
-        }
-
         protected override void RenderMesh(Mesh mesh)
         {
-            SetTexture(mesh.TextureN);
+            Base.SetTexture(_texture, mesh.Texture.IsNull ? Texture.Null : mesh.Texture);
         }
     }
 }

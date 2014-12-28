@@ -28,7 +28,7 @@ namespace Ormeli
 
         private static void Main()
         {
-            App.Initialize(RenderType.DirectX11);
+            App.Initialize(RenderType.OpenGl3);
             App.Render.BackColor = Color.Indigo;
             
             EffectManager.AddEffect(Effect.LoadFromFile<ColTexEffect>("ColTexEffect.cgfx"));

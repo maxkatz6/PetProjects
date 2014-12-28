@@ -22,7 +22,7 @@ namespace Ormeli.GAPI.OpenGL
         private static int _pointer;
         public Texture LoadTexture(string fileName)
         {
-            if (!File.Exists(fileName)) return Texture.Get(Texture.NullTexture);
+            if (!File.Exists(fileName)) return Texture.Null;
             //TODO support DDS
             _pointer = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, _pointer);
