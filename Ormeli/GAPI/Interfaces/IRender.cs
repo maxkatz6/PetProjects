@@ -1,7 +1,7 @@
 ﻿using Ormeli.Graphics;
 using SharpDX;
 
-namespace Ormeli
+namespace Ormeli.GAPI.Interfaces
 {
     public interface IRender
     {

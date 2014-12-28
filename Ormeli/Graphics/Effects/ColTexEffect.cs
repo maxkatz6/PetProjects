@@ -1,5 +1,5 @@
 ﻿using System;
-using Ormeli.Math;
+using Ormeli.GAPI.Interfaces;
 using SharpDX;
 
 namespace Ormeli.Graphics.Effects
@@ -7,14 +7,11 @@ namespace Ormeli.Graphics.Effects
     public class ColTexEffect : Effect
     {
         private const string TEXTUREName = "Decal";
-        private const string MATRIXName = "WVP";
         private IntPtr _texture;
-        private IntPtr _matrix;
 
         protected override void InitEffect()
         {
             _texture = Base.GetParameterByName(TEXTUREName);
-            _matrix = Base.GetParameterByName(MATRIXName);
         }
 
         protected override void InitAttribs()
@@ -28,10 +25,9 @@ namespace Ormeli.Graphics.Effects
             Base.SetTexture(_texture, tex);
         }
 
-        public void SetMatrix(Matrix mt)
+        protected override void RenderMesh(Mesh mesh)
         {
-            Base.SetMatrix(_matrix, mt);
+            SetTexture(mesh.TextureN);
         }
-
     }
 }

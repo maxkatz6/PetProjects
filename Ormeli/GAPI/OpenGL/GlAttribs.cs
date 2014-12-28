@@ -1,6 +1,8 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
-namespace Ormeli.OpenGL
+using Ormeli.GAPI.Interfaces;
+
+namespace Ormeli.GAPI.OpenGL
 {
     public struct GlAttribs : IAttribsContainer
     {

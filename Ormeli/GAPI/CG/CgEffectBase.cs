@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Ormeli.Core;
+using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics;
-using Ormeli.Math;
 using SharpDX;
 
 namespace Ormeli.Cg

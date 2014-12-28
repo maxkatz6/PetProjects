@@ -83,7 +83,7 @@ namespace Ormeli.Cg
                 return me.Data != other.Data ? (1) : (0);
             }
 
-            public bool Equals(Bool other)
+            public override bool Equals(object other)
             {
                 return (Equals(this, other));
             }
@@ -245,6 +245,38 @@ namespace Ormeli.Cg
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
             private IntPtr Data;
+
+            public void Compile()
+            {
+                CompileProgram(this);
+            }
+            public static Program Combine(params Program[] prgs)
+            {
+                switch (prgs.Length)
+                {
+                    case 2:
+                        return CombinePrograms2(prgs[0], prgs[1]);
+                    case 3:
+                        return CombinePrograms3(prgs[0], prgs[1], prgs[2]);
+                    case 4:
+                        return CombinePrograms4(prgs[0], prgs[1], prgs[2], prgs[3]);
+                    case 5:
+                        return CombinePrograms5(prgs[0], prgs[1], prgs[2], prgs[3], prgs[4]);
+                    default:
+                        return CombinePrograms(prgs.Length, prgs);
+                }
+            }
+
+            public Program Copy()
+            {
+                return CopyProgram(this);
+            }
+
+            public static Program Create(Context context, Enum programType, [In] string program,
+            Profile profile, string entry, string[] args)
+            {
+                return CreateProgram(context, programType, program, profile, entry, args);
+            }
         }
 
         /// <summary>

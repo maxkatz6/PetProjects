@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Ormeli.GAPI.Interfaces;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 
-namespace Ormeli.DirectX11
+namespace Ormeli.GAPI.DirectX11
 {
     public struct DxAttribs : IAttribsContainer
     {

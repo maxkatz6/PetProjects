@@ -40,13 +40,13 @@ float4 PixelTexture( VTextureOutput input, uniform sampler2D decal : TEX0 ) : CO
   return tex2D(decal, input.tex );
 }
 
-float4x4 WVP;
+float4x4 Matrix;
 
 technique Color
 {
   pass P0
   {
-      VertexProgram = compile latest  VertexColor(WVP);
+      VertexProgram = compile latest  VertexColor(Matrix);
       FragmentProgram = compile latest  PixelColor();
   }
 }
@@ -61,7 +61,7 @@ technique Texture
 {
   pass P0
   {
-      VertexProgram = compile latest  VertexTexture(WVP);
+      VertexProgram = compile latest  VertexTexture(Matrix);
       FragmentProgram = compile latest  PixelTexture(Decal );
   }
 }

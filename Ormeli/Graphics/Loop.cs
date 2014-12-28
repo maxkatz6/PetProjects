@@ -1,5 +1,6 @@
 ﻿using System;
 using Ormeli.Core;
+using Ormeli.Graphics.Cameras;
 
 namespace Ormeli.Graphics
 {
@@ -13,7 +14,7 @@ namespace Ormeli.Graphics
         private uint _frameDuration;
         private readonly Fps _fps = new Fps();
 
-        public uint FPS { get { return (uint)_fps.Value; } }
+        public uint FPS => (uint)_fps.Value;
 
         public Loop()
         {
@@ -49,6 +50,7 @@ namespace Ormeli.Graphics
                     while (Timer.Time() > nextFrameTime && loops < MaxFrameSkip)
                     {
                         update();
+                        Camera.Current.Update();
 
                         if (IsRender)
                         {
@@ -81,6 +83,8 @@ namespace Ormeli.Graphics
                 // поделим на 1000 т.к. с секундами мысленно работать проще,
                 // чем с миллисекундами.
                 update((double)dt / 1000);
+                Camera.Current.Update();
+
                 if (!IsRender) return;
                 render();
                 if (CountFPS) _fps.Frame();

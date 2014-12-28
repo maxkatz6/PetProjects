@@ -8,33 +8,28 @@ namespace Ormeli
         public static readonly bool IsDebug;
         public static readonly bool IsMono;
 
-        public static string Tittle { get; set; }
-        public static int Height { get; set; }
-        public static int Width { get; set; }
-        public static bool VerticalSyncEnabled { get; set; }
-        public static bool FullScreen { get; set; }
-        public static bool Enable4xMSAA { get; set; }
+        public static string Tittle { get; set; } = "OrmeliEngine";
+        public static int Height { get; set; } = 750;
+        public static int Width { get; set; } = 1020;
+        public static bool VerticalSyncEnabled { get; set; } = false;
+        public static bool FullScreen { get; set; } = false;
+        public static bool Enable4xMSAA { get; set; } = false;
 
-        public static float ScreenNear { get; set; }
-        public static float ScreenDepth { get; set; }
-        public static uint Fps { get; set; }
+        public static float ScreenNear { get; set; } = 0.1f;
+        public static float ScreenDepth { get; set; } = 20000;
+        public static uint Fps { get; set; } = 60;
 
         static readonly string BaseDirectory; 
         static readonly string EffectDirectory;
-        static readonly string TextureDirectory;
 
         public static string GetEffectPath(string fileName)
         {
             return Path.Combine(EffectDirectory, fileName);
         }
-        public static string GetTexturePath(string fileName)
-        {
-            return Path.Combine(TextureDirectory, fileName);
-        }
 
         public static string GetDataPath(string fileName, params string[] pathDirs)
         {
-            return Path.Combine(BaseDirectory, Path.Combine(pathDirs), fileName);
+            return fileName == null ? null : Path.Combine(BaseDirectory, Path.Combine(pathDirs), fileName.Replace('/', '\\').Trim('\\'));
         }
 
         static Config ()
@@ -45,17 +40,8 @@ namespace Ormeli
             IsDebug = false;
 #endif
             IsMono = Type.GetType ("Mono.Runtime") != null;
-
-            Tittle = "Default";
             BaseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
             EffectDirectory = Path.Combine(BaseDirectory, "Effects");
-            TextureDirectory = Path.Combine(BaseDirectory, "Textures");
-
-            Fps = 60;
-            ScreenNear = 0.1f;
-            ScreenDepth = 10000;
-            Height = 750;
-            Width = 1020;
         }
     }
 }

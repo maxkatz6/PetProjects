@@ -2,8 +2,10 @@
 using System.Windows.Forms;
 using Ormeli.Cg;
 using Ormeli.Core.Patterns;
+using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics;
 using Ormeli.Graphics.Cameras;
+using Ormeli.Input;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
@@ -14,7 +16,7 @@ using CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
 
-namespace Ormeli.DirectX11
+namespace Ormeli.GAPI.DirectX11
 {
     internal sealed class DxRender : Disposable, IRender
     {
@@ -94,22 +96,22 @@ namespace Ormeli.DirectX11
                 Width = Config.Width
             };
             _renderForm.ResizeEnd += (sender, args) => Camera.Current.UpdateScrennMatrices();
-            _renderForm.KeyPress += (s, e) => Input.CharInput(e.KeyChar);
-            _renderForm.KeyDown += (s, e) => Input.KeyDown((Key) e.KeyValue);
-            _renderForm.KeyUp += (s, e) => Input.KeyUp((Key) e.KeyValue);
-            _renderForm.MouseMove += (s, e) => Input.SetMouseCoord(e.X, e.Y);
+            _renderForm.KeyPress += (s, e) => Input.Input.CharInput(e.KeyChar);
+            _renderForm.KeyDown += (s, e) => Input.Input.KeyDown((Key) e.KeyValue);
+            _renderForm.KeyUp += (s, e) => Input.Input.KeyUp((Key) e.KeyValue);
+            _renderForm.MouseMove += (s, e) => Input.Input.SetMouseCoord(e.X, e.Y);
             _renderForm.MouseDown += (s, e) =>
             {
                 switch (e.Button)
                 {
                     case MouseButtons.Left:
-                        Input.LeftButton(true);
+                        Input.Input.LeftButton(true);
                         break;
                     case MouseButtons.Right:
-                        Input.RightButton(true);
+                        Input.Input.RightButton(true);
                         break;
                     case MouseButtons.Middle:
-                        Input.MiddleButton(true);
+                        Input.Input.MiddleButton(true);
                         break;
                 }
             };
@@ -118,13 +120,13 @@ namespace Ormeli.DirectX11
                 switch (e.Button)
                 {
                     case MouseButtons.Left:
-                        Input.LeftButton(false);
+                        Input.Input.LeftButton(false);
                         break;
                     case MouseButtons.Right:
-                        Input.RightButton(false);
+                        Input.Input.RightButton(false);
                         break;
                     case MouseButtons.Middle:
-                        Input.MiddleButton(false);
+                        Input.Input.MiddleButton(false);
                         break;
                 }
             };

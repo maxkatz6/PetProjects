@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ormeli
+namespace Ormeli.GAPI.Interfaces
 {
     public enum AttribIndex
     {

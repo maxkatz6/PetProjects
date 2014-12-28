@@ -1,7 +1,6 @@
-﻿using Ormeli.Math;
-using SharpDX;
+﻿using SharpDX;
 
-namespace Ormeli
+namespace Ormeli.Input
 {
     public static class Input
     {
@@ -23,8 +22,7 @@ namespace Ormeli
         public static void KeyDown(Key key)
         {
             InputKeys[(int)key] = true;
-            if (KeyDownEvent != null)
-                KeyDownEvent(key);
+            KeyDownEvent?.Invoke(key);
         }
 
         public static void KeyUp(Key key)
@@ -34,19 +32,19 @@ namespace Ormeli
 
         public static void LeftButton(bool _true)
         {
-            if (_true && MouseDownEvent != null) MouseDownEvent(MouseButton.Left);
+            if (_true) MouseDownEvent?.Invoke(MouseButton.Left);
             MouseState.LeftButton = _true;
         }
 
         public static void MiddleButton(bool _true)
         {
-            if (_true && MouseDownEvent != null) MouseDownEvent(MouseButton.Middle);
+            if (_true) MouseDownEvent?.Invoke(MouseButton.Middle);
             MouseState.MiddleButton = _true;
         }
 
         public static void RightButton(bool _true)
         {
-            if (_true && MouseDownEvent != null) MouseDownEvent(MouseButton.Right);
+            if (_true) MouseDownEvent?.Invoke(MouseButton.Right);
             MouseState.RightButton = _true;
         }
 
@@ -63,8 +61,7 @@ namespace Ormeli
 
         public static void CharInput(char c)
         {
-            if (CharEnterEvent != null)
-                CharEnterEvent(c);
+            CharEnterEvent?.Invoke(c);
         }
     }
 

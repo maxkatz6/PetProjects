@@ -1,7 +1,11 @@
 ﻿using System;
+using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics;
+using Ormeli.Graphics.Builders;
 using Ormeli.Graphics.Cameras;
+using Ormeli.Graphics.Components;
 using Ormeli.Graphics.Effects;
+using Ormeli.Input;
 using SharpDX;
 
 namespace Ormeli
@@ -9,10 +13,8 @@ namespace Ormeli
     public class Program
     {
         /*          TODO необходимое
-         * Фиксинг
-         * Мелочи
-         * GUI. Font только для одной строчки, чотбы squid работал оптимально
          * Система сцен 
+         * GUI. Font
          * */
 
         /*          TODO Возможно
@@ -20,46 +22,47 @@ namespace Ormeli
          * Добавить HLSL, конвертер в него с CG
          * Поддержка винфона, андроида  
          * ОТДЕЛИТЬ РЕНДЕР ОТ ИНИЦИАЛИЗАЦИИ
-         * +-Математическая либа - доделать.
          */
-        private static readonly Model Plos = new Model();
         private static readonly FreeCamera FreeCamera = new FreeCamera(new Vector3(0,3,0)) {Speed = 10};
+        private static readonly Scene Scene = new Scene();
 
         private static void Main()
         {
+            Config.Height = 1000;
+            Config.Width = 1920;
             App.Initialize(RenderType.DirectX11);
             App.Render.BackColor = Color.Indigo;
-
+            
             EffectManager.AddEffect(Effect.LoadFromFile<ColTexEffect>("ColTexEffect.cgfx"));
 
-            Plos.SetMeshes(GeometryGenerator.CreateGrid(1200, 1200));
+            Scene.AddObject(ModelBuilder.Create().SetMeshes(GeometryGenerator.CreateGrid(10000, 10000)), new Vector3(0,-2000,0));
+            Scene.AddObject(@"Stone Bridge\bridge.obj", Vector3.Zero);
+            //Scene.AddObject(@"Paris\Paris2010_0.obj", Vector3.Zero);
 
-            App.Run(Draw, Update);
+            App.Loop.Run(Redner, Update);
         }
 
-        static void Draw()
+        static void Redner()
         {
             App.Render.BeginDraw();
             
-            Plos.Render();
+            Scene.Render();
 
             App.Render.EndDraw();
         }
 
         static void Update()
         {
-            if (Input.IsKeyDown(Key.Escape)) App.Exit();
+            if (Input.Input.IsKeyDown(Key.Escape)) App.Exit();
 
-            if (Input.IsKeyDown(Key.W))
+            if (Input.Input.IsKeyDown(Key.W))
                 FreeCamera.DirectionMove(Vector3.ForwardRH);
-            else if (Input.IsKeyDown(Key.S))
+            else if (Input.Input.IsKeyDown(Key.S))
                 FreeCamera.DirectionMove(Vector3.BackwardRH);
-            if (Input.IsKeyDown(Key.A))
+            if (Input.Input.IsKeyDown(Key.A))
                 FreeCamera.DirectionMove(Vector3.Left);
-            else if (Input.IsKeyDown(Key.D))
+            else if (Input.Input.IsKeyDown(Key.D))
                 FreeCamera.DirectionMove(Vector3.Right);
-
-            FreeCamera.Update(); // обновляем камеру
 
             Console.Title = App.Loop.FPS.ToString();
         }

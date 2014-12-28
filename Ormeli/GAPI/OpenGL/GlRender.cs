@@ -1,15 +1,17 @@
-﻿using SharpDX;
-using Buffer = Ormeli.Graphics.Buffer;
-using MouseButtons = OpenTK.Input.MouseButton;
+﻿using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using Ormeli.Cg;
 using Ormeli.Core.Patterns;
+using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics.Cameras;
-using System;
+using Ormeli.Input;
+using SharpDX;
+using Buffer = Ormeli.Graphics.Buffer;
+using MouseButtons = OpenTK.Input.MouseButton;
 
 
-namespace Ormeli.OpenGL
+namespace Ormeli.GAPI.OpenGL
 {
     internal sealed class GlRender : Disposable, IRender
     {
@@ -41,37 +43,37 @@ namespace Ormeli.OpenGL
                 Camera.Current.UpdateScrennMatrices(_gameWindow.Width, _gameWindow.Height);
                 GL.Viewport(_gameWindow.ClientRectangle);
             };
-            _gameWindow.KeyPress += (s, e) => Input.CharInput(e.KeyChar);
-            _gameWindow.KeyDown += (s, e) => Input.KeyDown(e.Key.Convert());
-            _gameWindow.KeyUp += (s, e) => Input.KeyUp(e.Key.Convert());
-            _gameWindow.Mouse.Move += (s, e) => Input.SetMouseCoord(e.X, e.Y);
-            _gameWindow.Mouse.ButtonDown += (s, e) =>
+            _gameWindow.KeyPress += (s, e) => Input.Input.CharInput(e.KeyChar);
+            _gameWindow.KeyDown += (s, e) => Input.Input.KeyDown(e.Key.Convert());
+            _gameWindow.KeyUp += (s, e) => Input.Input.KeyUp(e.Key.Convert());
+            _gameWindow.MouseMove += (s, e) => Input.Input.SetMouseCoord(e.X, e.Y);
+            _gameWindow.MouseDown += (s, e) =>
             {
                 switch (e.Button)
                 {
                     case MouseButtons.Left:
-                        Input.LeftButton(true);
+                        Input.Input.LeftButton(true);
                         break;
                     case MouseButtons.Right:
-                        Input.RightButton(true);
+                        Input.Input.RightButton(true);
                         break;
                     case MouseButtons.Middle:
-                        Input.MiddleButton(true);
+                        Input.Input.MiddleButton(true);
                         break;
                 }
             };
-            _gameWindow.Mouse.ButtonUp += (s, e) =>
+            _gameWindow.MouseUp += (s, e) =>
             {
                 switch (e.Button)
                 {
                     case MouseButtons.Left:
-                        Input.LeftButton(false);
+                        Input.Input.LeftButton(false);
                         break;
                     case MouseButtons.Right:
-                        Input.RightButton(false);
+                        Input.Input.RightButton(false);
                         break;
                     case MouseButtons.Middle:
-                        Input.MiddleButton(false);
+                        Input.Input.MiddleButton(false);
                         break;
                 }
             };

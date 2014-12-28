@@ -1,5 +1,4 @@
-﻿using Ormeli.Math;
-using SharpDX;
+﻿using SharpDX;
 
 namespace Ormeli.Graphics.Cameras
 {

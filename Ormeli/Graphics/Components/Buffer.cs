@@ -1,4 +1,5 @@
 ﻿using System;
+using Ormeli.GAPI.Interfaces;
 
 namespace Ormeli.Graphics
 {

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using Ormeli.Cg;
 using Ormeli.Core;
+using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics;
 using SharpDX;
 using Bitmap = System.Drawing.Bitmap;
@@ -11,17 +13,18 @@ using Buffer = Ormeli.Graphics.Buffer;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace Ormeli.OpenGL
+namespace Ormeli.GAPI.OpenGL
 {
     public class GlCreator : ICreator
     {
         private static int _pointer;
         public Texture LoadTexture(string fileName)
         {
+            if (!File.Exists(fileName)) return Texture.Get(Texture.NullTexture);
             //TODO support DDS
             _pointer = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, _pointer);
-            var bmp = new Bitmap(Config.GetTexturePath(fileName));
+            var bmp = new Bitmap(fileName);
             var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bmpData.Width, bmpData.Height, 0,

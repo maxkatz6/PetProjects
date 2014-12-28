@@ -3,7 +3,7 @@ using Ormeli.Graphics;
 using SharpDX;
 using Buffer = Ormeli.Graphics.Buffer;
 
-namespace Ormeli
+namespace Ormeli.GAPI.Interfaces
 {
     public enum SetDataOptions
     {

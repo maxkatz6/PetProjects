@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Ormeli.Cg;
 using Ormeli.Core;
+using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics;
 using SharpDX;
 using SharpDX.Direct3D11;
@@ -12,7 +13,7 @@ using Device = SharpDX.Direct3D11.Device;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
 using Resource = SharpDX.Direct3D11.Resource;
 
-namespace Ormeli.DirectX11
+namespace Ormeli.GAPI.DirectX11
 {
     public class DxCreator : ICreator
     {
@@ -25,8 +26,10 @@ namespace Ormeli.DirectX11
 
         public unsafe Texture LoadTexture(string fileName)
         {
-            fileName = Config.GetTexturePath(fileName);
-            var fileInfo = ImageInformation.FromFile(fileName).Value;
+            var fi = ImageInformation.FromFile(fileName);
+            if (!fi.HasValue)
+                return Texture.Get(Texture.NullTexture);
+            var fileInfo = fi.Value;
 
             var v = new ImageLoadInformation
             {

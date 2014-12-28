@@ -1,5 +1,6 @@
 ﻿using SharpDX;
 using System.Runtime.InteropServices;
+using Ormeli.GAPI.Interfaces;
 
 namespace Ormeli.Graphics
 {

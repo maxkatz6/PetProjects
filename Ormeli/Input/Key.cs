@@ -1,5 +1,5 @@
 ﻿
-namespace Ormeli
+namespace Ormeli.Input
 {
     public enum MouseButton
     {
@@ -130,6 +130,6 @@ namespace Ormeli
         Oem6 = 221,
         Oem7 = 222,
 
-        MAX = 0xff
+        Max = 0xff
     }
 }

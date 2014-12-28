@@ -1,5 +1,4 @@
-﻿using Ormeli.Math;
-using SharpDX;
+﻿using SharpDX;
 using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
@@ -169,7 +168,7 @@ namespace Ormeli.Cg
 
         [DllImport(CgLib, EntryPoint = "cgCreateProgram", CallingConvention = CallingConvention.Cdecl),
          SuppressUnmanagedCodeSecurity]
-        public static extern Program CreateProgram(Context context, Enum programType, [In] string program,
+        private static extern Program CreateProgram(Context context, Enum programType, [In] string program,
             Profile profile, [In] string entry, [In] string[] args);
 
         [DllImport(CgLib, EntryPoint = "cgCreateProgramAnnotation", CallingConvention = CallingConvention.Cdecl),

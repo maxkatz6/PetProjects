@@ -1,5 +1,4 @@
-﻿using Ormeli.Math;
-using SharpDX;
+﻿using SharpDX;
 
 namespace Ormeli.Graphics.Cameras
 {
@@ -60,7 +59,7 @@ namespace Ormeli.Graphics.Cameras
 
         private void RotateWithMouse()
         {
-            var mouseState = Input.MouseState;
+            var mouseState = Input.Input.MouseState;
             if (!(RotateOnPress && !mouseState.LeftButton) && mouseState.X >= 0 && mouseState.Y >= 0)
             {
                 var deltaX = _lastMousePos.X - mouseState.X;
