@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Assimp;
 using Assimp.Configs;
 using Ormeli.Core.Patterns;
+using Ormeli.Graphics.Components;
 using SharpDX;
 
 namespace Ormeli.Graphics.Builders
@@ -27,7 +28,7 @@ namespace Ormeli.Graphics.Builders
         public ModelBuilder LoadFromFile(string file)
         {
             if (Models.ContainsKey(file))
-                template = Models[file];
+                Template = Models[file];
             else
             {
                 Stopwatch st = new Stopwatch();
@@ -41,10 +42,10 @@ namespace Ormeli.Graphics.Builders
                     for (int j = 0; j < aMesh.VertexCount; j++)
                     {
                         var vert = aMesh.Vertices[j];
-                        var texc = aMesh.GetTextureCoords(0)[j];
+                        var texc = aMesh.HasTextureCoords(0) ? aMesh.GetTextureCoords(0)[j] : new Vector3D(0,0,0);
                         var v = Vector3.TransformCoordinate(
                             new Vector3(vert.X, -vert.Y, vert.Z),
-                            Matrix.RotationX((float)Math.PI));
+                            Matrix.RotationX((float)System.Math.PI));
                         verts[j] = new TextureVertex(v, new Vector2(texc.X, texc.Y));
                     }
                     meshes[i] = MeshBuilder.Create().
@@ -55,7 +56,7 @@ namespace Ormeli.Graphics.Builders
                         SetTech("Texture");
                 }
                 SetMeshes(meshes);
-                Models.Add(file, template);
+                Models.Add(file, Template);
                 st.Stop();
                 Console.WriteLine(st.ElapsedMilliseconds);
             }
@@ -63,7 +64,7 @@ namespace Ormeli.Graphics.Builders
         }
         public ModelBuilder SetMeshes(params Mesh[] meshes)
         {
-            template.Meshes = meshes;
+            Template.Meshes = meshes;
             return this;
         }
 

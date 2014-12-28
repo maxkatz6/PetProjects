@@ -9,7 +9,7 @@ namespace Ormeli.Graphics
         public bool IsRender { get; set; }
         public bool CountFPS { get; set; }
 
-        private readonly Timer Timer = new Timer();
+        private readonly Timer _timer = new Timer();
         private const int MaxFrameSkip = 10;
         private uint _frameDuration;
         private readonly Fps _fps = new Fps();
@@ -37,17 +37,17 @@ namespace Ormeli.Graphics
             }
             else
             {
-                Timer.Start();
+                _timer.Start();
 
                 _frameDuration = 1000 / Config.Fps;
 
-                long nextFrameTime = Timer.Time();
+                var nextFrameTime = _timer.Time();
 
                 int loops;
                 App.Render.Run(() =>
                 {
                     loops = 0;
-                    while (Timer.Time() > nextFrameTime && loops < MaxFrameSkip)
+                    while (_timer.Time() > nextFrameTime && loops < MaxFrameSkip)
                     {
                         update();
                         Camera.Current.Update();
@@ -68,17 +68,17 @@ namespace Ormeli.Graphics
         //http://habrahabr.ru/post/150640/
         public void Run(Action render, Action<double> update)
         {
-            Timer.Start();
+            _timer.Start();
             
-            long currentFrameTime = Timer.Time();
+            var currentFrameTime = _timer.Time();
 
             App.Render.Run(() =>
             {
-                long prevFrameTime = currentFrameTime;
-                currentFrameTime = Timer.Time();
+                var prevFrameTime = currentFrameTime;
+                currentFrameTime = _timer.Time();
 
                 // сколько миллискунд прошло между прошлой и текущей итерацией:
-                long dt = currentFrameTime - prevFrameTime;
+                var dt = currentFrameTime - prevFrameTime;
 
                 // поделим на 1000 т.к. с секундами мысленно работать проще,
                 // чем с миллисекундами.

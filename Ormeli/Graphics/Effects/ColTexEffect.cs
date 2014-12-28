@@ -1,6 +1,6 @@
 ﻿using System;
 using Ormeli.GAPI.Interfaces;
-using SharpDX;
+using Ormeli.Graphics.Components;
 
 namespace Ormeli.Graphics.Effects
 {

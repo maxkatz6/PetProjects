@@ -1,7 +1,8 @@
 ﻿using System;
 using Ormeli.Graphics;
+using Ormeli.Graphics.Components;
 using SharpDX;
-using Buffer = Ormeli.Graphics.Buffer;
+using Buffer = Ormeli.Graphics.Components.Buffer;
 
 namespace Ormeli.GAPI.Interfaces
 {

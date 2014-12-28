@@ -1,10 +1,10 @@
 ﻿using System;
 using Ormeli.GAPI.Interfaces;
-using Ormeli.Graphics;
 using Ormeli.Graphics.Builders;
 using Ormeli.Graphics.Cameras;
 using Ormeli.Graphics.Components;
 using Ormeli.Graphics.Effects;
+using Ormeli.Graphics.Managers;
 using Ormeli.Input;
 using SharpDX;
 
@@ -28,8 +28,6 @@ namespace Ormeli
 
         private static void Main()
         {
-            Config.Height = 1000;
-            Config.Width = 1920;
             App.Initialize(RenderType.DirectX11);
             App.Render.BackColor = Color.Indigo;
             
@@ -37,7 +35,6 @@ namespace Ormeli
 
             Scene.AddObject(ModelBuilder.Create().SetMeshes(GeometryGenerator.CreateGrid(10000, 10000)), new Vector3(0,-2000,0));
             Scene.AddObject(@"Stone Bridge\bridge.obj", Vector3.Zero);
-            //Scene.AddObject(@"Paris\Paris2010_0.obj", Vector3.Zero);
 
             App.Loop.Run(Redner, Update);
         }

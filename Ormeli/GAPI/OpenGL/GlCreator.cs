@@ -7,9 +7,11 @@ using Ormeli.Cg;
 using Ormeli.Core;
 using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics;
+using Ormeli.Graphics.Components;
+using Ormeli.Graphics.Managers;
 using SharpDX;
 using Bitmap = System.Drawing.Bitmap;
-using Buffer = Ormeli.Graphics.Buffer;
+using Buffer = Ormeli.Graphics.Components.Buffer;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
 

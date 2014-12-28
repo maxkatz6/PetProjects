@@ -1,30 +1,30 @@
 ﻿namespace Ormeli.Core.Patterns
 {
-    public class Builder<T, C> where T : new() where C : Builder<T, C>, new()
+    public class Builder<T, TC> where T : new() where TC : Builder<T, TC>, new()
     {
-        protected T template ;
+        protected T Template ;
 
-        public static implicit operator T(Builder<T, C> b)
+        public static implicit operator T(Builder<T, TC> b)
         {
             return b.Get();
         }
 
-        public static C Create()
+        public static TC Create()
         {
-            return new C()
+            return new TC()
             {
-                template = new T()
+                Template = new T()
             };
         }
 
         public void CreateNew()
         {
-            template = new T();
+            Template = new T();
         }
 
         public virtual T Get()
         {
-            return template;
+            return Template;
         }
     }
 }

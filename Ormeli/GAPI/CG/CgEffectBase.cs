@@ -20,7 +20,7 @@ namespace Ormeli.Cg
             CG.SetErrorCallback(() =>
             {
                 CG.Error cGerror;
-                string s = CG.GetLastErrorString(out cGerror).ToStr();
+                var s = CG.GetLastErrorString(out cGerror).ToStr();
                 if (string.IsNullOrEmpty(s)) return;
 
                 Console.WriteLine(
@@ -69,7 +69,7 @@ Cg compiler output...{1}
             var list = new List<CG.Technique>();
             while (myCgTechnique)
             {
-                string c = CG.GetTechniqueName(myCgTechnique).ToStr();
+                var c = CG.GetTechniqueName(myCgTechnique).ToStr();
                 if (CG.ValidateTechnique(myCgTechnique) != 1)
                     Console.WriteLine(@"Ormeli: Effect {1}: Technique {0} did not validate.  Skipping.", c, _file);
                 else

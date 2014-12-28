@@ -1,4 +1,4 @@
-﻿using Ormeli.Graphics;
+﻿using Ormeli.Graphics.Components;
 using SharpDX;
 
 namespace Ormeli.GAPI.Interfaces

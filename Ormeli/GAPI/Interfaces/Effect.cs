@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Ormeli.Core.Patterns;
 using Ormeli.Graphics;
+using Ormeli.Graphics.Managers;
 using SharpDX;
 
 namespace Ormeli.GAPI.Interfaces

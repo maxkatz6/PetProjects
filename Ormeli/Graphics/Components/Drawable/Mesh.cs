@@ -1,5 +1,6 @@
 ﻿using Ormeli.Core.Patterns;
-using Ormeli.Graphics.Effects;
+using Ormeli.Graphics.Components;
+using Ormeli.Graphics.Managers;
 using SharpDX;
 
 namespace Ormeli.Graphics

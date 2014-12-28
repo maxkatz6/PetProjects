@@ -1,6 +1,7 @@
 ﻿using Ormeli.GAPI.Interfaces;
+using Ormeli.Graphics.Components;
 
-namespace Ormeli.Graphics
+namespace Ormeli.Graphics.Managers
 {
     public static class EffectManager
     {

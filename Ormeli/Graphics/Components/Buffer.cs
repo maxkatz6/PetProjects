@@ -1,7 +1,7 @@
 ﻿using System;
 using Ormeli.GAPI.Interfaces;
 
-namespace Ormeli.Graphics
+namespace Ormeli.Graphics.Components
 {
     public enum BindFlag
     {
@@ -29,13 +29,12 @@ namespace Ormeli.Graphics
     {
         private readonly IntPtr _handle;
 
-        public int VertexType { get { return _vertexType; }}
-        private readonly int _vertexType;
+        public int VertexType { get; }
 
         public Buffer(IntPtr handle, int vertexType = -1)
         {
             _handle = handle;
-            _vertexType = vertexType;
+            VertexType = vertexType;
         }
 
         public static implicit operator IntPtr(Buffer buf)

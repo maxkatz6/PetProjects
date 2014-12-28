@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Ormeli.Graphics.Components;
 using SharpDX;
 
 namespace Ormeli.Graphics.Builders
@@ -81,10 +82,10 @@ namespace Ormeli.Graphics.Builders
 
             for (int i = 1; i <= stackCount - 1; i++)
             {
-                double phi = i * phiStep;
+                var phi = i * phiStep;
                 for (int j = 0; j <= sliceCount; j++)
                 {
-                    double theta = j * thetaStep;
+                    var theta = j * thetaStep;
                     var p = new Vector3(
                         (float)(radius * System.Math.Sin(phi) * System.Math.Cos(theta)),
                         (float)(radius * System.Math.Cos(phi)),

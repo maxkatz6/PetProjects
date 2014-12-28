@@ -88,15 +88,8 @@ namespace Ormeli.Input
             Y = y;
         }
 
-        public Vector2 Vector
-        {
-            get { return new Vector2(X, Y); }
-        }
-
-        public Point Point
-        {
-            get { return new Point(X, Y); }
-        }
+        public Vector2 Vector => new Vector2(X, Y);
+        public Point Point => new Point(X, Y);
 
         public static bool operator !=(MouseState a, MouseState b)
         {

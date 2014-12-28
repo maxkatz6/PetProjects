@@ -7,7 +7,7 @@ namespace Ormeli.Graphics
     public class Model : Disposable, IDrawable
     {
         public Mesh[] Meshes { get; set; }
-        public int MeshCount { get { return Meshes.Length; } }
+        public int MeshCount => Meshes.Length;
 
         public Mesh GetMesh(int id)
         {

@@ -43,7 +43,7 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private Int32 Data; //если что - в жопу риадонли
+            private readonly int Data; //если что - в жопу риадонли
 
             public Bool(int boolean)
             {
@@ -244,7 +244,7 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
 
             public void Compile()
             {
@@ -288,7 +288,7 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
         }
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace Ormeli.Cg
             /// <summary>
             /// Keeps the struct from being garbage collected prematurely.
             /// </summary>
-            private IntPtr Data;
+            private readonly IntPtr Data;
 
             public static implicit operator bool(Technique boolean)
             {

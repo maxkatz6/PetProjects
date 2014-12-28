@@ -1,4 +1,6 @@
-﻿namespace Ormeli.Graphics.Effects
+﻿using Ormeli.Graphics.Components;
+
+namespace Ormeli.Graphics.Effects
 {
     public class Effect2D : ColTexEffect
     {

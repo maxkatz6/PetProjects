@@ -1,4 +1,5 @@
-﻿using SharpDX;
+﻿using Ormeli.Math;
+using SharpDX;
 
 namespace Ormeli.Graphics.Cameras
 {
@@ -34,8 +35,6 @@ namespace Ormeli.Graphics.Cameras
         public bool NegativeRotation { set { _negativeFactor = value ? -1 : 1; } }
 
         public float Pitch { get; set; }
-
-        public Vector3 Target { get; private set; }
 
         public float Yaw { get; set; }
 

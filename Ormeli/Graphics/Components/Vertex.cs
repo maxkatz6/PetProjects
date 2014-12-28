@@ -1,8 +1,8 @@
-﻿using SharpDX;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Ormeli.GAPI.Interfaces;
+using SharpDX;
 
-namespace Ormeli.Graphics
+namespace Ormeli.Graphics.Components
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BitmapVertex

@@ -3,15 +3,15 @@ using System.Windows.Forms;
 using Ormeli.Cg;
 using Ormeli.Core.Patterns;
 using Ormeli.GAPI.Interfaces;
-using Ormeli.Graphics;
 using Ormeli.Graphics.Cameras;
+using Ormeli.Graphics.Managers;
 using Ormeli.Input;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Windows;
-using Buffer = Ormeli.Graphics.Buffer;
+using Buffer = Ormeli.Graphics.Components.Buffer;
 using CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
@@ -59,26 +59,24 @@ namespace Ormeli.GAPI.DirectX11
 
         public RenderTargetView RenderTargetView { get; set; }
 
-        private bool t;
-        private bool oldAlpha;
+        private bool _oldAlpha, _temp, _oldZ;
         public bool AlphaBlending(bool turn)
         {
-            if (oldAlpha == turn) return oldAlpha;
+            if (_oldAlpha == turn) return _oldAlpha;
             DeviceContext.OutputMerger.SetBlendState(turn ? AlphaEnableBlendingState : AlphaDisableBlendingState,
                 _blendFactor);
-            t = oldAlpha;
-            oldAlpha = turn;
-            return t;
+            _temp = _oldAlpha;
+            _oldAlpha = turn;
+            return _temp;
         }
 
-        private bool oldZ;
         public bool ZBuffer(bool turn)
         {
-            if (oldZ == turn) return oldZ;
+            if (_oldZ == turn) return _oldZ;
             DeviceContext.OutputMerger.SetDepthStencilState(turn ? DepthStencilState : DepthDisabledStencilState, 1);
-            t = oldZ;
-            oldZ = turn;
-            return t;
+            _temp = _oldZ;
+            _oldZ = turn;
+            return _temp;
         }
 
         public void BeginDraw()
@@ -412,72 +410,18 @@ namespace Ormeli.GAPI.DirectX11
         protected override void OnDispose()
         {
             _renderForm.Close();
-            if (SwapChain != null)
-            {
-                SwapChain.SetFullscreenState(false, null);
-                SwapChain.Dispose();
-                SwapChain = null;
-            }
-
-            if (AlphaEnableBlendingState != null)
-            {
-                AlphaEnableBlendingState.Dispose();
-                AlphaEnableBlendingState = null;
-            }
-
-            if (AlphaDisableBlendingState != null)
-            {
-                AlphaDisableBlendingState.Dispose();
-                AlphaDisableBlendingState = null;
-            }
-
-            if (DepthDisabledStencilState != null)
-            {
-                DepthDisabledStencilState.Dispose();
-                DepthDisabledStencilState = null;
-            }
-
-            if (RasterState != null)
-            {
-                RasterState.Dispose();
-                RasterState = null;
-            }
-
-            if (DepthStencilView != null)
-            {
-                DepthStencilView.Dispose();
-                DepthStencilView = null;
-            }
-
-            if (DepthStencilState != null)
-            {
-                DepthStencilState.Dispose();
-                DepthStencilState = null;
-            }
-
-            if (DepthStencilBuffer != null)
-            {
-                DepthStencilBuffer.Dispose();
-                DepthStencilBuffer = null;
-            }
-
-            if (RenderTargetView != null)
-            {
-                RenderTargetView.Dispose();
-                RenderTargetView = null;
-            }
-
-            if (Device != null)
-            {
-                Device.Dispose();
-                Device = null;
-            }
-
-            if (SwapChain != null)
-            {
-                SwapChain.Dispose();
-                SwapChain = null;
-            }
+            SwapChain?.SetFullscreenState(false, null);
+            SwapChain?.Dispose();
+            AlphaEnableBlendingState?.Dispose();
+            AlphaDisableBlendingState?.Dispose();
+            DepthDisabledStencilState?.Dispose();
+            RasterState?.Dispose();
+            DepthStencilView?.Dispose();
+            DepthStencilState?.Dispose();
+            DepthStencilBuffer?.Dispose();
+            RenderTargetView?.Dispose();
+            Device?.Dispose();
+            SwapChain?.Dispose();
         }
     }
 }

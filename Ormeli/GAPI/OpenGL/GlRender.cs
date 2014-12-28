@@ -7,7 +7,7 @@ using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics.Cameras;
 using Ormeli.Input;
 using SharpDX;
-using Buffer = Ormeli.Graphics.Buffer;
+using Buffer = Ormeli.Graphics.Components.Buffer;
 using MouseButtons = OpenTK.Input.MouseButton;
 
 
@@ -120,28 +120,26 @@ namespace Ormeli.GAPI.OpenGL
             _gameWindow.SwapBuffers();
         }
 
-        private bool t;
-        private bool oldAlpha;
-        private bool oldZ;
+        private bool _t, _oldAlpha, _oldZ;
 
         public bool ZBuffer(bool turn)
         {
-            if (turn == oldZ) return oldZ;
+            if (turn == _oldZ) return _oldZ;
             if (turn) GL.Enable(EnableCap.DepthTest);
             else GL.Disable(EnableCap.DepthTest);
-            t = oldZ;
-            oldZ = turn;
-            return t;
+            _t = _oldZ;
+            _oldZ = turn;
+            return _t;
         }
 
         public bool AlphaBlending(bool turn)
         {
-            if (turn == oldAlpha) return oldAlpha;
+            if (turn == _oldAlpha) return _oldAlpha;
             if (turn) GL.Enable(EnableCap.Blend);
             else GL.Disable(EnableCap.Blend);
-            t = oldAlpha;
-            oldAlpha = turn;
-            return t;
+            _t = _oldAlpha;
+            _oldAlpha = turn;
+            return _t;
         }
 
         private static int _lastBuffer;
