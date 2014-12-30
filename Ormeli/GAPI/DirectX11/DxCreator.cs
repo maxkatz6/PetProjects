@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Ormeli.Cg;
 using Ormeli.Core;
 using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics;
@@ -129,18 +128,15 @@ namespace Ormeli.GAPI.DirectX11
 
         public EffectBase CreateEffect()
         {
-            EffectBase _base;
             switch (App.EffectLanguage)
             {
                 case EffectLanguage.HLSL:
                     throw new Exception("Not supported yet");
                 case EffectLanguage.CG:
-                    _base = new CgEffectBase();
-                    break;
+                    return new Cg.CgEffectBase();
                 default:
                     throw new Exception("Not supported effect language");
             }
-            return _base;
         }
     }
 }

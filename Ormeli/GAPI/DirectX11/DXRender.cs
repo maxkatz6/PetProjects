@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using Ormeli.Cg;
 using Ormeli.Core.Patterns;
 using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics.Cameras;
@@ -168,39 +167,17 @@ namespace Ormeli.GAPI.DirectX11
 
         public RenderType Initialize()
         {
-            #region Создаем фабрику, адаптер и получаем данные о видеокарте
-
-            // Создаем фабрику, адаптер и получаем данные о видеокарте
-            var factory = new Factory1();
-            Adapter1 adapter = factory.GetAdapter1(0);
-
-            if (Config.VerticalSyncEnabled)
-            {
-                var modes = adapter.Outputs[0].GetDisplayModeList(Format.R8G8B8A8_UNorm,
-                    DisplayModeEnumerationFlags.Interlaced);
-                for (int i = 0; i < modes.Length; i++)
-                {
-                    if (modes[i].Width != Config.Width || modes[i].Height != Config.Height) continue;
-                    Rational = new Rational(modes[i].RefreshRate.Numerator, modes[i].RefreshRate.Denominator);
-                    break;
-                }
-            }
-
-            HardwareDescription.VideoCardMemory = adapter.Description.DedicatedVideoMemory >> 10 >> 10;
-            HardwareDescription.VideoCardDescription = adapter.Description.Description;
-
-            #endregion Создаем фабрику, адаптер и получаем данные о видеокарте
-
             #region Создаем SwapChain, Device, и DeviceContext
 
-            //TODO DriverType
             Device = new Device(DriverType.Hardware,
                 Config.IsDebug ? DeviceCreationFlags.Debug : DeviceCreationFlags.None, FeatureLevel.Level_11_0,
                 FeatureLevel.Level_10_1,
                 FeatureLevel.Level_10_0, FeatureLevel.Level_9_3, FeatureLevel.Level_9_2, FeatureLevel.Level_9_1);
 
             DeviceContext = Device.ImmediateContext;
-            int m4XMsaaQuality = Device.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, 4);
+            var sampleDescription = Config.Enable4xMSAA
+                ? new SampleDescription(4, Device.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, 4) - 1)
+                : new SampleDescription(1, 0);
 
             var swapChainDesc = new SwapChainDescription
             {
@@ -220,9 +197,8 @@ namespace Ormeli.GAPI.DirectX11
                 Usage = Usage.RenderTargetOutput,
                 // Set the handle for the window to render to.
                 OutputHandle = _renderForm.Handle,
-                // Turn multisampling off.
-                SampleDescription =
-                    (Config.Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
+                // Turn multisampling.
+                SampleDescription = sampleDescription,
                 // Set to full screen or windowed mode.
                 IsWindowed = !Config.FullScreen,
                 // Don't set the advanced flags.
@@ -231,19 +207,15 @@ namespace Ormeli.GAPI.DirectX11
                 SwapEffect = SwapEffect.Discard
             };
 
-            SwapChain = new SwapChain(factory, Device, swapChainDesc);
-
-            // Удаляем фабрику и адаптер из памяти.
-            factory.Dispose();
-            adapter.Dispose();
+            using (var factory = CreateFactory())
+                SwapChain = new SwapChain(factory, Device, swapChainDesc);
+            
 
             #endregion Создаем SwapChain, Device, и DeviceContext
 
             #region Initialize buffers
 
-            // Get the pointer to the back buffer.
             using (var backBuffer = Resource.FromSwapChain<Texture2D>(SwapChain, 0))
-                // Create the render target view with the back buffer pointer.
                 RenderTargetView = new RenderTargetView(Device, backBuffer);
 
 
@@ -255,8 +227,7 @@ namespace Ormeli.GAPI.DirectX11
                 MipLevels = 1,
                 ArraySize = 1,
                 Format = Format.D24_UNorm_S8_UInt,
-                SampleDescription =
-                    (Config.Enable4xMSAA ? new SampleDescription(4, m4XMsaaQuality - 1) : new SampleDescription(1, 0)),
+                SampleDescription = sampleDescription,
                 Usage = ResourceUsage.Default,
                 BindFlags = BindFlags.DepthStencil,
                 CpuAccessFlags = CpuAccessFlags.None,
@@ -293,7 +264,6 @@ namespace Ormeli.GAPI.DirectX11
                 }
             };
 
-            ////////////////////
             // Create the depth stencil state.
             DepthStencilState = new DepthStencilState(Device, desc);
 
@@ -335,23 +305,20 @@ namespace Ormeli.GAPI.DirectX11
                 IsAntialiasedLineEnabled = Config.Enable4xMSAA,
                 CullMode = CullMode.None,
                 DepthBias = 0,
-                DepthBiasClamp = .0f,
+                DepthBiasClamp = 0,
                 IsDepthClipEnabled = true,
                 FillMode = FillMode.Solid,
                 IsFrontCounterClockwise = false,
                 IsMultisampleEnabled = Config.Enable4xMSAA,
                 IsScissorEnabled = false,
-                SlopeScaledDepthBias = .0f
+                SlopeScaledDepthBias = 0
             });
 
             #endregion Initialize Raster State
 
             #region Initialize Rasterizer
 
-            // Now set the rasterizer state.
             DeviceContext.Rasterizer.State = RasterState;
-
-            // Setup and create the viewport for rendering.
 
             DeviceContext.Rasterizer.SetViewport(0, 0, Config.Width, Config.Height);
 
@@ -361,15 +328,15 @@ namespace Ormeli.GAPI.DirectX11
 
             // Create an alpha enabled blend state description.
             var blendStateDesc = new BlendStateDescription();
-            blendStateDesc.RenderTarget[0] = new RenderTargetBlendDescription
-                (   true,
-                    BlendOption.SourceAlpha,
-                    BlendOption.InverseSourceAlpha,
-                    BlendOperation.Add,
-                    BlendOption.One,
-                    BlendOption.Zero,
-                    BlendOperation.Add,
-                    ColorWriteMaskFlags.All);
+            blendStateDesc.RenderTarget[0] = new RenderTargetBlendDescription(
+                true,
+                BlendOption.SourceAlpha,
+                BlendOption.InverseSourceAlpha,
+                BlendOperation.Add,
+                BlendOption.One,
+                BlendOption.Zero,
+                BlendOperation.Add,
+                ColorWriteMaskFlags.All);
 
             // Create the blend state using the description.
             AlphaEnableBlendingState = new BlendState(Device, blendStateDesc);
@@ -384,9 +351,39 @@ namespace Ormeli.GAPI.DirectX11
             DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
 
-            if (App.EffectLanguage == EffectLanguage.CG) CgEffectBase.InitDirectX11(Device.NativePointer);
+            if (App.EffectLanguage == EffectLanguage.CG)
+                Cg.CgEffectBase.InitDirectX11(Device.NativePointer);
+            else throw new Exception("DirectXInit. Unsupport shader type");
 
             return RenderType.DirectX11;
+        }
+
+        /// <summary>
+        /// Создаем фабрику, адаптер и получаем данные о видеокарте
+        /// </summary>
+        /// <returns>Factory</returns>
+        private Factory1 CreateFactory()
+        {
+            var factory = new Factory1();
+            var adapter = factory.GetAdapter1(0);
+
+            if (Config.VerticalSyncEnabled)
+            {
+                var modes = adapter.Outputs[0].GetDisplayModeList(Format.R8G8B8A8_UNorm,
+                    DisplayModeEnumerationFlags.Interlaced);
+                for (int i = 0; i < modes.Length; i++)
+                {
+                    if (modes[i].Width != Config.Width || modes[i].Height != Config.Height) continue;
+                    Rational = new Rational(modes[i].RefreshRate.Numerator, modes[i].RefreshRate.Denominator);
+                    break;
+                }
+            }
+
+            HardwareDescription.VideoCardMemory = adapter.Description.DedicatedVideoMemory >> 10 >> 10;
+            HardwareDescription.VideoCardDescription = adapter.Description.Description;
+
+            adapter.Dispose();
+            return factory;
         }
 
 

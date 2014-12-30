@@ -61,7 +61,7 @@ namespace Ormeli.Graphics
             Height = h;
         }
 
-        public bool IsNull => Handle.ToInt32() == 0;
+        public bool IsNull => Handle == IntPtr.Zero;
 
 
         public static implicit operator IntPtr(Texture tex)

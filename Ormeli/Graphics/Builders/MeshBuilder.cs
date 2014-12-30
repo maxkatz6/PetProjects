@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Ormeli.Core.Patterns;
+using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics.Components;
 
 namespace Ormeli.Graphics.Builders
@@ -15,10 +16,9 @@ namespace Ormeli.Graphics.Builders
         {
             return SetTexture(Texture.Get(fileName));
         }
-
-        public MeshBuilder SetShader(int index)
+        public MeshBuilder SetEffect(Effect effect)
         {
-            Template.ShaderN = index;
+            Template.Effect = effect;
             return this;
         }
         public MeshBuilder SetTech(string tech)

@@ -14,11 +14,6 @@ namespace Ormeli.GAPI.Interfaces
         private const string MATRIXName = "Matrix";
         private IntPtr _matrix;
 
-        public static T Get<T>(int num) where T : Effect
-        {
-            return (T)EffectManager.Effects[num];
-        }
-
         protected Effect()
         {
             Base = App.Creator.CreateEffect();

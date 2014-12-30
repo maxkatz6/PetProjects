@@ -6,6 +6,8 @@ namespace Ormeli.Graphics.Effects
 {
     public class ColTexEffect : Effect
     {
+        public static Effect Default { get; private set; }
+
         private const string TEXTUREName = "Decal";
         private IntPtr _texture;
 
@@ -23,6 +25,11 @@ namespace Ormeli.Graphics.Effects
         protected override void RenderMesh(Mesh mesh)
         {
             Base.SetTexture(_texture, mesh.Texture.IsNull ? Texture.Null : mesh.Texture);
+        }
+
+        public static void InitDefault()
+        {
+            Default = LoadFromFile<ColTexEffect>("ColTexEffect.cgfx");
         }
     }
 }

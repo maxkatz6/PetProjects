@@ -6,7 +6,7 @@ namespace Ormeli.Graphics.Builders
 {
     public class GeometryGenerator
     {
-        public static Mesh CreateBox(float width, float height, float depth, bool isDynamic = false)
+        public static MeshBuilder CreateBox(float width, float height, float depth, bool isDynamic = false)
         {
             var mV = new List<TextureVertex>();
 
@@ -51,10 +51,10 @@ namespace Ormeli.Graphics.Builders
                 0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18,
                 19,
                 20, 21, 22, 20, 22, 23
-            }).SetShader(0).SetTech("Texture");
+            });
         }
 
-        public static Mesh CreateGrid(float width, float depth, bool isDynamic = false)
+        public static MeshBuilder CreateGrid(float width, float depth, bool isDynamic = false)
         {
             var w2 = 0.5f * width;
             var d2 = 0.5f * depth;
@@ -68,11 +68,10 @@ namespace Ormeli.Graphics.Builders
 
             return MeshBuilder.Create().
                 SetVertices(mV, isDynamic).
-                SetIndices(new[] { 0, 1, 2, 0, 2, 3 }).
-                SetShader(0).SetTech("Texture");
+                SetIndices(new[] { 0, 1, 2, 0, 2, 3 });
         }
 
-        public static Mesh CreateSphere(float radius, int sliceCount, int stackCount, bool isDynamic = false)
+        public static MeshBuilder CreateSphere(float radius, int sliceCount, int stackCount, bool isDynamic = false)
         {
             var mI = new List<int>();
             var mV = new List<TextureVertex> { new TextureVertex(0, radius, 0, 1, 0) };
@@ -130,8 +129,7 @@ namespace Ormeli.Graphics.Builders
 
             return MeshBuilder.Create().
                 SetVertices(mV.ToArray(), isDynamic).
-                SetIndices(mI.ToArray()).
-                SetShader(0).SetTech("Texture");
+                SetIndices(mI.ToArray());
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
-using Ormeli.Cg;
 using Ormeli.Core;
 using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics;
@@ -107,18 +106,15 @@ namespace Ormeli.GAPI.OpenGL
 
         public EffectBase CreateEffect()
         {
-            EffectBase _base;
             switch (App.EffectLanguage)
             {
                 case EffectLanguage.GLSL:
                     throw new Exception("Not supported effect yet");
                 case EffectLanguage.CG:
-                    _base = new CgEffectBase();
-                    break;
+                    return new Cg.CgEffectBase();
                 default:
                     throw new Exception("Not supported effect language");
             }
-            return _base;
         }
 
         private static BufferUsageHint GetFromOrmeliEnum(BufferUsage bu, CpuAccessFlags cpu)
@@ -133,7 +129,6 @@ namespace Ormeli.GAPI.OpenGL
 
                         case CpuAccessFlags.Write:
                             return BufferUsageHint.DynamicDraw;
-
                         default:
                             return BufferUsageHint.DynamicCopy;
                     }
@@ -145,7 +140,6 @@ namespace Ormeli.GAPI.OpenGL
 
                         case CpuAccessFlags.Write:
                             return BufferUsageHint.StreamDraw;
-
                         default:
                             return BufferUsageHint.StreamCopy;
                     }
@@ -157,7 +151,6 @@ namespace Ormeli.GAPI.OpenGL
 
                         case CpuAccessFlags.Write:
                             return BufferUsageHint.StaticDraw;
-
                         default:
                             return BufferUsageHint.StaticCopy;
                     }

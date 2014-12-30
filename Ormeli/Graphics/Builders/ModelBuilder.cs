@@ -5,6 +5,7 @@ using Assimp;
 using Assimp.Configs;
 using Ormeli.Core.Patterns;
 using Ormeli.Graphics.Components;
+using Ormeli.Graphics.Effects;
 using SharpDX;
 
 namespace Ormeli.Graphics.Builders
@@ -52,7 +53,7 @@ namespace Ormeli.Graphics.Builders
                         SetIndices(aMesh.GetIntIndices()).
                         SetVertices(verts, false).
                         SetTexture(Config.GetDataPath(model.Materials[aMesh.MaterialIndex].GetTexture(TextureType.Diffuse, 0).FilePath, "Models")).
-                        SetShader(0).
+                        SetEffect(ColTexEffect.Default).
                         SetTech("Texture");
                 }
                 SetMeshes(meshes);

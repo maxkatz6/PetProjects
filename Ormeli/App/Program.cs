@@ -13,7 +13,7 @@ namespace Ormeli
     public class Program
     {
         /*          TODO необходимое
-         * Система сцен 
+         * Новая система еффектов на основе HLSL и конвертера в GLSL. Без CG
          * GUI. Font
          * */
 
@@ -22,6 +22,7 @@ namespace Ormeli
          * Добавить HLSL, конвертер в него с CG
          * Поддержка винфона, андроида  
          * ОТДЕЛИТЬ РЕНДЕР ОТ ИНИЦИАЛИЗАЦИИ
+         * Система сцен. Доработка 
          */
         private static readonly FreeCamera FreeCamera = new FreeCamera(new Vector3(0,3,0)) {Speed = 10};
         private static readonly Scene Scene = new Scene();
@@ -31,9 +32,9 @@ namespace Ormeli
             App.Initialize(RenderType.OpenGl3);
             App.Render.BackColor = Color.Indigo;
             
-            EffectManager.AddEffect(Effect.LoadFromFile<ColTexEffect>("ColTexEffect.cgfx"));
+            ColTexEffect.InitDefault(); //Bad-style code, but this is nothing else for this moment. 
 
-            Scene.AddObject(ModelBuilder.Create().SetMeshes(GeometryGenerator.CreateGrid(10000, 10000)), new Vector3(0,-2000,0));
+            Scene.AddObject(ModelBuilder.Create().SetMeshes(GeometryGenerator.CreateGrid(10000, 10000).SetEffect(ColTexEffect.Default).SetTech("Texture")), new Vector3(0,-2000,0));
             Scene.AddObject(@"Stone Bridge\bridge.obj", Vector3.Zero);
 
             App.Loop.Run(Redner, Update);

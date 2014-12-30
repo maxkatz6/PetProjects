@@ -1,7 +1,6 @@
 ﻿using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using Ormeli.Cg;
 using Ormeli.Core.Patterns;
 using Ormeli.GAPI.Interfaces;
 using Ormeli.Graphics.Cameras;
@@ -90,7 +89,8 @@ namespace Ormeli.GAPI.OpenGL
             HardwareDescription.VideoCardMemory = 0;
 
             if (App.EffectLanguage == EffectLanguage.CG)
-                CgEffectBase.InitOpenGl();
+                Cg.CgEffectBase.InitOpenGl();
+            else throw new Exception("OpenGLInit. Unsupport shader type");
 
             return RenderType.OpenGl3;
         }
