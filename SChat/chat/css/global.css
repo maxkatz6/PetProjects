@@ -152,9 +152,7 @@ body.ajax-chat {
 	float:left; 
 	margin-right:2px;
 }
-#content #bbCodeContainer #bbCodeEmoticon { 
-	
-}
+
 #content #colorCodesContainer, #content #emoticonsContainer {
 	position:absolute;
 	left: 430px;
@@ -295,55 +293,42 @@ body.ajax-chat {
 }
 
 @media (max-width: 700px) {
-	#content #mainPanelContainer { top:65px; left:5px; right:5px; bottom:105px; }
+	#content #mainPanelContainer { top:65px; left:5px; right:5px; bottom:75px; }
 	#content #headline { margin:0; padding:0 0 0 5px; line-height:25px; }
 	#content #statusIconContainer { top:2px; right:2px; }
 	#content #copyright { top:0px; right:30px; line-height: 25px;}
 	#content #logoutChannelContainer { top:30px; left:5px; right:0px; }
 	#content #logoutChannelContainer label { display:none; }
-	#content #emoticonsContainer, #content #submitButtonContainer { display:none; }
-	#content #bbCodeContainer { bottom:45px; left:5px; padding:0; }
+	#content #emoticonsContainer { display:none; }
+	#content #bbCodeContainer { left:5px; padding:0; }
 	#content #bbCodeContainer #bbCodeEmoticon { display:block; }
 	#content #bbCodeContainer #bbCodeQuote, #content #bbCodeContainer #bbCodeCode { display:none; }
-	#content #optionsContainer { bottom:10px; right:5px; }
+	#content #optionsContainer { top:30px; right:5px; }
 	#content #chatList { left:5px; right:150px; bottom:115px; font-size:12px; }
 	#content #inputFieldContainer #inputField { height:20px; }
-	#content #inputFieldContainer { left:5px; right:5px; bottom:80px; }
+	#content #inputFieldContainer { left:5px; right:5px; }
 	#content #colorCodesContainer, #content #emoticonsContainer { bottom:85px; left:5px; }
 	#content #onlineListContainer, #content #helpContainer, #content #settingsContainer { margin-left:0; border-left-width:0; }
 }
 
 @media (max-width: 480px) {
-    #content #mainPanelContainer {
-        position: inherit;
-    }
-    #content {
-        position: static;
-    }
-
-    #content #bbCodeContainer, #content #optionsContainer, #content #emoticonsContainer, #content #submitButtonContainer,
-    #content #statusIconContainer, #content #logoutChannelContainer {
-        display: none;
-    }
-
-    #content #chatList {
-        position: inherit;
-    }
-
-    #content #headline {
-        position: inherit;
-        top:0;
-    }
-    #content #inputFieldContainer {
-        position: inherit;
-    }
-    #content #inputFieldContainer {
-        position: inherit;
-        bottom: 0px;
-        height: 20px;
-        right: 0;
-        left: 0;
-        width:100%;
-    }
+    #content { position: static; }
+    #content #mainPanelContainer, #content #bbCodeContainer, 
+    #content #inputFieldContainer, #content #submitButtonContainer 
+        {position: inherit; display: block; }
+    #content #optionsContainer, #content #emoticonsContainer,
+    #content #statusIconContainer, #content #messageLengthCounter,#content #onlineListContainer, 
+    #content #helpContainer, #content #settingsContainer,#content #languageSelection, 
+    #content #styleSelection,#content #bbCodeContainer #bbCodeIMG, #content #bbCodeContainer #bbCodeURL 
+        {display: none;}
+    #content #chatList { position: inherit;}
+    #content #headline { position: inherit; top: 0; }
+    #content #logoutChannelContainer 
+        {top:0;right: 0; position:absolute;left:auto;float: right;}
+    #content #logoutButton {float:right; margin:0;}
+    #content #channelSelection {height:25px;}
+    #content #inputFieldContainer #inputField 
+        {position: inherit;bottom: 0px;height: 20px; right: 0;}
+    #content #submitButtonContainer #submitButton 
+        {position: inherit;bottom: 0px;height: 20px;float:right}
 }
-/*http://www.cyberforum.ru/html/thread793237.html*/
