@@ -175,7 +175,13 @@ var ajaxChatConfig = {
 		':help:',
 		':error:',
 		':warning:',
-		':favorite:'
+		':favorite:',
+		':foreveralone:',
+		':4BU:',
+		':4C0:',
+		':trollface:',
+		':4Cq:',
+		':7St:'
  	],
 
  	// Defines the list of emoticon files associated with the emoticon codes:
@@ -202,7 +208,13 @@ var ajaxChatConfig = {
 		'help.png',
 		'error.png',
 		'warning.png',
-		'favorite.png'
+		'favorite.png',
+		'foralone.png',
+		'1326676821.png',
+		'1326676842.png',
+		'1364481380.png',
+		'1326677514.png',
+		'1339069341.png'
 	],
 
 	// Defines the available sounds loaded on chat start:
@@ -242,7 +254,7 @@ var ajaxChatConfig = {
 	allowUserMessageDelete: true,
 
 	// Minutes until a user is declared inactive (last status update) - the minimum is 2 minutes:
-	inactiveTimeout: 2,
+	inactiveTimeout: 2, //Почему минимум 2 - хз. Я убрал проверку на это. Но пусть пока 2 останется
 
 	// UserID plus this value are private channels (this is also the max userID and max channelID):
 	privateChannelDiff: 500000000,

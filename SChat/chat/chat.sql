@@ -3,6 +3,8 @@ DROP TABLE IF EXISTS ajax_chat_online;
 CREATE TABLE ajax_chat_online (
 	userID INT(11) NOT NULL,
 	userName VARCHAR(64) NOT NULL,
+	userProfile VARCHAR(64) NOT NULL,
+	userTIM VARCHAR(5) NOT NULL,
 	userRole INT(1) NOT NULL,
 	channel INT(11) NOT NULL,
 	dateTime DATETIME NOT NULL,

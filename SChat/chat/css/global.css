@@ -155,14 +155,16 @@ body.ajax-chat {
 
 #content #colorCodesContainer, #content #emoticonsContainer {
 	position:absolute;
-	left: 430px;
-	bottom: 15px;
+	left: 120px;
+	bottom: 50px;
 	padding:3px;
 	z-index:1;
 }
-    #content #emoticonsContainer {
-        left: 500px;
-    }
+
+#content #emoticonsContainer {
+    max-width: 300px;
+}
+
 #content #emoticonsContainer a {
 	margin-left:1px;
 	margin-right:1px;
@@ -234,7 +236,7 @@ body.ajax-chat {
 }
 
 /* Buttons */
-#content #optionsContainer input, #content #settingsContainer #settingsList input.button, #content #showChannelsButton {
+#content #optionsContainer input, #content #settingsContainer #settingsList input.button, #content #showUserMenuButton {
 	background: url('../img/buttons-sprite.png') no-repeat;
 	vertical-align:middle;
 	width:22px;
@@ -266,11 +268,11 @@ body.ajax-chat {
 	background-position: -92px -22px;
 	margin-bottom:3px;
 }
-#content #logoutChannelContainer #showChannelsButton {
+#content #logoutChannelContainer #showUserMenuButton {
 	background-position: -46px 0px;
 	display:none;
 }
-#content #logoutChannelContainer #showChannelsButton.off {
+#content #logoutChannelContainer #showUserMenuButton.off {
 	background-position: -46px -22px;
 }
 
@@ -307,7 +309,6 @@ body.ajax-chat {
 	#content #chatList { left:5px; right:150px; bottom:115px; font-size:12px; }
 	#content #inputFieldContainer #inputField { height:20px; }
 	#content #inputFieldContainer { left:5px; right:5px; }
-	#content #colorCodesContainer, #content #emoticonsContainer { bottom:85px; left:5px; }
 	#content #onlineListContainer, #content #helpContainer, #content #settingsContainer { margin-left:0; border-left-width:0; }
 }
 

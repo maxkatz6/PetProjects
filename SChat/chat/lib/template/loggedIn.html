@@ -5,6 +5,7 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta http-equiv="Content-Type" content="[CONTENT_TYPE/]" />
+    <meta name="http-equiv" content="Content-type: text/html; charset=UTF-8" />
 	<title>[LANG]title[/LANG]</title>
 	[STYLE_SHEETS/]
 	<!--[if lt IE 8]><script type="text/javascript">var isIElt8 = true;</script><![endif]-->
@@ -25,7 +26,6 @@
 				tinyScreenDetectElement: 'bbCodeContainer',
 				
 				bindPopups: function() {
-					this.bindButtonToPopup('showChannelsButton','logoutChannelInner');
 					this.bindButtonToPopup('bbCodeEmoticon','emoticonsContainer');
 					this.bindButtonToPopup('bbCodeColor','colorCodesContainer');
 				},
@@ -205,10 +205,6 @@
 			<div id="logoutChannelInner">
 				<label for="channelSelection">[LANG]channel[/LANG]:</label>
 				<select id="channelSelection" onchange="ajaxChat.switchChannel(this.options[this.selectedIndex].value);">[CHANNEL_OPTIONS/]</select>
-				<label for="styleSelection">[LANG]style[/LANG]:</label>
-				<select id="styleSelection" onchange="ajaxChat.setActiveStyleSheet(ajaxChat.getSelectedStyle());">[STYLE_OPTIONS/]</select>
-				<label for="languageSelection">[LANG]language[/LANG]:</label>
-				<select id="languageSelection" onchange="ajaxChat.switchLanguage(this.value);">[LANGUAGE_OPTIONS/]</select>
 			</div>
 			<input type="image" src="img/pixel.gif" class="button" id="showChannelsButton" alt="[LANG]toggleHelp[/LANG]"/>
 		</div>
@@ -317,6 +313,14 @@
 			<div id="settingsContainer" style="display:none;">
 				<h3>[LANG]settings[/LANG]</h3>
 				<div id="settingsList">
+                    <dl>
+                        <dt><label for="styleSelection">[LANG]style[/LANG]:</label></dt>
+                        <dd><select id="styleSelection" onchange="ajaxChat.setActiveStyleSheet(ajaxChat.getSelectedStyle());">[STYLE_OPTIONS/]</select></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="languageSelection">[LANG]language[/LANG]:</label></dt>
+                        <dd><select id="languageSelection" onchange="ajaxChat.switchLanguage(this.value);">[LANGUAGE_OPTIONS/]</select></dd>
+                    </dl>
 					<dl>
 						<dt><label for="bbCodeSetting">[LANG]settingsBBCode[/LANG]</label></dt>
 						<dd><input type="checkbox" id="bbCodeSetting" onclick="ajaxChat.setSetting('bbCode', this.checked);"/></dd>

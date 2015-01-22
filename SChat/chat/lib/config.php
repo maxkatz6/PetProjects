@@ -108,7 +108,7 @@ $AJAXChatConfig['privateChannelPrefix'] = '[';
 $AJAXChatConfig['privateChannelSuffix'] = ']';
 
 // If enabled, users will be logged in automatically as guest users (if allowed), if not authenticated:
-$AJAXChatConfig['forceAutoLogin'] = false;
+$AJAXChatConfig['forceAutoLogin'] = true;
 
 // Defines if login/logout and channel enter/leave are displayed:
 $AJAXChatConfig['showChannelMessages'] = true;

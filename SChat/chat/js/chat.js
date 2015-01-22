@@ -1,4 +1,4 @@
-/*
+﻿/*
  * @package AJAX_Chat
  * @author Sebastian Tschan
  * @copyright (c) Sebastian Tschan
@@ -142,7 +142,7 @@ var ajaxChat = {
 		this.chatBotName			= config['chatBotName'];
 		this.chatBotID				= config['chatBotID'];
 		this.allowUserMessageDelete	= config['allowUserMessageDelete'];
-		this.inactiveTimeout		= Math.max(config['inactiveTimeout'],2);
+		this.inactiveTimeout		= config['inactiveTimeout'];
 		this.privateChannelDiff		= config['privateChannelDiff'];
 		this.privateMessageDiff		= config['privateMessageDiff'];
 		this.showChannelMessages	= config['showChannelMessages'];
@@ -353,8 +353,8 @@ var ajaxChat = {
 			} else {
 				domNode.innerHTML += str;
 			}
-		} catch(e) {
-			this.addChatBotMessageToChatList('/error DOMSyntax '+id);
+		} catch (e) {
+		    this.addChatBotMessageToChatList('/error DOMSyntax ' + id);
 			this.updateChatlistView();
 		}
 	},
@@ -908,7 +908,7 @@ var ajaxChat = {
 				break;
 			case 'userName':
 				this.userName = infoData;
-				this.encodedUserName = this.scriptLinkEncode(this.userName);
+				this.encodedUserName = /*this.scriptLinkEncode*/(this.userName);
 				this.userNodeString = null;
 				break;
 			case 'userRole':
@@ -923,6 +923,11 @@ var ajaxChat = {
 		}
 	},
 
+    ////////////////////
+    ////            ////
+    //////////////////// 
+    ////            ////
+    ////////////////////
 	handleOnlineUsers: function(userNodes) {
 		if(userNodes.length) {
 			var index,userID,userName,userRole,i,
@@ -931,21 +936,14 @@ var ajaxChat = {
 				userID = userNodes[i].getAttribute('userID');
 				userName = userNodes[i].firstChild ? userNodes[i].firstChild.nodeValue : '';
 				userRole = userNodes[i].getAttribute('userRole');
+				userTIM = userNodes[i].getAttribute('userTIM');
 				onlineUsers.push(userID);
 				index = this.arraySearch(userID, this.usersList);
-				if(index === -1) {
-					this.addUserToOnlineList(
-						userID,
-						userName,
-						userRole
-					);
+				if (index === -1) {
+				    this.addUserToOnlineList(userID, userName, userRole, userTIM);
 				} else if(this.userNamesList[index] !== userName) {
 					this.removeUserFromOnlineList(userID, index);
-					this.addUserToOnlineList(
-						userID,
-						userName,
-						userRole
-					);
+					this.addUserToOnlineList(userID, userName, userRole, userTIM);
 				}
 			}
 			// Clear the offline users from the online users list:
@@ -957,7 +955,11 @@ var ajaxChat = {
 			this.setOnlineListRowClasses();
 		}
 	},
-
+    ////////////////////
+    ////            ////
+    ////////////////////
+    ////            ////
+    ////////////////////
 	handleChatMessages: function(messageNodes) {
 		var userNode,userName,textNode,messageText,i;
 		if(messageNodes.length) {
@@ -1018,27 +1020,49 @@ var ajaxChat = {
 		}
 	},
 
-	addUserToOnlineList: function(userID, userName, userRole) {
+	addUserToOnlineList: function (userID, userName, userRole, userTIM) {
 		this.usersList.push(userID);
 		this.userNamesList.push(userName);
 		if(this.dom['onlineList']) {
 			this.updateDOM(
 				'onlineList',
-				this.getUserNodeString(userID, userName, userRole),
+				this.getUserNodeString(userID, userName, userRole, userTIM),
 				(this.userID === userID)
 			);
 		}
 	},
-
-	getUserNodeString: function(userID, userName, userRole) {
+    ////////////////////
+    ////            ////
+    ////////////////////
+    ////            ////
+    ////////////////////
+	getUserNodeString: function(userID, userName, userRole, userTIM) {
 		var encodedUserName, str;
 		if(this.userNodeString && userID === this.userID) {
 			return this.userNodeString;
 		} else {
-			encodedUserName = this.scriptLinkEncode(userName);
-			str	= '<div id="'
-					+ this.getUserDocumentID(userID)
-					+ '"><a href="javascript:ajaxChat.toggleUserMenu(\''
+			encodedUserName = /*this.scriptLinkEncode*/(userName);
+			str	= '<div id="'+ this.getUserDocumentID(userID) + '">'
+					+ "<div style='display: inline-block; width: 90%;position: relative;'>"
+         //           + "<img src=\"images/chatavatars/" + userName + ".png\" border=\"0\" width=\"30\" height=\"30\"/>"
+                    + "<a style='font-size: 13px; bottom: 2px;position: absolute;' href=\"javascript:ajaxChat.updateDOM('inputField','" + userName + ", ', true);\">" + userName + "</a>"
+                    //+ "<img src=\""+ (userTIM ? "images/tim/" + userTIM + ".png" : "chat/img/pixel.gif")+ "\" border=\"0\"\>"
+                    + "<a id='showUserMenuButton' style='float:right; outline:none; background-position-x : -46px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
+					+ this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + ");\"></a>"
+                    + "</div>" 
+					+ '<ul class="userMenu" style="display:none;" id="' + this.getUserMenuDocumentID(userID)
+					+ ((userID === this.userID) ? '">'+this.getUserNodeStringItems(encodedUserName, userID, false) :'">')
+					+ '</ul>'
+					+ '</div>';
+
+			if(userID === this.userID) {
+				this.userNodeString = str;
+			}
+			return str;
+		}
+	},
+    //this.className = (this.className === \"button\" ? \"button off\" : \"button\");
+    /*<a href="javascript:ajaxChat.toggleUserMenu(\''
 					+ this.getUserMenuDocumentID(userID)
 					+ '\', \''
 					+ encodedUserName
@@ -1047,25 +1071,7 @@ var ajaxChat = {
 					+ ');" class="'
 					+ this.getRoleClass(userRole)
 					+ '" title="'
-					+ this.lang['toggleUserMenu'].replace(/%s/, userName)
-					+ '">'
-					+ userName
-					+ '</a>'
-					+ '<ul class="userMenu" id="'
-					+ this.getUserMenuDocumentID(userID)
-					+ '"'
-					+ ((userID === this.userID) ?
-						'>'+this.getUserNodeStringItems(encodedUserName, userID, false) :
-						' style="display:none;">')
-					+ '</ul>'
-					+'</div>';
-			if(userID === this.userID) {
-				this.userNodeString = str;
-			}
-			return str;
-		}
-	},
-
+					+ this.lang['toggleUserMenu'].replace(/%s/, userName) + '">'*/
 	toggleUserMenu: function(menuID, userName, userID) {
 		// If the menu is empty, fill it with user node menu items before toggling it.
 		var isInline = false;
@@ -1076,7 +1082,7 @@ var ajaxChat = {
 			this.updateDOM(
 				menuID,
 				this.getUserNodeStringItems(
-					this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),
+					userName, //this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),
 					userID,
 					isInline
 				),
@@ -1333,6 +1339,12 @@ var ajaxChat = {
 		return false;
 	},
 
+
+    ////////////////////
+    ////            ////
+    ////////////////////
+    ////            ////
+    ////////////////////
 	onNewMessage: function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
 		if(!this.customOnNewMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip)) {
 			return false;
@@ -1893,7 +1905,7 @@ var ajaxChat = {
 	},
 
 	scriptLinkEncode: function(text) {
-		return this.encodeText(this.addSlashes(this.decodeSpecialChars(text)));
+	    return decodeURIComponent(this.encodeText(this.addSlashes(this.decodeSpecialChars(text))));
 	},
 
 	scriptLinkDecode: function(text) {
@@ -1972,16 +1984,19 @@ var ajaxChat = {
 		}
 	},
 
-	showHide: function(id, styleDisplay, displayInline) {
-		var node = document.getElementById(id);
+	showHide: function (id, styleDisplay, displayInline) {
+	    var node = document.getElementById(id);
+	    var button = node.parentNode.firstChild.lastChild;
 		if(node) {
 			if(styleDisplay) {
 				node.style.display = styleDisplay;
 			} else {
-				if(node.style.display === 'none') {
-					node.style.display = (displayInline ? 'inline' : 'block');
-				} else {
-					node.style.display = 'none';
+			    if (node.style.display === 'none') {
+			        node.style.display = (displayInline ? 'inline' : 'block');
+			        button.style.backgroundPositionY = "-22px";
+			    } else {
+			        node.style.display = 'none';
+			        button.style.backgroundPositionY = "0px";
 				}
 			}
 		}
@@ -2990,14 +3005,19 @@ var ajaxChat = {
 
 	// Override to perform custom actions on new messages:
 	// Return true if message is to be added to the chatList, else false
-	customOnNewMessage: function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
+	customOnNewMessage: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
 		return true;
 	},
 	
 	// Override to perform custom actions on new messages:
 	// Return true to use the default sound handler, else false
-	customSoundOnNewMessage: function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
-		return true;
+	customSoundOnNewMessage: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
+	    messagePart = messageText.split(' ', 1)[0].split(',',1)[0];//.slice(0, -1);
+	    if (this.userName == messagePart)
+	    {
+	        this.playSound(this.settings['soundPrivate']);
+	    }
+		return false;
 	},
 
 	debugMessage: function(msg, e) {

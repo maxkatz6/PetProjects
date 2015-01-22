@@ -14790,6 +14790,10 @@
     {
     "ProjRelPath" = "T"
     }
+    "images\\chatavatars"
+    {
+    "ProjRelPath" = "T"
+    }
     "images\\index.html"
     {
     "ProjRelPath" = "T"
@@ -14935,6 +14939,10 @@
     "ProjRelPath" = "T"
     }
     "images\\sampledata\\parks\\parks.gif"
+    {
+    "ProjRelPath" = "T"
+    }
+    "images\\tim"
     {
     "ProjRelPath" = "T"
     }
