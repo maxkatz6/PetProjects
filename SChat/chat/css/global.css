@@ -316,20 +316,31 @@ body.ajax-chat {
     #content { position: static; }
     #content #mainPanelContainer, #content #bbCodeContainer, 
     #content #inputFieldContainer, #content #submitButtonContainer 
-        {position: inherit; display: block; }
+        {position: fixed; display: block; bottom: 2px; right: 2px; }
+        #content #mainPanelContainer {
+            height:auto;
+        }
     #content #optionsContainer, #content #emoticonsContainer,
     #content #statusIconContainer, #content #messageLengthCounter,#content #onlineListContainer, 
     #content #helpContainer, #content #settingsContainer,#content #languageSelection, 
     #content #styleSelection,#content #bbCodeContainer #bbCodeIMG, #content #bbCodeContainer #bbCodeURL 
         {display: none;}
-    #content #chatList { position: inherit;}
+    #content #mainPanelContainer #chatList 
+    { 
+        position: fixed;
+    top: 25px;
+    left: 0;
+    right: 0;
+    bottom: 52px;
+    height: auto;
+}
     #content #headline { position: inherit; top: 0; }
     #content #logoutChannelContainer 
         {top:0;right: 0; position:absolute;left:auto;float: right;}
     #content #logoutButton {float:right; margin:0;}
     #content #channelSelection {height:25px;}
     #content #inputFieldContainer #inputField 
-        {position: inherit;bottom: 0px;height: 20px; right: 0;}
-    #content #submitButtonContainer #submitButton 
-        {position: inherit;bottom: 0px;height: 20px;float:right}
+        {position: fixed;bottom: 28px;height: 20px; right: 2px; left:2px;}
+    #content #submitButtonContainer 
+        {position: fixed;bottom: 2px; right:2px;}
 }

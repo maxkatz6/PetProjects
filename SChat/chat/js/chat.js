@@ -1047,7 +1047,7 @@ var ajaxChat = {
          //           + "<img src=\"images/chatavatars/" + userName + ".png\" border=\"0\" width=\"30\" height=\"30\"/>"
                     + "<a style='font-size: 13px; bottom: 2px;position: absolute;' href=\"javascript:ajaxChat.updateDOM('inputField','" + userName + ", ', true);\">" + userName + "</a>"
                     //+ "<img src=\""+ (userTIM ? "images/tim/" + userTIM + ".png" : "chat/img/pixel.gif")+ "\" border=\"0\"\>"
-                    + "<a id='showUserMenuButton' style='float:right; outline:none; background-position-x : -46px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
+                    + "<a id='showUserMenuButton' style='float:right; outline:none; background-position : -46px 0;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
 					+ this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + ");\"></a>"
                     + "</div>" 
 					+ '<ul class="userMenu" style="display:none;" id="' + this.getUserMenuDocumentID(userID)
@@ -1993,10 +1993,12 @@ var ajaxChat = {
 			} else {
 			    if (node.style.display === 'none') {
 			        node.style.display = (displayInline ? 'inline' : 'block');
-			        button.style.backgroundPositionY = "-22px";
+			        if (button != null)
+			            button.style.backgroundPosition = "-46px -22px";
 			    } else {
 			        node.style.display = 'none';
-			        button.style.backgroundPositionY = "0px";
+			        if (button != null)
+			            button.style.backgroundPosition = "-46px 0px";
 				}
 			}
 		}

@@ -46,7 +46,7 @@ $lang['bbCodeTitleImg'] = 'Insert image: [img]http://example.org/image.jpg[/img]
 $lang['bbCodeTitleColor'] = 'Цвет шрифта: [color=red]текст[/color]';
 $lang['bbCodeTitleEmoticon'] = 'список Смайлы';
 $lang['help'] = 'Помощь';
-$lang['helpItemDescJoin'] = 'Присоедениться к каналу:';
+$lang['helpItemDescJoin'] = 'Присоединиться к каналу:';
 $lang['helpItemCodeJoin'] = '/join имя_канала';
 $lang['helpItemDescJoinCreate'] = 'Создать частный (приватный) канал:';
 $lang['helpItemCodeJoinCreate'] = '/join';
