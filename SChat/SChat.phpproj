@@ -12026,6 +12026,10 @@
     {
     "ProjRelPath" = "T"
     }
+    "chat\\changelog.txt"
+    {
+    "ProjRelPath" = "T"
+    }
     "chat\\chat.sql"
     {
     "ProjRelPath" = "T"
@@ -12158,6 +12162,10 @@
     {
     "ProjRelPath" = "T"
     }
+    "chat\\img\\anon.png"
+    {
+    "ProjRelPath" = "T"
+    }
     "chat\\img\\buttons-sprite.png"
     {
     "ProjRelPath" = "T"
@@ -12279,6 +12287,74 @@
     "ProjRelPath" = "T"
     }
     "chat\\img\\pixel.gif"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\1ese.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\1ile.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\1lii.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\1sei.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\2eie.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\2iei.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\2lsi.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\2sle.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\3esi.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\3ili.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\3lie.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\3see.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\4eie.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\4iee.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\4lse.png"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\img\\tim\\4sli.png"
     {
     "ProjRelPath" = "T"
     }
@@ -12554,6 +12630,10 @@
     {
     "ProjRelPath" = "T"
     }
+    "chat\\lib\\config.php.example"
+    {
+    "ProjRelPath" = "T"
+    }
     "chat\\lib\\data"
     {
     "ProjRelPath" = "T"
@@ -12779,6 +12859,14 @@
     "ProjRelPath" = "T"
     }
     "chat\\lib\\template\\shoutbox.html"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\license.txt"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\readme.html"
     {
     "ProjRelPath" = "T"
     }
@@ -14762,6 +14850,10 @@
     {
     "ProjRelPath" = "T"
     }
+    "images\\avatar"
+    {
+    "ProjRelPath" = "T"
+    }
     "images\\banners"
     {
     "ProjRelPath" = "T"
@@ -14787,10 +14879,6 @@
     "ProjRelPath" = "T"
     }
     "images\\banners\\white.png"
-    {
-    "ProjRelPath" = "T"
-    }
-    "images\\chatavatars"
     {
     "ProjRelPath" = "T"
     }

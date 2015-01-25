@@ -431,10 +431,11 @@ class AJAXChat {
 		$this->setUserName($userData['userName']);
 		$this->setLoginUserName($userData['userName']);
 		$this->setUserRole($userData['userRole']);
+		$this->setUserTIM($userData['userTIM']);
+		$this->setUserProfile($userData['userProfile']);
+		$this->setUserAvatar($userData['userAvatar']);
 		$this->setLoggedIn(true);
 		$this->setLoginTimeStamp(time());
-
-		$_SESSION['userTIM'] = $userData['userTIM'];
 		
 		// IP Security check variable:
 		$this->setSessionIP($_SERVER['REMOTE_ADDR']);
@@ -599,6 +600,9 @@ class AJAXChat {
 					userName,
 					userRole,
 					channel,
+					userTIM,
+					userProfile,
+					userAvatar,
 					dateTime,
 					ip
 				)
@@ -607,6 +611,9 @@ class AJAXChat {
 					'.$this->db->makeSafe($this->getUserName()).',
 					'.$this->db->makeSafe($this->getUserRole()).',
 					'.$this->db->makeSafe($this->getChannel()).',
+					'.$this->db->makeSafe($this->getUserTIM()).',
+					'.$this->db->makeSafe($this->getUserProfile()).',
+					'.$this->db->makeSafe($this->getUserAvatar()).',
 					NOW(),
 					'.$this->db->makeSafe($this->ipToStorageFormat($_SERVER['REMOTE_ADDR'])).'
 				);';
@@ -1912,7 +1919,8 @@ class AJAXChat {
 		$httpHeader->send();
 
 		// Output XML messages:
-		echo $this->getXMLMessages();
+			$m = $this->getXMLMessages();
+		echo $m;
 	}
 
 	function getXMLMessages() {
@@ -1985,8 +1993,11 @@ class AJAXChat {
 		foreach($onlineUsersData as $onlineUserData) {
 			$xml .= '<user';
 			$xml .= ' userID="'.$onlineUserData['userID'].'"';
-			$xml .= ' userRole="'.$onlineUserData['userRole'].'"';
-			$xml .= ' channelID="'.$onlineUserData['channel'].'"';
+				$xml .= ' userRole="'.$onlineUserData['userRole'].'"';
+				$xml .= ' channelID="'.$onlineUserData['channel'].'"';
+				$xml .= ' userProfile="'.$onlineUserData['userProfile'].'"';
+				$xml .= ' userTIM="'.$onlineUserData['userTIM'].'"';
+				$xml .= ' userAvatar="'.$onlineUserData['userAvatar'].'"';
 			$xml .= '>';
 			$xml .= '<![CDATA['.$this->encodeSpecialChars($onlineUserData['userName']).']]>';
 			$xml .= '</user>';
@@ -2401,6 +2412,9 @@ class AJAXChat {
 						userName,
 						userRole,
 						channel,
+						userTIM,
+						userProfile,
+						userAvatar,
 						UNIX_TIMESTAMP(dateTime) AS timeStamp,
 						ip
 					FROM
@@ -2703,6 +2717,29 @@ class AJAXChat {
 		return $this->getSessionVar('Channel');
 	}
 
+		function getUserTIM() {
+			return $this->getSessionVar('userTIM');
+		}
+
+		function setUserTIM($id) {
+			$this->setSessionVar('userTIM', $id);
+		}
+		function getUserProfile() {
+			return $this->getSessionVar('userProfile');
+		}
+
+		function setUserProfile($id) {
+			$this->setSessionVar('userProfile', $id);
+		}
+		
+		function getUserAvatar() {
+			return $this->getSessionVar('userAvatar');
+		}
+
+		function setUserAvatar($id) {
+			$this->setSessionVar('userAvatar', $id);
+		}
+		
 	function setChannel($channel) {
 		$this->setSessionVar('Channel', $channel);
 

@@ -17,17 +17,20 @@ class CustomAJAXChat extends AJAXChat {
 			$userData = array();
 			$userData['userID'] = $user->get('id');
 			$userData['userName'] = $user->get('name');
-			//$userData['userName'] = iconv("UTF-8", 'CP1251', $userData['userName']);
 			$userData['userRole'] = ((is_array($user->groups))? ((isset($user->groups[8]) || isset($user->groups[7])) ? AJAX_CHAT_ADMIN : AJAX_CHAT_USER) : AJAX_CHAT_GUEST);
 			
-			//1. Создадим экземпляр класса
-		/*	$db->setQuery('SELECT alias FROM '.J_PREFIX."community_users".' WHERE userid = '.$userData['userID']);
-			$userData['userProfile'] = $db->loadResult();     
-				*/
 			$db = JFactory::getDBO();
+			
+			$db->setQuery('SELECT alias FROM '.J_PREFIX."community_users".' WHERE userid = '.$userData['userID']);
+			$userData['userProfile'] = $db->loadResult();     
+				
 			$db->setQuery('SELECT value FROM '.J_PREFIX."community_fields_values".' WHERE user_id = '.$userData['userID'].' AND field_id = 17');
 			$tim = iconv("UTF-8", "CP1251", $db->loadResult());
 			$userData['userTIM'] = getTIM($tim);
+			
+			$db->setQuery('SELECT thumb FROM '.J_PREFIX."community_users".' WHERE userid = '.$userData['userID']);
+			$a = $db->loadResult();
+			$userData['userAvatar'] = ( is_null($a) ? "anon" : $a);
 
 			return $userData;
     } else {
@@ -50,7 +53,7 @@ class CustomAJAXChat extends AJAXChat {
         $validChannels = array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
       } else {
 	//	session_start();
-        $s = $_SESSION['userTIM']; //getTIM($a);//$this->getSessionVar('userTIM');
+				$s = $this->getUserTIM();//$_SESSION['userTIM']; //getTIM($a);//$this->getSessionVar('userTIM');
         switch ($s{0} )
         {
           case "1": $validChannels= array(0,1,2,3,4,5,6,7,8,9,10); break;

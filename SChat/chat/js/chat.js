@@ -930,20 +930,22 @@ var ajaxChat = {
     ////////////////////
 	handleOnlineUsers: function(userNodes) {
 		if(userNodes.length) {
-			var index,userID,userName,userRole,i,
+		    var index, userID, userName, userRole, userProfile, userTIM, userAvatar, i,
 				onlineUsers = [];
 			for(i=0; i<userNodes.length; i++) {
 				userID = userNodes[i].getAttribute('userID');
 				userName = userNodes[i].firstChild ? userNodes[i].firstChild.nodeValue : '';
 				userRole = userNodes[i].getAttribute('userRole');
 				userTIM = userNodes[i].getAttribute('userTIM');
+				userProfile = userNodes[i].getAttribute('userProfile');
+				userAvatar = userNodes[i].getAttribute('userAvatar');
 				onlineUsers.push(userID);
 				index = this.arraySearch(userID, this.usersList);
 				if (index === -1) {
-				    this.addUserToOnlineList(userID, userName, userRole, userTIM);
+				    this.addUserToOnlineList(userID, userName, userRole, userTIM, userProfile, userAvatar);
 				} else if(this.userNamesList[index] !== userName) {
 					this.removeUserFromOnlineList(userID, index);
-					this.addUserToOnlineList(userID, userName, userRole, userTIM);
+					this.addUserToOnlineList(userID, userName, userRole, userTIM, userProfile, userAvatar);
 				}
 			}
 			// Clear the offline users from the online users list:
@@ -1020,13 +1022,13 @@ var ajaxChat = {
 		}
 	},
 
-	addUserToOnlineList: function (userID, userName, userRole, userTIM) {
+	addUserToOnlineList: function (userID, userName, userRole, userTIM, userProfile, userAvatar) {
 		this.usersList.push(userID);
 		this.userNamesList.push(userName);
 		if(this.dom['onlineList']) {
 			this.updateDOM(
 				'onlineList',
-				this.getUserNodeString(userID, userName, userRole, userTIM),
+				this.getUserNodeString(userID, userName, userRole, userTIM, userProfile, userAvatar),
 				(this.userID === userID)
 			);
 		}
@@ -1034,24 +1036,33 @@ var ajaxChat = {
     ////////////////////
     ////            ////
     ////////////////////
+	toUser: function(nick)
+	{
+	    messagePart = this.dom['inputField'].value.split(' ', 1)[0].split(',',1)[0];
+	    if (messagePart != nick)
+	    {
+	        this.dom['inputField'].value = nick + ", " + this.dom['inputField'].value;
+	    }
+	    this.dom['inputField'].focus();
+	},
     ////            ////
     ////////////////////
-	getUserNodeString: function(userID, userName, userRole, userTIM) {
+	getUserNodeString: function (userID, userName, userRole, userTIM, userProfile, userAvatar) {
 		var encodedUserName, str;
 		if(this.userNodeString && userID === this.userID) {
 			return this.userNodeString;
 		} else {
 			encodedUserName = /*this.scriptLinkEncode*/(userName);
 			str	= '<div id="'+ this.getUserDocumentID(userID) + '">'
-					+ "<div style='display: inline-block; width: 90%;position: relative;'>"
-         //           + "<img src=\"images/chatavatars/" + userName + ".png\" border=\"0\" width=\"30\" height=\"30\"/>"
-                    + "<a style='font-size: 13px; bottom: 2px;position: absolute;' href=\"javascript:ajaxChat.updateDOM('inputField','" + userName + ", ', true);\">" + userName + "</a>"
-                    //+ "<img src=\""+ (userTIM ? "images/tim/" + userTIM + ".png" : "chat/img/pixel.gif")+ "\" border=\"0\"\>"
-                    + "<a id='showUserMenuButton' style='float:right; outline:none; background-position : -46px 0;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
-					+ this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + ");\"></a>"
+					+ "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
+                    + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + (userAvatar != "anon" ? "/" + userAvatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
+                    + "<a style='font-size: 13px; left: 38px; bottom: 5px;position: absolute;' href=\"javascript:ajaxChat.toUser('"+userName+"');\">" + userName + "</a>"
+                    + (userTIM != "none" ? "<img src=\"/chat/img/tim/" + userTIM + ".png\" border=\"0\" style=\"position: absolute;right: 25px;bottom: 5px;\" ></img>" : "")
+                    + "<a id='showUserMenuButton' style=' position: absolute; right: 0px; bottom: 5px; background-position: -46px 0px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
+					+ this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + ", '"+userProfile+"');\"></a>"
                     + "</div>" 
 					+ '<ul class="userMenu" style="display:none;" id="' + this.getUserMenuDocumentID(userID)
-					+ ((userID === this.userID) ? '">'+this.getUserNodeStringItems(encodedUserName, userID, false) :'">')
+					+ ((userID === this.userID) ? '">' + this.getUserNodeStringItems(encodedUserName, userID, userProfile, false) : '">')
 					+ '</ul>'
 					+ '</div>';
 
@@ -1072,7 +1083,7 @@ var ajaxChat = {
 					+ this.getRoleClass(userRole)
 					+ '" title="'
 					+ this.lang['toggleUserMenu'].replace(/%s/, userName) + '">'*/
-	toggleUserMenu: function(menuID, userName, userID) {
+	toggleUserMenu: function(menuID, userName, userID , userProfile) {
 		// If the menu is empty, fill it with user node menu items before toggling it.
 		var isInline = false;
 		if (menuID.indexOf('ium') >= 0 ) {
@@ -1084,6 +1095,7 @@ var ajaxChat = {
 				this.getUserNodeStringItems(
 					userName, //this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),
 					userID,
+                    userProfile,
 					isInline
 				),
 				false,
@@ -1094,14 +1106,19 @@ var ajaxChat = {
 		this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
 	},
 
-	getUserNodeStringItems: function(encodedUserName, userID, isInline) {
+	getUserNodeStringItems: function (encodedUserName, userID, userProfile, isInline) {
 		var menu;
 		if(encodedUserName !== this.encodedUserName) {
-			menu 	= '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/msg '
+		    menu = '<li><a target="_blank" href="/index.php/jomsocial/'
+					+ encodedUserName
+					+ '/profile/" >Профиль</a></li>'
+
+                    + '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/msg '
 					+ encodedUserName
 					+ ' \');">'
 					+ this.lang['userMenuSendPrivateMessage']
 					+ '</a></li>'
+
 					+ '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/describe '
 					+ encodedUserName
 					+ ' \');">'
@@ -1150,7 +1167,8 @@ var ajaxChat = {
 						+ '</a></li>';
 			}
 		} else {
-			menu 	= '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/quit\');">'
+		    menu = '<li><a target="_blank" href="/index.php/jomsocial/profile/">Профиль</a></li>'
+                    +'<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/quit\');">'
 					+ this.lang['userMenuLogout']
 					+ '</a></li>'
 					+ '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/who\');">'
@@ -1276,7 +1294,7 @@ var ajaxChat = {
 				+ this.getChatListUserNameTitle(userID, userName, userRole, ip)
 				+ ' dir="'
 				+ this.baseDirection
-				+ '" onclick="ajaxChat.insertText(this.firstChild.nodeValue);">'
+				+ "\" onclick=\"ajaxChat.toUser('"+userName+"');\">"
 				+ userName
 				+ '</span>'
 				+ colon
@@ -1686,7 +1704,7 @@ var ajaxChat = {
 		if(this.dom['messageLengthCounter']) {
 			this.updateDOM(
 				'messageLengthCounter',
-				this.dom['inputField'].value.length	+ '/' + this.messageTextMaxLength,
+				this.dom['inputField'].value.length	+ '/1000',
 				false,
 				true
 			);
@@ -3014,7 +3032,7 @@ var ajaxChat = {
 	// Override to perform custom actions on new messages:
 	// Return true to use the default sound handler, else false
 	customSoundOnNewMessage: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
-	    messagePart = messageText.split(' ', 1)[0].split(',',1)[0];//.slice(0, -1);
+	    messagePart = messageText.split(/\s*,\s*/, 1)[0];
 	    if (this.userName == messagePart)
 	    {
 	        this.playSound(this.settings['soundPrivate']);

@@ -44,7 +44,6 @@ body.ajax-chat {
 #content #headline {
 	position:absolute;
 	left:0px;
-	right:0px;
 	top:0px;
 	padding:0 0 0 20px;
 	line-height:45px;
@@ -93,7 +92,7 @@ body.ajax-chat {
 	text-align:center;
 }
 #content #onlineListContainer {
-	width:200px;
+	width:240px;
 }
 #content #helpContainer, #content #settingsContainer {
 	width:360px;
