@@ -71,6 +71,10 @@ body.ajax-chat {
 	height:100%;
 	overflow:auto;
 }
+#content #chatList .toMe {
+	border:1px dashed #B22222;
+}
+
 #content #mainPanelContainer { 
 	position:absolute;
 	left:20px;

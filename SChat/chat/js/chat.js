@@ -1038,7 +1038,7 @@ var ajaxChat = {
     ////////////////////
 	toUser: function(nick)
 	{
-	    messagePart = this.dom['inputField'].value.split(' ', 1)[0].split(',',1)[0];
+	    messagePart = this.dom['inputField'].value.split(/\s*,\s*/, 1)[0]
 	    if (messagePart != nick)
 	    {
 	        this.dom['inputField'].value = nick + ", " + this.dom['inputField'].value;
@@ -1055,7 +1055,7 @@ var ajaxChat = {
 			encodedUserName = /*this.scriptLinkEncode*/(userName);
 			str	= '<div id="'+ this.getUserDocumentID(userID) + '">'
 					+ "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
-                    + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + (userAvatar != "anon" ? "/" + userAvatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
+                    + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userAvatar != "anon" && userAvatar != '') ? "/" + userAvatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
                     + "<a style='font-size: 13px; left: 38px; bottom: 5px;position: absolute;' href=\"javascript:ajaxChat.toUser('"+userName+"');\">" + userName + "</a>"
                     + (userTIM != "none" ? "<img src=\"/chat/img/tim/" + userTIM + ".png\" border=\"0\" style=\"position: absolute;right: 25px;bottom: 5px;\" ></img>" : "")
                     + "<a id='showUserMenuButton' style=' position: absolute; right: 0px; bottom: 5px; background-position: -46px 0px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
@@ -1110,7 +1110,7 @@ var ajaxChat = {
 		var menu;
 		if(encodedUserName !== this.encodedUserName) {
 		    menu = '<li><a target="_blank" href="/index.php/jomsocial/'
-					+ encodedUserName
+					+ userProfile    
 					+ '/profile/" >Профиль</a></li>'
 
                     + '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/msg '
@@ -1278,7 +1278,10 @@ var ajaxChat = {
 		if (messageText.indexOf('/privmsg') === 0 || messageText.indexOf('/privmsgto') === 0 || messageText.indexOf('/privaction') === 0) {
 			rowClass += ' private';
 		}
-		
+		if ((messageText.indexOf('[color') != -1 ? messageText.substring(messageText.indexOf(']') + 1) : messageText).split(/\s*,\s*/, 1)[0] == this.userName)
+		{
+		    rowClass += ' toMe';
+		}
 		var dateTime = this.settings['dateFormat'] ? '<span class="dateTime">'
 						+ this.formatDate(this.settings['dateFormat'], dateObject) + '</span> ' : '';
 		return	'<div id="'
@@ -3032,7 +3035,7 @@ var ajaxChat = {
 	// Override to perform custom actions on new messages:
 	// Return true to use the default sound handler, else false
 	customSoundOnNewMessage: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
-	    messagePart = messageText.split(/\s*,\s*/, 1)[0];
+	    messagePart = (messageText.indexOf('[color') != -1 ? messageText.substring(messageText.indexOf(']') + 1) : messageText).split(/\s*,\s*/, 1)[0];
 	    if (this.userName == messagePart)
 	    {
 	        this.playSound(this.settings['soundPrivate']);
