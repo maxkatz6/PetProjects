@@ -16,7 +16,7 @@ class CustomAJAXChat extends AJAXChat {
     if($user->get('id') != 0) {
 			$userData = array();
 			$userData['userID'] = $user->get('id');
-			$userData['userName'] = $user->get('name');
+			$userData['userName'] = str_replace(' ','_',$user->get('name'));
 			$userData['userRole'] = ((is_array($user->groups))? ((isset($user->groups[8]) || isset($user->groups[7])) ? AJAX_CHAT_ADMIN : AJAX_CHAT_USER) : AJAX_CHAT_GUEST);
 
 			$db = JFactory::getDBO();

@@ -907,8 +907,8 @@ var ajaxChat = {
 				this.userID = infoData;
 				break;
 			case 'userName':
-				this.userName = infoData;
-				this.encodedUserName = this.scriptLinkEncode(this.userName);
+			    this.userName = infoData.replace('_', ' ');
+			    this.encodedUserName = this.scriptLinkEncode(infoData);
 				this.userNodeString = null;
 				break;
 			case 'userRole':
@@ -1052,7 +1052,8 @@ var ajaxChat = {
 		if(this.userNodeString && userID === this.userID) {
 			return this.userNodeString;
 		} else {
-			encodedUserName = this.scriptLinkEncode(userName);
+		    encodedUserName = this.scriptLinkEncode(userName);
+		    userName = userName.replace('_', ' ');
 			str	= '<div id="'+ this.getUserDocumentID(userID) + '">'
 					+ "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
                     + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userAvatar != "anon" && userAvatar != '') ? "/" + userAvatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
@@ -1298,7 +1299,7 @@ var ajaxChat = {
 				+ ' dir="'
 				+ this.baseDirection
 				+ "\" onclick=\"ajaxChat.toUser('"+userName+"');\">"
-				+ userName
+				+ userName.replace('_', ' ')
 				+ '</span>'
 				+ colon
 				+ this.replaceText(messageText)
@@ -2145,6 +2146,7 @@ var ajaxChat = {
 				return text;
 			}
 			var textParts = text.split(' ');
+			textParts[1] = textParts[1].replace('_', ' ');
 			switch(textParts[0]) {
 				case '/login':
 					return this.replaceCommandLogin(textParts);
@@ -2523,7 +2525,7 @@ var ajaxChat = {
 			menu	+= '<a href="javascript:ajaxChat.toggleUserMenu(\''
 					+ this.getInlineUserMenuDocumentID(this.userMenuCounter, i)
 					+ '\', \''
-					+ this.scriptLinkEncode(users[i])
+					+ this.scriptLinkEncode(users[i].replace(' ', '_'))
 					+ '\', null);" title="'
 					+ this.lang['toggleUserMenu'].replace(/%s/, users[i])
 					+ '" dir="'
