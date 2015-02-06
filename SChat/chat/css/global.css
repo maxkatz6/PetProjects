@@ -43,6 +43,7 @@ body.ajax-chat {
 }
 #content #headline {
 	position:absolute;
+	right:0px;
 	left:0px;
 	top:0px;
 	padding:0 0 0 20px;
@@ -319,31 +320,27 @@ body.ajax-chat {
     #content { position: static; }
     #content #mainPanelContainer, #content #bbCodeContainer, 
     #content #inputFieldContainer, #content #submitButtonContainer 
-        {position: fixed; display: block; bottom: 2px; right: 2px; }
-        #content #mainPanelContainer {
-            height:auto;
-        }
+        {position: absolute; display: block; bottom: 2px; }
+    #content #mainPanelContainer 
+        {height:auto; top:25px; left:2px; right:2px; }
     #content #optionsContainer, #content #emoticonsContainer,
     #content #statusIconContainer, #content #messageLengthCounter,#content #onlineListContainer, 
     #content #helpContainer, #content #settingsContainer,#content #languageSelection, 
     #content #styleSelection,#content #bbCodeContainer #bbCodeIMG, #content #bbCodeContainer #bbCodeURL 
         {display: none;}
+    #content #emoticonsContainer 
+        {left: 0px; max-height: 300px; width: 220px; }
     #content #mainPanelContainer #chatList 
-    { 
-        position: fixed;
-    top: 25px;
-    left: 0;
-    right: 0;
-    bottom: 52px;
-    height: auto;
-}
-    #content #headline { position: inherit; top: 0; }
+        {position: absolute; top: 0; left: 0; right: 0; bottom: 67px ; height: auto;}
+    #content #headline { position: absolute; top: 0; }
     #content #logoutChannelContainer 
         {top:0;right: 0; position:absolute;left:auto;float: right;}
-    #content #logoutButton {float:right; margin:0;}
-    #content #channelSelection {height:25px;}
+    #content #logoutButton 
+        {float:right; margin:0;}
+    #content #channelSelection 
+        {height:25px;}
     #content #inputFieldContainer #inputField 
-        {position: fixed;bottom: 28px;height: 20px; right: 2px; left:2px;}
+        {position: absolute;bottom: 28px;height: 35px; right: 0px; }
     #content #submitButtonContainer 
-        {position: fixed;bottom: 2px; right:2px;}
+        {position: absolute;bottom: 2px; right:2px;}
 }

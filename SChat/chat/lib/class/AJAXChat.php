@@ -3318,6 +3318,20 @@ class AJAXChat {
 	// Return true if a custom command has been successfully parsed, else false
 	// $text contains the whole message, $textParts the message split up as words array
 	function parseCustomCommands($text, $textParts) {
+		switch ($text)
+			{
+				case '/status':
+				{
+					$this->insertCustomMessage(
+						$this->getUserID(),
+						$this->getUserName(),
+						$this->getUserRole(),
+						$this->getChannel(),
+						$text
+						);
+					return true;
+				}
+			}
 		return false;
 	}
 

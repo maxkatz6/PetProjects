@@ -908,7 +908,7 @@ var ajaxChat = {
 				break;
 			case 'userName':
 				this.userName = infoData;
-				this.encodedUserName = /*this.scriptLinkEncode*/(this.userName);
+				this.encodedUserName = this.scriptLinkEncode(this.userName);
 				this.userNodeString = null;
 				break;
 			case 'userRole':
@@ -1052,7 +1052,7 @@ var ajaxChat = {
 		if(this.userNodeString && userID === this.userID) {
 			return this.userNodeString;
 		} else {
-			encodedUserName = /*this.scriptLinkEncode*/(userName);
+			encodedUserName = this.scriptLinkEncode(userName);
 			str	= '<div id="'+ this.getUserDocumentID(userID) + '">'
 					+ "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
                     + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userAvatar != "anon" && userAvatar != '') ? "/" + userAvatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
@@ -2695,7 +2695,7 @@ var ajaxChat = {
 				return url;
 			url = url.replace(/\s/gm, this.encodeText(' '));
 			maxWidth = this.dom['chatList'].offsetWidth-50;
-			maxHeight = this.dom['chatList'].offsetHeight-50;
+			maxHeight = 200;
 			link = 	'<img class="bbCodeImage" style="max-width:'
 					+ maxWidth
 					+ 'px; max-height:'
@@ -3039,8 +3039,8 @@ var ajaxChat = {
 	    if (this.userName == messagePart)
 	    {
 	        this.playSound(this.settings['soundPrivate']);
+	        return false;
 	    }
-		return false;
 	},
 
 	debugMessage: function(msg, e) {

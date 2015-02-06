@@ -182,7 +182,7 @@ $AJAXChatConfig['defaultBanTime'] = 5;
 $AJAXChatConfig['logoutData'] = '/';
 
 // If true, checks if the user IP is the same when logged in:
-$AJAXChatConfig['ipCheck'] = true;
+$AJAXChatConfig['ipCheck'] = false;
 
 // Defines the max time difference in hours for logs when no period or search condition is given:
 $AJAXChatConfig['logsRequestMessagesTimeDiff'] = 1;
