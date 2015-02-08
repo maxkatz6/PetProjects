@@ -50,11 +50,35 @@
     {
     "ProjRelPath" = "T"
     }
-    "chat\\css\\custom.css"
+    "chat\\css\\fonts"
     {
     "ProjRelPath" = "T"
     }
     "chat\\css\\fonts.css"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\css\\fonts\\tgw.css"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\css\\fonts\\tngan-webfont.eot"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\css\\fonts\\tngan-webfont.svg"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\css\\fonts\\tngan-webfont.ttf"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\css\\fonts\\tngan-webfont.woff"
+    {
+    "ProjRelPath" = "T"
+    }
+    "chat\\css\\fonts\\tngan-webfont.woff2"
     {
     "ProjRelPath" = "T"
     }

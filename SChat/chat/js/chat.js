@@ -14,7 +14,6 @@
 
 // AJAX Chat client side logic:
 var ajaxChat = {
-
 	settingsInitiated: null,
 	styleInitiated: null,
 	initializeFunction: null,
@@ -154,7 +153,10 @@ var ajaxChat = {
 		this.debug					= config['debug'];
 		this.DOMbuffering			= false;
 		this.DOMbuffer				= "";
-		this.retryTimerDelay 		= (this.inactiveTimeout*6000 - this.timerRate)/4 + this.timerRate;
+	    //this.retryTimerDelay 		= (this.inactiveTimeout*6000 - this.timerRate)/4 + this.timerRate; //orig
+	    //this.retryTimerDelay = (this.inactiveTimeout * 6000 - this.timerRate) / 4 + this.timerRate; //fix
+	    //this.retryTimerDelay = Math.min(this.inactiveTimeout * 15000, 60000);                      //better
+		this.retryTimerDelay = Math.min(this.inactiveTimeout * 15000, 60000) * (isMobile.any() ? 4 : 1); //the best
 	},
 
 	initDirectories: function() {
@@ -3055,4 +3057,25 @@ var ajaxChat = {
 		}
 	}
 
+};
+
+var isMobile = {
+    Android: function () {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function () {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function () {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera: function () {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function () {
+        return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+    },
+    any: function () {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+    }
 };
