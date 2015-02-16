@@ -56,8 +56,6 @@ var ajaxChatConfig = {
 	settings: {
 		// Defines if BBCode tags are replaced with the associated HTML code tags:
 		bbCode: true,
-		// Defines if image BBCode is replaced with the associated image HTML code:
-		bbCodeImages: true,
 		// Defines if color BBCode is replaced with the associated color HTML code:
 		bbCodeColors: true,
 		// Defines if hyperlinks are made clickable:
@@ -67,8 +65,6 @@ var ajaxChatConfig = {
 		// Defines if emoticon codes are replaced with their associated images:
 		emoticons: true,
 
-		// Defines if the focus is automatically set to the input field on chat load or channel switch:
-		autoFocus: true,
 		// Defines if the chat list scrolls automatically to display the latest messages:
 		autoScroll: true,
 		// The maximum count of messages displayed in the chat list (will be ignored if set to 0):
@@ -122,12 +118,9 @@ var ajaxChatConfig = {
 	bbCodeTags:[
 		'b',
 		'i',
-		'u',
+		's',
 		'quote',
-		'code',
-		'color',
-		'url',
-		'img'
+		'color'
 	],
 
 	// Defines the list of allowed color codes:

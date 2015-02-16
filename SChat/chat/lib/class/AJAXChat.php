@@ -1284,6 +1284,8 @@ class AJAXChat {
 			$text = '/roll '.$this->getUserName().' 1d6 '.$this->rollDice(6);
 		} else {
 			$diceParts = explode('d', $textParts[1]);
+			if (count($diceParts) == 1)
+				$diceParts[1] = '6';
 			if(count($diceParts) == 2) {
 				$number = (int)$diceParts[0];
 				$sides = (int)$diceParts[1];
@@ -1295,11 +1297,8 @@ class AJAXChat {
 				$sides = ($sides > 0 && $sides <= 100) ?  $sides : 6;
 
 				$text = '/roll '.$this->getUserName().' '.$number.'d'.$sides.' ';
-				for($i=0; $i<$number; $i++) {
-					if($i != 0)
-						$text .= ',';
-					$text .= $this->rollDice($sides);
-				}
+				for($i=0; $i<$number; $i++) 
+					$text .= ($i != 0 ? ',' : '').$this->rollDice($sides);
 			} else {
 				// if dice syntax is invalid, roll one d6:
 				$text = '/roll '.$this->getUserName().' 1d6 '.$this->rollDice(6);

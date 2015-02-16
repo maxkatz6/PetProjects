@@ -70,7 +70,7 @@ $AJAXChatConfig['contentEncoding'] = 'UTF-8';
 // The encoding of the data source, like userNames and channelNames:
 $AJAXChatConfig['sourceEncoding'] = 'UTF-8';
 // The content-type of the XHTML page (e.g. "text/html", will be set dependent on browser capabilities if set to null):
-$AJAXChatConfig['contentType'] = null;
+$AJAXChatConfig['contentType'] = "text/html";
 
 // Session name used to identify the session cookie:
 $AJAXChatConfig['sessionName'] = 'ajax_chat';
@@ -155,7 +155,7 @@ $AJAXChatConfig['chatBotName'] = 'Сервер';
 // Minutes until a user is declared inactive (last status update) - the minimum is 2 minutes:
 $AJAXChatConfig['inactiveTimeout'] = 2;
 // Interval in minutes to check for inactive users:
-$AJAXChatConfig['inactiveCheckInterval'] = 5;
+$AJAXChatConfig['inactiveCheckInterval'] = 2;
 
 // Defines if messages are shown which have been sent before the user entered the channel:
 $AJAXChatConfig['requestMessagesPriorChannelEnter'] = true;
