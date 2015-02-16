@@ -2606,6 +2606,8 @@ var ajaxChat = {
                         return ajaxChat.replaceBBCodeQuote(content, attribute);
                     case 's':
                         return '<span style="text-decoration:line-through;">' + ajaxChat.replaceBBCode(content) + '</span>';
+                    case 'tgw':
+                        return '<span class=\"tgw\">' + ajaxChat.replaceBBCode(content) + '</span>';
                     default:
                         return '<' + tag + '>' + ajaxChat.replaceBBCode(content) + '</' + tag + '>';
                 }

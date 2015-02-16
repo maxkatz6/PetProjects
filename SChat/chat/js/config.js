@@ -120,7 +120,8 @@ var ajaxChatConfig = {
 		'i',
 		's',
 		'quote',
-		'color'
+		'color',
+        'tgw'
 	],
 
 	// Defines the list of allowed color codes:

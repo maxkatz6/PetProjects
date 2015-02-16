@@ -91,3 +91,7 @@
 #content #helpContainer #helpList dd {
 	font-style:italic;
 }
+#content #chatList .tgw {
+	font-family: TengwarAnnatar;
+    font-size:1.6em;
+}
