@@ -2660,11 +2660,11 @@ var ajaxChat = {
 	                    + '</a>';
 	            default:
 	            {
-	                if (helper.in_array('youtube', hostArr) !== -1)
-	                    return s + '<iframe width="300" height="169" src="https://www.youtube.com/embed/' + sa2.split(/[=\?&]+/)[2] + '" frameborder="0" allowfullscreen="ture"></iframe>';
-	                else if (helper.in_array('youtu', hostArr) !== -1)
-	                    return s + '<iframe width="300" height="169" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
-	                else return s + '<a href="' + a + '" onclick="window.open(this.href); return false;">' + helper.truncate(a, 35) + '</a>';
+	                if (sa2 && helper.in_array('youtube', hostArr) !== -1)
+	                    return s + '<iframe width="350" height="205" src="https://www.youtube.com/embed/' + sa2.split(/[=\?&]+/)[2] + '" frameborder="0" allowfullscreen="ture"></iframe>';
+	                else if (sa1 && helper.in_array('youtu', hostArr) !== -1)
+	                    return s + '<iframe width="350" height="205" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
+	                return s + '<a href="' + a + '" onclick="window.open(this.href); return false;">' + helper.truncate(a, 35) + '</a>';
 	            }
 	            }
 	        });

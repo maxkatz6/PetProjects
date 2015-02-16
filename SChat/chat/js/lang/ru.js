@@ -13,7 +13,7 @@ var ajaxChatLang = {
 	
 	login: '%s входит в чат.',
 	logout: '%s выходит из чата.',
-	logoutTimeout: '%s вышел из чата по таймоуту.',
+	logoutTimeout: '%s вышел из чата по таймауту.',
 	logoutIP: '%s вышел из чата (неверный IP адрес).',
 	logoutKicked: '%s был вышвырнут из чата (Kicked).',
 	channelEnter: '%s присоединяется к каналу.',
