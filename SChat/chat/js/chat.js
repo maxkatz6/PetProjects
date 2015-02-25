@@ -168,7 +168,7 @@ var ajaxChat = {
         //this.retryTimerDelay 		= (this.inactiveTimeout*6000 - this.timerRate)/4 + this.timerRate; //orig
         //this.retryTimerDelay = (this.inactiveTimeout * 60000 - this.timerRate) / 4 + this.timerRate; //fix
         //this.retryTimerDelay = Math.min(this.inactiveTimeout * 15000, 60000);                      //better
-        this.retryTimerDelay = Math.min(this.inactiveTimeout * 15000, 30000) * (helper.isMobile() ? 2 : 1); //the best
+        this.retryTimerDelay = Math.min(this.inactiveTimeout * 1500, 30000) * (helper.isMobile() ? 20 : 1); //the best
     },
 
     initDirectories: function() {
@@ -1062,6 +1062,7 @@ var ajaxChat = {
             this.dom['inputField'].value = nick + ", " + this.dom['inputField'].value;
         }
         this.dom['inputField'].focus();
+        this.dom['inputField'].selectionStart = this.dom['inputField'].selectionEnd = this.dom['inputField'].value.length; //why not
     },
     ////            ////
     ////////////////////
@@ -1118,9 +1119,9 @@ var ajaxChat = {
     getUserNodeStringItems: function(encodedUserName, userID, userProfile, isInline) {
         var menu;
         if (encodedUserName !== this.encodedUserName) {
-            menu = '<li><a target="_blank" href="/index.php/jomsocial/'
+            menu = (!isInline ? '<li><a target="_blank" href="/index.php/jomsocial/'
                 + userProfile
-                + '/profile/" >Профиль</a></li>'
+                + '/profile/" >Профиль</a></li>' : '')
                 + '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/msg '
                 + encodedUserName
                 + ' \');">'
@@ -1290,7 +1291,7 @@ var ajaxChat = {
         newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);
         newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
-            + dateTime
+            + '<a href="javascript:ajaxChat.blinkMessage('+ messageID+ ');">'+dateTime+'</a>'
             + '<span class="'
             + userClass
             + '"'
@@ -1306,7 +1307,12 @@ var ajaxChat = {
         return newDiv;
 
     },
-
+    blinkMessage: function (messageID)
+    {
+        var messageNode = this.getMessageNode(messageID);
+        //messageNode.style.display = 'none';
+    },
+    
     getChatListUserNameTitle: function(userID, userName, userRole, ip) {
         return (ip !== null) ? ' title="IP: ' + ip + '"' : '';
     },
@@ -2636,14 +2642,15 @@ var ajaxChat = {
 	    if(!this.settings['hyperLinks']) {
 			return text;
 	    }
-	    return text.replace(/(^|\s|<br\/>)(((?:https?|ftp):\/\/)?([\w_\.-]{2,256}\.[\w\.]{2,4})(:\d{1,5})?(\/([\w+,\/%$^&\*=;\-_а-яА-Я\.]*)?((?:\?|#)[\w%\/\-+,а-яА-Я;.?=&#]*)?)?)/gim,
-	        function(str, s, a, prot, host, port, sa, sa1, sa2) { //sa2 пока не используем, может в будущем...
+            text = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
+	    return text.replace(/(^|\s|>)(((?:https?|ftp):\/\/)([\w_\.-]{2,256}\.[\w\.]{2,4})(:\d{1,5})?(\/([\w+,\/%$^&\*=;\-_а-яА-Я\)\(\.]*)?((?:\?|#)[\w%\/\)\(\-+,а-яА-Я;.?=&#]*)?)?)/gim,
+	        function(str, s, a, prot, host, port, sa, sa1, sa2) {
 	            var hostArr = host.split('.'),
-	                fe = (sa1 ? sa1.split('.').pop().toLowerCase() : '');
-
+	                fe = (sa1 ? sa1.split('.').pop().toLowerCase() : ''),
+                    c = (ajaxChat.dom['chatList'].offsetWidth - 50);
 	            switch (fe) {
 	            case "mp3":
-	                return s + (ajaxChat.audioHtml5['mp3'] ? "<audio style=\"height:30px; width:300px;\" src=\"" + a + "\" controls=\"true\"></audio> " : '<a href="' + a + '" onclick="window.open(this.href); return false;">Открыть mp3 </a> ');
+	                return s + (ajaxChat.audioHtml5['mp3'] ? "<audio style=\"height:30px; width:"+Math.min(c, 400)+"px;\" src=\"" + a + "\" controls></audio> " : '<a href="' + a + '" onclick="window.open(this.href); return false;">Скачать mp3 </a> ');
 	            case "jpg":
 	            case "jpeg":
 	            case "png":
@@ -2653,17 +2660,19 @@ var ajaxChat = {
 	                    + a
 	                    + '" onclick="window.open(this.href); return false;">'
 	                    + '<img class="bbCodeImage" style="max-width:'
-	                    + (ajaxChat.dom['chatList'].offsetWidth - 50)
+	                    + c
 	                    + 'px; max-height:200px;" src="'
 	                    + a
 	                    + '"/>'
 	                    + '</a>';
 	            default:
 	            {
+                    var width = Math.min(c, 400),
+                    height = width / 1.7;
 	                if (sa2 && helper.in_array('youtube', hostArr) !== -1)
-	                    return s + '<iframe width="350" height="205" src="https://www.youtube.com/embed/' + sa2.split(/[=\?&]+/)[2] + '" frameborder="0" allowfullscreen="ture"></iframe>';
+	                    return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa2.split(/[=\?&]+/)[2] + '" frameborder="0" allowfullscreen="ture"></iframe>';
 	                else if (sa1 && helper.in_array('youtu', hostArr) !== -1)
-	                    return s + '<iframe width="350" height="205" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
+	                    return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
 	                return s + '<a href="' + a + '" onclick="window.open(this.href); return false;">' + helper.truncate(a, 35) + '</a>';
 	            }
 	            }

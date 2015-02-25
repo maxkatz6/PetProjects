@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="[CONTENT_ENCODING/]"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE HTML >
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="[LANG_CODE/]" lang="[LANG_CODE/]" dir="[BASE_DIRECTION/]">
 <head>
+    <!--meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width,user-scalable=no" /-->
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta http-equiv="Content-Type" content="[CONTENT_TYPE/]"/>
-    <meta name="http-equiv" content="Content-type: text/html; charset=UTF-8"/>
+    <meta http-equiv="Cache-Control" content="public, must-revalidate"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Socio!PARTY</title>
     [STYLE_SHEETS/]
     <!--[if lt IE 8]><script type="text/javascript"> var isIElt8 = true; </script><![endif]-->
@@ -159,6 +160,7 @@
             document.getElementById('blinkSetting').checked = ajaxChat.getSetting('blink');
             document.getElementById('blinkIntervalSetting').value = ajaxChat.getSetting('blinkInterval');
             document.getElementById('blinkIntervalNumberSetting').value = ajaxChat.getSetting('blinkIntervalNumber');
+            //document.getElementById('commandAction').value = ajaxChat.lang['userMenuAction'];
         }
 
         ajaxChatConfig.loginChannelID = parseInt('[LOGIN_CHANNEL_ID/]');
@@ -179,7 +181,7 @@
         ajaxChatConfig.socketServerHost = decodeURIComponent('[SOCKET_SERVER_HOST/]');
         ajaxChatConfig.socketServerPort = parseInt('[SOCKET_SERVER_PORT/]');
         ajaxChatConfig.socketServerChatID = parseInt('[SOCKET_SERVER_CHAT_ID/]');
-
+        
         ajaxChat.init(ajaxChatConfig, ajaxChatLang, true, true, true, initialize);
         
         window.onbeforeunload = function (e) {
@@ -420,6 +422,7 @@
     <input type="button" id="submitButton" value="[LANG]messageSubmit[/LANG]" onclick=" ajaxChat.sendMessage(); "/>
 </div>
 <div id="bbCodeContainer">
+    <input id="commandAction" type="button" value="Действие" onclick="ajaxChat.insertMessageWrapper('/action ');"/>
     <input id="bbCodeBold" type="button" value="b" title="[LANG]bbCodeTitleBold[/LANG]" onclick=" ajaxChat.insertBBCode('b'); " style="font-weight: bold;"/>
     <input id="bbCodeItalic" type="button" value="i" title="[LANG]bbCodeTitleItalic[/LANG]" onclick=" ajaxChat.insertBBCode('i'); " style="font-style: italic;"/>
     <input id="bbCodeStrike" type="button" value="s" onclick=" ajaxChat.insertBBCode('s'); " style="text-decoration: line-through;"/>

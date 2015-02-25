@@ -160,6 +160,8 @@ body.ajax-chat {
 
 #content #emoticonsContainer {
     max-width: 300px;
+    max-height: 400px;
+    overflow: auto;
 }
 
 #content #emoticonsContainer a {
@@ -316,9 +318,9 @@ body.ajax-chat {
     #content #mainPanelContainer 
         {height:auto; top:25px; left:2px; right:2px; }
     #content #optionsContainer, #content #emoticonsContainer,
-    #content #messageLengthCounter  {display: none;}
+    #content #messageLengthCounter, #content #bbCodeContainer #commandAction  {display: none;}
     #content #optionsContainer {top: 25px;}
-    #content #onlineListContainer, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer 
+    #content #onlineListContainer, #content #helpContainer, #content #settingsContainer 
         {z-index: 1;bottom: 0;right: 0;top: 0;position: absolute;height: auto;width: 100%; display: none;}
     #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 
         { font-size: 0.9em; text-align: left;}
