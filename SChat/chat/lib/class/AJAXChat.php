@@ -263,8 +263,8 @@ class AJAXChat {
 				// Parse message requests:
 				$this->initMessageHandling();
 			}
-			// Send chat messages and online user list in XML format:
-			$this->sendXMLMessages();
+			// Send chat messages and online user list:
+			$this->sendMessages();
 		} else {
 			// Display XHTML content for non-ajax requests:
 			$this->sendXHTMLContent();
@@ -326,23 +326,11 @@ class AJAXChat {
 	function getTemplateFileName() {
 		switch($this->getView()) {
 			case 'chat':
-				if (file_exists(AJAX_CHAT_PATH.'lib/integration/'.$this->getConfig('integration').'/template/loggedIn.html')) {
-					return AJAX_CHAT_PATH.'lib/integration/'.$this->getConfig('integration').'/template/loggedIn.html';
-				} else {
-					return AJAX_CHAT_PATH.'lib/template/loggedIn.html';
-				}
+                            return AJAX_CHAT_PATH.'lib/template/loggedIn.html';
 			case 'logs':
-				if (file_exists(AJAX_CHAT_PATH.'lib/integration/'.$this->getConfig('integration').'/template/logs.html')) {
-					return AJAX_CHAT_PATH.'lib/integration/'.$this->getConfig('integration').'/template/logs.html';
-				} else {
-					return AJAX_CHAT_PATH.'lib/template/logs.html';
-				}
+                            return AJAX_CHAT_PATH.'lib/template/logs.html';
 			default:
-				if (file_exists(AJAX_CHAT_PATH.'lib/integration/'.$this->getConfig('integration').'/template/loggedOut.html')) {
-					return AJAX_CHAT_PATH.'lib/integration/'.$this->getConfig('integration').'/template/loggedOut.html';
-				} else {
-					return AJAX_CHAT_PATH.'lib/template/loggedOut.html';
-				}
+                            return AJAX_CHAT_PATH.'lib/template/loggedOut.html';
 		}
 	}
 
@@ -431,9 +419,7 @@ class AJAXChat {
 		$this->setUserName($userData['userName']);
 		$this->setLoginUserName($userData['userName']);
 		$this->setUserRole($userData['userRole']);
-		$this->setUserTIM($userData['userTIM']);
-		$this->setUserProfile($userData['userProfile']);
-		$this->setUserAvatar($userData['userAvatar']);
+		$this->setUserInfo(json_encode($userData['userInfo']));
 		$this->setLoggedIn(true);
 		$this->setLoginTimeStamp(time());
 		
@@ -600,9 +586,7 @@ class AJAXChat {
 					userName,
 					userRole,
 					channel,
-					userTIM,
-					userProfile,
-					userAvatar,
+					userInfo,
 					dateTime,
 					ip
 				)
@@ -611,9 +595,7 @@ class AJAXChat {
 					'.$this->db->makeSafe($this->getUserName()).',
 					'.$this->db->makeSafe($this->getUserRole()).',
 					'.$this->db->makeSafe($this->getChannel()).',
-					'.$this->db->makeSafe($this->getUserTIM()).',
-					'.$this->db->makeSafe($this->getUserProfile()).',
-					'.$this->db->makeSafe($this->getUserAvatar()).',
+					'.$this->db->makeSafe($this->getUserInfo()).',
 					NOW(),
 					'.$this->db->makeSafe($this->ipToStorageFormat($_SERVER['REMOTE_ADDR'])).'
 				);';
@@ -788,10 +770,12 @@ class AJAXChat {
 				// Custom or unknown command:
 				default:
 					if(!$this->parseCustomCommands($text, $textParts)) {
-						$this->insertChatBotMessage(
-							$this->getPrivateMessageID(),
-							'/error UnknownCommand '.$textParts[0]
-						);
+                                            $this->insertCustomMessage(
+                                                $this->getUserID(),
+                                                $this->getUserName(),
+                                                $this->getUserRole(),
+                                                $this->getChannel(),
+                                                $text);
 					}
 			}
 
@@ -1368,6 +1352,10 @@ class AJAXChat {
 		}
 	}
 
+	function isAllowedToWriteMessage() {
+		return ($this->getUserRole() != AJAX_CHAT_GUEST || $this->getConfig('allowGuestWrite') ? true : false);
+	}
+        
 	function insertMessage($text) {
 		if(!$this->isAllowedToWriteMessage())
 			return;
@@ -1488,14 +1476,6 @@ class AJAXChat {
 		return true;
 	}
 
-	function isAllowedToWriteMessage() {
-		if($this->getUserRole() != AJAX_CHAT_GUEST)
-			return true;
-		if($this->getConfig('allowGuestWrite'))
-			return true;
-		return false;
-	}
-
 	function insertChatBotMessage($channelID, $messageText, $ip=null, $mode=0) {
 		$this->insertCustomMessage(
 			$this->getConfig('chatBotID'),
@@ -1574,16 +1554,16 @@ class AJAXChat {
 		// 0 = normal messages
 		// 1 = channel messages (e.g. login/logout, channel enter/leave, kick)
 		// 2 = messages with online user updates (nick)
-
-		// Get the message XML content:
-		$xml = '<root chatID="'.$this->getConfig('socketServerChatID').'" channelID="'.$channelID.'" mode="'.$mode.'">';
+/*
+		// Get the message X.M.L content:
+		$x.m.l = '<root chatID="'.$this->getConfig('socketServerChatID').'" channelID="'.$channelID.'" mode="'.$mode.'">';
 		if($mode) {
 			// Add the list of online users if the user list has been updated ($mode > 0):
-			$xml .= $this->getChatViewOnlineUsersXML(array($channelID));
+			$x.m.l .= $this->getChatViewOnlineUsers.X.M.L(array($channelID));
 		}
 		if($mode != 1 || $this->getConfig('showChannelMessages')) {
-			$xml .= '<messages>';
-			$xml .= $this->getChatViewMessageXML(
+			$x.m.l .= '<messages>';
+			$x.m.l .= $this->getChatViewMessageX.M.L(
 				$messageID,
 				$timeStamp,
 				$userID,
@@ -1592,10 +1572,10 @@ class AJAXChat {
 				$channelID,
 				$text
 			);
-			$xml .= '</messages>';
+			$x.m.l .= '</messages>';
 		}
-		$xml .= '</root>';
-		return $xml;
+		$x.m.l .= '</root>';*/
+		return 'x.m.l';
 	}
 
 	function sendSocketMessage($message) {
@@ -1603,7 +1583,7 @@ class AJAXChat {
 		if($socket = @socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) {
 			if(@socket_connect($socket,	$this->getConfig('socketServerIP'),	$this->getConfig('socketServerPort'))) {
 				// Append a null-byte to the string as EOL (End Of Line) character
-				// which is required by Flash XML socket communication:
+				// which is required by Flash socket communication:
 				$message .= "\0";
 				@socket_write(
 					$socket,
@@ -1911,27 +1891,25 @@ class AJAXChat {
 		}
 	}
 
-	function sendXMLMessages() {
-		$httpHeader = new AJAXChatHTTPHeader('UTF-8', 'text/xml');
+	function sendMessages() {
+		$httpHeader = new AJAXChatHTTPHeader('UTF-8', 'application/json'); //or text/json 
 
 		// Send HTTP header:
 		$httpHeader->send();
 
-		// Output XML messages:
-			$m = $this->getXMLMessages();
-		echo $m;
+		echo json_encode($this->getMessages());
 	}
 
-	function getXMLMessages() {
+	function getMessages() {
 		switch($this->getView()) {
 			case 'chat':
-				return $this->getChatViewXMLMessages();
+				return $this->getChatViewJSONMessages();
 			case 'teaser':
-				return $this->getTeaserViewXMLMessages();
+				return $this->getTeaserViewJSONMessages();
 			case 'logs':
-				return $this->getLogsViewXMLMessages();
+				return $this->getLogsViewJSONMessages();
 			default:
-				return $this->getLogoutXMLMessage();
+				return array("infos" => array("logout" => $this->encodeSpecialChars($this->getConfig('logoutData'))));
 		}
 	}
 
@@ -1971,75 +1949,7 @@ class AJAXChat {
 			return $filterChannelMessages;
 	}
 
-	function getInfoMessagesXML() {
-		$xml = '<infos>';
-		// Go through the info messages:
-		foreach($this->getInfoMessages() as $type=>$infoArray) {
-			foreach($infoArray as $info) {
-				$xml .= '<info type="'.$type.'">';
-				$xml .= '<![CDATA['.$this->encodeSpecialChars($info).']]>';
-				$xml .= '</info>';
-			}
-		}
-		$xml .= '</infos>';
-		return $xml;
-	}
-
-	function getChatViewOnlineUsersXML($channelIDs) {
-		// Get the online users for the given channels:
-		$onlineUsersData = $this->getOnlineUsersData($channelIDs);
-		$xml = '<users>';
-		foreach($onlineUsersData as $onlineUserData) {
-			$xml .= '<user';
-			$xml .= ' userID="'.$onlineUserData['userID'].'"';
-				$xml .= ' userRole="'.$onlineUserData['userRole'].'"';
-				$xml .= ' channelID="'.$onlineUserData['channel'].'"';
-				$xml .= ' userProfile="'.$onlineUserData['userProfile'].'"';
-				$xml .= ' userTIM="'.$onlineUserData['userTIM'].'"';
-				$xml .= ' userAvatar="'.$onlineUserData['userAvatar'].'"';
-			$xml .= '>';
-			$xml .= '<![CDATA['.$this->encodeSpecialChars($onlineUserData['userName']).']]>';
-			$xml .= '</user>';
-		}
-		$xml .= '</users>';
-		return $xml;
-	}
-
-	function getLogoutXMLMessage() {
-		$xml = '<?xml version="1.0" encoding="UTF-8"?>';
-		$xml .= '<root>';
-		$xml .= '<infos>';
-		$xml .= '<info type="logout">';
-		$xml .= '<![CDATA['.$this->encodeSpecialChars($this->getConfig('logoutData')).']]>';
-		$xml .= '</info>';
-		$xml .= '</infos>';
-		$xml .= '</root>';
-		return $xml;
-	}
-
-	function getChatViewMessageXML(
-		$messageID,
-		$timeStamp,
-		$userID,
-		$userName,
-		$userRole,
-		$channelID,
-		$text
-		) {
-		$message = '<message';
-		$message .= ' id="'.$messageID.'"';
-		$message .= ' dateTime="'.date('r', $timeStamp).'"';
-		$message .= ' userID="'.$userID.'"';
-		$message .= ' userRole="'.$userRole.'"';
-		$message .= ' channelID="'.$channelID.'"';
-		$message .= '>';
-		$message .= '<username><![CDATA['.$this->encodeSpecialChars($userName).']]></username>';
-		$message .= '<text><![CDATA['.$this->encodeSpecialChars($text).']]></text>';
-		$message .= '</message>';
-		return $message;
-	}
-
-	function getChatViewMessagesXML() {
+	function getChatViewMessages() {
 		// Get the last messages in descending order (this optimises the LIMIT usage):
 		$sql = 'SELECT
 					id,
@@ -2047,7 +1957,7 @@ class AJAXChat {
 					userName,
 					userRole,
 					channel AS channelID,
-					UNIX_TIMESTAMP(dateTime) AS timeStamp,
+					dateTime,
 					text
 				FROM
 					'.$this->getDataBaseTable('messages').'
@@ -2068,35 +1978,22 @@ class AJAXChat {
 			die();
 		}
 
-		$messages = '';
-
+                $rows = array();
 		// Add the messages in reverse order so it is ascending again:
 		while($row = $result->fetch()) {
-			$message = $this->getChatViewMessageXML(
-				$row['id'],
-				$row['timeStamp'],
-				$row['userID'],
-				$row['userName'],
-				$row['userRole'],
-				$row['channelID'],
-				$row['text']
-			);
-			$messages = $message.$messages;
+                    $rows[] = $row;
 		}
 		$result->free();
 
-		$messages = '<messages>'.$messages.'</messages>';
-		return $messages;
+		return array_reverse($rows);
 	}
 
-	function getChatViewXMLMessages() {
-		$xml = '<?xml version="1.0" encoding="UTF-8"?>';
-		$xml .= '<root>';
-		$xml .= $this->getInfoMessagesXML();
-		$xml .= $this->getChatViewOnlineUsersXML(array($this->getChannel()));
-		$xml .= $this->getChatViewMessagesXML();
-		$xml .= '</root>';
-		return $xml;
+	function getChatViewJSONMessages() {
+            $json = array();
+            $json['infos'] = $this->getInfoMessages();
+            $json['users'] = $this->getOnlineUsersData(array($this->getChannel()));
+            $json['msgs'] = $this->getChatViewMessages();
+            return $json;
 	}
 
 	function getTeaserMessageCondition() {
@@ -2114,7 +2011,7 @@ class AJAXChat {
 		return $condition;
 	}
 
-	function getTeaserViewMessagesXML() {
+	function getTeaserViewMessages() {
 		// Get the last messages in descending order (this optimises the LIMIT usage):
 		$sql = 'SELECT
 					id,
@@ -2122,7 +2019,7 @@ class AJAXChat {
 					userName,
 					userRole,
 					channel AS channelID,
-					UNIX_TIMESTAMP(dateTime) AS timeStamp,
+					dateTime,
 					text
 				FROM
 					'.$this->getDataBaseTable('messages').'
@@ -2143,36 +2040,21 @@ class AJAXChat {
 			die();
 		}
 
-		$messages = '';
-
+                $rows = array();
 		// Add the messages in reverse order so it is ascending again:
 		while($row = $result->fetch()) {
-			$message = '';
-			$message .= '<message';
-			$message .= ' id="'.$row['id'].'"';
-			$message .= ' dateTime="'.date('r', $row['timeStamp']).'"';
-			$message .= ' userID="'.$row['userID'].'"';
-			$message .= ' userRole="'.$row['userRole'].'"';
-			$message .= ' channelID="'.$row['channelID'].'"';
-			$message .= '>';
-			$message .= '<username><![CDATA['.$this->encodeSpecialChars($row['userName']).']]></username>';
-			$message .= '<text><![CDATA['.$this->encodeSpecialChars($row['text']).']]></text>';
-			$message .= '</message>';
-			$messages = $message.$messages;
+                    $rows[] = $row;
 		}
 		$result->free();
 
-		$messages = '<messages>'.$messages.'</messages>';
-		return $messages;
+		return array_reverse($rows);
 	}
 
-	function getTeaserViewXMLMessages() {
-		$xml = '<?xml version="1.0" encoding="UTF-8"?>';
-		$xml .= '<root>';
-		$xml .= $this->getInfoMessagesXML();
-		$xml .= $this->getTeaserViewMessagesXML();
-		$xml .= '</root>';
-		return $xml;
+	function getTeaserViewJSONMessages() {
+            $json = array();
+            $json['infos'] = $this->getInfoMessages();
+            $json['msgs'] = $this->getTeaserViewMessages();
+            return $json;
 	}
 
 	function getLogsViewCondition() {
@@ -2283,14 +2165,14 @@ class AJAXChat {
 		return $condition;
 	}
 
-	function getLogsViewMessagesXML() {
+	function getLogsViewMessages() {
 		$sql = 'SELECT
 					id,
 					userID,
 					userName,
 					userRole,
 					channel AS channelID,
-					UNIX_TIMESTAMP(dateTime) AS timeStamp,
+					dateTime,
 					ip,
 					text
 				FROM
@@ -2310,36 +2192,21 @@ class AJAXChat {
 			die();
 		}
 
-		$xml = '<messages>';
+                $rows = array();
+		// Add the messages in reverse order so it is ascending again:
 		while($row = $result->fetch()) {
-			$xml .= '<message';
-			$xml .= ' id="'.$row['id'].'"';
-			$xml .= ' dateTime="'.date('r', $row['timeStamp']).'"';
-			$xml .= ' userID="'.$row['userID'].'"';
-			$xml .= ' userRole="'.$row['userRole'].'"';
-			$xml .= ' channelID="'.$row['channelID'].'"';
-			if($this->getUserRole() == AJAX_CHAT_ADMIN || $this->getUserRole() == AJAX_CHAT_MODERATOR) {
-				$xml .= ' ip="'.$this->ipFromStorageFormat($row['ip']).'"';
-			}
-			$xml .= '>';
-			$xml .= '<username><![CDATA['.$this->encodeSpecialChars($row['userName']).']]></username>';
-			$xml .= '<text><![CDATA['.$this->encodeSpecialChars($row['text']).']]></text>';
-			$xml .= '</message>';
+                    $rows[] = $row;
 		}
 		$result->free();
-
-		$xml .= '</messages>';
-
-		return $xml;
+                
+		return array_reverse($rows);
 	}
 
-	function getLogsViewXMLMessages() {
-		$xml = '<?xml version="1.0" encoding="UTF-8"?>';
-		$xml .= '<root>';
-		$xml .= $this->getInfoMessagesXML();
-		$xml .= $this->getLogsViewMessagesXML();
-		$xml .= '</root>';
-		return $xml;
+	function getLogsViewJSONMessages() {
+            $json = array();
+            $json['infos'] = $this->getInfoMessages();
+            $json['msgs'] = $this->getLogsViewMessages();
+            return $json;
 	}
 
 	function purgeLogs() {
@@ -2411,10 +2278,8 @@ class AJAXChat {
 						userName,
 						userRole,
 						channel,
-						userTIM,
-						userProfile,
-						userAvatar,
-						UNIX_TIMESTAMP(dateTime) AS timeStamp,
+						userInfo,
+						dateTime,
 						ip
 					FROM
 						'.$this->getDataBaseTable('online').'
@@ -2716,27 +2581,12 @@ class AJAXChat {
 		return $this->getSessionVar('Channel');
 	}
 
-		function getUserTIM() {
-			return $this->getSessionVar('userTIM');
+		function getUserInfo() {
+			return $this->getSessionVar('userInfo');
 		}
 
-		function setUserTIM($id) {
-			$this->setSessionVar('userTIM', $id);
-		}
-		function getUserProfile() {
-			return $this->getSessionVar('userProfile');
-		}
-
-		function setUserProfile($id) {
-			$this->setSessionVar('userProfile', $id);
-		}
-		
-		function getUserAvatar() {
-			return $this->getSessionVar('userAvatar');
-		}
-
-		function setUserAvatar($id) {
-			$this->setSessionVar('userAvatar', $id);
+		function setUserInfo($id) {
+			$this->setSessionVar('userInfo', $id);
 		}
 		
 	function setChannel($channel) {

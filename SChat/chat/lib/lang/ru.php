@@ -10,12 +10,12 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Имя';
 $lang['password'] = 'Пароль';
 $lang['login'] = 'Login';
 $lang['logout'] = 'Выйти';
-$lang['channel'] = 'Канал';
+$lang['channel'] = 'Комната';
 $lang['style'] = 'Стиль';
 $lang['language'] = 'Язык';
 $lang['inputLineBreak'] = 'Нажмите SHIFT+ENTER, чтобы перейти на новую строку';
@@ -68,9 +68,9 @@ $lang['helpItemDescDescribe'] = 'Описать действия в приват
 $lang['helpItemCodeDescribe'] = '/describe Имя_пользователя Текст';
 $lang['helpItemDescIgnore'] = 'Игнорировать/принимать сообщения от пользователей:';
 $lang['helpItemCodeIgnore'] = '/ignore Имя_пользователся';
-$lang['helpItemDescIgnoreList'] = 'List ignored users:';
+$lang['helpItemDescIgnoreList'] = 'Список игнорируемых пользователей:';
 $lang['helpItemCodeIgnoreList'] = '/ignore';
-$lang['helpItemDescWhereis'] = 'Display user channel:';
+$lang['helpItemDescWhereis'] = 'Отобразить комнату с пользователем:';
 $lang['helpItemCodeWhereis'] = '/whereis Username';
 $lang['helpItemDescKick'] = 'Выгнать пользователся (Kick) (только модераторы и администраторы):';
 $lang['helpItemCodeKick'] = '/kick Имя_пользователя [Минуты]';

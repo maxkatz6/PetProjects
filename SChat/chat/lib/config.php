@@ -19,11 +19,16 @@ define('AJAX_CHAT_GUEST',   0);
 // AJAX Chat config parameters:
 $AJAXChatConfig = array();
 
-// Folder name of the integration version (e.g. 'standalone'):
-$AJAXChatConfig['integration'] = 'joomla';
+$AJAXChatConfig['channels'] = array();
+$AJAXChatConfig['channels'][0] = 'Общая';
+$AJAXChatConfig['channels'][9] = 'Диванная';
+$AJAXChatConfig['channels'][10] = 'Альфа';
+$AJAXChatConfig['channels'][11] = 'Бета';
+$AJAXChatConfig['channels'][12] = 'Гамма';
+$AJAXChatConfig['channels'][13] = 'Дельта';
+$AJAXChatConfig['channels'][14] = 'Админы';
 
 // Database connection values:
-// Note: For most integration versions these values should be left as null
 $AJAXChatConfig['dbConnection'] = array();
 // Database hostname (e.g. 'localhost'):
 $AJAXChatConfig['dbConnection']['host'] = 'localhost';

@@ -18,7 +18,7 @@
 			infos += ',socketRegistrationID';
 		}
 		this.updateChat('&getInfos=' + this.encodeText(infos));
-	}
+	};
 
 	ajaxChat.updateChat = function(paramString) {
 		// Only update if we have parameters, are in monitor mode or the lastID has changed since the last update:
@@ -37,11 +37,11 @@
 		} else {
 			this.logsLastID = null;
 		}
-	}
+	};
 
 	ajaxChat.sendMessage = function() {
 		this.getLogs();	
-	}
+	};
 	
 	ajaxChat.getLogs = function() {
 		clearTimeout(this.timer);
@@ -49,7 +49,7 @@
 		this.lastID = 0;
 		this.logsCommand = null;
 		this.makeRequest(this.ajaxURL,'POST',this.getLogsCommand());
-	}
+	};
 	
 	ajaxChat.getLogsCommand = function() {
 		if(!this.logsCommand) {
@@ -69,7 +69,7 @@
 								+ '&search='	+ this.encodeText(this.dom['inputField'].value);
 		}
 		return this.logsCommand;
-	}
+	};
 
 	ajaxChat.onNewMessage = function(dateObject, userID, userName, userRoleClass, messageID, messageText, channelID, ip) {
 		if(messageText.indexOf('/delete') == 0) {
@@ -82,7 +82,7 @@
 			);
 		}
 		return true;
-	}
+	};
 	
 	ajaxChat.logout = function() {
 		clearTimeout(this.timer);
@@ -91,7 +91,7 @@
 
 	ajaxChat.switchLanguage = function(langCode) {
 		window.location.search = '?view=logs&lang='+langCode;
-	}
+	};
 
 	ajaxChat.setChatUpdateTimer = function() {
 		clearTimeout(this.timer);
@@ -106,7 +106,7 @@
 			}
 		}
 		this.timer = setTimeout('ajaxChat.updateChat(null);', timeout);
-	}
+	};
 	
 	ajaxChat.socketUpdate = function(data) {
 		if(this.logsMonitorMode) {
@@ -124,5 +124,5 @@
 				}
 			}
 		}
-	}
+	};
 	

@@ -23,7 +23,21 @@ require(AJAX_CHAT_PATH.'lib/class/AJAXChatFileSystem.php');
 require(AJAX_CHAT_PATH.'lib/class/AJAXChatHTTPHeader.php');
 require(AJAX_CHAT_PATH.'lib/class/AJAXChatLanguage.php');
 require(AJAX_CHAT_PATH.'lib/class/AJAXChatTemplate.php');
-require(AJAX_CHAT_PATH.'lib/integration/'.$AJAXChatConfig['integration'].'/CustomAJAXChat.php');
-require(AJAX_CHAT_PATH.'lib/integration/'.$AJAXChatConfig['integration'].'/CustomAJAXChatShoutBox.php');
-require(AJAX_CHAT_PATH.'lib/integration/'.$AJAXChatConfig['integration'].'/CustomAJAXChatInterface.php');
+require(AJAX_CHAT_PATH.'lib/class/CustomAJAXChat.php');
+require(AJAX_CHAT_PATH.'lib/class/CustomAJAXChatShoutBox.php');
+require(AJAX_CHAT_PATH.'lib/class/CustomAJAXChatInterface.php');
+
+define( '_JEXEC', 1 );
+
+define( 'DS', DIRECTORY_SEPARATOR );
+define('JPATH_BASE', dirname(dirname(dirname(__FILE__))));
+
+require_once( JPATH_BASE .DS.'includes'.DS.'defines.php' );
+require_once( JPATH_BASE .DS.'includes'.DS.'framework.php' );
+require_once( JPATH_BASE .DS.'libraries'.DS.'joomla'.DS.'factory.php');
+
+$mainframe = JFactory::getApplication('site');
+$mainframe->initialise();
+
+define('J_PREFIX', $mainframe->getCfg('dbprefix'));
 ?>

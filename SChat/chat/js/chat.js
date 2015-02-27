@@ -165,10 +165,7 @@ var ajaxChat = {
         this.debug = config['debug'];
         this.DOMbuffering = false;
         this.DOMbuffer = "";
-        //this.retryTimerDelay 		= (this.inactiveTimeout*6000 - this.timerRate)/4 + this.timerRate; //orig
-        //this.retryTimerDelay = (this.inactiveTimeout * 60000 - this.timerRate) / 4 + this.timerRate; //fix
-        //this.retryTimerDelay = Math.min(this.inactiveTimeout * 15000, 60000);                      //better
-        this.retryTimerDelay = Math.min(this.inactiveTimeout * 1500, 30000) * (helper.isMobile() ? 20 : 1); //the best
+        this.retryTimerDelay = this.inactiveTimeout * (helper.isMobile() ? 30000 : 1500); //the best
     },
 
     initDirectories: function() {
@@ -797,7 +794,6 @@ var ajaxChat = {
                 try {
                     ajaxChat.handleResponse(identifier);
                 } catch (__e) {
-                    var e;
                     try {
                         clearTimeout(ajaxChat.timer);
                     } catch (e) {
@@ -835,11 +831,11 @@ var ajaxChat = {
     },
 
     handleResponse: function(identifier) {
-        var xmlDoc;
+        var json;
         if (this.getHttpRequest(identifier).readyState === 4) {
             if (this.getHttpRequest(identifier).status === 200) {
                 clearTimeout(ajaxChat.retryTimer);
-                xmlDoc = this.getHttpRequest(identifier).responseXML;
+                json = this.getHttpRequest(identifier).responseText;
                 ajaxChat.setStatus('ok');
             } else {
                 // Connection status 0 can be ignored.
@@ -855,17 +851,17 @@ var ajaxChat = {
                 }
             }
         }
-        if (!xmlDoc) {
+        if (!json) {
             return false;
         }
-        this.handleXML(xmlDoc);
+        this.handleJSON(JSON.parse(json));
         return true;
     },
 
-    handleXML: function(xmlDoc) {
-        this.handleInfoMessages(xmlDoc.getElementsByTagName('info'));
-        this.handleOnlineUsers(xmlDoc.getElementsByTagName('user'));
-        this.handleChatMessages(xmlDoc.getElementsByTagName('message'));
+    handleJSON: function(json) {
+        this.handleInfoMessages(json.infos);
+        this.handleOnlineUsers(json.users);
+        this.handleChatMessages(json.msgs);
         this.channelSwitch = null;
         this.setChatUpdateTimer();
     },
@@ -887,81 +883,71 @@ var ajaxChat = {
         }
     },
 
-    handleInfoMessages: function(infoNodes) {
-        var infoType, infoData;
-        for (var i = 0; i < infoNodes.length; i++) {
-            infoType = infoNodes[i].getAttribute('type');
-            infoData = infoNodes[i].firstChild ? infoNodes[i].firstChild.nodeValue : '';
-            this.handleInfoMessage(infoType, infoData);
+    handleInfoMessages: function(infos) {
+        for (var key in infos) {
+            var infoData = infos[key][0];
+            switch (key) {
+            case 'channelSwitch':
+                this.clearChatList();
+                this.clearOnlineUsersList();
+                this.setSelectedChannel(infoData);
+                this.channelName = infoData;
+                this.channelSwitch = true;
+                break;
+            case 'channelName':
+                this.setSelectedChannel(infoData);
+                this.channelName = infoData;
+                break;
+            case 'channelID':
+                this.channelID = infoData;
+                break;
+            case 'userID':
+                this.userID = infoData;
+                break;
+            case 'userName':
+                this.userName = infoData.replace('_', ' ');
+                this.encodedUserName = this.scriptLinkEncode(infoData);
+                this.userNodeString = null;
+                break;
+            case 'userRole':
+                this.userRole = infoData;
+                break;
+            case 'logout':
+                this.handleLogout(infoData);
+                return;
+            case 'socketRegistrationID':
+                this.socketRegistrationID = infoData;
+                this.socketRegister();
+            }
         }
     },
-
-    handleInfoMessage: function(infoType, infoData) {
-        switch (infoType) {
-        case 'channelSwitch':
-            this.clearChatList();
-            this.clearOnlineUsersList();
-            this.setSelectedChannel(infoData);
-            this.channelName = infoData;
-            this.channelSwitch = true;
-            break;
-        case 'channelName':
-            this.setSelectedChannel(infoData);
-            this.channelName = infoData;
-            break;
-        case 'channelID':
-            this.channelID = infoData;
-            break;
-        case 'userID':
-            this.userID = infoData;
-            break;
-        case 'userName':
-            this.userName = infoData.replace('_', ' ');
-            this.encodedUserName = this.scriptLinkEncode(infoData);
-            this.userNodeString = null;
-            break;
-        case 'userRole':
-            this.userRole = infoData;
-            break;
-        case 'logout':
-            this.handleLogout(infoData);
-            return;
-        case 'socketRegistrationID':
-            this.socketRegistrationID = infoData;
-            this.socketRegister();
-        }
-    },
-
+    
     ////////////////////
     ////            ////
     //////////////////// 
     ////            ////
     ////////////////////
-    handleOnlineUsers: function(userNodes) {
-        if (userNodes.length) {
+    handleOnlineUsers: function(json) {
+        if (json.length) {
             var index,
                 userID,
                 userName,
                 userRole,
-                userProfile,
-                userTIM,
-                userAvatar,
+                userInfo,
                 i,
                 onlineUsers = [];
-            for (i = 0; i < userNodes.length; i++) {
-                userID = userNodes[i].getAttribute('userID');
-                userName = userNodes[i].firstChild ? userNodes[i].firstChild.nodeValue : '';
-                userRole = userNodes[i].getAttribute('userRole');
-                userTIM = userNodes[i].getAttribute('userTIM');
-                userProfile = userNodes[i].getAttribute('userProfile');
-                userAvatar = userNodes[i].getAttribute('userAvatar');
+            for (i = 0; i < json.length; i++) {
+                userID = json[i].userID;
+                userName = json[i].userName ? json[i].userName : '';
+                userRole = json[i].userRole;
+                userInfo = JSON.parse(json[i].userInfo);
                 onlineUsers.push(userID);
                 index = this.arraySearch(userID, this.usersList);
                 if (index === -1) {
-                    this.addUserToOnlineList(userID, userName, userRole, userTIM, userProfile, userAvatar);
+                    this.addUserToOnlineList(userID, userName, userRole, userInfo);
                 } else if (this.userNamesList[index] !== userName) {
                     this.removeUserFromOnlineList(userID, index);
-                    this.addUserToOnlineList(userID, userName, userRole, userTIM, userProfile, userAvatar);
+                    this.addUserToOnlineList(userID, userName, userRole, userInfo);
                 }
             }
             // Clear the offline users from the online users list:
@@ -978,32 +964,30 @@ var ajaxChat = {
     ////////////////////
     ////            ////
     ////////////////////
-    handleChatMessages: function(messageNodes) {
-        var userNode, userName, textNode, messageText, i;
-        if (messageNodes.length) {
-            for (i = 0; i < messageNodes.length; i++) {
+    handleChatMessages: function(json) {
+        var userName, textNode, messageText, i;
+        if (json.length) {
+            for (i = 0; i < json.length; i++) {
                 this.DOMbuffering = true;
-                userNode = messageNodes[i].getElementsByTagName('username')[0];
-                userName = userNode.firstChild ? userNode.firstChild.nodeValue.replace('_', ' ') : '';
-                textNode = messageNodes[i].getElementsByTagName('text')[0];
-                messageText = textNode.firstChild ? textNode.firstChild.nodeValue : '';
-                if (i === (messageNodes.length - 1)) {
+                userName = json[i].userName ? json[i].userName.replace('_', ' ') : '';
+                messageText = json[i].text ? json[i].text : '';
+                if (i === (json.length - 1)) {
                     this.DOMbuffering = false;
                 }
                 this.addMessageToChatList(
-                    new Date(messageNodes[i].getAttribute('dateTime')),
-                    messageNodes[i].getAttribute('userID'),
+                    new Date(json[i].dateTime),
+                    json[i].userID,
                     userName,
-                    messageNodes[i].getAttribute('userRole'),
-                    messageNodes[i].getAttribute('id'),
+                    json[i].userRole,
+                    json[i].id,
                     messageText,
-                    messageNodes[i].getAttribute('channelID'),
-                    messageNodes[i].getAttribute('ip')
+                    json[i].channelID,
+                    json[i].ip
                 );
             }
             this.DOMbuffering = false;
             this.updateChatlistView();
-            this.lastID = messageNodes[messageNodes.length - 1].getAttribute('id');
+            this.lastID = json[json.length - 1].id;
         }
     },
 
@@ -1042,13 +1026,13 @@ var ajaxChat = {
         }
     },
 
-    addUserToOnlineList: function(userID, userName, userRole, userTIM, userProfile, userAvatar) {
+    addUserToOnlineList: function(userID, userName, userRole, userInfo) {
         this.usersList.push(userID);
         this.userNamesList.push(userName);
         if (this.dom['onlineList']) {
             this.updateDOM(
                 'onlineList',
-                this.getUserNodeString(userID, userName, userRole, userTIM, userProfile, userAvatar),
+                this.getUserNodeString(userID, userName, userRole, userInfo),
                 (this.userID === userID)
             );
         }
@@ -1066,7 +1050,7 @@ var ajaxChat = {
     },
     ////            ////
     ////////////////////
-    getUserNodeString: function(userID, userName, userRole, userTIM, userProfile, userAvatar) {
+    getUserNodeString: function(userID, userName, userRole, userInfo) {
         var encodedUserName, str;
         if (this.userNodeString && userID === this.userID) {
             return this.userNodeString;
@@ -1075,14 +1059,14 @@ var ajaxChat = {
             userName = userName.replace('_', ' ');
             str = '<div id="' + this.getUserDocumentID(userID) + '">'
                 + "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
-                + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userAvatar !== "anon" && userAvatar !== '') ? "/" + userAvatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
+                + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userInfo.avatar && userInfo.avatar !== "anon" && userInfo.avatar !== '') ? "/" + userInfo.avatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
                 + "<a style='font-size: 13px; left: 38px; bottom: 5px;position: absolute;' href=\"javascript:ajaxChat.toUser('" + userName + "');\">" + userName + "</a>"
-                + (userTIM !== "none" ? "<img src=\"/chat/img/tim/" + userTIM + ".png\" border=\"0\" style=\"position: absolute;right: 25px;bottom: 5px;\" ></img>" : "")
+                + (userInfo.tim !== "none" ? "<img src=\"/chat/img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: 25px;bottom: 5px;\" ></img>" : "")
                 + "<a id='showMenuButton' style=' position: absolute; right: 0px; bottom: 5px; background-position: -46px 0px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
-                + this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + ", '" + userProfile + "');\"></a>"
+                + this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + " );\"></a>"
                 + "</div>"
                 + '<ul class="userMenu" style="display:none;" id="' + this.getUserMenuDocumentID(userID)
-                + ((userID === this.userID) ? '">' + this.getUserNodeStringItems(encodedUserName, userID, userProfile, false) : '">')
+                + ((userID === this.userID) ? '">' + this.getUserNodeStringItems(encodedUserName, userID, false) : '">')
                 + '</ul>'
                 + '</div>';
 
@@ -1093,7 +1077,7 @@ var ajaxChat = {
         }
     },
 
-    toggleUserMenu: function(menuID, userName, userID, userProfile) {
+    toggleUserMenu: function(menuID, userName, userID) {
         // If the menu is empty, fill it with user node menu items before toggling it.
         var isInline = false;
         if (menuID.indexOf('ium') >= 0) {
@@ -1105,7 +1089,6 @@ var ajaxChat = {
                 this.getUserNodeStringItems(
                     userName, //this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),
                     userID,
-                    userProfile,
                     isInline
                 ),
                 false,
@@ -1116,12 +1099,12 @@ var ajaxChat = {
         this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
     },
 
-    getUserNodeStringItems: function(encodedUserName, userID, userProfile, isInline) {
+    getUserNodeStringItems: function(encodedUserName, userID, isInline) {
         var menu;
         if (encodedUserName !== this.encodedUserName) {
-            menu = (!isInline ? '<li><a target="_blank" href="/index.php/jomsocial/'
-                + userProfile
-                + '/profile/" >Профиль</a></li>' : '')
+            menu = '<li><a target="_blank" href="/index.php/jomsocial/'
+                + "/index.php?option=com_community&view=profile&userid="+userID
+                + '/profile/" >Профиль</a></li>'
                 + '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/msg '
                 + encodedUserName
                 + ' \');">'
@@ -1291,7 +1274,7 @@ var ajaxChat = {
         newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);
         newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
-            + '<a href="javascript:ajaxChat.blinkMessage('+ messageID+ ');">'+dateTime+'</a>'
+            + /*'<a href="javascript:ajaxChat.blinkMessage('+ messageID+ ');">'+*/dateTime//+'</a>'
             + '<span class="'
             + userClass
             + '"'
