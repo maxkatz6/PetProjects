@@ -53,7 +53,15 @@ var ajaxChat = {
     privateMessageDiff: null,
     showChannelMessages: null,
     messageTextMaxLength: null,
-
+    socketServerEnabled: null,
+    socketServerHost: null,
+    socketServerPort: null,
+    socketServerChatID: null,
+    socket: null,
+    socketIsConnected: null,
+    socketTimerRate: null,
+    socketReconnectTimer: null,
+    socketRegistrationID: null,
     userID: null,
     userName: null,
     userRole: null,
@@ -664,8 +672,7 @@ var ajaxChat = {
         var messageParts;
         if (this.settings['audio'] && this.sounds && this.lastID && !this.channelSwitch) {
 
-            var messagePart = (messageText.indexOf('[color') !== -1 ? messageText.substring(messageText.indexOf(']') + 1) : messageText).split(/\s*,\s*/, 1)[0];
-            if (this.userName === messagePart) {
+        if (new RegExp('(?:^|, |])' + this.userName + ', ','gm').test(messageText)){
                 this.playSound(this.settings['soundPrivate']);
                 return;
             }
@@ -1033,8 +1040,7 @@ var ajaxChat = {
     ////            ////
     ////////////////////
     toUser: function(nick) {
-        var messagePart = this.dom['inputField'].value.split(/\s*,\s*/, 1)[0];
-        if (messagePart !== nick) {
+        if (!(new RegExp('(?:^|, )' + nick + ', ','gm').test(this.dom['inputField'].value))) {
             this.dom['inputField'].value = nick + ", " + this.dom['inputField'].value;
         }
         this.dom['inputField'].focus();
@@ -1256,7 +1262,7 @@ var ajaxChat = {
         if (messageText.indexOf('/privmsg') === 0 || messageText.indexOf('/privmsgto') === 0 || messageText.indexOf('/privaction') === 0) {
             rowClass += ' private';
         }
-        if ((messageText.indexOf('[color') !== -1 ? messageText.substring(messageText.indexOf(']') + 1) : messageText).split(/\s*,\s*/, 1)[0] === this.userName) {
+        if (new RegExp('(?:^|, |])' + this.userName + ', ','gm').test(messageText)){
             rowClass += ' toMe';
         }
         var dateTime = this.settings['dateFormat'] ? '<span class="dateTime">'

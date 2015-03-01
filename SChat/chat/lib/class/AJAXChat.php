@@ -2563,7 +2563,7 @@ class AJAXChat {
 	}
 
 	function setUserName($name) {
-		$this->setSessionVar('UserName', $this->encodeSpecialChars($name)); //TODO
+		$this->setSessionVar('UserName', $name);
 	}
 
 	function getLoginUserName() {
