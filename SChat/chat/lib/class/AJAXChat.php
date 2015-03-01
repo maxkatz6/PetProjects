@@ -1554,28 +1554,30 @@ class AJAXChat {
 		// 0 = normal messages
 		// 1 = channel messages (e.g. login/logout, channel enter/leave, kick)
 		// 2 = messages with online user updates (nick)
-/*
-		// Get the message X.M.L content:
-		$x.m.l = '<root chatID="'.$this->getConfig('socketServerChatID').'" channelID="'.$channelID.'" mode="'.$mode.'">';
-		if($mode) {
-			// Add the list of online users if the user list has been updated ($mode > 0):
-			$x.m.l .= $this->getChatViewOnlineUsers.X.M.L(array($channelID));
+
+            $json = array();
+            $json['chatID'] = $this->getConfig('socketServerChatID');
+            $json['channelID'] = $channelID;
+            $json['mode'] = $mode;
+            if($mode) {
+                $json['users'] = array();
+                $onlineUsersData = $this->getOnlineUsersData($channelIDs);
+		foreach($onlineUsersData as $onlineUserData) {
+                    $onlineUserData['userName'] = $this->encodeSpecialChars($onlineUserData['userName']);
+                    $json['users'][] = $onlineUserData;
 		}
-		if($mode != 1 || $this->getConfig('showChannelMessages')) {
-			$x.m.l .= '<messages>';
-			$x.m.l .= $this->getChatViewMessageX.M.L(
-				$messageID,
-				$timeStamp,
-				$userID,
-				$userName,
-				$userRole,
-				$channelID,
-				$text
-			);
-			$x.m.l .= '</messages>';
-		}
-		$x.m.l .= '</root>';*/
-		return 'x.m.l';
+            }
+            if($mode != 1 || $this->getConfig('showChannelMessages')) {
+                $json['messages'] = array();
+                $json['messages']['id'] = $messageID;
+                $json['messages']['dateTime'] = $timeStamp;
+                $json['messages']['userID'] = $userID;
+                $json['messages']['userRole'] = $userRole;
+                $json['messages']['channelID'] = $channelID;
+                $json['messages']['userName'] = $this->encodeSpecialChars($userName);
+                $json['messages']['text'] = $this->encodeSpecialChars($text);
+            }
+            return $json;
 	}
 
 	function sendSocketMessage($message) {
@@ -1596,15 +1598,13 @@ class AJAXChat {
 	}
 
 	function updateSocketAuthentication($userID, $socketRegistrationID=null, $channels=null) {
-		// If no $socketRegistrationID or no $channels are given the authentication is removed for the given user:
-		$authentication = '<authenticate chatID="'.$this->getConfig('socketServerChatID').'" userID="'.$userID.'" regID="'.$socketRegistrationID.'">';
-		if($channels) {
-			foreach($channels as $channelID) {
-				$authentication .= '<channel id="'.$channelID.'"/>';
-			}
-		}
-		$authentication .= '</authenticate>';
-		$this->sendSocketMessage($authentication);
+            // If no $socketRegistrationID or no $channels are given the authentication is removed for the given user:
+            $json = array();
+            $json['chatID'] = $this->getConfig('socketServerChatID');
+            $json['userID'] = $userID;
+            $json['regID'] = $socketRegistrationID;
+            $json['channels'] = $channels;
+            $this->sendSocketMessage(json_encode($json));
 	}
 
 	function setSocketRegistrationID($value) {
@@ -1981,6 +1981,8 @@ class AJAXChat {
                 $rows = array();
 		// Add the messages in reverse order so it is ascending again:
 		while($row = $result->fetch()) {
+                    $row['userName'] = $this->encodeSpecialChars($row['userName']);
+                    $row['text'] = $this->encodeSpecialChars($row['text']);
                     $rows[] = $row;
 		}
 		$result->free();
@@ -2043,6 +2045,8 @@ class AJAXChat {
                 $rows = array();
 		// Add the messages in reverse order so it is ascending again:
 		while($row = $result->fetch()) {
+                    $row['userName'] = $this->encodeSpecialChars($row['userName']);
+                    $row['text'] = $this->encodeSpecialChars($row['text']);
                     $rows[] = $row;
 		}
 		$result->free();
@@ -2195,6 +2199,10 @@ class AJAXChat {
                 $rows = array();
 		// Add the messages in reverse order so it is ascending again:
 		while($row = $result->fetch()) {
+                    $row['userName'] =$this->encodeSpecialChars($row['userName']);
+                    $row['text'] = $this->encodeSpecialChars($row['text']);
+                    $row['ip'] = ($this->getUserRole() == AJAX_CHAT_ADMIN || $this->getUserRole() == AJAX_CHAT_MODERATOR ? 
+                            $this->ipFromStorageFormat($row['ip']) : '0.0.0.0');
                     $rows[] = $row;
 		}
 		$result->free();
@@ -2226,20 +2234,20 @@ class AJAXChat {
 	}
 
 	function getInfoMessages($type=null) {
-		if(!isset($this->_infoMessages)) {
-			$this->_infoMessages = array();
-		}
-		if($type) {
-			if(!isset($this->_infoMessages[$type])) {
-				$this->_infoMessages[$type] = array();
-			}
-			return $this->_infoMessages[$type];
-		} else {
-			return $this->_infoMessages;
-		}
+            if(!isset($this->_infoMessages)) {
+                    $this->_infoMessages = array();
+            }
+            if($type) {
+                    if(!isset($this->_infoMessages[$type])) {
+                            $this->_infoMessages[$type] = array();
+                    }
+                    return $this->_infoMessages[$type];
+            } else {
+                return $this->_infoMessages;
+            }
 	}
-
-	function addInfoMessage($info, $type='error') {
+        
+        function addInfoMessage($info, $type='error') {
 		if(!isset($this->_infoMessages)) {
 			$this->_infoMessages = array();
 		}
@@ -2555,7 +2563,7 @@ class AJAXChat {
 	}
 
 	function setUserName($name) {
-		$this->setSessionVar('UserName', $name);
+		$this->setSessionVar('UserName', $this->encodeSpecialChars($name)); //TODO
 	}
 
 	function getLoginUserName() {

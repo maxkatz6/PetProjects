@@ -53,15 +53,7 @@ var ajaxChat = {
     privateMessageDiff: null,
     showChannelMessages: null,
     messageTextMaxLength: null,
-    socketServerEnabled: null,
-    socketServerHost: null,
-    socketServerPort: null,
-    socketServerChatID: null,
-    socket: null,
-    socketIsConnected: null,
-    socketTimerRate: null,
-    socketReconnectTimer: null,
-    socketRegistrationID: null,
+
     userID: null,
     userName: null,
     userRole: null,
@@ -569,7 +561,7 @@ var ajaxChat = {
                         }
                         arguments.callee.httpRequest.open(
                             'GET',
-                            'data:text/xml;charset=utf-8,' + encodeURIComponent(str),
+                            'data:text/xml;charset=utf-8,' + this.encodeText(str),
                             false
                         );
                         arguments.callee.httpRequest.send(null);
@@ -905,7 +897,7 @@ var ajaxChat = {
                 this.userID = infoData;
                 break;
             case 'userName':
-                this.userName = infoData.replace('_', ' ');
+                this.userName = infoData;
                 this.encodedUserName = this.scriptLinkEncode(infoData);
                 this.userNodeString = null;
                 break;
@@ -969,7 +961,7 @@ var ajaxChat = {
         if (json.length) {
             for (i = 0; i < json.length; i++) {
                 this.DOMbuffering = true;
-                userName = json[i].userName ? json[i].userName.replace('_', ' ') : '';
+                userName = json[i].userName ? json[i].userName : '';
                 messageText = json[i].text ? json[i].text : '';
                 if (i === (json.length - 1)) {
                     this.DOMbuffering = false;
@@ -1056,7 +1048,7 @@ var ajaxChat = {
             return this.userNodeString;
         } else {
             encodedUserName = this.scriptLinkEncode(userName);
-            userName = userName.replace('_', ' ');
+            userName = userName;
             str = '<div id="' + this.getUserDocumentID(userID) + '">'
                 + "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
                 + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userInfo.avatar && userInfo.avatar !== "anon" && userInfo.avatar !== '') ? "/" + userInfo.avatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
@@ -1087,7 +1079,7 @@ var ajaxChat = {
             this.updateDOM(
                 menuID,
                 this.getUserNodeStringItems(
-                    userName, //this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),
+                    this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),
                     userID,
                     isInline
                 ),
@@ -1483,60 +1475,51 @@ var ajaxChat = {
     encodeSpecialChars: function(text) {
         return text.replace(
             /[&<>'"]/g,
-            this.encodeSpecialCharsCallback
-        );
+            function(str) {
+                switch (str) {
+                case '&':
+                    return '&amp;';
+                case '<':
+                    return '&lt;';
+                case '>':
+                    return '&gt;';
+                case '\'':
+                    return '&#39;';
+                case '"':
+                    return '&quot;';
+                default:
+                    return str;
+            }
+        });
     },
-
-    encodeSpecialCharsCallback: function(str) {
-        switch (str) {
-        case '&':
-            return '&amp;';
-        case '<':
-            return '&lt;';
-        case '>':
-            return '&gt;';
-        case '\'':
-            // As &apos; is not supported by IE, we use &#39; as replacement for ('):
-            return '&#39;';
-        case '"':
-            return '&quot;';
-        default:
-            return str;
-        }
-    },
-
+        
     decodeSpecialChars: function(text) {
         var regExp = new RegExp('(&amp;)|(&lt;)|(&gt;)|(&#39;)|(&quot;)', 'g');
 
         return text.replace(
             regExp,
-            this.decodeSpecialCharsCallback
+            function(str) {
+                switch (str) {
+                case '&amp;':
+                    return '&';
+                case '&lt;':
+                    return '<';
+                case '&gt;':
+                    return '>';
+                case '&#39;':
+                    return '\'';
+                case '&quot;':
+                    return '"';
+                default:
+                    return str;
+                }
+            }
         );
     },
 
-    decodeSpecialCharsCallback: function(str) {
-        switch (str) {
-        case '&amp;':
-            return '&';
-        case '&lt;':
-            return '<';
-        case '&gt;':
-            return '>';
-        case '&#39;':
-            return '\'';
-        case '&quot;':
-            return '"';
-        default:
-            return str;
-        }
-    },
-
-    inArray: function(haystack, needle) {
-        var i = haystack.length;
-        while (i--) {
-            if (haystack[i] === needle) {
-                return true;
-            }
+    inArray: function(array, value) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i] === value) return true;
         }
         return false;
     },
@@ -1835,10 +1818,7 @@ var ajaxChat = {
                 }
             }
         }
-        if (this.inArray(this.getIgnoredUserNames(), userName)) {
-            return true;
-        }
-        return false;
+        return (this.inArray(this.getIgnoredUserNames(), userName));
     },
 
     deleteMessage: function(messageID) {
@@ -1906,7 +1886,7 @@ var ajaxChat = {
     },
 
     scriptLinkEncode: function(text) {
-        return decodeURIComponent(this.encodeText(this.addSlashes(this.decodeSpecialChars(text))));
+        return this.decodeText(this.encodeText(this.addSlashes(this.decodeSpecialChars(text))));
     },
 
     scriptLinkDecode: function(text) {
@@ -2117,7 +2097,7 @@ var ajaxChat = {
                 return text;
             }
             var textParts = text.split(' ');
-            textParts[1] = textParts[1].replace('_', ' ');
+            textParts[1] = textParts[1];
             switch (textParts[0]) {
             case '/login':
                 return this.replaceCommandLogin(textParts);
@@ -2491,7 +2471,7 @@ var ajaxChat = {
             menu += '<a href="javascript:ajaxChat.toggleUserMenu(\''
                 + this.getInlineUserMenuDocumentID(this.userMenuCounter, i)
                 + '\', \''
-                + this.scriptLinkEncode(users[i].replace(' ', '_'))
+                + this.scriptLinkEncode(users[i])
                 + '\', null);" title="'
                 + this.lang['toggleUserMenu'].replace(/%s/, users[i])
                 + '" dir="'
@@ -2650,16 +2630,20 @@ var ajaxChat = {
 	                    + '</a>';
 	            default:
 	            {
-                    var width = Math.min(c, 400),
-                    height = width / 1.7;
-	                if (sa2 && helper.in_array('youtube', hostArr) !== -1)
+                        var width = Math.min(c, 400),
+                        height = width / 1.7;
+	                if (sa2 && ajaxChat.inArray(hostArr, 'youtube'))
 	                    return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa2.split(/[=\?&]+/)[2] + '" frameborder="0" allowfullscreen="ture"></iframe>';
-	                else if (sa1 && helper.in_array('youtu', hostArr) !== -1)
-	                    return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
+	                else if (sa1){
+                            if (ajaxChat.inArray(hostArr, 'youtu'))
+                                return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
+                            else if (ajaxChat.inArray(hostArr, 'coub'))
+                                return s + '<iframe width="'+width+'" height="'+height+'" src="http://coub.com/embed/'+sa1.split('/').pop()+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
+                        }
 	                return s + '<a href="' + a + '" onclick="window.open(this.href); return false;">' + helper.truncate(a, 35) + '</a>';
 	            }
 	            }
-	        });
+	    });
 	},
 
 	replaceEmoticons: function(text) {
@@ -2796,7 +2780,7 @@ var ajaxChat = {
 		var path = '; path='+this.cookiePath;
 		var domain = this.cookieDomain ? '; domain='+this.cookieDomain : '';
 		var secure = this.cookieSecure ? '; secure' : '';
-		document.cookie = name+'='+encodeURIComponent(value)+expires+path+domain+secure;
+		document.cookie = name+'='+this.encodeText(value)+expires+path+domain+secure;
 	},
 
 	readCookie: function(name) {
@@ -2810,7 +2794,7 @@ var ajaxChat = {
 				c = c.substring(1, c.length);
 			}
 			if(c.indexOf(nameEQ) === 0) {
-				return decodeURIComponent(c.substring(nameEQ.length, c.length));
+				return this.decodeText(c.substring(nameEQ.length, c.length));
 			}
 		}
 		return null;
@@ -2831,15 +2815,6 @@ var ajaxChat = {
 	finalize: function() {
 		if(typeof this.finalizeFunction === 'function') {
 			this.finalizeFunction();
-		}
-		// Ensure the socket connection is closed on unload:
-		if(this.socket) {
-			try {
-				this.socket.close();
-				this.socket = null;
-			} catch(e) {
-				this.debugMessage('finalize::closeSocket', e);
-			}
 		}
 		this.persistSettings();
 		this.persistStyle();
@@ -2864,11 +2839,5 @@ var helper = {
     },
     truncate: function(str, maxlength) {
         return (str.length > maxlength ? str.slice(0, maxlength - 3) + '...' : str);
-    },
-    in_array: function(value, array) {
-        for (var i = 0; i < array.length; i++) {
-            if (array[i] === value) return i;
-        }
-        return -1;
     }
 };
