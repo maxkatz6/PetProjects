@@ -34,11 +34,13 @@ class CustomAJAXChat extends AJAXChat {
     // Store the channels the current user has access to
     // Make sure channel names don't contain any whitespace
     function &getChannels() {
-            if($this->_channels === null) {
-                $this->_channels = array();
+        if($this->_channels === null) {
+            $this->_channels = array();
+            if($this->getUserRole() == AJAX_CHAT_ADMIN) {
+                $validChannels = array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
+            } else {	
                 $tim = json_decode($this->getUserInfo())->tim;
-
-                switch ($tim{0} )
+                switch ($tim{0})
                 {
                     case "1": $validChannels= array(0,1,2,3,4,5,6,7,8,9,10); break;
                     case "2": $validChannels= array(0,1,2,3,4,5,6,7,8,9,11); break;
@@ -46,20 +48,21 @@ class CustomAJAXChat extends AJAXChat {
                     case "4": $validChannels= array(0,1,2,3,4,5,6,7,8,9,13); break;
                     default : $validChannels= array(0,1,2,3,4,5,6,7,8,9   ); break;
                 }
-                foreach($this->getAllChannels() as $key=>$value) {
-                    if ($value == $this->getConfig('defaultChannelID')) {
-                            $this->_channels[$key] = $value;
-                            continue;
-                    }
-                    if($this->getConfig('limitChannelList') && !in_array($value, $this->getConfig('limitChannelList'))) {
-                            continue;
-                    }
-                    if(in_array($value, $validChannels)) {
-                            $this->_channels[$key] = $value;
-                    }
+            }
+            foreach($this->getAllChannels() as $key=>$value) {
+                if ($value == $this->getConfig('defaultChannelID')) {
+                    $this->_channels[$key] = $value;
+                    continue;
+                }
+                if($this->getConfig('limitChannelList') && !in_array($value, $this->getConfig('limitChannelList'))) {
+                    continue;
+                }
+                if(in_array($value, $validChannels)) {
+                    $this->_channels[$key] = $value;
                 }
             }
-            return $this->_channels;
+        }
+        return $this->_channels;
     }
 
     // Store all existing channels

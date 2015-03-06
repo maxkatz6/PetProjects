@@ -66,7 +66,7 @@ body.ajax-chat {
 	overflow:auto;
 }
 #content #chatList .toMe {
-	border:1px dashed #B22222;
+	border:3px double #B22222;
 }
 
 #content #mainPanelContainer { 

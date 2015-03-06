@@ -974,7 +974,7 @@ var ajaxChat = {
                     this.DOMbuffering = false;
                 }
                 this.addMessageToChatList(
-                    new Date(json[i].dateTime),
+                    new Date(json[i].dateTime.replace(/-/g,'/')),
                     json[i].userID,
                     userName,
                     json[i].userRole,
@@ -1054,12 +1054,11 @@ var ajaxChat = {
             return this.userNodeString;
         } else {
             encodedUserName = this.scriptLinkEncode(userName);
-            userName = userName;
             str = '<div id="' + this.getUserDocumentID(userID) + '">'
                 + "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
                 + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userInfo.avatar && userInfo.avatar !== "anon" && userInfo.avatar !== '') ? "/" + userInfo.avatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
                 + "<a style='font-size: 13px; left: 38px; bottom: 6px;position: absolute;' href=\"javascript:ajaxChat.toUser('" + userName + "');\">" + userName + "</a>"
-                + (userInfo.tim !== "none" ? "<img src=\"/chat/img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: "+(userInfo.gender && userInfo.gender !== 'n' ? '38' : '25')+"px;bottom: 5px;\" ></img>" : "")
+                + (userInfo.tim !== "none" ? "<img src=\"/chat/img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: 38px;bottom: 5px;\" ></img>" : "")
                 + (userInfo.gender && userInfo.gender !== 'n' ? "<img src=\"/chat/img/gender/"+userInfo.gender+".png\" border=\"0\" style=\"position: absolute;right: 20px;bottom: 6px;height: 13px;\">" : '')
                 + "<a id='showMenuButton' style=' position: absolute; right: 0px; bottom: 4px; background-position: -46px 0px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
                 + this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + " );\"></a>"
@@ -1277,7 +1276,6 @@ var ajaxChat = {
             + '<span class="'
             + userClass
             + '"'
-            + this.getChatListUserNameTitle(userID, userName, userRole, ip)
             + ' dir="'
             + this.baseDirection
             + "\" onclick=\"ajaxChat.toUser('" + userName + "');\">"
@@ -1294,11 +1292,7 @@ var ajaxChat = {
         var messageNode = this.getMessageNode(messageID);
         //messageNode.style.display = 'none';
     },
-    
-    getChatListUserNameTitle: function(userID, userName, userRole, ip) {
-        return (ip !== null) ? ' title="IP: ' + ip + '"' : '';
-    },
-
+  
     getMessageDocumentID: function(messageID) {
         return ((messageID === null) ? 'ajaxChat_lm_' + (this.localID++) : 'ajaxChat_m_' + messageID);
     },
@@ -1727,13 +1721,22 @@ var ajaxChat = {
                 text = this.assignFontColorToCommandMessage(text, textParts);
             }
         } else {
+            text = this.parseToUserBold(text);
             if (text && this.settings['persistFontColor'] && this.settings['fontColor']) {
                 text = '[color=' + this.settings['fontColor'] + ']' + text + '[/color]';
             }
         }
         return text;
     },
-
+    parseToUserBold: function(text){
+        var r = '(?:(';
+        for (var i = 0; i < this.userNamesList.length; i++)
+        {
+            r += this.userNamesList[i] + '|';
+        }
+        r+='Сервер), )*';
+        return text.replace(new RegExp(r), function (a,b) {return (a !== '' ? '[b]'+a+'[/b]':'');});
+    },
     assignFontColorToCommandMessage: function(text, textParts) {
         switch (textParts[0]) {
         case '/msg':
