@@ -1058,9 +1058,10 @@ var ajaxChat = {
             str = '<div id="' + this.getUserDocumentID(userID) + '">'
                 + "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
                 + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userInfo.avatar && userInfo.avatar !== "anon" && userInfo.avatar !== '') ? "/" + userInfo.avatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
-                + "<a style='font-size: 13px; left: 38px; bottom: 5px;position: absolute;' href=\"javascript:ajaxChat.toUser('" + userName + "');\">" + userName + "</a>"
-                + (userInfo.tim !== "none" ? "<img src=\"/chat/img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: 25px;bottom: 5px;\" ></img>" : "")
-                + "<a id='showMenuButton' style=' position: absolute; right: 0px; bottom: 5px; background-position: -46px 0px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
+                + "<a style='font-size: 13px; left: 38px; bottom: 6px;position: absolute;' href=\"javascript:ajaxChat.toUser('" + userName + "');\">" + userName + "</a>"
+                + (userInfo.tim !== "none" ? "<img src=\"/chat/img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: "+(userInfo.gender && userInfo.gender !== 'n' ? '38' : '25')+"px;bottom: 5px;\" ></img>" : "")
+                + (userInfo.gender && userInfo.gender !== 'n' ? "<img src=\"/chat/img/gender/"+userInfo.gender+".png\" border=\"0\" style=\"position: absolute;right: 20px;bottom: 6px;height: 13px;\">" : '')
+                + "<a id='showMenuButton' style=' position: absolute; right: 0px; bottom: 4px; background-position: -46px 0px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
                 + this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + " );\"></a>"
                 + "</div>"
                 + '<ul class="userMenu" style="display:none;" id="' + this.getUserMenuDocumentID(userID)
@@ -1143,7 +1144,7 @@ var ajaxChat = {
                     + this.lang['userMenuWhereis']
                     + '</a></li>';
             }
-            if (this.userRole === '2' || this.userRole === '3') {
+            if (this.userRole === 2 || this.userRole === 3) {
                 menu += '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/kick '
                     + encodedUserName
                     + ' \');">'
@@ -1175,11 +1176,11 @@ var ajaxChat = {
                 + '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/roll \');">'
                 + this.lang['userMenuRoll']
                 + '</a></li>';
-            if (this.userRole === '1' || this.userRole === '2' || this.userRole === '3') {
+            if (this.userRole === 1 || this.userRole === 2 || this.userRole === 3) {
                 menu += '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/join\');">'
                     + this.lang['userMenuEnterPrivateRoom']
                     + '</a></li>';
-                if (this.userRole === '2' || this.userRole === '3') {
+                if (this.userRole === 2 || this.userRole === 3) {
                     menu += '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/bans\');">'
                         + this.lang['userMenuBans']
                         + '</a></li>';
@@ -1337,13 +1338,13 @@ var ajaxChat = {
     },
 
     isAllowedToDeleteMessage: function(messageID, userID, userRole, channelID) {
-        if ((((this.userRole === '1' && this.allowUserMessageDelete && (userID === this.userID ||
+        if ((((this.userRole === 1 && this.allowUserMessageDelete && (userID === this.userID ||
                 parseInt(channelID) === parseInt(this.userID) + this.privateMessageDiff ||
                 parseInt(channelID) === parseInt(this.userID) + this.privateChannelDiff)) ||
-            (this.userRole === '5' && this.allowUserMessageDelete && (userID === this.userID ||
+            (this.userRole === 5 && this.allowUserMessageDelete && (userID === this.userID ||
                 parseInt(channelID) === parseInt(this.userID) + this.privateMessageDiff ||
                 parseInt(channelID) === parseInt(this.userID) + this.privateChannelDiff)) ||
-            this.userRole === '2') && userRole !== '3' && userRole !== '4') || this.userRole === '3') {
+            this.userRole === 2) && userRole !== 3 && userRole !== 4) || this.userRole === 3) {
             return true;
         }
         return false;
@@ -2612,10 +2613,10 @@ var ajaxChat = {
 			return text;
 	    }
             text = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
-	    return text.replace(/(^|\s|>)(((?:https?|ftp):\/\/)([\w_\.-]{2,256}\.[\w\.]{2,4})(:\d{1,5})?(\/([\w+,\/%$^&\*=;\-_а-яА-Я\)\(\.]*)?((?:\?|#)[\w%\/\)\(\-+,а-яА-Я;.?=&#]*)?)?)/gim,
+	    return text.replace(/(^|\s|>)(((?:https?|ftp):\/\/)([\w_\.-]{2,256}\.[\w\.]{2,4})(:\d{1,5})?(\/([\w+,\/%$^&\*=;\-_а-яА-Я:\)\(\.]*)?((?:\?|#)[:\w%\/\)\(\-+,а-яА-Я;.?=&#]*)?)?)/gim,
 	        function(str, s, a, prot, host, port, sa, sa1, sa2) {
 	            var hostArr = host.split('.'),
-	                fe = (sa1 ? sa1.split('.').pop().toLowerCase() : ''),
+	                fe = (sa1 ? sa1.split(/\.|\//g).pop().toLowerCase() : ''),
                     c = (ajaxChat.dom['chatList'].offsetWidth - 50);
 	            switch (fe) {
 	            case "mp3":
@@ -2644,7 +2645,7 @@ var ajaxChat = {
                             if (ajaxChat.inArray(hostArr, 'youtu'))
                                 return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
                             else if (ajaxChat.inArray(hostArr, 'coub'))
-                                return s + '<iframe width="'+width+'" height="'+height+'" src="http://coub.com/embed/'+sa1.split('/').pop()+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
+                                return s + '<iframe width="'+width+'" height="'+height+'" src="http://coub.com/embed/'+fe+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
                         }
 	                return s + '<a href="' + a + '" onclick="window.open(this.href); return false;">' + helper.truncate(a, 35) + '</a>';
 	            }
