@@ -899,10 +899,10 @@ var ajaxChat = {
                 this.channelName = infoData;
                 break;
             case 'channelID':
-                this.channelID = infoData;
+                this.channelID = parseInt(infoData);
                 break;
             case 'userID':
-                this.userID = infoData;
+                this.userID = parseInt(infoData);
                 break;
             case 'userName':
                 this.userName = infoData;
@@ -910,13 +910,13 @@ var ajaxChat = {
                 this.userNodeString = null;
                 break;
             case 'userRole':
-                this.userRole = infoData;
+                this.userRole = parseInt(infoData);
                 break;
             case 'logout':
                 this.handleLogout(infoData);
                 return;
             case 'socketRegistrationID':
-                this.socketRegistrationID = infoData;
+                this.socketRegistrationID = parseInt(infoData);
                 this.socketRegister();
             }
         }
@@ -937,9 +937,9 @@ var ajaxChat = {
                 i,
                 onlineUsers = [];
             for (i = 0; i < json.length; i++) {
-                userID = json[i].userID;
+                userID = parseInt(json[i].userID);
                 userName = json[i].userName ? json[i].userName : '';
-                userRole = json[i].userRole;
+                userRole = parseInt(json[i].userRole);
                 userInfo = JSON.parse(json[i].userInfo);
                 onlineUsers.push(userID);
                 index = this.arraySearch(userID, this.usersList);
@@ -976,18 +976,18 @@ var ajaxChat = {
                 }
                 this.addMessageToChatList(
                     new Date(json[i].dateTime.replace(/-/g,'/')),
-                    json[i].userID,
+                    parseInt(json[i].userID),
                     userName,
-                    json[i].userRole,
-                    json[i].id,
+                    parseInt(json[i].userRole),
+                    parseInt(json[i].id),
                     messageText,
-                    json[i].channelID,
+                    parseInt(json[i].channelID),
                     json[i].ip
                 );
             }
             this.DOMbuffering = false;
             this.updateChatlistView();
-            this.lastID = json[json.length - 1].id;
+            this.lastID = parseInt(json[json.length - 1].id);
         }
     },
 
@@ -1393,6 +1393,7 @@ var ajaxChat = {
     },
 
     blinkUpdate: function(blinkStr) {
+        if (this.infocus) arguments.callee.blink = this.settings['blinkIntervalNumber']+1;
         if (!this.originalDocumentTitle) {
             this.originalDocumentTitle = document.title;
         }
@@ -1401,7 +1402,7 @@ var ajaxChat = {
             arguments.callee.blink = 1;
         } else if (arguments.callee.blink > this.settings['blinkIntervalNumber']) {
             clearInterval(this.blinkInterval);
-            document.title = (this.infocus ? '' :'[+]') + this.originalDocumentTitle;
+            document.title = (this.infocus ? '' :'[+] ') + this.originalDocumentTitle;
             arguments.callee.blink = 0;
         } else {
             if (arguments.callee.blink % 2 !== 0) {
