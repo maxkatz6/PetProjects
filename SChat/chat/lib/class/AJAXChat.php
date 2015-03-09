@@ -82,6 +82,7 @@ class AJAXChat {
 		$this->_requestVars['getInfos']		= isset($_REQUEST['getInfos'])		? $_REQUEST['getInfos']			: null;
 		$this->_requestVars['lang']			= isset($_REQUEST['lang'])			? $_REQUEST['lang']				: null;
 		$this->_requestVars['delete']		= isset($_REQUEST['delete'])		? (int)$_REQUEST['delete']		: null;
+                $this->_requestVars['tmc']		= isset($_REQUEST['tmc'])		? (int)$_REQUEST['tmc']		: null;
 
 		// Initialize custom request variables:
 		$this->initCustomRequestVars();
@@ -1307,7 +1308,7 @@ class AJAXChat {
 				'/error MissingUserName'
 			);
 		} else {
-			$newUserName = implode(' ', array_slice($textParts, 1));
+			$newUserName = implode(' ', array_slice($textParts, 1));
 			if($newUserName == $this->getLoginUserName()) {
 				// Allow the user to regain the original login userName:
 				$prefix = '';
@@ -2031,7 +2032,7 @@ class AJAXChat {
 				ORDER BY
 					id
 					DESC
-				LIMIT '.$this->getConfig('requestMessagesLimit').';';
+				LIMIT '.($this->getRequestVar('tmc')?$this->getRequestVar('tmc'):$this->getConfig('requestMessagesLimit')).';';
 
 		// Create a new SQL query:
 		$result = $this->db->sqlQuery($sql);
@@ -2735,7 +2736,7 @@ class AJAXChat {
 
 		if($replaceWhitespace) {
 			// Replace any whitespace in the userName with the underscore "_":
-			$str = preg_replace('/\s/u', '_', $str);
+			$str = preg_replace('/\s/u', html_entity_decode('&nbsp;'), $str);
 		}
 
 		if($decodeEntities) {

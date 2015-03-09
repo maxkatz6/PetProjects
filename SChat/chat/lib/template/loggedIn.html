@@ -184,6 +184,13 @@
         
         ajaxChat.init(ajaxChatConfig, ajaxChatLang, true, true, true, initialize);
         
+        window.onblur = function(){
+            ajaxChat.infocus = false;
+        };
+        window.onfocus = function(){
+            ajaxChat.infocus = true;
+            document.title = 'Socio!PARTY';
+        };
         /*window.onbeforeunload = function (e) {
                 var xhr = new XMLHttpRequest();
                 xhr.open('POST', '/chat/index.php?logout=true', false);

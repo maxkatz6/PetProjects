@@ -81,6 +81,7 @@ var ajaxChat = {
     baseDirection: null,
     originalDocumentTitle: null,
     blinkInterval: null,
+    infocus:true,
     httpRequest: null,
     retryTimer: null,
     retryTimerDelay: null,
@@ -1058,8 +1059,8 @@ var ajaxChat = {
                 + "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
                 + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userInfo.avatar && userInfo.avatar !== "anon" && userInfo.avatar !== '') ? "/" + userInfo.avatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
                 + "<a style='font-size: 13px; left: 38px; bottom: 6px;position: absolute;' href=\"javascript:ajaxChat.toUser('" + userName + "');\">" + userName + "</a>"
-                + (userInfo.tim !== "none" ? "<img src=\"/chat/img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: 38px;bottom: 5px;\" ></img>" : "")
-                + (userInfo.gender && userInfo.gender !== 'n' ? "<img src=\"/chat/img/gender/"+userInfo.gender+".png\" border=\"0\" style=\"position: absolute;right: 20px;bottom: 6px;height: 13px;\">" : '')
+                + (userInfo.tim !== "none" ? "<img src=\"/chat/img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: 38px;bottom: 5px;\" title=\""+helper.getTIM(userInfo.tim)+"\"></img>" : "")
+                + (userInfo.gender && userInfo.gender !== 'n' ? "<img src=\"/chat/img/gender/"+userInfo.gender+".png\" border=\"0\" style=\"position: absolute;right: 20px;bottom: 6px;height: 13px;\" title=\""+(userInfo.gender === 'm'? 'Мужской' : 'Женский')+"\">" : '')
                 + "<a id='showMenuButton' style=' position: absolute; right: 0px; bottom: 4px; background-position: -46px 0px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
                 + this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + " );\"></a>"
                 + "</div>"
@@ -1382,7 +1383,7 @@ var ajaxChat = {
     },
 
     blinkOnNewMessage: function(dateObject, userID, userName) {
-        if (this.settings['blink'] && this.lastID && !this.channelSwitch && userID !== this.userID) {
+        if (!this.infocus && this.settings['blink'] && this.lastID && !this.channelSwitch && userID !== this.userID) {
             clearInterval(this.blinkInterval);
             this.blinkInterval = setInterval(
                 'ajaxChat.blinkUpdate(\'' + this.addSlashes(this.decodeSpecialChars(userName)) + '\')',
@@ -1400,7 +1401,7 @@ var ajaxChat = {
             arguments.callee.blink = 1;
         } else if (arguments.callee.blink > this.settings['blinkIntervalNumber']) {
             clearInterval(this.blinkInterval);
-            document.title = this.originalDocumentTitle;
+            document.title = (this.infocus ? '' :'[+]') + this.originalDocumentTitle;
             arguments.callee.blink = 0;
         } else {
             if (arguments.callee.blink % 2 !== 0) {
@@ -1735,7 +1736,7 @@ var ajaxChat = {
             r += this.userNamesList[i] + '|';
         }
         r+='Сервер), )*';
-        return text.replace(new RegExp(r), function (a,b) {return (a !== '' ? '[b]'+a+'[/b]':'');});
+        return text.replace(new RegExp(r,'gm'), function (a,b) {return (a !== '' ? '[b]'+a+'[/b]':'');});
     },
     assignFontColorToCommandMessage: function(text, textParts) {
         switch (textParts[0]) {
@@ -2849,5 +2850,47 @@ var helper = {
     },
     truncate: function(str, maxlength) {
         return (str.length > maxlength ? str.slice(0, maxlength - 3) + '...' : str);
+    },
+    getTIM: function(t){
+        switch(t)
+        {
+        case "1ile":
+                return "Дон Кихот";
+        case "1sei":
+                return "Дюма";
+        case "1lii":
+                return "Робеспьер";
+        case "1ese":
+                return "Гюго";
+
+        case "2eie":
+                return "Гамлет";
+        case "2lsi":
+                return "Максим Горький";
+        case "2sle":
+                return "Жуков";
+        case "2iei":
+                return "Есенин";
+
+        case "3ili":
+                return "Бальзак";
+        case "3see":
+                return "Наполеон";
+        case "3esi":
+                return "Драйзер";
+        case "3lie":
+                return "Джек Лондон";
+
+        case "4lse":
+                return "Штирлиц";
+        case "4eii":
+                return "Достоевский";
+        case "4iee":
+                return "Гексли";
+        case "4sli":
+                return "Габен";
+        default:
+                return "none";
+        }
     }
 };
