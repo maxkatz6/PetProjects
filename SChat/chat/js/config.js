@@ -60,23 +60,11 @@ var ajaxChatConfig = {
 		bbCodeColors: true,
 		// Defines if hyperlinks are made clickable:
 		hyperLinks: true,
-		// Defines if line breaks are enabled:
-		lineBreaks: true,
 		// Defines if emoticon codes are replaced with their associated images:
 		emoticons: true,
 
 		// Defines if the chat list scrolls automatically to display the latest messages:
 		autoScroll: true,
-		// The maximum count of messages displayed in the chat list (will be ignored if set to 0):
-		maxMessages: 0,
-
-		// Defines if long words are wrapped to avoid vertical scrolling:
-		wordWrap: true,
-		// Defines the maximum length before a word gets wrapped:
-		maxWordLength: 32,
-
-		// Defines the format of the date and time displayed for each chat message:
-		dateFormat: '(%H:%i:%s)',
 
 		// Defines if font colors persist without the need to assign them to each message:
 		persistFontColor: false,
@@ -91,24 +79,17 @@ var ajaxChatConfig = {
 		// Defines the sound that is played when normal messages are reveived:
 		soundReceive: 'sound_1',
 		// Defines the sound that is played on sending normal messages:
-		soundSend: 'sound_2',
+		soundSend:    'sound_2',
 		// Defines the sound that is played on channel enter or login:
-		soundEnter: 'sound_3',
+		soundEnter:   'sound_3',
 		// Defines the sound that is played on channel leave or logout:
-		soundLeave: 'sound_4',
+		soundLeave:   'sound_4',
 		// Defines the sound that is played on chatBot messages:
 		soundChatBot: 'sound_5',
 		// Defines the sound that is played on error messages:
-		soundError: 'sound_6',
+		soundError:   'sound_6',
 		// Defines the sound that is played when private messages are received:
-		soundPrivate: 'sound_7',
-
-		// Defines if the document title blinks on new messages:
-		blink: true,
-		// Defines the blink interval in ms:
-		blinkInterval: 500,
-		// Defines the number of blink intervals:
-		blinkIntervalNumber: 10
+		soundPrivate: 'sound_7'
 	},
 
 	// Defines a list of settings which are not to be stored in a session cookie:
@@ -366,7 +347,7 @@ var ajaxChatConfig = {
 	cookieSecure: null,
 
 	// The name of the chat bot:
-	chatBotName: 'Сервер',
+	chatBotName: 'пїЅпїЅпїЅпїЅпїЅпїЅ',
 	// The userID of the chat bot:
 	chatBotID: 2147483647,
 

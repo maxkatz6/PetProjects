@@ -282,6 +282,7 @@ body.ajax-chat {
 #content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #colorCodesContainer a, #content textarea {
 	border-width: 1px;
 	border-style:solid;
+        word-wrap: break-word; 
 }
 #content #chatList .deleteSelected {
 	border-width:1px;

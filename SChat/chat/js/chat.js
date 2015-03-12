@@ -1057,16 +1057,14 @@ var ajaxChat = {
             encodedUserName = this.scriptLinkEncode(userName);
             str = '<div id="' + this.getUserDocumentID(userID) + '">'
                 + "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
-                + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userInfo.avatar && userInfo.avatar !== "anon" && userInfo.avatar !== '') ? "/" + userInfo.avatar : "/chat/img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
+                + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userInfo.avatar && userInfo.avatar !== "anon" && userInfo.avatar !== '') ? "../" + userInfo.avatar : "img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
                 + "<a style='font-size: 13px; left: 38px; bottom: 6px;position: absolute;' href=\"javascript:ajaxChat.toUser('" + userName + "');\">" + userName + "</a>"
-                + (userInfo.tim !== "none" ? "<img src=\"/chat/img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: 38px;bottom: 5px;\" title=\""+helper.getTIM(userInfo.tim)+"\"></img>" : "")
-                + (userInfo.gender && userInfo.gender !== 'n' ? "<img src=\"/chat/img/gender/"+userInfo.gender+".png\" border=\"0\" style=\"position: absolute;right: 20px;bottom: 6px;height: 13px;\" title=\""+(userInfo.gender === 'm'? 'Мужской' : 'Женский')+"\">" : '')
+                + (userInfo.tim !== "none" ? "<img src=\"img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: 38px;bottom: 5px;\" title=\""+helper.getTIM(userInfo.tim)+"\"></img>" : "")
+                + (userInfo.gender && userInfo.gender !== 'n' ? "<img src=\"img/gender/"+userInfo.gender+".png\" border=\"0\" style=\"position: absolute;right: 20px;bottom: 6px;height: 13px;\" title=\""+(userInfo.gender === 'm'? 'Мужской' : 'Женский')+"\">" : '')
                 + "<a id='showMenuButton' style=' position: absolute; right: 0px; bottom: 4px; background-position: -46px 0px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
                 + this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + " );\"></a>"
                 + "</div>"
-                + '<ul class="userMenu" style="display:none;" id="' + this.getUserMenuDocumentID(userID)
-                + ((userID === this.userID) ? '">' + this.getUserNodeStringItems(encodedUserName, userID, false) : '">')
-                + '</ul>'
+                + '<ul class="userMenu" style="display:none;" id="' + this.getUserMenuDocumentID(userID) + ((userID === this.userID) ? '">' + this.getUserNodeStringItems(encodedUserName, userID, false) : '">') + '</ul>'
                 + '</div>';
 
             if (userID === this.userID) {
@@ -1266,8 +1264,7 @@ var ajaxChat = {
         if (new RegExp('(?:^|, |])' + this.userName + ', ','gm').test(messageText)){
             rowClass += ' toMe';
         }
-        var dateTime = this.settings['dateFormat'] ? '<span class="dateTime">'
-            + this.formatDate(this.settings['dateFormat'], dateObject) + '</span> ' : '';
+        var dateTime = '<span class="dateTime">' + this.formatDate('(%H:%i:%s)', dateObject) + '</span> ';
 
         var newDiv = document.createElement('div');
         newDiv.className = rowClass;
@@ -1383,24 +1380,22 @@ var ajaxChat = {
     },
 
     blinkOnNewMessage: function(dateObject, userID, userName) {
-        if (!this.infocus && this.settings['blink'] && this.lastID && !this.channelSwitch && userID !== this.userID) {
+        if (!this.infocus && this.lastID && !this.channelSwitch && userID !== this.userID) {
             clearInterval(this.blinkInterval);
             this.blinkInterval = setInterval(
-                'ajaxChat.blinkUpdate(\'' + this.addSlashes(this.decodeSpecialChars(userName)) + '\')',
-                this.settings['blinkInterval']
-            );
+                'ajaxChat.blinkUpdate(\'' + this.addSlashes(this.decodeSpecialChars(userName)) + '\')', 500);
         }
     },
 
     blinkUpdate: function(blinkStr) {
-        if (this.infocus) arguments.callee.blink = this.settings['blinkIntervalNumber']+1;
+        if (this.infocus) arguments.callee.blink = this.settings[10]+1;
         if (!this.originalDocumentTitle) {
             this.originalDocumentTitle = document.title;
         }
         if (!arguments.callee.blink) {
             document.title = '[@ ] ' + blinkStr + ' - ' + this.originalDocumentTitle;
             arguments.callee.blink = 1;
-        } else if (arguments.callee.blink > this.settings['blinkIntervalNumber']) {
+        } else if (arguments.callee.blink > this.settings[10]) {
             clearInterval(this.blinkInterval);
             document.title = (this.infocus ? '' :'[+] ') + this.originalDocumentTitle;
             arguments.callee.blink = 0;
@@ -2088,7 +2083,9 @@ var ajaxChat = {
 
     replaceText: function(text) {
         try {
-            text = text.replace(new RegExp('\\n', 'g'), (this.settings['lineBreaks'] ? '<br/>' : ' '));
+            
+            text = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
+            text = text.replace(/\\n/g, '<br/>');
             if (text.charAt(0) === '/') {
                 text = this.replaceCommands(text);
             } else {
@@ -2096,7 +2093,6 @@ var ajaxChat = {
                 text = this.replaceHyperLinks(text);
                 text = this.replaceEmoticons(text);
             }
-            text = this.breakLongWords(text);
         } catch (e) {
             this.debugMessage('replaceText', e);
         }
@@ -2109,7 +2105,6 @@ var ajaxChat = {
                 return text;
             }
             var textParts = text.split(' ');
-            textParts[1] = textParts[1];
             switch (textParts[0]) {
             case '/login':
                 return this.replaceCommandLogin(textParts);
@@ -2509,64 +2504,10 @@ var ajaxChat = {
         (openTags && closeTags && (openTags.length !== closeTags.length));
     },
 
-    breakLongWords: function(text) { //не нравится, но пусть
-        var newText, charCounter, currentChar, withinTag, withinEntity, i;
-
-        if (!this.settings['wordWrap'])
-            return text;
-
-        newText = '';
-        charCounter = 0;
-
-        for (i = 0; i < text.length; i++) {
-            currentChar = text.charAt(i);
-
-            // Check if we are within a tag or entity:
-            if (currentChar === '<') {
-                withinTag = true;
-                // Reset the charCounter after newline tags (<br/>):
-                if (i > 5 && text.substr(i - 5, 4) === '<br/')
-                    charCounter = 0;
-            } else if (withinTag && i > 0 && text.charAt(i - 1) === '>') {
-                withinTag = false;
-                // Reset the charCounter after newline tags (<br/>):
-                if (i > 4 && text.substr(i - 5, 4) === '<br/')
-                    charCounter = 0;
-            }
-
-            if (!withinTag && currentChar === '&') {
-                withinEntity = true;
-            } else if (withinEntity && i > 0 && text.charAt(i - 1) === ';') {
-                withinEntity = false;
-                // We only increase the charCounter once for the whole entiy:
-                charCounter++;
-            }
-
-            if (!withinTag && !withinEntity) {
-                // Reset the charCounter if we encounter a word boundary:
-                if (currentChar === ' ' || currentChar === '\n' || currentChar === '\t') {
-                    charCounter = 0;
-                } else {
-                    // We are not within a tag or entity, increase the charCounter:
-                    charCounter++;
-                }
-                if (charCounter > this.settings['maxWordLength']) {
-                    // maxWordLength has been reached, break here and reset the charCounter:
-                    newText += '&#8203;';
-                    charCounter = 0;
-                }
-            }
-            // Add the current char to the text:
-            newText += currentChar;
-        }
-
-        return newText;
-    },
-
     replaceBBCode: function(text) {
         if (!this.settings['bbCode']) {
             // If BBCode is disabled, just strip the text from BBCode tags:
-            return text.replace(/\[(?:\/)?(\w+)(?:=([^<>]*?))?\]/, '');
+            return text.replace(/(\[\/?\w+(?:=[^<>]*?)?\])/g, '');
         }
         // Remove the BBCode tags:
         return text.replace(
@@ -2617,7 +2558,6 @@ var ajaxChat = {
 	    if(!this.settings['hyperLinks']) {
 			return text;
 	    }
-            text = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
 	    return text.replace(/(^|\s|>)(((?:https?|ftp):\/\/)([\w_\.-]{2,256}\.[\w\.]{2,4})(:\d{1,5})?(\/([\w+,\/%$^&\*=;\-_а-яА-Я:\)\(\.]*)?((?:\?|#)[:\w%\/\)\(\-+,а-яА-Я;.?=&#]*)?)?)/gim,
 	        function(str, s, a, prot, host, port, sa, sa1, sa2) {
 	            var hostArr = host.split('.'),
@@ -2659,46 +2599,45 @@ var ajaxChat = {
 	},
 
 	replaceEmoticons: function(text) {
-		if(!this.settings['emoticons']) {
-			return text;
-		}
-		if(!arguments.callee.regExp) {
-			var regExpStr = '^(.*)(';
-			for(var i=0; i<this.emoticonCodes.length; i++) {
-				if(i!==0)
-					regExpStr += '|';
-				regExpStr += '(?:' + this.escapeRegExp(this.emoticonCodes[i]) + ')';
-			}
-			regExpStr += ')(.*)$';
-			arguments.callee.regExp = new RegExp(regExpStr, 'gm');
-		}
-		return text.replace(
-			arguments.callee.regExp,
-			this.replaceEmoticonsCallback
-		);
+            if(!this.settings['emoticons']) {
+                    return text;
+            }
+            if(!arguments.callee.regExp) {
+                var regExpStr = '^(.*)(';
+                for(var i=0; i<this.emoticonCodes.length; i++) {
+                    if(i!==0)
+                        regExpStr += '|';
+                    regExpStr += '(?:' + this.escapeRegExp(this.emoticonCodes[i]) + ')';
+                }
+                regExpStr += ')(.*)$';
+                arguments.callee.regExp = new RegExp(regExpStr, 'gm');
+            }
+            return text.replace(
+                arguments.callee.regExp,
+                function(str, p1, p2, p3) {
+                    if (!arguments.callee.regExp) {
+                        arguments.callee.regExp = new RegExp('(="[^"]*$)|(&[^;]*$)', '');
+                    }
+                    // Avoid replacing emoticons in tag attributes or XHTML entities:
+                    if(p1.match(arguments.callee.regExp)) {
+                        return str;
+                    }
+                    if(p2) {
+                        var index = ajaxChat.arraySearch(p2, ajaxChat.emoticonCodes);
+                        return 	ajaxChat.replaceEmoticons(p1)
+                            +	'<img src="'
+                            +	ajaxChat.dirs['emoticons']
+                            +	ajaxChat.emoticonFiles[index]
+                            +	'" alt="'
+                            +	p2
+                            +	'" />'
+                            + 	ajaxChat.replaceEmoticons(p3);
+                    }
+                    return str;
+                }
+            );
 	},
 
-	replaceEmoticonsCallback: function(str, p1, p2, p3) {
-		if (!arguments.callee.regExp) {
-			arguments.callee.regExp = new RegExp('(="[^"]*$)|(&[^;]*$)', '');
-		}
-		// Avoid replacing emoticons in tag attributes or XHTML entities:
-		if(p1.match(arguments.callee.regExp)) {
-			return str;
-		}
-		if(p2) {
-			var index = ajaxChat.arraySearch(p2, ajaxChat.emoticonCodes);
-			return 	ajaxChat.replaceEmoticons(p1)
-				+	'<img src="'
-				+	ajaxChat.dirs['emoticons']
-				+	ajaxChat.emoticonFiles[index]
-				+	'" alt="'
-				+	p2
-				+	'" />'
-				+ 	ajaxChat.replaceEmoticons(p3);
-		}
-		return str;
-	},
 
 	getActiveStyle: function() {
 		var cookie = this.readCookie(this.sessionName + '_style');

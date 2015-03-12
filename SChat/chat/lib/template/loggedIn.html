@@ -139,10 +139,8 @@
             document.getElementById('bbCodeSetting').checked = ajaxChat.getSetting('bbCode');
             document.getElementById('bbCodeColorsSetting').checked = ajaxChat.getSetting('bbCodeColors');
             document.getElementById('hyperLinksSetting').checked = ajaxChat.getSetting('hyperLinks');
-            document.getElementById('lineBreaksSetting').checked = ajaxChat.getSetting('lineBreaks');
             document.getElementById('emoticonsSetting').checked = ajaxChat.getSetting('emoticons');
             document.getElementById('maxMessagesSetting').value = ajaxChat.getSetting('maxMessages');
-            document.getElementById('dateFormatSetting').value = ajaxChat.getSetting('dateFormat');
             document.getElementById('persistFontColorSetting').checked = ajaxChat.getSetting('persistFontColor');
             for (var i = 0; i < document.getElementById('audioVolumeSetting').options.length; i++) {
                 if (document.getElementById('audioVolumeSetting').options[i].value === ajaxChat.getSetting('audioVolume')) {
@@ -157,9 +155,6 @@
             ajaxChat.fillSoundSelection('soundChatBotSetting', ajaxChat.getSetting('soundChatBot'));
             ajaxChat.fillSoundSelection('soundErrorSetting', ajaxChat.getSetting('soundError'));
             ajaxChat.fillSoundSelection('soundPrivateSetting', ajaxChat.getSetting('soundPrivate'));
-            document.getElementById('blinkSetting').checked = ajaxChat.getSetting('blink');
-            document.getElementById('blinkIntervalSetting').value = ajaxChat.getSetting('blinkInterval');
-            document.getElementById('blinkIntervalNumberSetting').value = ajaxChat.getSetting('blinkIntervalNumber');
             //document.getElementById('commandAction').value = ajaxChat.lang['userMenuAction'];
         }
 
@@ -339,10 +334,6 @@
             <dd><input type="checkbox" id="hyperLinksSetting" onclick=" ajaxChat.setSetting('hyperLinks', this.checked); "/></dd>
         </dl>
         <dl>
-            <dt><label for="lineBreaksSetting">[LANG]settingsLineBreaks[/LANG]</label></dt>
-            <dd><input type="checkbox" id="lineBreaksSetting" onclick=" ajaxChat.setSetting('lineBreaks', this.checked); "/></dd>
-        </dl>
-        <dl>
             <dt><label for="emoticonsSetting">[LANG]settingsEmoticons[/LANG]</label></dt>
             <dd><input type="checkbox" id="emoticonsSetting" onclick=" ajaxChat.setSetting('emoticons', this.checked); "/></dd>
         </dl>
@@ -350,10 +341,6 @@
         <dl>
             <dt><label for="maxMessagesSetting">[LANG]settingsMaxMessages[/LANG]</label></dt>
             <dd><input type="text" class="text" id="maxMessagesSetting" onchange=" ajaxChat.setSetting('maxMessages', parseInt(this.value)); " /></dd>
-        </dl>
-        <dl>
-            <dt><label for="dateFormatSetting">[LANG]settingsDateFormat[/LANG]</label></dt>
-            <dd><input type="text" class="text" id="dateFormatSetting" onchange=" ajaxChat.setSetting('dateFormat', this.value); " /></dd>
         </dl>
         <dl>
             <dt><label for="persistFontColorSetting">[LANG]settingsPersistFontColor[/LANG]</label></dt>
@@ -403,18 +390,6 @@
         <dl>
             <dt><label for="soundPrivateSetting">[LANG]settingsSoundPrivate[/LANG]</label></dt>
             <dd><select id="soundPrivateSetting" onchange=" ajaxChat.setSetting('soundPrivate', this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" ajaxChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
-        </dl>
-        <dl>
-            <dt><label for="blinkSetting">[LANG]settingsBlink[/LANG]</label></dt>
-            <dd><input type="checkbox" id="blinkSetting" onclick=" ajaxChat.setSetting('blink', this.checked); "/></dd>
-        </dl>
-        <dl>
-            <dt><label for="blinkIntervalSetting">[LANG]settingsBlinkInterval[/LANG]</label></dt>
-            <dd><input type="text" class="text" id="blinkIntervalSetting" onchange=" ajaxChat.setSetting('blinkInterval', parseInt(this.value)); "/></dd>
-        </dl>
-        <dl>
-            <dt><label for="blinkIntervalNumberSetting">[LANG]settingsBlinkIntervalNumber[/LANG]</label></dt>
-            <dd><input type="text" class="text" id="blinkIntervalNumberSetting" onchange=" ajaxChat.setSetting('blinkIntervalNumber', parseInt(this.value)); "/></dd>
         </dl>
     </div>
 </div>
