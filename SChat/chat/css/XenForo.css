@@ -2,9 +2,6 @@
  * @package AJAX_Chat
  * @author ManOnDaMoon
  */
-@import url('global.css?1');
-@import url('fonts.css');
-@import url('print.css');
 
 /* Main Buttons */
 #content #logoutButton,#content #submitButton,#loginForm #loginButton {

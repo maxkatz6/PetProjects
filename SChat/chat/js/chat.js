@@ -1240,15 +1240,16 @@ var ajaxChat = {
         newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
             + /*'<a href="javascript:ajaxChat.blinkMessage('+ messageID+ ');">'+*/dateTime//+'</a>'
             + '<span class="'
-            + userClass
-            + (this.getSetting('nickColors') && msgInfo.ncol? '" style="color:'+msgInfo.ncol+'" ': '" ') 
+            + userClass + '"'
+            + (this.settings['nickColors'] && msgInfo.ncol? ' style="color:'+msgInfo.ncol+'" ': '') 
             + ' dir="'
             + this.baseDirection
             + "\" onclick=\"ajaxChat.toUser('" + userName + "');\">"
-            + userName
+            + ((this.settings['nickColors'] && this.settings['gradiens'] && msgInfo.nickGrad)? helper.grad(userName, msgInfo.nickGrad) : userName)
             + '</span>'
             + colon
-            + (this.getSetting('msgColors') && msgInfo.mcol? '<span style="color:'+msgInfo.mcol+'">' + this.replaceText(messageText) +'<span>': this.replaceText(messageText));
+            + '<span ' + ((this.settings['msgColors'] && msgInfo.mcol)? 'style="color:'+msgInfo.mcol+'">' : '>') 
+            + ((this.settings['msgColors'] && this.settings['gradiens'] && msgInfo.msgGrad)? helper.grad(this.replaceText(messageText), msgInfo.msgGrad) : this.replaceText(messageText)) +'<span>';
 
         return newDiv;
 
@@ -1655,7 +1656,7 @@ var ajaxChat = {
         txt = this.parseInputMessage(txt);
         if (txt) {
             var msg = {
-              text:this.encodeText(txt)
+              text:(txt)
             };
             if (this.getSetting('nickColor')!= null)
                 msg.ncol = this.getSetting('nickColor');            
@@ -1666,7 +1667,7 @@ var ajaxChat = {
             var message = 'lastID='
                 + this.lastID
                 + '&text='
-                + (JSON.stringify(msg));
+                + this.encodeText(JSON.stringify(msg));
             this.makeRequest(this.ajaxURL, 'POST', message);
         }
         this.dom['inputField'].value = '';
@@ -2003,7 +2004,7 @@ var ajaxChat = {
         try {
             
             text = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
-            text = text.replace(/\\n/g, '<br/>');
+            text = text.replace(/\n/g, '<br/>');
             if (text.charAt(0) === '/') {
                 text = this.replaceCommands(text);
             } else {
@@ -2761,5 +2762,47 @@ var helper = {
         default:
                 return "none";
         }
+    },
+    grad: function(Str, arr) {
+  C1=arr[0]; C2=arr[1]; C3=arr[2];
+  function c ( R, G, B, Str ) {
+    return "<span style=\"color:RGB(" + Math.floor(R) + ','+ Math.floor(G) +','+ Math.floor(B)+ ")\">" + Str + "</span>"
+  }
+  	function l ( Str ) {
+
+		while (re = /[^]+/.test (Str))
+
+			Str = Str.replace (/[^]+/g, "");
+
+		return Str.replace (/<[^>]+>?/g, "").replace (/&([a-z]{2,}|#\d+|#x[\da-f]{2});/gi, " ").length;
+
+	}
+  function g ( C1, C2, l, s ) {
+    C1 = parseInt ("0x" + C1);
+    C2 = parseInt ("0x" + C2);
+    var R1 = C1 >> 16, G1 = (C1 >> 8) & 0xFF, B1 = C1 & 0xFF;
+    var R2 = C2 >> 16, G2 = (C2 >> 8) & 0xFF, B2 = C2 & 0xFF;
+    var Res = "";
+    var d = l - s;
+    R2 -= R1; G2 -= G1; B2 -= B1;
+    for (var i = 0; iS < Str.length;iS++) {
+      if (Str.charAt (iS) === '<') {
+        for (var t = 0; iS < Str.length; iS++) {
+          Res += Str.charAt (iS);
+          if (Str.charAt (iS) === '') t++;
+          else if (Str.charAt (iS) === '') t--;
+          else if (Str.charAt (iS) === '>' && !t) break;
+        }
+      } else if (i !== l) {
+        var S = Str.charAt (iS);
+        Res += d ? c (R1 + i * R2 / d, G1 + i * G2 / d, B1 + i * B2 / d, S) : c (R1, G1, B1, S);
+        i++;
+      } else break;
     }
+    return Res;
+  }
+  var iS = 0;
+  var Len = l (Str);
+  return C3 ? g (C1, C2, Math.floor (Len / 2), 0) + g (C2, C3, Math.round (Len / 2), 1) : g (C1, C2, Len, 1);
+}
 };

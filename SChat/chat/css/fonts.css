@@ -23,7 +23,7 @@
 }
 #content {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size:0.8em;
+	font-size:0.9em;
 }
 #content h1 {
 	font-size:1.3em;
@@ -39,9 +39,7 @@
 #content a:hover {
 	text-decoration:underline;
 }
-#content #chatList {
-	font-size:0.8em;
-}
+
 #content #copyright {
 	font-size:0.8em;
 }

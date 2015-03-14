@@ -1365,6 +1365,17 @@ class AJAXChat {
             if (array_key_exists('mcol',$str) && !is_null($str['mcol'])){
                 $msgInfo['mcol'] = $str['mcol'];
             }
+            $n = $this->getUserName();
+            if (array_key_exists($n, $this->getConfig('msgGrad')))
+            {
+                $conf = $this->getConfig('msgGrad');
+                $msgInfo['msgGrad'] = $conf[$n];
+            }
+            if (array_key_exists($n, $this->getConfig('nickGrad')))
+            {
+                $conf = $this->getConfig('nickGrad');
+                $msgInfo['nickGrad'] = $conf[$n];
+            }
             $this->insertParsedMessage($text, $msgInfo);
 	}
 
@@ -2740,7 +2751,7 @@ class AJAXChat {
 
 		if($replaceWhitespace) {
                     // Replace any whitespace in the userName with the underscore "_":
-                    $str = preg_replace('/\s/u', html_entity_decode('&nbsp;'), $str);
+                    $str = preg_replace('/\s/u',  mb_convert_encoding( html_entity_decode('&nbsp;'), 'UTF-8'), $str);
 		}
 
 		if($decodeEntities) {

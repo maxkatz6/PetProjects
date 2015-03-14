@@ -23,6 +23,8 @@ define('AJAX_CHAT_PATH', dirname($_SERVER['SCRIPT_FILENAME']).'/');
 // Include settings and class libraries:
 require(AJAX_CHAT_PATH.'lib/classes.php');
 
+define('VER', 'ver=3');
+
 // Initialize the chat:
 $ajaxChat = new CustomAJAXChat($AJAXChatConfig);
 ?>

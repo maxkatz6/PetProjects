@@ -6,10 +6,6 @@
  * Color palette inspired by Simple Machines Forum style "SMF Default Theme - Core":
  * http://www.simplemachines.org/
  */
-@import url('global.css?1');
-@import url('fonts.css');
-@import url('print.css');
-
 /* Buttons */
 #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #loginForm #loginButton {
 	background-color:#CDE7FF;

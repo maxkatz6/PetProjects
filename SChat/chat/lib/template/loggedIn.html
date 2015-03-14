@@ -6,13 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Socio!PARTY</title>
+    <link rel="stylesheet" type="text/css" href="css/global.css?[VN/]"/>
+    <link rel="stylesheet" type="text/css" href="css/fonts.css?[VN/]"/>
+    <link rel="stylesheet" type="text/css" href="css/print.css"/>
     [STYLE_SHEETS/]
     <!--[if lt IE 8]><script type="text/javascript"> var isIElt8 = true; </script><![endif]-->
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="js/jquery.colorPicker.min.js" type="text/javascript" charset="UTF-8"></script>
-    <script src="js/chat.js?1" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/chat.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
     <script src="js/lang/[LANG_CODE/].js" type="text/javascript" charset="UTF-8"></script>
-    <script src="js/config.js?1" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/config.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
     <script src="js/FABridge.js" type="text/javascript" charset="UTF-8"></script>
     <script type="text/javascript">
         // <![CDATA[
@@ -138,7 +141,7 @@
             ajaxChat.updateButton('autoScroll', 'autoScrollButton');
             document.getElementById('msgColorsSetting').checked = ajaxChat.getSetting('msgColors');
             document.getElementById('nickColorsSetting').checked = ajaxChat.getSetting('nickColors');
-           // document.getElementById('gradiensSetting').checked = ajaxChat.getSetting('gradiens');
+            document.getElementById('gradiensSetting').checked = ajaxChat.getSetting('gradiens');
             document.getElementById('bbCodeSetting').checked = ajaxChat.getSetting('bbCode');
             document.getElementById('hyperLinksSetting').checked = ajaxChat.getSetting('hyperLinks');
             document.getElementById('emoticonsSetting').checked = ajaxChat.getSetting('emoticons');
@@ -348,10 +351,10 @@
             <dt><label for="nickColorsSetting">Разрешить цветные ники:</label></dt>
             <dd><input type="checkbox" id="nickColorsSetting" onclick=" ajaxChat.setSetting('nickColors', this.checked); "/></dd>
         </dl>
-        <!--dl>
+        <dl>
             <dt><label for="gradiensSetting">Разрешить градиентный текст:</label></dt>
             <dd><input type="checkbox" id="gradiensSetting" onclick=" ajaxChat.setSetting('gradiens', this.checked); "/></dd>
-        </dl-->
+        </dl>
         <dl>
             <dt><label for="fontColorSetting">Цвет сообщений</label></dt>
             <dd><input type="text" name="fontColorSetting" id="fontColorSetting" onchange="ajaxChat.setFontColor(this.value); "/></dd>

@@ -195,7 +195,7 @@ $AJAXChatConfig['logsRequestMessagesTimeDiff'] = 1;
 $AJAXChatConfig['logsRequestMessagesLimit'] = 10;
 
 // Defines the earliest year used for the logs selection:
-$AJAXChatConfig['logsFirstYear'] = 2007;
+$AJAXChatConfig['logsFirstYear'] = 2015;
 
 // Defines if old messages are purged from the database:
 $AJAXChatConfig['logsPurgeLogs'] = false;
@@ -217,3 +217,10 @@ $AJAXChatConfig['socketServerIP'] = '127.0.0.1';
 $AJAXChatConfig['socketServerPort'] = 1935;
 // This ID can be used to distinguish between different chat installations using the same socket server:
 $AJAXChatConfig['socketServerChatID'] = 0;
+
+$AJAXChatConfig['msgGrad'] = array(
+    'Тирраон' => array('000000','0d14e5','ffffff')
+);
+$AJAXChatConfig['nickGrad'] = array(
+    'Тирраон' => array('fc2847','6835ba')
+);

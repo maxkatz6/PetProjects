@@ -6,10 +6,6 @@
  * Color palette inspired by PunBB style "Lithium":
  * http://punbb.org/
  */
-@import url('global.css?1');
-@import url('fonts.css');
-@import url('print.css');
-
 /* Buttons */
 #content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #loginForm #loginButton {
 	background-color:#6C8A3F;
