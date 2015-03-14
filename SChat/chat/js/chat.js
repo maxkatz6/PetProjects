@@ -34,7 +34,6 @@ var ajaxChat = {
     nonPersistentSettings: null,
     unusedSettings: null,
     bbCodeTags: null,
-    colorCodes: null,
     emoticonCodes: null,
     emoticonFiles: null,
     soundFiles: null,
@@ -142,7 +141,6 @@ var ajaxChat = {
         this.settings = config['settings'];
         this.nonPersistentSettings = config['nonPersistentSettings'];
         this.bbCodeTags = config['bbCodeTags'];
-        this.colorCodes = config['colorCodes'];
         this.emoticonCodes = config['emoticonCodes'];
         this.emoticonFiles = config['emoticonFiles'];
         this.soundFiles = config['soundFiles'];
@@ -262,8 +260,7 @@ var ajaxChat = {
     },
 
     initializeSettings: function() {
-        if (this.settings['persistFontColor'] && this.settings['fontColor']) {
-            // Set the inputField font color to the font color:
+        if (this.settings['fontColor']) {
             if (this.dom['inputField']) {
                 this.dom['inputField'].style.color = this.settings['fontColor'];
             }
@@ -275,7 +272,6 @@ var ajaxChat = {
         this.initializeDocumentNodes();
         this.loadPageAttributes();
         this.initEmoticons();
-        this.initColorCodes();
         this.initializeSettings();
         this.setSelectedStyle();
         // preload the Alert icon (it can't display if there's no connection unless it's cached!)
@@ -398,26 +394,6 @@ var ajaxChat = {
         }
         this.DOMbuffer = "";
     },
-
-    initColorCodes: function() {
-        if (this.dom['colorCodesContainer']) {
-            this.DOMbuffer = "";
-            for (var i = 0; i < this.colorCodes.length; i++) {
-                this.DOMbuffer = this.DOMbuffer
-                    + '<a href="javascript:ajaxChat.setFontColor(\''
-                    + this.colorCodes[i]
-                    + '\');" style="background-color:'
-                    + this.colorCodes[i]
-                    + ';" title="'
-                    + this.colorCodes[i]
-                    + '"></a>'
-                    + "\n";
-            }
-            this.updateDOM('colorCodesContainer', this.DOMbuffer);
-            this.DOMbuffer = "";
-        }
-    },
-
 
     startChatUpdate: function() {
         // Start the chat update and retrieve current user and channel info and set the login channel:
@@ -607,7 +583,7 @@ var ajaxChat = {
             } else if (volume > 1) {
                 volume = 1.0;
             }
-            this.settings['audioVolume'] = volume;
+            this.setSetting('audioVolume', volume);
             try {
                 if (!this.soundTransform) {
                     this.soundTransform = FABridge.ajaxChat.create('flash.media.SoundTransform');
@@ -884,6 +860,7 @@ var ajaxChat = {
     },
 
     handleInfoMessages: function(infos) {
+        if (infos){
         for (var key in infos) {
             var infoData = infos[key][0];
             switch (key) {
@@ -920,15 +897,11 @@ var ajaxChat = {
                 this.socketRegister();
             }
         }
+    }
     },
-    
-    ////////////////////
-    ////            ////
-    //////////////////// 
-    ////            ////
-    ////////////////////
+   
     handleOnlineUsers: function(json) {
-        if (json.length) {
+        if (json && json.length) {
             var index,
                 userID,
                 userName,
@@ -959,14 +932,10 @@ var ajaxChat = {
             this.setOnlineListRowClasses();
         }
     },
-    ////////////////////
-    ////            ////
-    ////////////////////
-    ////            ////
-    ////////////////////
+
     handleChatMessages: function(json) {
         var userName, textNode, messageText, i;
-        if (json.length) {
+        if (json && json.length) {
             for (i = 0; i < json.length; i++) {
                 this.DOMbuffering = true;
                 userName = json[i].userName ? json[i].userName : '';
@@ -975,14 +944,15 @@ var ajaxChat = {
                     this.DOMbuffering = false;
                 }
                 this.addMessageToChatList(
-                    new Date(json[i].dateTime.replace(/-/g,'/')),
+                    new Date(json[i].dateTime),
                     parseInt(json[i].userID),
                     userName,
                     parseInt(json[i].userRole),
                     parseInt(json[i].id),
                     messageText,
                     parseInt(json[i].channelID),
-                    json[i].ip
+                    json[i].ip,
+                    JSON.parse(json[i].msgInfo)
                 );
             }
             this.DOMbuffering = false;
@@ -1037,9 +1007,7 @@ var ajaxChat = {
             );
         }
     },
-    ////////////////////
-    ////            ////
-    ////////////////////
+
     toUser: function(nick) {
         if (!(new RegExp('(?:^|, )' + nick + ', ','gm').test(this.dom['inputField'].value))) {
             this.dom['inputField'].value = nick + ", " + this.dom['inputField'].value;
@@ -1047,8 +1015,7 @@ var ajaxChat = {
         this.dom['inputField'].focus();
         this.dom['inputField'].selectionStart = this.dom['inputField'].selectionEnd = this.dom['inputField'].value.length; //why not
     },
-    ////            ////
-    ////////////////////
+
     getUserNodeString: function(userID, userName, userRole, userInfo) {
         var encodedUserName, str;
         if (this.userNodeString && userID === this.userID) {
@@ -1231,11 +1198,12 @@ var ajaxChat = {
             4,
             null,
             messageText,
+            null,
             null
         );
     },
 
-    addMessageToChatList: function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
+    addMessageToChatList: function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo) {
         // Prevent adding the same message twice:
         if (this.getMessageNode(messageID)) {
             return;
@@ -1246,11 +1214,11 @@ var ajaxChat = {
         this.DOMbufferRowClass = this.DOMbufferRowClass === 'rowEven' ? 'rowOdd' : 'rowEven';
 
         document.getElementById('chatList').appendChild(this.getChatListMessageString(
-            dateObject, userID, userName, userRole, messageID, messageText, channelID, ip
+            dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo
         ));
     },
 
-    getChatListMessageString: function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
+    getChatListMessageString: function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo) {
         var rowClass = this.DOMbufferRowClass,
             userClass = this.getRoleClass(userRole),
             colon = ': ';
@@ -1273,14 +1241,14 @@ var ajaxChat = {
             + /*'<a href="javascript:ajaxChat.blinkMessage('+ messageID+ ');">'+*/dateTime//+'</a>'
             + '<span class="'
             + userClass
-            + '"'
+            + (this.getSetting('nickColors') && msgInfo.ncol? '" style="color:'+msgInfo.ncol+'" ': '" ') 
             + ' dir="'
             + this.baseDirection
             + "\" onclick=\"ajaxChat.toUser('" + userName + "');\">"
             + userName
             + '</span>'
             + colon
-            + this.replaceText(messageText);
+            + (this.getSetting('msgColors') && msgInfo.mcol? '<span style="color:'+msgInfo.mcol+'">' + this.replaceText(messageText) +'<span>': this.replaceText(messageText));
 
         return newDiv;
 
@@ -1288,6 +1256,7 @@ var ajaxChat = {
     blinkMessage: function (messageID)
     {
         var messageNode = this.getMessageNode(messageID);
+        window.location.hash = messageNode.id;
         //messageNode.style.display = 'none';
     },
   
@@ -1342,12 +1311,6 @@ var ajaxChat = {
         return false;
     },
 
-
-    ////////////////////
-    ////            ////
-    ////////////////////
-    ////            ////
-    ////////////////////
     onNewMessage: function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip) {
         if (this.ignoreMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip)) {
             return false;
@@ -1388,14 +1351,14 @@ var ajaxChat = {
     },
 
     blinkUpdate: function(blinkStr) {
-        if (this.infocus) arguments.callee.blink = this.settings[10]+1;
+        if (this.infocus) arguments.callee.blink = 11;
         if (!this.originalDocumentTitle) {
             this.originalDocumentTitle = document.title;
         }
         if (!arguments.callee.blink) {
             document.title = '[@ ] ' + blinkStr + ' - ' + this.originalDocumentTitle;
             arguments.callee.blink = 1;
-        } else if (arguments.callee.blink > this.settings[10]) {
+        } else if (arguments.callee.blink > 10) {
             clearInterval(this.blinkInterval);
             document.title = (this.infocus ? '' :'[+] ') + this.originalDocumentTitle;
             arguments.callee.blink = 0;
@@ -1410,8 +1373,8 @@ var ajaxChat = {
     },
 
     updateChatlistView: function() {
-        if (this.dom['chatList'].childNodes && this.settings['maxMessages']) {
-            while (this.dom['chatList'].childNodes.length > this.settings['maxMessages']) {
+        if (this.dom['chatList'].childNodes) {
+            while (this.dom['chatList'].childNodes.length > 200) { // 200 - max messages count
                 this.dom['chatList'].removeChild(this.dom['chatList'].firstChild);
             }
         }
@@ -1647,9 +1610,10 @@ var ajaxChat = {
         else if (event.keyCode === 9 && !event.shiftKey) {
             text = this.dom['inputField'].value;
             if (text) {
-                lastWord = text.match(/\w+/g).slice(-1)[0];
+                var c =text.match(/[\wа-я]+/gi);
+                lastWord = c.slice(-1)[0];
 
-                if (lastWord.length > 2) {
+                if (lastWord.length > 1) {
                     for (i = 0; i < this.userNamesList.length; i++) {
                         if (this.userNamesList[i].replace("(", "").toLowerCase().indexOf(lastWord.toLowerCase()) === 0) {
                             this.dom['inputField'].value = text.replace(new RegExp(lastWord + '$'), this.userNamesList[i]);
@@ -1683,18 +1647,26 @@ var ajaxChat = {
         }
     },
 
-    sendMessage: function(text) {
-        text = text ? text : this.dom['inputField'].value;
-        if (!text) {
+    sendMessage: function(txt) {
+        txt = txt ? txt : this.dom['inputField'].value;
+        if (!txt) {
             return;
         }
-        text = this.parseInputMessage(text);
-        if (text) {
+        txt = this.parseInputMessage(txt);
+        if (txt) {
+            var msg = {
+              text:this.encodeText(txt)
+            };
+            if (this.getSetting('nickColor')!= null)
+                msg.ncol = this.getSetting('nickColor');            
+            if (this.getSetting('fontColor') != null)
+                msg.mcol = this.getSetting('fontColor');
+            
             clearTimeout(this.timer);
             var message = 'lastID='
                 + this.lastID
                 + '&text='
-                + this.encodeText(text);
+                + (JSON.stringify(msg));
             this.makeRequest(this.ajaxURL, 'POST', message);
         }
         this.dom['inputField'].value = '';
@@ -1714,48 +1686,13 @@ var ajaxChat = {
                 this.clearChatList();
                 return false;
             }
-            if (text && this.settings['persistFontColor'] && this.settings['fontColor']) {
-                text = this.assignFontColorToCommandMessage(text, textParts);
-            }
         } else {
             text = this.parseToUserBold(text);
-            if (text && this.settings['persistFontColor'] && this.settings['fontColor']) {
-                text = '[color=' + this.settings['fontColor'] + ']' + text + '[/color]';
-            }
         }
         return text;
     },
     parseToUserBold: function(text){
-        var r = '(?:(';
-        for (var i = 0; i < this.userNamesList.length; i++)
-        {
-            r += this.userNamesList[i] + '|';
-        }
-        r+='Сервер), )*';
-        return text.replace(new RegExp(r,'gm'), function (a,b) {return (a !== '' ? '[b]'+a+'[/b]':'');});
-    },
-    assignFontColorToCommandMessage: function(text, textParts) {
-        switch (textParts[0]) {
-        case '/msg':
-        case '/describe':
-            if (textParts.length > 2) {
-                return textParts[0] + ' ' + textParts[1] + ' '
-                    + '[color=' + this.settings['fontColor'] + ']'
-                    + textParts.slice(2).join(' ')
-                    + '[/color]';
-            }
-            break;
-        case '/me':
-        case '/action':
-            if (textParts.length > 1) {
-                return textParts[0] + ' '
-                    + '[color=' + this.settings['fontColor'] + ']'
-                    + textParts.slice(1).join(' ')
-                    + '[/color]';
-            }
-            break;
-        }
-        return text;
+        return text.replace(new RegExp('(?:(' + this.userNamesList.join('|') + '|Сервер), )*','gm'), function (a,b) {return (a !== '' ? '[b]'+a+'[/b]':'');});
     },
 
     parseIgnoreInputCommand: function(text, textParts) {
@@ -1992,33 +1929,14 @@ var ajaxChat = {
         }
     },
 
-    setPersistFontColor: function(bool) {
-        this.settings['persistFontColor'] = bool;
-        if (!this.settings['persistFontColor']) {
-            this.settings['fontColor'] = null;
-            if (this.dom['inputField']) {
-                this.dom['inputField'].style.color = '';
-            }
-        }
-    },
 
     setFontColor: function(color) {
-        if (this.settings['persistFontColor']) {
-            this.settings['fontColor'] = color;
-            if (this.dom['inputField']) {
-                this.dom['inputField'].style.color = color;
-            }
-            if (this.dom['colorCodesContainer']) {
-                this.dom['colorCodesContainer'].style.display = 'none';
-                if (this.dom['inputField']) {
-                    this.dom['inputField'].focus();
-                }
-            }
-        } else {
-            this.insert('[color=' + color + ']', '[/color]');
+        this.setSetting('fontColor', color);
+        if (this.dom['inputField']) {
+            this.dom['inputField'].style.color = color;
         }
     },
-
+    
     insertText: function(text, clearInputField) {
         if (clearInputField) {
             this.dom['inputField'].value = '';
@@ -2511,19 +2429,15 @@ var ajaxChat = {
         }
         // Remove the BBCode tags:
         return text.replace(
-            /\[(\w+)(?:=([^<>]*?))?\](.+?)\[\/\1\]/gm,
+            /\[(\w+)(?:=([^<>]*?))?\](.*)\[\/\1\]/gm,
             function(str, tag, attribute, content) {
                 // Only replace predefined BBCode tags:
-                if (!ajaxChat.inArray(ajaxChat.bbCodeTags, tag)) {
+                if (!ajaxChat.inArray(ajaxChat.bbCodeTags, tag) ||
+                        ajaxChat.containsUnclosedTags(content)) {
                     return str;
                 }
-                // Avoid invalid XHTML (unclosed tags):
-                if (ajaxChat.containsUnclosedTags(content)) {
-                    return str;
-                }
+                if ( content === '') return '';
                 switch (tag) {
-                    case 'color':
-                        return ajaxChat.replaceBBCodeColor(content, attribute);
                     case 'quote':
                         return ajaxChat.replaceBBCodeQuote(content, attribute);
                     case 's':
@@ -2535,13 +2449,6 @@ var ajaxChat = {
                 }
             }
         );
-    },
-
-    replaceBBCodeColor: function(content, attribute) {
-        return (this.settings['bbCodeColors'] && attribute && this.inArray(ajaxChat.colorCodes, attribute) ? '<span style="color:'
-            + attribute + ';">'
-            + this.replaceBBCode(content)
-            + '</span>' : content);
     },
 
     replaceBBCodeQuote: function(content, attribute) {
@@ -2779,7 +2686,29 @@ var ajaxChat = {
 				alert(msg + e);
 			}
 		}
-	}
+	},
+
+        notifyMe: function (nick) {
+          // Let's check if the browser supports notifications
+          if (!("Notification" in window)) {
+            alert("Вас вызывает "+nick+" в чат");
+          }
+
+          // Let's check if the user is okay to get some notification
+          else if (Notification.permission === "granted") {
+            // If it's okay let's create a notification
+            var notification = new Notification("Hi there!");
+          }
+          // Otherwise, we need to ask the user for permission
+          else if (Notification.permission !== 'denied') {
+            Notification.requestPermission(function (permission) {
+              // If the user is okay, let's create a notification
+              if (permission === "granted") {
+                var notification = new Notification("Hi there!");
+              }
+            });
+          }
+        }
 
 };
 

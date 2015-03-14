@@ -4,14 +4,15 @@
 <head>
     <!--meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width,user-scalable=no" /-->
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta http-equiv="Cache-Control" content="public, must-revalidate"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Socio!PARTY</title>
     [STYLE_SHEETS/]
     <!--[if lt IE 8]><script type="text/javascript"> var isIElt8 = true; </script><![endif]-->
-    <script src="js/chat.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="js/jquery.colorPicker.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/chat.js?1" type="text/javascript" charset="UTF-8"></script>
     <script src="js/lang/[LANG_CODE/].js" type="text/javascript" charset="UTF-8"></script>
-    <script src="js/config.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/config.js?1" type="text/javascript" charset="UTF-8"></script>
     <script src="js/FABridge.js" type="text/javascript" charset="UTF-8"></script>
     <script type="text/javascript">
         // <![CDATA[
@@ -26,7 +27,6 @@
 
             bindPopups: function() {
                 this.bindButtonToPopup('bbCodeEmoticon', 'emoticonsContainer');
-                this.bindButtonToPopup('bbCodeColor', 'colorCodesContainer');
             },
 
             bindButtonToPopup: function(buttonID, popupID) {
@@ -136,12 +136,20 @@
 
             ajaxChat.updateButton('audio', 'audioButton');
             ajaxChat.updateButton('autoScroll', 'autoScrollButton');
+            document.getElementById('msgColorsSetting').checked = ajaxChat.getSetting('msgColors');
+            document.getElementById('nickColorsSetting').checked = ajaxChat.getSetting('nickColors');
+           // document.getElementById('gradiensSetting').checked = ajaxChat.getSetting('gradiens');
             document.getElementById('bbCodeSetting').checked = ajaxChat.getSetting('bbCode');
-            document.getElementById('bbCodeColorsSetting').checked = ajaxChat.getSetting('bbCodeColors');
             document.getElementById('hyperLinksSetting').checked = ajaxChat.getSetting('hyperLinks');
             document.getElementById('emoticonsSetting').checked = ajaxChat.getSetting('emoticons');
-            document.getElementById('maxMessagesSetting').value = ajaxChat.getSetting('maxMessages');
-            document.getElementById('persistFontColorSetting').checked = ajaxChat.getSetting('persistFontColor');
+            document.getElementById('fontColorSetting').value = ajaxChat.getSetting('fontColor');
+            document.getElementById('nickColorSetting').value = ajaxChat.getSetting('nickColor');
+            
+            $.fn.colorPicker.defaults.colors = ajaxChatConfig.colorCodes;
+            $('#fontColorSetting').colorPicker({showHexField: false});
+            $('#nickColorSetting').colorPicker({showHexField: false});
+        
+
             for (var i = 0; i < document.getElementById('audioVolumeSetting').options.length; i++) {
                 if (document.getElementById('audioVolumeSetting').options[i].value === ajaxChat.getSetting('audioVolume')) {
                     document.getElementById('audioVolumeSetting').options[i].selected = true;
@@ -324,11 +332,6 @@
             <dt><label for="bbCodeSetting">[LANG]settingsBBCode[/LANG]</label></dt>
             <dd><input type="checkbox" id="bbCodeSetting" onclick=" ajaxChat.setSetting('bbCode', this.checked); "/></dd>
         </dl>
-
-        <dl>
-            <dt><label for="bbCodeColorsSetting">[LANG]settingsBBCodeColors[/LANG]</label></dt>
-            <dd><input type="checkbox" id="bbCodeColorsSetting" onclick=" ajaxChat.setSetting('bbCodeColors', this.checked); "/></dd>
-        </dl>
         <dl>
             <dt><label for="hyperLinksSetting">[LANG]settingsHyperLinks[/LANG]</label></dt>
             <dd><input type="checkbox" id="hyperLinksSetting" onclick=" ajaxChat.setSetting('hyperLinks', this.checked); "/></dd>
@@ -337,14 +340,25 @@
             <dt><label for="emoticonsSetting">[LANG]settingsEmoticons[/LANG]</label></dt>
             <dd><input type="checkbox" id="emoticonsSetting" onclick=" ajaxChat.setSetting('emoticons', this.checked); "/></dd>
         </dl>
-
         <dl>
-            <dt><label for="maxMessagesSetting">[LANG]settingsMaxMessages[/LANG]</label></dt>
-            <dd><input type="text" class="text" id="maxMessagesSetting" onchange=" ajaxChat.setSetting('maxMessages', parseInt(this.value)); " /></dd>
+            <dt><label for="msgColorsSetting">Разрешить цветные сообщения:</label></dt>
+            <dd><input type="checkbox" id="msgColorsSetting" onclick=" ajaxChat.setSetting('msgColors', this.checked); "/></dd>
         </dl>
         <dl>
-            <dt><label for="persistFontColorSetting">[LANG]settingsPersistFontColor[/LANG]</label></dt>
-            <dd><input type="checkbox" id="persistFontColorSetting" onclick=" ajaxChat.setPersistFontColor(this.checked); "/></dd>
+            <dt><label for="nickColorsSetting">Разрешить цветные ники:</label></dt>
+            <dd><input type="checkbox" id="nickColorsSetting" onclick=" ajaxChat.setSetting('nickColors', this.checked); "/></dd>
+        </dl>
+        <!--dl>
+            <dt><label for="gradiensSetting">Разрешить градиентный текст:</label></dt>
+            <dd><input type="checkbox" id="gradiensSetting" onclick=" ajaxChat.setSetting('gradiens', this.checked); "/></dd>
+        </dl-->
+        <dl>
+            <dt><label for="fontColorSetting">Цвет сообщений</label></dt>
+            <dd><input type="text" name="fontColorSetting" id="fontColorSetting" onchange="ajaxChat.setFontColor(this.value); "/></dd>
+        </dl>
+        <dl>
+            <dt><label for="nickColorSetting">Цвет никнейма</label></dt>
+            <dd><input type="color" id="nickColorSetting" onchange="ajaxChat.setSetting('nickColor', this.value); "/></dd>
         </dl>
         <dl>
             <dt><label for="audioVolumeSetting">[LANG]settingsAudioVolume[/LANG]</label></dt>
@@ -409,7 +423,6 @@
     <input id="bbCodeItalic" type="button" value="i" title="[LANG]bbCodeTitleItalic[/LANG]" onclick=" ajaxChat.insertBBCode('i'); " style="font-style: italic;"/>
     <input id="bbCodeStrike" type="button" value="s" onclick=" ajaxChat.insertBBCode('s'); " style="text-decoration: line-through;"/>
     <input id="bbCodeQuote" type="button" value="[LANG]bbCodeLabelQuote[/LANG]" title="[LANG]bbCodeTitleQuote[/LANG]" onclick=" ajaxChat.insertBBCode('quote'); "/>
-    <input id="bbCodeColor" type="button" value="T" title="[LANG]bbCodeTitleColor[/LANG]" style="color: red; font-weight: bold;"/>
     <input id="bbCodeEmoticon" type="button" title="[LANG]bbCodeTitleEmoticon[/LANG]" value=":)"/>
 </div>
 <div id="emoticonsContainer" dir="ltr" style="display: none;"></div>

@@ -66,7 +66,7 @@ $AJAXChatConfig['langNames'] = array(
 );
 
 // Available styles:
-$AJAXChatConfig['styleAvailable'] = array('beige','black','grey','Oxygen','Lithium','Sulfur','Cobalt','Mercury','Uranium','Pine','Plum','prosilver','Core','MyBB','vBulletin','XenForo');
+$AJAXChatConfig['styleAvailable'] = array('beige','grey','Oxygen','Lithium','Sulfur','prosilver','Core','MyBB','vBulletin','XenForo');
 // Default style:
 $AJAXChatConfig['styleDefault'] = 'prosilver';
 

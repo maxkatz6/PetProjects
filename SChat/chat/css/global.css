@@ -66,7 +66,7 @@ body.ajax-chat {
 	overflow:auto;
 }
 #content #chatList .toMe {
-	border:3px double #B22222;
+	border:1px double #B22222;
 }
 
 #content #mainPanelContainer { 
@@ -150,18 +150,15 @@ body.ajax-chat {
 	margin-right:2px;
 }
 
-#content #colorCodesContainer, #content #emoticonsContainer {
+#content #emoticonsContainer {
 	position:absolute;
 	left: 120px;
 	bottom: 50px;
 	padding:3px;
 	z-index:1;
-}
-
-#content #emoticonsContainer {
-    max-width: 300px;
-    max-height: 400px;
-    overflow: auto;
+        max-width: 300px;
+        max-height: 400px;
+        overflow: auto;
 }
 
 #content #emoticonsContainer a {
@@ -171,12 +168,6 @@ body.ajax-chat {
 #content #emoticonsContainer img {
 	vertical-align:middle;
 	margin-bottom:2px;
-}
-#content #colorCodesContainer a {
-	display:block;
-	float:left;
-	width:20px;
-	height:20px;
 }
 #content #optionsContainer {
 	position:absolute;
@@ -279,7 +270,7 @@ body.ajax-chat {
 #content img {
 	border:none;
 }
-#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer, #content #colorCodesContainer a, #content textarea {
+#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer,  #content textarea {
 	border-width: 1px;
 	border-style:solid;
         word-wrap: break-word; 
@@ -292,6 +283,42 @@ body.ajax-chat {
 /* Misc */
 #content #bbCodeContainer input, #content #optionsContainer input.button, #content #settingsContainer #settingsList input.button, #content #logoutButton, #content #submitButton, #loginContent #loginButton {
 	cursor:pointer;
+}
+
+/*https://github.com/laktek/really-simple-color-picker*/
+div.colorPicker-picker {
+  height: 16px;
+  width: 16px;
+  padding: 0 !important;
+  border: 1px solid #ccc;
+  background: url('../img/colorpicker.gif') no-repeat top right;
+  cursor: pointer;
+  line-height: 16px;
+  font-size:0.75em;
+  font-weight:bold;
+  text-align: center;
+}
+
+div.colorPicker-palette {
+  width: 110px;
+  position: absolute;
+  border: 1px solid #598FEF;
+  background-color: #EFEFEF;
+  padding: 2px;
+  z-index: 9999;
+}
+  div.colorPicker_hexWrap {width: 100%; float:left }
+  div.colorPicker_hexWrap label {font-size: 95%; color: #2F2F2F; margin: 5px 2px; width: 25%}
+  div.colorPicker_hexWrap input {margin: 5px 2px; padding: 0; font-size: 95%; border: 1px solid #000; width: 65%; }
+
+div.colorPicker-swatch {
+  height: 12px;
+  width: 12px;
+  border: 1px solid #000;
+  margin: 2px;
+  float: left;
+  cursor: pointer;
+  line-height: 12px;
 }
 
 @media (max-width: 700px) {

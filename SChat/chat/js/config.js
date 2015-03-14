@@ -44,8 +44,6 @@ var ajaxChatConfig = {
 		styleSelection: 'styleSelection',
 		// The ID of the emoticons container:
 		emoticonsContainer: 'emoticonsContainer',
-		// The ID of the color codes container:
-		colorCodesContainer: 'colorCodesContainer',
 		// The ID of the flash interface container:
 		flashInterfaceContainer: 'flashInterfaceContainer',
 		// The ID of the status icon:
@@ -56,8 +54,11 @@ var ajaxChatConfig = {
 	settings: {
 		// Defines if BBCode tags are replaced with the associated HTML code tags:
 		bbCode: true,
-		// Defines if color BBCode is replaced with the associated color HTML code:
-		bbCodeColors: true,
+
+		msgColors: true,
+                nickColors: true,
+                gradiens: true,
+                
 		// Defines if hyperlinks are made clickable:
 		hyperLinks: true,
 		// Defines if emoticon codes are replaced with their associated images:
@@ -66,11 +67,10 @@ var ajaxChatConfig = {
 		// Defines if the chat list scrolls automatically to display the latest messages:
 		autoScroll: true,
 
-		// Defines if font colors persist without the need to assign them to each message:
-		persistFontColor: false,
 		// The default font color, uses the page default font color if set to null:
 		fontColor: null,
-
+                nickColor: null,
+                
 		// Defines if sounds are played:
 		audio: true,
 		// Defines the sound volume (0.0 = mute, 1.0 = max):
@@ -101,30 +101,17 @@ var ajaxChatConfig = {
 		'i',
 		's',
 		'quote',
-		'color',
-              'tgw'
+                'tgw'
 	],
 
 	// Defines the list of allowed color codes:
-	colorCodes: [
-		'gray',
-		'silver',
-		'white',
-		'yellow',
-		'orange',
-		'red',
-		'fuchsia',
-		'purple',
-		'navy',
-		'blue',
-		'aqua',
-		'teal',
-		'green',
-		'lime',
-		'olive',
-		'maroon',
-		'black'
-	],
+	colorCodes: ['000000','494949','717171','41166f','53377a','4b0082',
+                    '6835ba','9739b7','810aa9','a70ddb','735184','a60073',
+                    'ba0671','bb438a','71001e','a5003c','b80642','c32025',
+                    'fc2847', 'dc143c', 'cc3737','e3691e','c06411','eb9d58',
+                    'c4b122','a6b929','929e32','609c0c','67b64b','00af4c',
+                    '009d7a','03c89c','00aab7','017e90','0687c1','01adeb',
+                    '007fff','0078b7','0558a6','1065dc','0d14e5','00416a'],
 
 	// Defines the list of allowed emoticon codes:
 	emoticonCodes: [

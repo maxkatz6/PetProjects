@@ -6,10 +6,9 @@
  * Color palette inspired by phpBB style "prosilver":
  * http://www.phpbb.com/
  */
-@import url('global.css');
+@import url('global.css?1');
 @import url('fonts.css');
 @import url('print.css');
-@import url('custom.css');
 
 /* Firefox button padding fix */
 #content #bbCodeContainer input::-moz-focus-inner, #content #logoutButton::-moz-focus-inner, #content #submitButton::-moz-focus-inner {
