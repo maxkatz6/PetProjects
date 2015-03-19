@@ -7,7 +7,7 @@
  */
 
 // Ajax Chat config parameters:
-var ajaxChatConfig = {
+var sConfig = {
 
 	// The channelID of the channel to enter on login (the loginChannelName is used if set to null):
 	loginChannelID: null,
@@ -335,7 +335,7 @@ var ajaxChatConfig = {
 
 	// The name of the chat bot:
 	chatBotName: '������',
-	// The userID of the chat bot:
+	// The userID of the chat bot:            
 	chatBotID: 2147483647,
 
 	// Allow/Disallow registered users to delete their own messages:

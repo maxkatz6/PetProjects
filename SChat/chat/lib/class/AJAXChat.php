@@ -78,7 +78,6 @@ class AJAXChat {
 		$this->_requestVars['day']			= isset($_REQUEST['day'])			? (int)$_REQUEST['day']			: null;
 		$this->_requestVars['hour']			= isset($_REQUEST['hour'])			? (int)$_REQUEST['hour']		: null;
 		$this->_requestVars['search']		= isset($_REQUEST['search'])		? $_REQUEST['search']			: null;
-		$this->_requestVars['shoutbox']		= isset($_REQUEST['shoutbox'])		? true							: false;
 		$this->_requestVars['getInfos']		= isset($_REQUEST['getInfos'])		? $_REQUEST['getInfos']			: null;
 		$this->_requestVars['lang']			= isset($_REQUEST['lang'])			? $_REQUEST['lang']				: null;
 		$this->_requestVars['delete']		= isset($_REQUEST['delete'])		? (int)$_REQUEST['delete']		: null;
@@ -147,8 +146,7 @@ class AJAXChat {
 			// Login if auto-login enabled or a login, userName or shoutbox parameter is given:
 			$this->getConfig('forceAutoLogin') ||
 			$this->getRequestVar('login') ||
-			$this->getRequestVar('userName') ||
-			$this->getRequestVar('shoutbox')
+			$this->getRequestVar('userName')
 			) {
 			$this->login();
 		}
@@ -214,7 +212,7 @@ class AJAXChat {
 			if($this->getRequestVar('ajax')) {
 				$this->initChannel();
 				$this->updateOnlineStatus();
-				$this->checkAndRemoveInactive();
+				$this->checkAndRemoveInactive(); // TODO WARNING
 			}
 		} else {
 			if($this->getRequestVar('ajax')) {
@@ -1939,7 +1937,7 @@ class AJAXChat {
 
 	function getMessageFilter() {
 			$filterChannelMessages = '';
-			if(!$this->getConfig('showChannelMessages') || $this->getRequestVar('shoutbox')) {
+			if(!$this->getConfig('showChannelMessages')) {
 				$filterChannelMessages = '	AND NOT (
 											text LIKE (\'/login%\')
 											OR
@@ -2069,7 +2067,9 @@ class AJAXChat {
 	function getTeaserViewJSONMessages() {
             $json = array();
             $json['infos'] = $this->getInfoMessages();
-            $json['msgs'] = $this->getTeaserViewMessages();
+            $json['users'] = $this->getOnlineUsersData();
+            if ($this->getRequestVar('tmc') != 0)
+                $json['msgs'] = $this->getTeaserViewMessages();
             return $json;
 	}
 

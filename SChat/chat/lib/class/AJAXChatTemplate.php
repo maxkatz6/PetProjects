@@ -174,13 +174,26 @@ class AJAXChatTemplate {
 					return 'write_forbidden';
 				else
 					return 'write_allowed';
-			
+                        case 'HELPLIST':
+                            return $this->getHelpList();
 			default:
 				return $this->ajaxChat->replaceCustomTemplateTags($tagData[1], (isset($tagData[2]) ? $tagData[2] : null));
 		}
 	}
+        function getHelpList()
+        {
+            $ret = '<div id="helpList">';
+            $list = array('Join', 'JoinCreate', 'Invite', 'Uninvite', 'Logout', 'PrivateMessage', 'QueryOpen', 'QueryClose', 'Action', 
+                'Describe', 'Ignore', 'IgnoreList', 'Whereis', 'Kick', 'Unban', 'Bans', 'Whois', 'Who', 'List', 'Roll', 'Nick');
+            foreach ($list as $item)
+            {
+                $ret .= '<dl><dt>'.$this->ajaxChat->htmlEncode($this->ajaxChat->getLang('helpItemDesc'.$item)).'</dt>'
+                        .'<dd>'.$this->ajaxChat->htmlEncode($this->ajaxChat->getLang('helpItemCode'.$item)).'</dd></dl>';
+            }
+            return $ret.'</div>';
+        }
 
-	// Function to display alternating table row colors:
+        // Function to display alternating table row colors:
 	function alternateRow($rowOdd='rowOdd', $rowEven='rowEven') {
 		static $i;
 		$i += 1;

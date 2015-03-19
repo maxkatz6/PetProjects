@@ -219,8 +219,8 @@ $AJAXChatConfig['socketServerPort'] = 1935;
 $AJAXChatConfig['socketServerChatID'] = 0;
 
 $AJAXChatConfig['msgGrad'] = array(
-    'Тирраон' => array('000000','0d14e5','ffffff')
+   // 'Тирраон' => array('fc2847','8b00ff','a70ddb')
 );
 $AJAXChatConfig['nickGrad'] = array(
-    'Тирраон' => array('fc2847','6835ba')
+    'Тирраон' => array('300082','800090')
 );

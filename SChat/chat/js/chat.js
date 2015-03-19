@@ -18,44 +18,13 @@ var ajaxChat = {
     styleInitiated: null,
     initializeFunction: null,
     finalizeFunction: null,
-    loginChannelID: null,
-    loginChannelName: null,
-    timerRate: null,
     timer: null,
-    ajaxURL: null,
-    baseURL: null,
-    regExpMediaUrl: null,
     dirs: null,
-    startChatOnLoad: null,
     chatStarted: null,
-    domIDs: null,
     dom: null,
-    settings: null,
-    nonPersistentSettings: null,
     unusedSettings: null,
-    bbCodeTags: null,
-    emoticonCodes: null,
-    emoticonFiles: null,
-    soundFiles: null,
     sounds: null,
     soundTransform: null,
-    sessionName: null,
-    cookieExpiration: null,
-    cookiePath: null,
-    cookieDomain: null,
-    cookieSecure: null,
-    chatBotName: null,
-    chatBotID: null,
-    allowUserMessageDelete: null,
-    inactiveTimeout: null,
-    privateChannelDiff: null,
-    privateMessageDiff: null,
-    showChannelMessages: null,
-    messageTextMaxLength: null,
-    socketServerEnabled: null,
-    socketServerHost: null,
-    socketServerPort: null,
-    socketServerChatID: null,
     socket: null,
     socketIsConnected: null,
     socketTimerRate: null,
@@ -88,12 +57,11 @@ var ajaxChat = {
     DOMbuffering: null,
     DOMbuffer: null,
     DOMbufferRowClass: null,
-    debug: null,
     inUrlBBCode: null,
 
     audioHtml5: [],
 
-    init: function(config, lang, initSettings, initStyle, initialize, initializeFunction, finalizeFunction) {
+    init: function(lang, initSettings, initStyle, initialize, initializeFunction, finalizeFunction) {
         this.httpRequest = {};
         this.usersList = [];
         this.userNamesList = [];
@@ -104,8 +72,10 @@ var ajaxChat = {
         this.requestStatus = 'ok';
         this.DOMbufferRowClass = 'rowOdd';
         this.inUrlBBCode = false;
-        this.initConfig(config);
         this.initDirectories();
+        this.DOMbuffering = false;
+        this.DOMbuffer = "";
+        this.retryTimerDelay = sConfig.inactiveTimeout * (helper.isMobile() ? 30000 : 1500); //the best
         if (initSettings) {
             this.initSettings();
         }
@@ -129,53 +99,15 @@ var ajaxChat = {
         }
     },
 
-    initConfig: function(config) {
-        this.loginChannelID = config['loginChannelID'];
-        this.loginChannelName = config['loginChannelName'];
-        this.timerRate = config['timerRate'];
-        this.ajaxURL = config['ajaxURL'];
-        this.baseURL = config['baseURL'];
-        this.regExpMediaUrl = config['regExpMediaUrl'];
-        this.startChatOnLoad = config['startChatOnLoad'];
-        this.domIDs = config['domIDs'];
-        this.settings = config['settings'];
-        this.nonPersistentSettings = config['nonPersistentSettings'];
-        this.bbCodeTags = config['bbCodeTags'];
-        this.emoticonCodes = config['emoticonCodes'];
-        this.emoticonFiles = config['emoticonFiles'];
-        this.soundFiles = config['soundFiles'];
-        this.sessionName = config['sessionName'];
-        this.cookieExpiration = config['cookieExpiration'];
-        this.cookiePath = config['cookiePath'];
-        this.cookieDomain = config['cookieDomain'];
-        this.cookieSecure = config['cookieSecure'];
-        this.chatBotName = config['chatBotName'];
-        this.chatBotID = config['chatBotID'];
-        this.allowUserMessageDelete = config['allowUserMessageDelete'];
-        this.inactiveTimeout = config['inactiveTimeout'];
-        this.privateChannelDiff = config['privateChannelDiff'];
-        this.privateMessageDiff = config['privateMessageDiff'];
-        this.showChannelMessages = config['showChannelMessages'];
-        this.messageTextMaxLength = config['messageTextMaxLength'];
-        this.socketServerEnabled = config['socketServerEnabled'];
-        this.socketServerHost = config['socketServerHost'];
-        this.socketServerPort = config['socketServerPort'];
-        this.socketServerChatID = config['socketServerChatID'];
-        this.debug = config['debug'];
-        this.DOMbuffering = false;
-        this.DOMbuffer = "";
-        this.retryTimerDelay = this.inactiveTimeout * (helper.isMobile() ? 30000 : 1500); //the best
-    },
-
     initDirectories: function() {
         this.dirs = {};
-        this.dirs['emoticons'] = this.baseURL + 'img/emoticons/';
-        this.dirs['sounds'] = this.baseURL + 'sounds/';
-        this.dirs['flash'] = this.baseURL + 'flash/';
+        this.dirs['emoticons'] = sConfig.baseURL + 'img/emoticons/';
+        this.dirs['sounds'] = sConfig.baseURL + 'sounds/';
+        this.dirs['flash'] = sConfig.baseURL + 'flash/';
     },
 
     initSettings: function() {
-        var cookie = this.readCookie(this.sessionName + '_settings'),
+        var cookie = this.readCookie(sConfig.sessionName + '_settings'),
             i,
             settingsArray,
             setting,
@@ -211,11 +143,11 @@ var ajaxChat = {
                             }
                         }
                     }
-                    if (this.inArray(this.nonPersistentSettings, key)) {
+                    if (this.inArray(sConfig.nonPersistentSettings, key)) {
                         // The setting is not used, store it for the persistSettings method:
                         this.unusedSettings[key] = value;
                     } else {
-                        this.settings[key] = value;
+                        sConfig.settings[key] = value;
                     }
                 }
             }
@@ -226,43 +158,43 @@ var ajaxChat = {
         var settingsArray;
         if (this.settingsInitiated) {
             settingsArray = [];
-            for (var property in this.settings) {
-                if (this.inArray(this.nonPersistentSettings, property)) {
+            for (var property in sConfig.settings) {
+                if (this.inArray(sConfig.nonPersistentSettings, property)) {
                     if (this.unusedSettings && this.unusedSettings[property]) {
                         // Store the unusedSetting previously stored:
-                        this.settings[property] = this.unusedSettings[property];
+                        sConfig.settings[property] = this.unusedSettings[property];
                     } else {
                         continue;
                     }
                 }
-                settingsArray.push(property + '=' + this.encodeText(this.settings[property]));
+                settingsArray.push(property + '=' + this.encodeText(sConfig.settings[property]));
             }
-            this.createCookie(this.sessionName + '_settings', settingsArray.join('&'), this.cookieExpiration);
+            this.createCookie(sConfig.sessionName + '_settings', settingsArray.join('&'), sConfig.cookieExpiration);
         }
     },
 
     getSettings: function() {
-        return this.settings;
+        return sConfig.settings;
     },
 
     getSetting: function(key) {
         // Only return null if setting is null or undefined, not if it is false:
-        for (var property in this.settings) {
+        for (var property in sConfig.settings) {
             if (property === key) {
-                return this.settings[key];
+                return sConfig.settings[key];
             }
         }
         return null;
     },
 
     setSetting: function(key, value) {
-        this.settings[key] = value;
+        sConfig.settings[key] = value;
     },
 
     initializeSettings: function() {
-        if (this.settings['fontColor']) {
+        if (sConfig.settings['fontColor']) {
             if (this.dom['inputField']) {
-                this.dom['inputField'].style.color = this.settings['fontColor'];
+                this.dom['inputField'].style.color = sConfig.settings['fontColor'];
             }
         }
     },
@@ -282,24 +214,24 @@ var ajaxChat = {
         if (!this.isCookieEnabled()) {
             this.addChatBotMessageToChatList('/error CookiesRequired');
         } else {
-            if (this.startChatOnLoad) {
+            if (sConfig.startChatOnLoad) {
                 this.startChat();
             } else {
                 this.setStartChatHandler();
                 this.requestTeaserContent();
             }
         }
-        if (helper.isMobile())     //на телефоне выводит список онлайн
-            this.sendMessage('/who'); //хз, как оно будет, работает через раз
+     //   if (helper.isMobile())     //на телефоне выводит список онлайн
+      //      this.sendMessage('/who'); //хз, как оно будет, работает через раз
     },
 
     requestTeaserContent: function() {
         var params = '&view=teaser';
         params += '&getInfos=' + this.encodeText('userID,userName,userRole');
-        if (!isNaN(parseInt(this.loginChannelID))) {
-            params += '&channelID=' + this.loginChannelID;
-        } else if (this.loginChannelName !== null) {
-            params += '&channelName=' + this.encodeText(this.loginChannelName);
+        if (!isNaN(parseInt(sConfig.loginChannelID))) {
+            params += '&channelID=' + sConfig.loginChannelID;
+        } else if (sConfig.loginChannelName !== null) {
+            params += '&channelName=' + this.encodeText(sConfig.loginChannelName);
         }
         this.updateChat(params);
     },
@@ -367,26 +299,26 @@ var ajaxChat = {
 
     initializeDocumentNodes: function() {
         this.dom = {};
-        for (var key in this.domIDs) {
-            this.dom[key] = document.getElementById(this.domIDs[key]);
+        for (var key in sConfig.domIDs) {
+            this.dom[key] = document.getElementById(sConfig.domIDs[key]);
         }
     },
 
     initEmoticons: function() {
         this.DOMbuffer = "";
-        for (var i = 0; i < this.emoticonCodes.length; i++) {
+        for (var i = 0; i < sConfig.emoticonCodes.length; i++) {
             // Replace specials characters in emoticon codes:
-            this.emoticonCodes[i] = this.encodeSpecialChars(this.emoticonCodes[i]);
+            sConfig.emoticonCodes[i] = this.encodeSpecialChars(sConfig.emoticonCodes[i]);
             this.DOMbuffer = this.DOMbuffer
                 + '<a href="javascript:ajaxChat.insertText(\''
-                + this.scriptLinkEncode(this.emoticonCodes[i])
+                + this.scriptLinkEncode(sConfig.emoticonCodes[i])
                 + '\');"><img src="'
                 + this.dirs['emoticons']
-                + this.emoticonFiles[i]
+                + sConfig.emoticonFiles[i]
                 + '" alt="'
-                + this.emoticonCodes[i]
+                + sConfig.emoticonCodes[i]
                 + '" title="'
-                + this.emoticonCodes[i]
+                + sConfig.emoticonCodes[i]
                 + '"/></a>';
         }
         if (this.dom['emoticonsContainer']) {
@@ -398,20 +330,20 @@ var ajaxChat = {
     startChatUpdate: function() {
         // Start the chat update and retrieve current user and channel info and set the login channel:
         var infos = 'userID,userName,userRole,channelID,channelName';
-        if (this.socketServerEnabled) {
+        if (sConfig.socketServerEnabled) {
             infos += ',socketRegistrationID';
         }
         var params = '&getInfos=' + this.encodeText(infos);
-        if (!isNaN(parseInt(this.loginChannelID))) {
-            params += '&channelID=' + this.loginChannelID;
-        } else if (this.loginChannelName !== null) {
-            params += '&channelName=' + this.encodeText(this.loginChannelName);
+        if (!isNaN(parseInt(sConfig.loginChannelID))) {
+            params += '&channelID=' + sConfig.loginChannelID;
+        } else if (sConfig.loginChannelName !== null) {
+            params += '&channelName=' + this.encodeText(sConfig.loginChannelName);
         }
-        this.updateChat(params);
+        this.updateChat(params + "&text=%7B%22text%22%3A%22%2Fwho%22%7D");
     },
 
     updateChat: function(paramString) {
-        var requestUrl = this.ajaxURL
+        var requestUrl = sConfig.ajaxURL
             + '&lastID='
             + this.lastID;
         if (paramString) {
@@ -447,8 +379,8 @@ var ajaxChat = {
     },
 
     initializeFlashInterface: function() {
-        if (this.socketServerEnabled) {
-            this.socketTimerRate = (this.inactiveTimeout - 1) * 60 * 1000;
+        if (sConfig.socketServerEnabled) {
+            this.socketTimerRate = (sConfig.inactiveTimeout - 1) * 60 * 1000;
             this.socketConnect();
         }
         this.loadSounds();
@@ -465,7 +397,7 @@ var ajaxChat = {
                     this.socket.addEventListener('ioError', this.socketIOErrorHandler);
                     this.socket.addEventListener('securityError', this.socketSecurityErrorHandler);
                 }
-                this.socket.connect(this.socketServerHost, this.socketServerPort);
+                this.socket.connect(sConfig.socketServerHost, sConfig.socketServerPort);
             } catch (e) {
                 this.debugMessage('socketConnect', e);
             }
@@ -509,7 +441,7 @@ var ajaxChat = {
             try {
                 this.socket.send(
                     '<register chatID="'
-                    + this.socketServerChatID
+                    + sConfig.socketServerChatID
                     + '" userID="'
                     + this.userID
                     + '" regID="'
@@ -564,10 +496,10 @@ var ajaxChat = {
         if (xmlDoc) {
             this.handleOnlineUsers(xmlDoc.getElementsByTagName('user'));
             // If the root node has the attribute "mode" set to "1" it is a channel message:
-            if ((this.showChannelMessages || xmlDoc.firstChild.getAttribute('mode') !== '1') && !this.channelSwitch) {
+            if ((sConfig.showChannelMessages || xmlDoc.firstChild.getAttribute('mode') !== '1') && !this.channelSwitch) {
                 var channelID = xmlDoc.firstChild.getAttribute('channelID');
                 if (channelID === this.channelID ||
-                        parseInt(channelID) === parseInt(this.userID) + this.privateMessageDiff
+                        parseInt(channelID) === parseInt(this.userID) + sConfig.privateMessageDiff
                 ) {
                     this.handleChatMessages(xmlDoc.getElementsByTagName('message'));
                 }
@@ -597,15 +529,15 @@ var ajaxChat = {
 
     loadSounds: function() {
         try {
-            this.setAudioVolume(this.settings['audioVolume']);
+            this.setAudioVolume(sConfig.settings['audioVolume']);
             this.sounds = {};
             var sound, urlRequest;
-            for (var key in this.soundFiles) {
+            for (var key in sConfig.soundFiles) {
                 sound = FABridge.ajaxChat.create('flash.media.Sound');
                 sound.addEventListener('complete', this.soundLoadCompleteHandler);
                 sound.addEventListener('ioError', this.soundIOErrorHandler);
                 urlRequest = FABridge.ajaxChat.create('flash.net.URLRequest');
-                urlRequest.setUrl(this.dirs['sounds'] + this.soundFiles[key]);
+                urlRequest.setUrl(this.dirs['sounds'] + sConfig.soundFiles[key]);
                 sound.load(urlRequest);
             }
         } catch (e) {
@@ -615,9 +547,9 @@ var ajaxChat = {
 
     soundLoadCompleteHandler: function(event) {
         var sound = event.getTarget();
-        for (var key in ajaxChat.soundFiles) {
+        for (var key in sConfig.soundFiles) {
             // Get the sound key by matching the sound URL with the sound filename:
-            if ((new RegExp(ajaxChat.soundFiles[key])).test(sound.getUrl())) {
+            if ((new RegExp(sConfig.soundFiles[key])).test(sound.getUrl())) {
                 // Add the loaded sound to the sounds list:
                 ajaxChat.sounds[key] = sound;
             }
@@ -647,49 +579,49 @@ var ajaxChat = {
 
     playSoundOnNewMessage: function(dateObject, userID, userName, userRole, messageID, messageText) {
         var messageParts;
-        if (this.settings['audio'] && this.sounds && this.lastID && !this.channelSwitch) {
+        if (sConfig.settings['audio'] && this.sounds && this.lastID && !this.channelSwitch) {
 
         if (new RegExp('(?:^|, |])' + this.userName + ', ','gm').test(messageText)){
-                this.playSound(this.settings['soundPrivate']);
+                this.playSound(sConfig.settings['soundPrivate']);
                 return;
             }
 
             messageParts = messageText.split(' ', 1);
             switch (userID) {
-            case this.chatBotID:
+            case sConfig.chatBotID:
                 switch (messageParts[0]) {
                 case '/login':
                 case '/channelEnter':
-                    this.playSound(this.settings['soundEnter']);
+                    this.playSound(sConfig.settings['soundEnter']);
                     break;
                 case '/logout':
                 case '/channelLeave':
                 case '/kick':
-                    this.playSound(this.settings['soundLeave']);
+                    this.playSound(sConfig.settings['soundLeave']);
                     break;
                 case '/error':
-                    this.playSound(this.settings['soundError']);
+                    this.playSound(sConfig.settings['soundError']);
                     break;
                 default:
-                    this.playSound(this.settings['soundChatBot']);
+                    this.playSound(sConfig.settings['soundChatBot']);
                 }
                 break;
             case this.userID:
                 switch (messageParts[0]) {
                 case '/privmsgto':
-                    this.playSound(this.settings['soundPrivate']);
+                    this.playSound(sConfig.settings['soundPrivate']);
                     break;
                 default:
-                    this.playSound(this.settings['soundSend']);
+                    this.playSound(sConfig.settings['soundSend']);
                 }
                 break;
             default:
                 switch (messageParts[0]) {
                 case '/privmsg':
-                    this.playSound(this.settings['soundPrivate']);
+                    this.playSound(sConfig.settings['soundPrivate']);
                     break;
                 default:
-                    this.playSound(this.settings['soundReceive']);
+                    this.playSound(sConfig.settings['soundReceive']);
                 }
                 break;
             }
@@ -700,7 +632,7 @@ var ajaxChat = {
         var selection = document.getElementById(selectionID);
         // Skip the first, empty selection:
         var i = 1;
-        for (var key in this.soundFiles) {
+        for (var key in sConfig.soundFiles) {
             selection.options[i] = new Option(key, key);
             if (key === selectedSound) {
                 selection.options[i].selected = true;
@@ -785,7 +717,7 @@ var ajaxChat = {
                         this.debugMessage('makeRequest::logRetry', e);
                     }
                     try {
-                        ajaxChat.timer = setTimeout(function() { ajaxChat.updateChat(null); }, ajaxChat.timerRate);
+                        ajaxChat.timer = setTimeout(function() { ajaxChat.updateChat(null); }, sConfig.timerRate);
                     } catch (e) {
                         this.debugMessage('makeRequest::setTimeout', e);
                     }
@@ -802,7 +734,7 @@ var ajaxChat = {
                 ajaxChat.setStatus('retrying');
                 this.updateChatlistView();
             }
-            this.timer = setTimeout(function() { ajaxChat.updateChat(null); }, this.timerRate);
+            this.timer = setTimeout(function() { ajaxChat.updateChat(null); }, sConfig.timerRate);
         }
     },
 
@@ -849,8 +781,8 @@ var ajaxChat = {
             if (this.socketIsConnected) {
                 timeout = this.socketTimerRate;
             } else {
-                timeout = this.timerRate;
-                if (this.socketServerEnabled && !this.socketReconnectTimer) {
+                timeout = sConfig.timerRate;
+                if (sConfig.socketServerEnabled && !this.socketReconnectTimer) {
                     // If the socket connection fails try to reconnect once in a minute:
                     this.socketReconnectTimer = setTimeout(ajaxChat.socketConnect, 60000);
                 }
@@ -1059,7 +991,7 @@ var ajaxChat = {
                 true
             );
         }
-        this.showHide(menuID);
+        this.toggleArrowButton(menuID);
         this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
     },
 
@@ -1185,7 +1117,7 @@ var ajaxChat = {
 
     getEncodedChatBotName: function() {
         if (typeof arguments.callee.encodedChatBotName === 'undefined') {
-            arguments.callee.encodedChatBotName = this.encodeSpecialChars(this.chatBotName);
+            arguments.callee.encodedChatBotName = this.encodeSpecialChars(sConfig.chatBotName);
         }
         return arguments.callee.encodedChatBotName;
     },
@@ -1193,7 +1125,7 @@ var ajaxChat = {
     addChatBotMessageToChatList: function(messageText) {
         this.addMessageToChatList(
             new Date(),
-            this.chatBotID,
+            sConfig.chatBotID,
             this.getEncodedChatBotName(),
             4,
             null,
@@ -1241,15 +1173,15 @@ var ajaxChat = {
             + /*'<a href="javascript:ajaxChat.blinkMessage('+ messageID+ ');">'+*/dateTime//+'</a>'
             + '<span class="'
             + userClass + '"'
-            + (this.settings['nickColors'] && msgInfo.ncol? ' style="color:'+msgInfo.ncol+'" ': '') 
+            + (sConfig.settings['nickColors'] && msgInfo && msgInfo.ncol? ' style="color:'+msgInfo.ncol+'" ': '') 
             + ' dir="'
             + this.baseDirection
             + "\" onclick=\"ajaxChat.toUser('" + userName + "');\">"
-            + ((this.settings['nickColors'] && this.settings['gradiens'] && msgInfo.nickGrad)? helper.grad(userName, msgInfo.nickGrad) : userName)
+            + ((sConfig.settings['nickColors'] && sConfig.settings['gradiens'] && msgInfo && msgInfo.nickGrad)? helper.grad(userName, msgInfo.nickGrad) : userName)
             + '</span>'
             + colon
-            + '<span ' + ((this.settings['msgColors'] && msgInfo.mcol)? 'style="color:'+msgInfo.mcol+'">' : '>') 
-            + ((this.settings['msgColors'] && this.settings['gradiens'] && msgInfo.msgGrad)? helper.grad(this.replaceText(messageText), msgInfo.msgGrad) : this.replaceText(messageText)) +'<span>';
+            + '<span ' + ((sConfig.settings['msgColors'] && msgInfo && msgInfo.mcol)? 'style="color:'+msgInfo.mcol+'">' : '>') 
+            + ((sConfig.settings['msgColors'] && sConfig.settings['gradiens'] && msgInfo && msgInfo.msgGrad)? helper.grad(this.replaceText(messageText), msgInfo.msgGrad) : this.replaceText(messageText)) +'<span>';
 
         return newDiv;
 
@@ -1300,12 +1232,12 @@ var ajaxChat = {
     },
 
     isAllowedToDeleteMessage: function(messageID, userID, userRole, channelID) {
-        if ((((this.userRole === 1 && this.allowUserMessageDelete && (userID === this.userID ||
-                parseInt(channelID) === parseInt(this.userID) + this.privateMessageDiff ||
-                parseInt(channelID) === parseInt(this.userID) + this.privateChannelDiff)) ||
-            (this.userRole === 5 && this.allowUserMessageDelete && (userID === this.userID ||
-                parseInt(channelID) === parseInt(this.userID) + this.privateMessageDiff ||
-                parseInt(channelID) === parseInt(this.userID) + this.privateChannelDiff)) ||
+        if ((((this.userRole === 1 && sConfig.allowUserMessageDelete && (userID === this.userID ||
+                parseInt(channelID) === parseInt(this.userID) + sConfig.privateMessageDiff ||
+                parseInt(channelID) === parseInt(this.userID) + sConfig.privateChannelDiff)) ||
+            (this.userRole === 5 && sConfig.allowUserMessageDelete && (userID === this.userID ||
+                parseInt(channelID) === parseInt(this.userID) + sConfig.privateMessageDiff ||
+                parseInt(channelID) === parseInt(this.userID) + sConfig.privateChannelDiff)) ||
             this.userRole === 2) && userRole !== 3 && userRole !== 4) || this.userRole === 3) {
             return true;
         }
@@ -1380,7 +1312,7 @@ var ajaxChat = {
             }
         }
 
-        if (this.settings['autoScroll']) {
+        if (sConfig.settings['autoScroll']) {
             this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
         }
     },
@@ -1668,7 +1600,7 @@ var ajaxChat = {
                 + this.lastID
                 + '&text='
                 + this.encodeText(JSON.stringify(msg));
-            this.makeRequest(this.ajaxURL, 'POST', message);
+            this.makeRequest(sConfig.ajaxURL, 'POST', message);
         }
         this.dom['inputField'].value = '';
         this.dom['inputField'].focus();
@@ -1751,7 +1683,7 @@ var ajaxChat = {
 
     ignoreMessage: function(dateObject, userID, userName, userRole, messageID, messageText) {
         var textParts;
-        if (userID === this.chatBotID && messageText.charAt(0) === '/') {
+        if (userID === sConfig.chatBotID && messageText.charAt(0) === '/') {
             textParts = messageText.split(' ');
             if (textParts.length > 1) {
                 switch (textParts[0]) {
@@ -1870,8 +1802,8 @@ var ajaxChat = {
         if (!this.chatStarted) {
             this.clearChatList();
             this.channelSwitch = true;
-            this.loginChannelID = null;
-            this.loginChannelName = channel;
+            sConfig.loginChannelID = null;
+            sConfig.loginChannelName = channel;
             this.requestTeaserContent();
             return;
         }
@@ -1880,7 +1812,7 @@ var ajaxChat = {
             + this.lastID
             + '&channelName='
             + this.encodeText(channel);
-        this.makeRequest(this.ajaxURL, 'POST', message);
+        this.makeRequest(sConfig.ajaxURL, 'POST', message);
         if (this.dom['inputField']) {
             this.dom['inputField'].focus();
         }
@@ -1889,7 +1821,7 @@ var ajaxChat = {
     logout: function() {
         clearTimeout(this.timer);
         var message = 'logout=true';
-        this.makeRequest(this.ajaxURL, 'POST', message);
+        this.makeRequest(sConfig.ajaxURL, 'POST', message);
     },
 
     handleLogout: function(url) {
@@ -1909,22 +1841,23 @@ var ajaxChat = {
             node.className = (this.getSetting(setting) ? 'button' : 'button off');
         }
     },
-
+    toggleArrowButton: function(idShowHide, idBut){
+        var button = (idBut != null ? document.getElementById(idBut) : document.getElementById(idShowHide).parentNode.firstChild.lastChild);
+        if (button.style.backgroundPosition === "-46px -22px")
+            button.style.backgroundPosition = "-46px 0px";
+        else button.style.backgroundPosition = "-46px -22px";
+        this.showHide(idShowHide);
+    },
     showHide: function(id, styleDisplay, displayInline) {
         var node = document.getElementById(id);
-        var button = node.parentNode.firstChild.lastChild;
         if (node) {
             if (styleDisplay) {
                 node.style.display = styleDisplay;
             } else {
-                if (node.style.display === 'none') {
+                if (node.style.display === '' || node.style.display === 'none') {
                     node.style.display = (displayInline ? 'inline' : 'block');
-                    if (button != null)
-                        button.style.backgroundPosition = "-46px -22px";
                 } else {
                     node.style.display = 'none';
-                    if (button != null)
-                        button.style.backgroundPosition = "-46px 0px";
                 }
             }
         }
@@ -2424,7 +2357,7 @@ var ajaxChat = {
     },
 
     replaceBBCode: function(text) {
-        if (!this.settings['bbCode']) {
+        if (!sConfig.settings['bbCode']) {
             // If BBCode is disabled, just strip the text from BBCode tags:
             return text.replace(/(\[\/?\w+(?:=[^<>]*?)?\])/g, '');
         }
@@ -2433,7 +2366,7 @@ var ajaxChat = {
             /\[(\w+)(?:=([^<>]*?))?\](.*)\[\/\1\]/gm,
             function(str, tag, attribute, content) {
                 // Only replace predefined BBCode tags:
-                if (!ajaxChat.inArray(ajaxChat.bbCodeTags, tag) ||
+                if (!ajaxChat.inArray(sConfig.bbCodeTags, tag) ||
                         ajaxChat.containsUnclosedTags(content)) {
                     return str;
                 }
@@ -2463,7 +2396,7 @@ var ajaxChat = {
             + '</q></span>');
     },
 	replaceHyperLinks: function(text) {
-	    if(!this.settings['hyperLinks']) {
+	    if(!sConfig.settings['hyperLinks']) {
 			return text;
 	    }
 	    return text.replace(/(^|\s|>)(((?:https?|ftp):\/\/)([\w_\.-]{2,256}\.[\w\.]{2,4})(:\d{1,5})?(\/([\w+,\/%$^&\*=;\-_а-яА-Я:\)\(\.]*)?((?:\?|#)[:\w%\/\)\(\-+,а-яА-Я;.?=&#]*)?)?)/gim,
@@ -2507,15 +2440,15 @@ var ajaxChat = {
 	},
 
 	replaceEmoticons: function(text) {
-            if(!this.settings['emoticons']) {
+            if(!sConfig.settings['emoticons']) {
                     return text;
             }
             if(!arguments.callee.regExp) {
                 var regExpStr = '^(.*)(';
-                for(var i=0; i<this.emoticonCodes.length; i++) {
+                for(var i=0; i<sConfig.emoticonCodes.length; i++) {
                     if(i!==0)
                         regExpStr += '|';
-                    regExpStr += '(?:' + this.escapeRegExp(this.emoticonCodes[i]) + ')';
+                    regExpStr += '(?:' + this.escapeRegExp(sConfig.emoticonCodes[i]) + ')';
                 }
                 regExpStr += ')(.*)$';
                 arguments.callee.regExp = new RegExp(regExpStr, 'gm');
@@ -2531,11 +2464,11 @@ var ajaxChat = {
                         return str;
                     }
                     if(p2) {
-                        var index = ajaxChat.arraySearch(p2, ajaxChat.emoticonCodes);
+                        var index = ajaxChat.arraySearch(p2, sConfig.emoticonCodes);
                         return 	ajaxChat.replaceEmoticons(p1)
                             +	'<img src="'
                             +	ajaxChat.dirs['emoticons']
-                            +	ajaxChat.emoticonFiles[index]
+                            +	sConfig.emoticonFiles[index]
                             +	'" alt="'
                             +	p2
                             +	'" />'
@@ -2548,7 +2481,7 @@ var ajaxChat = {
 
 
 	getActiveStyle: function() {
-		var cookie = this.readCookie(this.sessionName + '_style');
+		var cookie = this.readCookie(sConfig.sessionName + '_style');
 		var style = cookie ? cookie : this.getPreferredStyleSheet();
 		return style;
 	},
@@ -2560,7 +2493,7 @@ var ajaxChat = {
 
 	persistStyle: function() {
 		if(this.styleInitiated) {
-			this.createCookie(this.sessionName + '_style', this.getActiveStyleSheet(), this.cookieExpiration);
+			this.createCookie(sConfig.sessionName + '_style', this.getActiveStyleSheet(), sConfig.cookieExpiration);
 		}
 	},
 
@@ -2636,9 +2569,9 @@ var ajaxChat = {
 			date.setTime(date.getTime()+(days*24*60*60*1000));
 			expires = '; expires='+date.toGMTString();
 		}
-		var path = '; path='+this.cookiePath;
-		var domain = this.cookieDomain ? '; domain='+this.cookieDomain : '';
-		var secure = this.cookieSecure ? '; secure' : '';
+		var path = '; path='+sConfig.cookiePath;
+		var domain = sConfig.cookieDomain ? '; domain='+sConfig.cookieDomain : '';
+		var secure = sConfig.cookieSecure ? '; secure' : '';
 		document.cookie = name+'='+this.encodeText(value)+expires+path+domain+secure;
 	},
 
@@ -2660,11 +2593,11 @@ var ajaxChat = {
 	},
 
 	isCookieEnabled: function() {
-		this.createCookie(this.sessionName + '_cookie_test', true, 1);
-		var cookie = this.readCookie(this.sessionName + '_cookie_test');
+		this.createCookie(sConfig.sessionName + '_cookie_test', true, 1);
+		var cookie = this.readCookie(sConfig.sessionName + '_cookie_test');
 		if(cookie) {
 			// Unset the test cookie:
-			this.createCookie(this.sessionName + '_cookie_test', true, -1);
+			this.createCookie(sConfig.sessionName + '_cookie_test', true, -1);
 			// Cookie test successfull, return true:
 			return true;
 		}
@@ -2680,10 +2613,10 @@ var ajaxChat = {
 	},
 
 	debugMessage: function(msg, e) {
-		if (this.debug) {
+		if (sConfig.debug) {
 			msg = 'Ajax chat: ' + msg + ' exception: ';
 			console.log(msg, e);
-			if (this.debug === 2) {
+			if (sConfig.debug === 2) {
 				alert(msg + e);
 			}
 		}
@@ -2785,7 +2718,7 @@ var helper = {
     var Res = "";
     var d = l - s;
     R2 -= R1; G2 -= G1; B2 -= B1;
-    for (var i = 0; iS < Str.length;iS++) {
+    for (var i = 0; iS < Str.length;) {
       if (Str.charAt (iS) === '<') {
         for (var t = 0; iS < Str.length; iS++) {
           Res += Str.charAt (iS);
@@ -2793,10 +2726,12 @@ var helper = {
           else if (Str.charAt (iS) === '') t--;
           else if (Str.charAt (iS) === '>' && !t) break;
         }
+        iS++;
       } else if (i !== l) {
-        var S = Str.charAt (iS);
-        Res += d ? c (R1 + i * R2 / d, G1 + i * G2 / d, B1 + i * B2 / d, S) : c (R1, G1, B1, S);
-        i++;
+            var S = (Str.charAt (iS) == '&' && /^(&([a-z]{2,}|#\d+|#x[\da-f]{2});)/i.test (Str.substr (iS))) ? RegExp.$1 : Str.charAt (iS);
+            Res += d ? c (R1 + i * R2 / d, G1 + i * G2 / d, B1 + i * B2 / d, S) : c (R1, G1, B1, S);
+            iS += S.length;
+            i++;
       } else break;
     }
     return Res;
