@@ -6,29 +6,25 @@
  * @license Modified MIT License
  * @link https://blueimp.net/ajax/
  */
-
 // Load configuration
-require_once(AJAX_CHAT_PATH.'lib/config.php');
+require_once(SCHAT_PATH.'lib/config.php');
 
 // Include Class libraries:
-require(AJAX_CHAT_PATH.'lib/class/AJAXChat.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatDataBase.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatMySQLDataBase.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatMySQLQuery.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatMySQLiDataBase.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatMySQLiQuery.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatEncoding.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatString.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatFileSystem.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatHTTPHeader.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatLanguage.php');
-require(AJAX_CHAT_PATH.'lib/class/AJAXChatTemplate.php');
-require(AJAX_CHAT_PATH.'lib/class/CustomAJAXChat.php');
+require(SCHAT_PATH.'lib/class/SChat.php');
+require(SCHAT_PATH.'lib/class/SChatMySQLiDataBase.php');
+require(SCHAT_PATH.'lib/class/SChatMySQLiQuery.php');
+require(SCHAT_PATH.'lib/class/SChatEncoding.php');
+require(SCHAT_PATH.'lib/class/SChatString.php');
+require(SCHAT_PATH.'lib/class/SChatFileSystem.php');
+require(SCHAT_PATH.'lib/class/SChatHTTPHeader.php');
+require(SCHAT_PATH.'lib/class/SChatLanguage.php');
+require(SCHAT_PATH.'lib/class/SChatTemplate.php');
+require(SCHAT_PATH.'lib/class/CustomSChat.php');
 
 define( '_JEXEC', 1 );
 
 define( 'DS', DIRECTORY_SEPARATOR );
-define('JPATH_BASE', dirname(AJAX_CHAT_PATH));
+define('JPATH_BASE', dirname(SCHAT_PATH));
 
 require_once( JPATH_BASE .DS.'includes'.DS.'defines.php' );
 require_once( JPATH_BASE .DS.'includes'.DS.'framework.php' );
@@ -38,3 +34,5 @@ $mainframe = JFactory::getApplication('site');
 $mainframe->initialise();
 
 define('J_PREFIX', $mainframe->getCfg('dbprefix'));
+Config::$chatClosed  = Config::$chatClosed  || ($mainframe->getCfg('offline') == 1);
+Config::$gzipEnabled = Config::$gzipEnabled || $mainframe->getCfg('qzip');

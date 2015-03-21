@@ -1,19 +1,4 @@
-﻿/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- *
- * The SELFHTML documentation has been used throughout this project:
- * http://selfhtml.org
- *
- * Stylesheet and cookie methods have been inspired by Paul Sowden (A List Apart):
- * http://www.alistapart.com/stories/alternate/
- */
-
-// AJAX Chat client side logic:
-var ajaxChat = {
+var sChat = {
     settingsInitiated: null,
     styleInitiated: null,
     initializeFunction: null,
@@ -239,9 +224,9 @@ var ajaxChat = {
     setStartChatHandler: function() {
         if (this.dom['inputField']) {
             this.dom['inputField'].onfocus = function() {
-                ajaxChat.startChat();
+                sChat.startChat();
                 // Reset the onfocus event on first call:
-                ajaxChat.dom['inputField'].onfocus = '';
+                sChat.dom['inputField'].onfocus = '';
             };
         }
     },
@@ -266,11 +251,11 @@ var ajaxChat = {
         var onunload = window.onunload;
         if (typeof onunload !== 'function') {
             window.onunload = function() {
-                ajaxChat.finalize();
+                sChat.finalize();
             };
         } else {
             window.onunload = function() {
-                ajaxChat.finalize();
+                sChat.finalize();
                 onunload();
             };
         }
@@ -310,7 +295,7 @@ var ajaxChat = {
             // Replace specials characters in emoticon codes:
             sConfig.emoticonCodes[i] = this.encodeSpecialChars(sConfig.emoticonCodes[i]);
             this.DOMbuffer = this.DOMbuffer
-                + '<a href="javascript:ajaxChat.insertText(\''
+                + '<a href="javascript:sChat.insertText(\''
                 + this.scriptLinkEncode(sConfig.emoticonCodes[i])
                 + '\');"><img src="'
                 + this.dirs['emoticons']
@@ -356,26 +341,26 @@ var ajaxChat = {
         if (this.dom['flashInterfaceContainer']) {
             this.updateDOM(
                 'flashInterfaceContainer',
-                '<object id="ajaxChatFlashInterface" style="position:absolute; left:-100px;" '
+                '<object id="sChatFlashInterface" style="position:absolute; left:-100px;" '
                 + 'classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" '
                 + 'codebase="'
                 + window.location.protocol
                 + '//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" '
                 + 'height="1" width="1">'
-                + '<param name="flashvars" value="bridgeName=ajaxChat"/>'
+                + '<param name="flashvars" value="bridgeName=sChat"/>'
                 + '<param name="src" value="' + this.dirs['flash'] + 'FABridge.swf"/>'
-                + '<embed name="ajaxChatFlashInterface" type="application/x-shockwave-flash" pluginspage="'
+                + '<embed name="sChatFlashInterface" type="application/x-shockwave-flash" pluginspage="'
                 + window.location.protocol
                 + '//www.macromedia.com/go/getflashplayer" '
-                + 'src="' + this.dirs['flash'] + 'FABridge.swf" height="1" width="1" flashvars="bridgeName=ajaxChat"/>'
+                + 'src="' + this.dirs['flash'] + 'FABridge.swf" height="1" width="1" flashvars="bridgeName=sChat"/>'
                 + '</object>'
             );
-            FABridge.addInitializationCallback('ajaxChat', this.flashInterfaceLoadCompleteHandler);
+            FABridge.addInitializationCallback('sChat', this.flashInterfaceLoadCompleteHandler);
         }
     },
 
     flashInterfaceLoadCompleteHandler: function() {
-        ajaxChat.initializeFlashInterface();
+        sChat.initializeFlashInterface();
     },
 
     initializeFlashInterface: function() {
@@ -389,8 +374,8 @@ var ajaxChat = {
     socketConnect: function() {
         if (!this.socketIsConnected) {
             try {
-                if (!this.socket && FABridge.ajaxChat) {
-                    this.socket = FABridge.ajaxChat.create('flash.net.XMLSocket');
+                if (!this.socket && FABridge.sChat) {
+                    this.socket = FABridge.sChat.create('flash.net.XMLSocket');
                     this.socket.addEventListener('connect', this.socketConnectHandler);
                     this.socket.addEventListener('close', this.socketCloseHandler);
                     this.socket.addEventListener('data', this.socketDataHandler);
@@ -407,33 +392,33 @@ var ajaxChat = {
     },
 
     socketConnectHandler: function() {
-        ajaxChat.socketIsConnected = true;
+        sChat.socketIsConnected = true;
         // setTimeout is needed to avoid calling the flash interface recursively:
-        setTimeout(ajaxChat.socketRegister, 0);
+        setTimeout(sChat.socketRegister, 0);
     },
 
     socketCloseHandler: function() {
-        ajaxChat.socketIsConnected = false;
-        if (ajaxChat.socket) {
-            clearTimeout(ajaxChat.timer);
-            ajaxChat.updateChat(null);
+        sChat.socketIsConnected = false;
+        if (sChat.socket) {
+            clearTimeout(sChat.timer);
+            sChat.updateChat(null);
         }
     },
 
     socketDataHandler: function(event) {
-        ajaxChat.socketUpdate(event.getData());
+        sChat.socketUpdate(event.getData());
     },
 
     socketIOErrorHandler: function() {
         // setTimeout is needed to avoid calling the flash interface recursively (e.g. sound on new messages):
-        setTimeout(function() { ajaxChat.addChatBotMessageToChatList('/error SocketIO'); }, 0);
-        setTimeout(ajaxChat.updateChatlistView, 1);
+        setTimeout(function() { sChat.addChatBotMessageToChatList('/error SocketIO'); }, 0);
+        setTimeout(sChat.updateChatlistView, 1);
     },
 
     socketSecurityErrorHandler: function() {
         // setTimeout is needed to avoid calling the flash interface recursively (e.g. sound on new messages):
-        setTimeout(function() { ajaxChat.addChatBotMessageToChatList('/error SocketSecurity'); }, 0);
-        setTimeout(ajaxChat.updateChatlistView, 1);
+        setTimeout(function() { sChat.addChatBotMessageToChatList('/error SocketSecurity'); }, 0);
+        setTimeout(sChat.updateChatlistView, 1);
     },
 
     socketRegister: function() {
@@ -518,7 +503,7 @@ var ajaxChat = {
             this.setSetting('audioVolume', volume);
             try {
                 if (!this.soundTransform) {
-                    this.soundTransform = FABridge.ajaxChat.create('flash.media.SoundTransform');
+                    this.soundTransform = FABridge.sChat.create('flash.media.SoundTransform');
                 }
                 this.soundTransform.setVolume(volume);
             } catch (e) {
@@ -533,10 +518,10 @@ var ajaxChat = {
             this.sounds = {};
             var sound, urlRequest;
             for (var key in sConfig.soundFiles) {
-                sound = FABridge.ajaxChat.create('flash.media.Sound');
+                sound = FABridge.sChat.create('flash.media.Sound');
                 sound.addEventListener('complete', this.soundLoadCompleteHandler);
                 sound.addEventListener('ioError', this.soundIOErrorHandler);
-                urlRequest = FABridge.ajaxChat.create('flash.net.URLRequest');
+                urlRequest = FABridge.sChat.create('flash.net.URLRequest');
                 urlRequest.setUrl(this.dirs['sounds'] + sConfig.soundFiles[key]);
                 sound.load(urlRequest);
             }
@@ -551,15 +536,15 @@ var ajaxChat = {
             // Get the sound key by matching the sound URL with the sound filename:
             if ((new RegExp(sConfig.soundFiles[key])).test(sound.getUrl())) {
                 // Add the loaded sound to the sounds list:
-                ajaxChat.sounds[key] = sound;
+                sChat.sounds[key] = sound;
             }
         }
     },
 
     soundIOErrorHandler: function() {
         // setTimeout is needed to avoid calling the flash interface recursively (e.g. sound on new messages):
-        setTimeout(function() { ajaxChat.addChatBotMessageToChatList('/error SoundIO'); }, 0);
-        setTimeout(ajaxChat.updateChatlistView, 1);
+        setTimeout(function() { sChat.addChatBotMessageToChatList('/error SoundIO'); }, 0);
+        setTimeout(sChat.updateChatlistView, 1);
     },
 
     playSound: function(soundID) {
@@ -581,7 +566,7 @@ var ajaxChat = {
         var messageParts;
         if (sConfig.settings['audio'] && this.sounds && this.lastID && !this.channelSwitch) {
 
-        if (new RegExp('(?:^|, |])' + this.userName + ', ','gm').test(messageText)){
+        if (new RegExp('(?:^|, |])' + this.userName + ',','gm').test(messageText)){
                 this.playSound(sConfig.settings['soundPrivate']);
                 return;
             }
@@ -653,8 +638,8 @@ var ajaxChat = {
     },
 
     forceNewRequest: function() {
-        ajaxChat.updateChat(null);
-        ajaxChat.setStatus('retrying');
+        sChat.updateChat(null);
+        sChat.setStatus('retrying');
     },
 
     getHttpRequest: function(identifier) {
@@ -695,29 +680,29 @@ var ajaxChat = {
                 identifier = 0;
             }
             //if the response takes longer than retryTimerDelay to give an OK status, abort the connection and start again.
-            this.retryTimer = setTimeout(ajaxChat.forceNewRequest, ajaxChat.retryTimerDelay);
+            this.retryTimer = setTimeout(sChat.forceNewRequest, sChat.retryTimerDelay);
 
             this.getHttpRequest(identifier).open(method, url, true);
             this.getHttpRequest(identifier).onreadystatechange = function() {
                 try {
-                    ajaxChat.handleResponse(identifier);
+                    sChat.handleResponse(identifier);
                 } catch (__e) {
                     try {
-                        clearTimeout(ajaxChat.timer);
+                        clearTimeout(sChat.timer);
                     } catch (e) {
                         this.debugMessage('makeRequest::clearTimeout', e);
                     }
                     try {
                         if (data) {
-                            ajaxChat.addChatBotMessageToChatList('/error ConnectionTimeout');
-                            ajaxChat.setStatus('retrying');
-                            ajaxChat.updateChatlistView();
+                            sChat.addChatBotMessageToChatList('/error ConnectionTimeout');
+                            sChat.setStatus('retrying');
+                            sChat.updateChatlistView();
                         }
                     } catch (e) {
                         this.debugMessage('makeRequest::logRetry', e);
                     }
                     try {
-                        ajaxChat.timer = setTimeout(function() { ajaxChat.updateChat(null); }, sConfig.timerRate);
+                        sChat.timer = setTimeout(function() { sChat.updateChat(null); }, sConfig.timerRate);
                     } catch (e) {
                         this.debugMessage('makeRequest::setTimeout', e);
                     }
@@ -731,10 +716,10 @@ var ajaxChat = {
             clearTimeout(this.timer);
             if (data) {
                 this.addChatBotMessageToChatList('/error ConnectionTimeout');
-                ajaxChat.setStatus('retrying');
+                sChat.setStatus('retrying');
                 this.updateChatlistView();
             }
-            this.timer = setTimeout(function() { ajaxChat.updateChat(null); }, sConfig.timerRate);
+            this.timer = setTimeout(function() { sChat.updateChat(null); }, sConfig.timerRate);
         }
     },
 
@@ -742,9 +727,9 @@ var ajaxChat = {
         var json;
         if (this.getHttpRequest(identifier).readyState === 4) {
             if (this.getHttpRequest(identifier).status === 200) {
-                clearTimeout(ajaxChat.retryTimer);
+                clearTimeout(sChat.retryTimer);
                 json = this.getHttpRequest(identifier).responseText;
-                ajaxChat.setStatus('ok');
+                sChat.setStatus('ok');
             } else {
                 // Connection status 0 can be ignored.
                 if (this.getHttpRequest(identifier).status === 0) {
@@ -784,10 +769,10 @@ var ajaxChat = {
                 timeout = sConfig.timerRate;
                 if (sConfig.socketServerEnabled && !this.socketReconnectTimer) {
                     // If the socket connection fails try to reconnect once in a minute:
-                    this.socketReconnectTimer = setTimeout(ajaxChat.socketConnect, 60000);
+                    this.socketReconnectTimer = setTimeout(sChat.socketConnect, 60000);
                 }
             }
-            this.timer = setTimeout(function() { ajaxChat.updateChat(null); }, timeout);
+            this.timer = setTimeout(function() { sChat.updateChat(null); }, timeout);
         }
     },
 
@@ -940,12 +925,15 @@ var ajaxChat = {
         }
     },
 
-    toUser: function(nick) {
-        if (!(new RegExp('(?:^|, )' + nick + ', ','gm').test(this.dom['inputField'].value))) {
-            this.dom['inputField'].value = nick + ", " + this.dom['inputField'].value;
+    toUser: function(nick, priv) {
+        if (priv)
+            this.insertMessageWrapper('/msg ' + nick + ' ');
+        else{
+            if (!(new RegExp('(?:^|, )' + nick + ', ','gm').test(this.dom['inputField'].value)))
+                this.dom['inputField'].value = nick + ", " + this.dom['inputField'].value;
+            this.dom['inputField'].focus();
+            this.dom['inputField'].selectionStart = this.dom['inputField'].selectionEnd = this.dom['inputField'].value.length; 
         }
-        this.dom['inputField'].focus();
-        this.dom['inputField'].selectionStart = this.dom['inputField'].selectionEnd = this.dom['inputField'].value.length; //why not
     },
 
     getUserNodeString: function(userID, userName, userRole, userInfo) {
@@ -957,10 +945,10 @@ var ajaxChat = {
             str = '<div id="' + this.getUserDocumentID(userID) + '">'
                 + "<div style='display: inline-block; width: 93%;position: relative; height:30px'>"
                 + "<img style=\"position: absolute;left: 2px; bottom:1px;\" src=\"" + ((userInfo.avatar && userInfo.avatar !== "anon" && userInfo.avatar !== '') ? "../" + userInfo.avatar : "img/anon.png") + "\" border=\"0\" width=\"30\" height=\"30\" ></img>"
-                + "<a style='font-size: 13px; left: 38px; bottom: 6px;position: absolute;' href=\"javascript:ajaxChat.toUser('" + userName + "');\">" + userName + "</a>"
+                + "<a style='font-size: 13px; left: 38px; bottom: 6px;position: absolute;' href=\"javascript:sChat.toUser('" + userName + "');\">" + userName + "</a>"
                 + (userInfo.tim !== "none" ? "<img src=\"img/tim/" + userInfo.tim + ".png\" border=\"0\" style=\"position: absolute;right: 38px;bottom: 5px;\" title=\""+helper.getTIM(userInfo.tim)+"\"></img>" : "")
                 + (userInfo.gender && userInfo.gender !== 'n' ? "<img src=\"img/gender/"+userInfo.gender+".png\" border=\"0\" style=\"position: absolute;right: 20px;bottom: 6px;height: 13px;\" title=\""+(userInfo.gender === 'm'? 'Мужской' : 'Женский')+"\">" : '')
-                + "<a id='showMenuButton' style=' position: absolute; right: 0px; bottom: 4px; background-position: -46px 0px;' href=\"javascript:ajaxChat.toggleUserMenu(\'"
+                + "<a id='showMenuButton' style=' position: absolute; right: 0px; bottom: 4px; background-position: -46px 0px;' href=\"javascript:sChat.toggleUserMenu(\'"
                 + this.getUserMenuDocumentID(userID) + "\', \'" + encodedUserName + '\', ' + userID + " );\"></a>"
                 + "</div>"
                 + '<ul class="userMenu" style="display:none;" id="' + this.getUserMenuDocumentID(userID) + ((userID === this.userID) ? '">' + this.getUserNodeStringItems(encodedUserName, userID, false) : '">') + '</ul>'
@@ -1001,53 +989,53 @@ var ajaxChat = {
             menu = '<li><a target="_blank" href="/index.php/jomsocial/'
                 + "/index.php?option=com_community&view=profile&userid="+userID
                 + '/profile/" >Профиль</a></li>'
-                + '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/msg '
+                + '<li><a href="javascript:sChat.insertMessageWrapper(\'/msg '
                 + encodedUserName
                 + ' \');">'
                 + this.lang['userMenuSendPrivateMessage']
                 + '</a></li>'
-                + '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/describe '
+                + '<li><a href="javascript:sChat.insertMessageWrapper(\'/describe '
                 + encodedUserName
                 + ' \');">'
                 + this.lang['userMenuDescribe']
                 + '</a></li>'
-                + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/query '
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/query '
                 + encodedUserName
                 + '\');">'
                 + this.lang['userMenuOpenPrivateChannel']
                 + '</a></li>'
-                + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/query\');">'
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/query\');">'
                 + this.lang['userMenuClosePrivateChannel']
                 + '</a></li>'
-                + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/ignore '
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/ignore '
                 + encodedUserName
                 + '\');">'
                 + this.lang['userMenuIgnore']
                 + '</a></li>';
             if (isInline) {
-                menu += '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/invite '
+                menu += '<li><a href="javascript:sChat.sendMessageWrapper(\'/invite '
                     + encodedUserName
                     + '\');">'
                     + this.lang['userMenuInvite']
                     + '</a></li>'
-                    + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/uninvite '
+                    + '<li><a href="javascript:sChat.sendMessageWrapper(\'/uninvite '
                     + encodedUserName
                     + '\');">'
                     + this.lang['userMenuUninvite']
                     + '</a></li>'
-                    + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/whereis '
+                    + '<li><a href="javascript:sChat.sendMessageWrapper(\'/whereis '
                     + encodedUserName
                     + '\');">'
                     + this.lang['userMenuWhereis']
                     + '</a></li>';
             }
             if (this.userRole === 2 || this.userRole === 3) {
-                menu += '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/kick '
+                menu += '<li><a href="javascript:sChat.insertMessageWrapper(\'/kick '
                     + encodedUserName
                     + ' \');">'
                     + this.lang['userMenuKick']
                     + '</a></li>'
-                    + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/whois '
+                    + '<li><a href="javascript:sChat.sendMessageWrapper(\'/whois '
                     + encodedUserName
                     + '\');">'
                     + this.lang['userMenuWhois']
@@ -1055,30 +1043,30 @@ var ajaxChat = {
             }
         } else {
             menu = '<li><a target="_blank" href="/index.php/jomsocial/profile/">Профиль</a></li>'
-                + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/quit\');">'
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/quit\');">'
                 + this.lang['userMenuLogout']
                 + '</a></li>'
-                + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/who\');">'
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/who\');">'
                 + this.lang['userMenuWho']
                 + '</a></li>'
-                + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/ignore\');">'
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/ignore\');">'
                 + this.lang['userMenuIgnoreList']
                 + '</a></li>'
-                + '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/list\');">'
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/list\');">'
                 + this.lang['userMenuList']
                 + '</a></li>'
-                + '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/action \');">'
+                + '<li><a href="javascript:sChat.insertMessageWrapper(\'/action \');">'
                 + this.lang['userMenuAction']
                 + '</a></li>'
-                + '<li><a href="javascript:ajaxChat.insertMessageWrapper(\'/roll \');">'
+                + '<li><a href="javascript:sChat.insertMessageWrapper(\'/roll \');">'
                 + this.lang['userMenuRoll']
                 + '</a></li>';
             if (this.userRole === 1 || this.userRole === 2 || this.userRole === 3) {
-                menu += '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/join\');">'
+                menu += '<li><a href="javascript:sChat.sendMessageWrapper(\'/join\');">'
                     + this.lang['userMenuEnterPrivateRoom']
                     + '</a></li>';
                 if (this.userRole === 2 || this.userRole === 3) {
-                    menu += '<li><a href="javascript:ajaxChat.sendMessageWrapper(\'/bans\');">'
+                    menu += '<li><a href="javascript:sChat.sendMessageWrapper(\'/bans\');">'
                         + this.lang['userMenuBans']
                         + '</a></li>';
                 }
@@ -1153,15 +1141,16 @@ var ajaxChat = {
     getChatListMessageString: function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo) {
         var rowClass = this.DOMbufferRowClass,
             userClass = this.getRoleClass(userRole),
-            colon = ': ';
+            colon = ': ',
+            private = messageText.indexOf('/privmsg') === 0 || messageText.indexOf('/privmsgto') === 0 || messageText.indexOf('/privaction') === 0;
         if (messageText.indexOf('/action') === 0 || messageText.indexOf('/me') === 0 || messageText.indexOf('/privaction') === 0) {
             userClass += ' action';
             colon = ' ';
         }
-        if (messageText.indexOf('/privmsg') === 0 || messageText.indexOf('/privmsgto') === 0 || messageText.indexOf('/privaction') === 0) {
+        if (private) {
             rowClass += ' private';
         }
-        if (new RegExp('(?:^|, |])' + this.userName + ', ','gm').test(messageText)){
+        if (new RegExp('(?:^|, |])' + this.userName + ',','gm').test(messageText)){
             rowClass += ' toMe';
         }
         var dateTime = '<span class="dateTime">' + this.formatDate('(%H:%i:%s)', dateObject) + '</span> ';
@@ -1170,13 +1159,13 @@ var ajaxChat = {
         newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);
         newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
-            + /*'<a href="javascript:ajaxChat.blinkMessage('+ messageID+ ');">'+*/dateTime//+'</a>'
+            + /*'<a href="javascript:sChat.blinkMessage('+ messageID+ ');">'+*/dateTime//+'</a>'
             + '<span class="'
             + userClass + '"'
             + (sConfig.settings['nickColors'] && msgInfo && msgInfo.ncol? ' style="color:'+msgInfo.ncol+'" ': '') 
             + ' dir="'
             + this.baseDirection
-            + "\" onclick=\"ajaxChat.toUser('" + userName + "');\">"
+            + "\" onclick=\"sChat.toUser('" + userName + "',"+private+");\">"
             + ((sConfig.settings['nickColors'] && sConfig.settings['gradiens'] && msgInfo && msgInfo.nickGrad)? helper.grad(userName, msgInfo.nickGrad) : userName)
             + '</span>'
             + colon
@@ -1194,7 +1183,7 @@ var ajaxChat = {
     },
   
     getMessageDocumentID: function(messageID) {
-        return ((messageID === null) ? 'ajaxChat_lm_' + (this.localID++) : 'ajaxChat_m_' + messageID);
+        return ((messageID === null) ? 'sChat_lm_' + (this.localID++) : 'sChat_m_' + messageID);
     },
 
     getMessageNode: function(messageID) {
@@ -1202,7 +1191,7 @@ var ajaxChat = {
     },
 
     getUserDocumentID: function(userID) {
-        return 'ajaxChat_u_' + userID;
+        return 'sChat_u_' + userID;
     },
 
     getUserNode: function(userID) {
@@ -1210,11 +1199,11 @@ var ajaxChat = {
     },
 
     getUserMenuDocumentID: function(userID) {
-        return 'ajaxChat_um_' + userID;
+        return 'sChat_um_' + userID;
     },
 
     getInlineUserMenuDocumentID: function(menuID, index) {
-        return 'ajaxChat_ium_' + menuID + '_' + index;
+        return 'sChat_ium_' + menuID + '_' + index;
     },
 
     getDeletionLink: function(messageID, userID, userRole, channelID) {
@@ -1224,7 +1213,7 @@ var ajaxChat = {
             }
             return '<a class="delete" title="'
                 + arguments.callee.deleteMessage
-                + '" href="javascript:ajaxChat.deleteMessage('
+                + '" href="javascript:sChat.deleteMessage('
                 + messageID
                 + ');"> </a>'; // Adding a space - without any content Opera messes up the chatlist display
         }
@@ -1279,7 +1268,7 @@ var ajaxChat = {
         if (!this.infocus && this.lastID && !this.channelSwitch && userID !== this.userID) {
             clearInterval(this.blinkInterval);
             this.blinkInterval = setInterval(
-                'ajaxChat.blinkUpdate(\'' + this.addSlashes(this.decodeSpecialChars(userName)) + '\')', 500);
+                'sChat.blinkUpdate(\'' + this.addSlashes(this.decodeSpecialChars(userName)) + '\')', 500);
         }
     },
 
@@ -1599,7 +1588,7 @@ var ajaxChat = {
             var message = 'lastID='
                 + this.lastID
                 + '&text='
-                + this.encodeText(JSON.stringify(msg));
+                +  this.encodeText(JSON.stringify(msg));
             this.makeRequest(sConfig.ajaxURL, 'POST', message);
         }
         this.dom['inputField'].value = '';
@@ -1625,7 +1614,7 @@ var ajaxChat = {
         return text;
     },
     parseToUserBold: function(text){
-        return text.replace(new RegExp('(?:(' + this.userNamesList.join('|') + '|Сервер), )*','gm'), function (a,b) {return (a !== '' ? '[b]'+a+'[/b]':'');});
+        return text.replace(new RegExp('(?:(' + this.userNamesList.join('|') + '|Сервер),)*','gm'), function (a,b) {return (a !== '' ? '[b]'+a+'[/b]':'');});
     },
 
     parseIgnoreInputCommand: function(text, textParts) {
@@ -1843,9 +1832,11 @@ var ajaxChat = {
     },
     toggleArrowButton: function(idShowHide, idBut){
         var button = (idBut != null ? document.getElementById(idBut) : document.getElementById(idShowHide).parentNode.firstChild.lastChild);
-        if (button.style.backgroundPosition === "-46px -22px")
-            button.style.backgroundPosition = "-46px 0px";
-        else button.style.backgroundPosition = "-46px -22px";
+        if (button != null){
+            if (button.style.backgroundPosition === "-46px -22px")
+                button.style.backgroundPosition = "-46px 0px";
+            else button.style.backgroundPosition = "-46px -22px";
+        }
         this.showHide(idShowHide);
     },
     showHide: function(id, styleDisplay, displayInline) {
@@ -2032,7 +2023,7 @@ var ajaxChat = {
 
     replaceCommandLogin: function(textParts) {
         return '<span class="chatBotMessage">'
-            + this.lang['login'].replace(/%s/, "<a href=\"javascript:ajaxChat.toUser('" + textParts[1] + "');\">" + textParts[1] + "</a>")
+            + this.lang['login'].replace(/%s/, "<a href=\"javascript:sChat.toUser('" + textParts[1] + "');\">" + textParts[1] + "</a>")
             + '</span>';
     },
 
@@ -2115,7 +2106,7 @@ var ajaxChat = {
             .replace(/%s/, textParts[1])
             .replace(
                 /%s/,
-                '<a href="javascript:ajaxChat.sendMessageWrapper(\'/join '
+                '<a href="javascript:sChat.sendMessageWrapper(\'/join '
                 + this.scriptLinkEncode(textParts[2])
                 + '\');" title="'
                 + this.lang['joinChannel'].replace(/%s/, textParts[2])
@@ -2225,7 +2216,7 @@ var ajaxChat = {
         for (var i = 0; i < channels.length; i++) {
             channelName = (channels[i] === this.channelName) ? '<b>' + channels[i] + '</b>' : channels[i];
             listChannels.push(
-                '<a href="javascript:ajaxChat.sendMessageWrapper(\'/join '
+                '<a href="javascript:sChat.sendMessageWrapper(\'/join '
                 + this.scriptLinkEncode(channels[i])
                 + '\');" title="'
                 + this.lang['joinChannel'].replace(/%s/, channels[i])
@@ -2245,7 +2236,7 @@ var ajaxChat = {
         var listUsers = [];
         for (var i = 0; i < users.length; i++) {
             listUsers.push(
-                '<a href="javascript:ajaxChat.sendMessageWrapper(\'/unban '
+                '<a href="javascript:sChat.sendMessageWrapper(\'/unban '
                 + this.scriptLinkEncode(users[i])
                 + '\');" title="'
                 + this.lang['unbanUser'].replace(/%s/, users[i])
@@ -2283,7 +2274,7 @@ var ajaxChat = {
         return '<span class="chatBotMessage">'
             + this.lang['whereis'].replace(/%s/, textParts[1]).replace(
                 /%s/,
-                '<a href="javascript:ajaxChat.sendMessageWrapper(\'/join '
+                '<a href="javascript:sChat.sendMessageWrapper(\'/join '
                 + this.scriptLinkEncode(textParts[2])
                 + '\');" title="'
                 + this.lang['joinChannel'].replace(/%s/, textParts[2])
@@ -2327,7 +2318,7 @@ var ajaxChat = {
             if (i > 0) {
                 menu += ', ';
             }
-            menu += '<a href="javascript:ajaxChat.toggleUserMenu(\''
+            menu += '<a href="javascript:sChat.toggleUserMenu(\''
                 + this.getInlineUserMenuDocumentID(this.userMenuCounter, i)
                 + '\', \''
                 + this.scriptLinkEncode(users[i])
@@ -2366,20 +2357,20 @@ var ajaxChat = {
             /\[(\w+)(?:=([^<>]*?))?\](.*)\[\/\1\]/gm,
             function(str, tag, attribute, content) {
                 // Only replace predefined BBCode tags:
-                if (!ajaxChat.inArray(sConfig.bbCodeTags, tag) ||
-                        ajaxChat.containsUnclosedTags(content)) {
+                if (!sChat.inArray(sConfig.bbCodeTags, tag) ||
+                        sChat.containsUnclosedTags(content)) {
                     return str;
                 }
                 if ( content === '') return '';
                 switch (tag) {
                     case 'quote':
-                        return ajaxChat.replaceBBCodeQuote(content, attribute);
+                        return sChat.replaceBBCodeQuote(content, attribute);
                     case 's':
-                        return '<span style="text-decoration:line-through;">' + ajaxChat.replaceBBCode(content) + '</span>';
+                        return '<span style="text-decoration:line-through;">' + sChat.replaceBBCode(content) + '</span>';
                     case 'tgw':
-                        return '<span class=\"tgw\">' + ajaxChat.replaceBBCode(content) + '</span>';
+                        return '<span class=\"tgw\">' + sChat.replaceBBCode(content) + '</span>';
                     default:
-                        return '<' + tag + '>' + ajaxChat.replaceBBCode(content) + '</' + tag + '>';
+                        return '<' + tag + '>' + sChat.replaceBBCode(content) + '</' + tag + '>';
                 }
             }
         );
@@ -2403,10 +2394,10 @@ var ajaxChat = {
 	        function(str, s, a, prot, host, port, sa, sa1, sa2) {
 	            var hostArr = host.split('.'),
 	                fe = (sa1 ? sa1.split(/\.|\//g).pop().toLowerCase() : ''),
-                    c = (ajaxChat.dom['chatList'].offsetWidth - 50);
+                    c = (sChat.dom['chatList'].offsetWidth - 50);
 	            switch (fe) {
 	            case "mp3":
-	                return s + (ajaxChat.audioHtml5['mp3'] ? "<audio style=\"height:30px; width:"+Math.min(c, 400)+"px;\" src=\"" + a + "\" controls></audio> " : '<a href="' + a + '" onclick="window.open(this.href); return false;">Скачать mp3 </a> ');
+	                return s + (sChat.audioHtml5['mp3'] ? "<audio style=\"height:30px; width:"+Math.min(c, 400)+"px;\" src=\"" + a + "\" controls></audio> " : '<a href="' + a + '" onclick="window.open(this.href); return false;">Скачать mp3 </a> ');
 	            case "jpg":
 	            case "jpeg":
 	            case "png":
@@ -2425,12 +2416,12 @@ var ajaxChat = {
 	            {
                         var width = Math.min(c, 400),
                         height = width / 1.7;
-	                if (sa2 && ajaxChat.inArray(hostArr, 'youtube'))
+	                if (sa2 && sChat.inArray(hostArr, 'youtube'))
 	                    return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa2.split(/[=\?&]+/)[2] + '" frameborder="0" allowfullscreen="ture"></iframe>';
 	                else if (sa1){
-                            if (ajaxChat.inArray(hostArr, 'youtu'))
+                            if (sChat.inArray(hostArr, 'youtu'))
                                 return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
-                            else if (ajaxChat.inArray(hostArr, 'coub'))
+                            else if (sChat.inArray(hostArr, 'coub'))
                                 return s + '<iframe width="'+width+'" height="'+height+'" src="http://coub.com/embed/'+fe+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
                         }
 	                return s + '<a href="' + a + '" onclick="window.open(this.href); return false;">' + helper.truncate(a, 35) + '</a>';
@@ -2464,15 +2455,15 @@ var ajaxChat = {
                         return str;
                     }
                     if(p2) {
-                        var index = ajaxChat.arraySearch(p2, sConfig.emoticonCodes);
-                        return 	ajaxChat.replaceEmoticons(p1)
+                        var index = sChat.arraySearch(p2, sConfig.emoticonCodes);
+                        return 	sChat.replaceEmoticons(p1)
                             +	'<img src="'
-                            +	ajaxChat.dirs['emoticons']
+                            +	sChat.dirs['emoticons']
                             +	sConfig.emoticonFiles[index]
                             +	'" alt="'
                             +	p2
                             +	'" />'
-                            + 	ajaxChat.replaceEmoticons(p3);
+                            + 	sChat.replaceEmoticons(p3);
                     }
                     return str;
                 }

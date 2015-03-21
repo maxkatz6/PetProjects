@@ -1,12 +1,3 @@
-/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- */
-
-// Ajax Chat config parameters:
 var sConfig = {
 
 	// The channelID of the channel to enter on login (the loginChannelName is used if set to null):
@@ -15,7 +6,7 @@ var sConfig = {
 	loginChannelName: null,
 
 	// The time in ms between update calls to retrieve new chat messages:
-	timerRate: 2000,
+	timerRate: 3000,
 
 	// The URL to retrieve the XML chat messages (must at least contain one parameter):
 	ajaxURL: './?ajax=true',
@@ -25,7 +16,7 @@ var sConfig = {
 	// A regular expression for allowed source URL's for media content (e.g. images displayed inline);
 	regExpMediaUrl: '^((http)|(https)):\\/\\/',
 
-	// If set to false the chat update is delayed until the event defined in ajaxChat.setStartChatHandler():
+	// If set to false the chat update is delayed until the event defined in sChat.setStartChatHandler():
 	startChatOnLoad: true,
 
 	// Defines the IDs of DOM nodes accessed by the chat:
@@ -67,9 +58,9 @@ var sConfig = {
 		// Defines if the chat list scrolls automatically to display the latest messages:
 		autoScroll: true,
 
-		// The default font color, uses the page default font color if set to null:
-		fontColor: null,
-                nickColor: null,
+		// The default color, uses the page default font color if set to null:
+		fontColor: '#000000',
+                nickColor: '#000000',
                 
 		// Defines if sounds are played:
 		audio: true,
@@ -96,13 +87,7 @@ var sConfig = {
 	nonPersistentSettings: [],
 
 	// Defines the list of allowed BBCodes:
-	bbCodeTags:[
-		'b',
-		'i',
-		's',
-		'quote',
-                'tgw'
-	],
+	bbCodeTags:['b','i','s','quote','tgw'],
 
 	// Defines the list of allowed color codes:
 	colorCodes: ['000000','494949','717171','41166f','53377a','4b0082',
@@ -322,7 +307,7 @@ var sConfig = {
 	// You should set these to be the same as the ones in config.php to avoid confusion.
 
 	// Session identification, used for style and setting cookies:
-	sessionName: 'ajax_chat',
+	sessionName: 's_chat',
 
 	// The time in days until the style and setting cookies expire:
 	cookieExpiration: 365,
@@ -334,7 +319,7 @@ var sConfig = {
 	cookieSecure: null,
 
 	// The name of the chat bot:
-	chatBotName: '������',
+	chatBotName: 'Сервер',
 	// The userID of the chat bot:            
 	chatBotID: 2147483647,
 

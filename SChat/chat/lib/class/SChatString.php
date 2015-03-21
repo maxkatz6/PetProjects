@@ -8,11 +8,11 @@
  */
 
 // Class to provide multibyte enabled string methods
-class AJAXChatString {
+class SChatString {
 
 	public static function subString($str, $start=0, $length=null, $encoding='UTF-8') {
 		if($length === null) {
-			$length = AJAXChatString::stringLength($str);
+			$length = SChatString::stringLength($str);
 		}		
 		if(function_exists('mb_substr')) {
 			return mb_substr($str, $start, $length, $encoding);

@@ -8,29 +8,28 @@
  */
 
 // Class to initialize the MySQL DataBase connection:
-class AJAXChatDataBaseMySQL {
+class SChatDataBaseMySQLi {
 
 	var $_connectionID;
 	var $_errno = 0;
 	var $_error = '';
 	var $_dbName;
 
-	function __construct(&$dbConnectionConfig) {
-		$this->_connectionID = $dbConnectionConfig['link'];
-		$this->_dbName = $dbConnectionConfig['name'];
+	function __construct() {
+		$this->_connectionID = Config::$dbConnection['link'];
+		$this->_dbName = Config::$dbConnection['name'];
 	}
 	
 	// Method to connect to the DataBase server:
-	function connect(&$dbConnectionConfig) {
-		$this->_connectionID = @mysql_connect(
-			$dbConnectionConfig['host'],
-			$dbConnectionConfig['user'],
-			$dbConnectionConfig['pass'],
-			true
-		);
-		if(!$this->_connectionID) {
-			$this->_errno = null;
-			$this->_error = 'Database connection failed.';
+	function connect() {
+		$this->_connectionID = @mysqli_connect(
+			Config::$dbConnection['host'],
+			Config::$dbConnection['user'],
+			Config::$dbConnection['pass'],
+                        Config::$dbConnection['name']);
+		if($this->_connectionID->connect_errno) {
+			$this->_errno = mysqli_connect_errno();
+			$this->_error = mysqli_connect_error();
 			return false;
 		}
 		return true;
@@ -38,9 +37,9 @@ class AJAXChatDataBaseMySQL {
 	
 	// Method to select the DataBase:
 	function select($dbName) {
-		if(!@mysql_select_db($dbName, $this->_connectionID)) {
-			$this->_errno = mysql_errno($this->_connectionID);
-			$this->_error = mysql_error($this->_connectionID);
+		if(!$this->_connectionID->select_db($dbName)) {
+			$this->_errno = $this->_connectionID->errno;
+			$this->_error = $this->_connectionID->error;
 			return false;
 		}
 		$this->_dbName = $dbName;
@@ -70,12 +69,12 @@ class AJAXChatDataBaseMySQL {
 	
 	// Method to prevent SQL injections:
 	function makeSafe($value) {
-		return "'".mysql_real_escape_string($value, $this->_connectionID)."'";
+		return "'".$this->_connectionID->escape_string($value)."'";
 	}
-	
+
 	// Method to perform SQL queries:
 	function sqlQuery($sql) {
-		return new AJAXChatMySQLQuery($sql, $this->_connectionID);
+		return new SChatMySQLiQuery($sql, $this->_connectionID);
 	}
 
 	// Method to retrieve the current DataBase name:
@@ -85,7 +84,7 @@ class AJAXChatDataBaseMySQL {
 
 	// Method to retrieve the last inserted ID:
 	function getLastInsertedID() {
-		return mysql_insert_id($this->_connectionID);
+		return $this->_connectionID->insert_id;
 	}
 
 }

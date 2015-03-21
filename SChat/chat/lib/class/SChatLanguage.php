@@ -7,7 +7,7 @@
  * @link https://blueimp.net/ajax/
  */
 
-class AJAXChatLanguage {
+class SChatLanguage {
 
 	var $_regExpAcceptLangCode;
 	var $_availableLangCodes;

@@ -1,63 +1,37 @@
 <?php
-/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- */
-
 // Define AJAX Chat user roles:
-define('AJAX_CHAT_BANNED',    6);
-define('AJAX_CHAT_CUSTOM',    5);
-define('AJAX_CHAT_CHATBOT',   4);
-define('AJAX_CHAT_ADMIN',   3);
-define('AJAX_CHAT_MODERATOR', 2);
-define('AJAX_CHAT_USER',    1);
-define('AJAX_CHAT_GUEST',   0);
+define('SCHAT_BANNED',    6);
+define('SCHAT_CHATBOT',   4);
+define('SCHAT_ADMIN',   3);
+define('SCHAT_MODERATOR', 2);
+define('SCHAT_USER',    1);
 
-// AJAX Chat config parameters:
-$AJAXChatConfig = array();
-
-$AJAXChatConfig['channels'] = array();
-$AJAXChatConfig['channels'][0] = 'Общая';
-$AJAXChatConfig['channels'][9] = 'Диванная';
-$AJAXChatConfig['channels'][10] = 'Альфа';
-$AJAXChatConfig['channels'][11] = 'Бета';
-$AJAXChatConfig['channels'][12] = 'Гамма';
-$AJAXChatConfig['channels'][13] = 'Дельта';
-$AJAXChatConfig['channels'][14] = 'Админы';
+class Config{
+public static $channels = array(
+0 => 'Общая',
+9 => 'Диванная',
+10 => 'Альфа',
+11 => 'Бета',
+12 => 'Гамма',
+13 => 'Дельта',
+14 => 'Админы');
 
 // Database connection values:
-$AJAXChatConfig['dbConnection'] = array();
-// Database hostname (e.g. 'localhost'):
-$AJAXChatConfig['dbConnection']['host'] = 'localhost';
-// Database username (e.g. 'root'):
-$AJAXChatConfig['dbConnection']['user'] = 'root';
-// Database password (e.g. '' for no password):
-$AJAXChatConfig['dbConnection']['pass'] = '';
-// Database name (e.g. 'chat'):
-$AJAXChatConfig['dbConnection']['name'] = 'chat';
-// Database type:
-$AJAXChatConfig['dbConnection']['type'] = null;
-// Database link:
-$AJAXChatConfig['dbConnection']['link'] = null;
-
-// Database table names:
-$AJAXChatConfig['dbTableNames'] = array();
-$AJAXChatConfig['dbTableNames']['online']   = 'ajax_chat_online';
-$AJAXChatConfig['dbTableNames']['messages']   = 'ajax_chat_messages';
-$AJAXChatConfig['dbTableNames']['bans']     = 'ajax_chat_bans';
-$AJAXChatConfig['dbTableNames']['invitations']  = 'ajax_chat_invitations';
+public static  $dbConnection = array(
+/*'host' => 'localhost', 
+'user' => 'root',
+'pass' => '',*/
+'name' => 'chat',
+'link' => null);
 
 // Available languages:
-$AJAXChatConfig['langAvailable'] = array(
+public static  $langAvailable = array(
   'ar','bg','ca','cy','cz','da','de','el','en','es','et','fa','fi','fr','gl','he','hr','hu','in','it','ja','ka','kr','mk','nl','nl-be','no','pl','pt-br','pt-pt','ro','ru','sk','sl','sr','sv','th','tr','uk','zh','zh-tw'
 );
 // Default language:
-$AJAXChatConfig['langDefault'] = 'ru';
+const langDefault = 'ru';
 // Language names (each languge code in available languages must have a display name assigned here):
-$AJAXChatConfig['langNames'] = array(
+public static $langNames = array(
   'ar'=>'عربي', 'bg'=>'Български', 'ca'=>'Català', 'cy'=>'Cymraeg', 'cz'=>'Česky', 'da'=>'Dansk', 'de'=>'Deutsch', 'el'=>'Ελληνικα', 'en'=>'English',
   'es'=>'Español', 'et'=>'Eesti', 'fa'=>'فارسی', 'fi'=>'Suomi', 'fr'=>'Français', 'gl'=>'Galego', 'he'=>'עברית', 'hr' => 'Hrvatski', 'hu' => 'Magyar', 'in'=>'Bahasa Indonesia', 'it'=>'Italiano',
   'ja'=>'日本語','ka'=>'ქართული','kr'=>'한 글','mk'=>'Македонски', 'nl'=>'Nederlands', 'nl-be'=>'Nederlands (België)', 'no'=>'Norsk', 'pl'=> 'Polski', 'pt-br'=>'Português (Brasil)', 'pt-pt'=>'Português (Portugal)',
@@ -66,161 +40,137 @@ $AJAXChatConfig['langNames'] = array(
 );
 
 // Available styles:
-$AJAXChatConfig['styleAvailable'] = array('beige','grey','Oxygen','Lithium','Sulfur','prosilver','Core','MyBB','vBulletin','XenForo');
+public static $styleAvailable = array('beige','grey','Oxygen','Lithium','Sulfur','prosilver','Core','MyBB','vBulletin','XenForo');
 // Default style:
-$AJAXChatConfig['styleDefault'] = 'prosilver';
+const styleDefault = 'prosilver';
 
 // The encoding used for the XHTML content:
-$AJAXChatConfig['contentEncoding'] = 'UTF-8';
+const contentEncoding = 'UTF-8';
 // The encoding of the data source, like userNames and channelNames:
-$AJAXChatConfig['sourceEncoding'] = 'UTF-8';
-// The content-type of the XHTML page (e.g. "text/html", will be set dependent on browser capabilities if set to null):
-$AJAXChatConfig['contentType'] = "text/html";
+const sourceEncoding = 'UTF-8';
 
 // Session name used to identify the session cookie:
-$AJAXChatConfig['sessionName'] = 'ajax_chat';
+const sessionName = 's_chat';
 // Prefix added to every session key:
-$AJAXChatConfig['sessionKeyPrefix'] = 'ajaxChat';
+const sessionKeyPrefix = 'sChat';
 // The lifetime of the language, style and setting cookies in days:
-$AJAXChatConfig['sessionCookieLifeTime'] = 365;
+const sessionCookieLifeTime = 365;
 // The path of the cookies, '/' allows to read the cookies from all directories:
-$AJAXChatConfig['sessionCookiePath'] = '/';
+const sessionCookiePath = '/';
 // The domain of the cookies, defaults to the hostname of the server if set to null:
-$AJAXChatConfig['sessionCookieDomain'] = null;
+const sessionCookieDomain = null;
 // If enabled, cookies must be sent over secure (SSL/TLS encrypted) connections:
-$AJAXChatConfig['sessionCookieSecure'] = null;
+const sessionCookieSecure = null;
 
 // Default channelName used together with the defaultChannelID if no channel with this ID exists:
-$AJAXChatConfig['defaultChannelName'] = 'Public';
+const defaultChannelName = 'Общая';
 // ChannelID used when no channel is given:
-$AJAXChatConfig['defaultChannelID'] = 0;
+const defaultChannelID = 0;
 // Defines an array of channelIDs (e.g. array(0, 1)) to limit the number of available channels, will be ignored if set to null:
-$AJAXChatConfig['limitChannelList'] = null;
+const limitChannelList = null;
 
 // UserID plus this value are private channels (this is also the max userID and max channelID):
-$AJAXChatConfig['privateChannelDiff'] = 500000000;
+const privateChannelDiff = 500000000;
 // UserID plus this value are used for private messages:
-$AJAXChatConfig['privateMessageDiff'] = 1000000000;
+const privateMessageDiff = 1000000000;
 
 // Enable/Disable private Channels:
-$AJAXChatConfig['allowPrivateChannels'] = true;
-// Enable/Disable private Messages:
-$AJAXChatConfig['allowPrivateMessages'] = true;
+const allowPrivateChannels = true;
 
 // Private channels should be distinguished by either a prefix or a suffix or both (no whitespace):
-$AJAXChatConfig['privateChannelPrefix'] = '[';
+const privateChannelPrefix = '[';
 // Private channels should be distinguished by either a prefix or a suffix or both (no whitespace):
-$AJAXChatConfig['privateChannelSuffix'] = ']';
+const privateChannelSuffix = ']';
 
-// If enabled, users will be logged in automatically as guest users (if allowed), if not authenticated:
-$AJAXChatConfig['forceAutoLogin'] = true;
+const forceAutoLogin = true;
 
 // Defines if login/logout and channel enter/leave are displayed:
-$AJAXChatConfig['showChannelMessages'] = true;
+const showChannelMessages = true;
 
-// If enabled, the chat will only be accessible for the admin:
-$AJAXChatConfig['chatClosed'] = false;
 // Defines the timezone offset in seconds (-12*60*60 to 12*60*60) - if null, the server timezone is used:
-$AJAXChatConfig['timeZoneOffset'] = null;
+const timeZoneOffset = null;
 // Defines the hour of the day the chat is opened (0 - closingHour):
-$AJAXChatConfig['openingHour'] = 0;
+const openingHour = 0;
 // Defines the hour of the day the chat is closed (openingHour - 24):
-$AJAXChatConfig['closingHour'] = 24;
-// Defines the weekdays the chat is opened (0=Sunday to 6=Saturday):
-$AJAXChatConfig['openingWeekDays'] = array(0,1,2,3,4,5,6);
-
-// Enable/Disable guest logins:
-$AJAXChatConfig['allowGuestLogins'] = false;
-// Enable/Disable write access for guest users - if disabled, guest users may not write messages:
-$AJAXChatConfig['allowGuestWrite'] = false;
-// Allow/Disallow guest users to choose their own userName:
-$AJAXChatConfig['allowGuestUserName'] = false;
-// Guest users should be distinguished by either a prefix or a suffix or both (no whitespace):
-$AJAXChatConfig['guestUserPrefix'] = '(';
-// Guest users should be distinguished by either a prefix or a suffix or both (no whitespace):
-$AJAXChatConfig['guestUserSuffix'] = ')';
-// Guest userIDs may not be lower than this value (and not higher than privateChannelDiff):
-$AJAXChatConfig['minGuestUserID'] = 400000000;
+const closingHour = 24;
 
 // Allow/Disallow users to change their userName (Nickname):
-$AJAXChatConfig['allowNickChange'] = true;
+const allowNickChange = true;
 // Changed userNames should be distinguished by either a prefix or a suffix or both (no whitespace):
-$AJAXChatConfig['changedNickPrefix'] = '(';
+const changedNickPrefix = '(';
 // Changed userNames should be distinguished by either a prefix or a suffix or both (no whitespace):
-$AJAXChatConfig['changedNickSuffix'] = ')';
+const changedNickSuffix = ')';
 
 // Allow/Disallow registered users to delete their own messages:
-$AJAXChatConfig['allowUserMessageDelete'] = true;
+const allowUserMessageDelete = true;
 
 // The userID used for ChatBot messages:
-$AJAXChatConfig['chatBotID'] = 2147483647;
+const chatBotID = 2147483647;
 // The userName used for ChatBot messages
-$AJAXChatConfig['chatBotName'] = 'Сервер';
+const chatBotName = 'Сервер';
 
 // Minutes until a user is declared inactive (last status update) - the minimum is 2 minutes:
-$AJAXChatConfig['inactiveTimeout'] = 2;
+const inactiveTimeout = 2;
 // Interval in minutes to check for inactive users:
-$AJAXChatConfig['inactiveCheckInterval'] = 2;
+const inactiveCheckInterval = 2;
 
 // Defines if messages are shown which have been sent before the user entered the channel:
-$AJAXChatConfig['requestMessagesPriorChannelEnter'] = true;
+const requestMessagesPriorChannelEnter = true;
 // Defines an array of channelIDs (e.g. array(0, 1)) for which the previous setting is always true (will be ignored if set to null):
-$AJAXChatConfig['requestMessagesPriorChannelEnterList'] = null;
+const requestMessagesPriorChannelEnterList = null;
 // Max time difference in hours for messages to display on each request:
-$AJAXChatConfig['requestMessagesTimeDiff'] = 24;
+const requestMessagesTimeDiff = 24;
 // Max number of messages to display on each request:
-$AJAXChatConfig['requestMessagesLimit'] = 10;
+const requestMessagesLimit = 10;
 
 // Max users in chat (does not affect moderators or admins):
-$AJAXChatConfig['maxUsersLoggedIn'] = 100;
+const maxUsersLoggedIn = 100;
 // Max userName length:
-$AJAXChatConfig['userNameMaxLength'] = 16;
+const userNameMaxLength = 16;
 // Max messageText length:
-$AJAXChatConfig['messageTextMaxLength'] = 1040;
+const messageTextMaxLength = 1040;
 // Defines the max number of messages a user may send per minute:
-$AJAXChatConfig['maxMessageRate'] = 20;
+const maxMessageRate = 20;
 
 // Defines the default time in minutes a user gets banned if kicked from a moderator without ban minutes parameter:
-$AJAXChatConfig['defaultBanTime'] = 5;
+const defaultBanTime = 5;
 
 // Argument that is given to the handleLogout JavaScript method:
-$AJAXChatConfig['logoutData'] = '/';
-
-// If true, checks if the user IP is the same when logged in:
-$AJAXChatConfig['ipCheck'] = false;
+const logoutData = '/';
 
 // Defines the max time difference in hours for logs when no period or search condition is given:
-$AJAXChatConfig['logsRequestMessagesTimeDiff'] = 1;
+const logsRequestMessagesTimeDiff = 1;
 // Defines how many logs are returned on each logs request:
-$AJAXChatConfig['logsRequestMessagesLimit'] = 10;
+const logsRequestMessagesLimit = 10;
 
 // Defines the earliest year used for the logs selection:
-$AJAXChatConfig['logsFirstYear'] = 2015;
+const logsFirstYear = 2015;
 
 // Defines if old messages are purged from the database:
-$AJAXChatConfig['logsPurgeLogs'] = false;
+const logsPurgeLogs = false;
 // Max time difference in days for old messages before they are purged from the database:
-$AJAXChatConfig['logsPurgeTimeDiff'] = 365;
-
-// Defines if registered users (including moderators) have access to the logs (admins are always granted access):
-$AJAXChatConfig['logsUserAccess'] = false;
-// Defines a list of channels (e.g. array(0, 1)) to limit the logs access for registered users, includes all channels the user has access to if set to null:
-$AJAXChatConfig['logsUserAccessChannelList'] = null;
+const logsPurgeTimeDiff = 365;
 
 // Defines if the socket server is enabled:
-$AJAXChatConfig['socketServerEnabled'] = false;
+const socketServerEnabled = false;
 // Defines the hostname of the socket server used to connect from client side (the server hostname is used if set to null):
-$AJAXChatConfig['socketServerHost'] = null;
+const socketServerHost = null;
 // Defines the IP of the socket server used to connect from server side to broadcast update messages:
-$AJAXChatConfig['socketServerIP'] = '127.0.0.1';
+const socketServerIP = '127.0.0.1';
 // Defines the port of the socket server:
-$AJAXChatConfig['socketServerPort'] = 1935;
+const socketServerPort = 1935;
 // This ID can be used to distinguish between different chat installations using the same socket server:
-$AJAXChatConfig['socketServerChatID'] = 0;
+const socketServerChatID = 0;
 
-$AJAXChatConfig['msgGrad'] = array(
-   // 'Тирраон' => array('fc2847','8b00ff','a70ddb')
+
+public static $chatClosed = false;
+public static $gzipEnabled = false;
+
+public static  $msgGrad = array(
+    'Sagita' => array('eb8100','d520a0','8d13db')
 );
-$AJAXChatConfig['nickGrad'] = array(
-    'Тирраон' => array('300082','800090')
+public static  $nickGrad = array(
+    'Тирраон' => array('300082','800090'),
+    'Sagita' => array('8d13db','ff00b4', 'ff8c00')
 );
+}

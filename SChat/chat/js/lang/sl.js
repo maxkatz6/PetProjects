@@ -8,7 +8,7 @@
  */
 
 // Ajax Chat language Object:
-var ajaxChatLang = {
+var sChatLang = {
 	
 	login: '%s prijavljen-a na Klepetu.',
 	logout: '%s odjavljen-a iz Klepeta.',

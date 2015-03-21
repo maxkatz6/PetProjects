@@ -8,7 +8,7 @@
  */
 
 // Ajax Chat language Object:
-var ajaxChatLang = {
+var sChatLang = {
 	
 	login: '%s logs dentro de Chat.',
 	logout: '%s logs fora del Chat.',

@@ -8,24 +8,15 @@
  */
 
 // Class to manage HTTP header
-class AJAXChatHTTPHeader {
+class SChatHTTPHeader {
 
 	var $_contentType;
 	var $_constant;
 	var $_noCache;
 
-	function __construct($encoding='UTF-8', $contentType=null, $noCache=true) {
-		if($contentType) {
-			$this->_contentType = $contentType.'; charset='.$encoding;
-			$this->_constant = true;
-		} else {
-			if(isset($_SERVER['HTTP_ACCEPT']) && (strpos($_SERVER['HTTP_ACCEPT'],'application/xhtml+xml') !== false)) {
-				$this->_contentType = 'application/xhtml+xml; charset='.$encoding;
-			} else {
-	 			$this->_contentType = 'text/html; charset='.$encoding;
-			}
-			$this->_constant = false;
-		}
+	function __construct($encoding='UTF-8', $contentType='text/html', $noCache=true) {
+                $this->_contentType = $contentType.'; charset='.$encoding;
+                $this->_constant = true;
 		$this->_noCache = $noCache;
 	}
 

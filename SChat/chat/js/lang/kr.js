@@ -7,7 +7,7 @@
  */
 
 // Ajax Chat language Object:
-var ajaxChatLang = {
+var sChatLang = {
 	
 	login: '%s께서 접속하였습니다.',
 	logout: '%s님께서 접속을 종료하였습니다.',
