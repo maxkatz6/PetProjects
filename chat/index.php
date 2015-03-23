@@ -32,7 +32,7 @@ if (Config::$debug) {
     $xhprof_runs = new XHProfRuns_Default();
     $run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_testing");
     // Формируем ссылку на данные профайлинга и записываем ее в консоль
-    $link = "http://" . $_SERVER['HTTP_HOST'] . "/schat/chat/debug/xhprof-0.9.4/xhprof_html/index.php?run={$run_id}&source=xhprof_testing\n";
+    $link = "http://" . $_SERVER['HTTP_HOST'] . "/schat/chat/debug/xhprof-0.9.4/xhprof_html/index.php?run=".$run_id."&source=xhprof_testing\n";
     $firephp = FirePHP::getInstance(true);
     $firephp->info($link);
 }
