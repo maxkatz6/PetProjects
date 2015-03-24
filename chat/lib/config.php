@@ -129,18 +129,6 @@ const logsPurgeLogs = false;
 // Max time difference in days for old messages before they are purged from the database:
 const logsPurgeTimeDiff = 365;
 
-// Defines if the socket server is enabled:
-const socketServerEnabled = false;
-// Defines the hostname of the socket server used to connect from client side (the server hostname is used if set to null):
-const socketServerHost = null;
-// Defines the IP of the socket server used to connect from server side to broadcast update messages:
-const socketServerIP = '127.0.0.1';
-// Defines the port of the socket server:
-const socketServerPort = 1935;
-// This ID can be used to distinguish between different chat installations using the same socket server:
-const socketServerChatID = 0;
-
-
 public static $chatClosed = false;
 public static $gzipEnabled = false;
 public static $debug = true;

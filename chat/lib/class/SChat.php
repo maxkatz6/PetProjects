@@ -128,22 +128,11 @@ class SChat {
 
 		if($this->getView() == 'chat') {
 			$this->initChatViewSession();
-		} else if($this->getView() == 'logs') {
-			$this->initLogsViewSession();
-		}
+		} 
 
 		if(!$this->getRequestVar('ajax') && !headers_sent()) {
 			// Set langCode cookie:
 			$this->setLangCodeCookie();
-		}
-	}
-
-	function initLogsViewSession() {
-		if(Config::socketServerEnabled) {
-			if(!$this->getSessionVar('logsViewSocketAuthenticated')) {
-				$this->updateSocketAuthentication($this->getUserID(),$this->getSocketRegistrationID(),array('ALL'));
-				$this->setSessionVar('logsViewSocketAuthenticated', true);
-			}
 		}
 	}
 
@@ -223,9 +212,6 @@ class SChat {
 				break;
 			case 'channelName':
 				$this->addInfoMessage($this->getChannelName(), 'channelName');
-				break;
-			case 'socketRegistrationID':
-				$this->addInfoMessage($this->getSocketRegistrationID(), 'socketRegistrationID');
 				break;
 		}
 	}
@@ -332,13 +318,6 @@ class SChat {
 		// IP Security check variable:
 		$this->setSessionIP($_SERVER['REMOTE_ADDR']);
 
-		// The client authenticates to the socket server using a socketRegistrationID:
-		if(Config::socketServerEnabled) {
-			$this->setSocketRegistrationID(
-				md5(uniqid(rand(), true))
-			);
-		}
-
 		// Add userID, userName and userRole to info messages:
 		$this->addInfoMessage($this->getUserID(), 'userID');
 		$this->addInfoMessage($this->getUserName(), 'userName');
@@ -410,10 +389,6 @@ class SChat {
 	}
 
 	function logout($type=null) {
-		// Update the socket server authentication for the user:
-		if(Config::socketServerEnabled) {
-			$this->updateSocketAuthentication($this->getUserID());
-		}
 		if($this->isUserOnline()) {
 			$this->chatViewLogout($type);
 		}
@@ -1371,7 +1346,7 @@ class SChat {
 		return true;
 	}
 
-	function insertChatBotMessage($channelID, $messageText, $ip=null, $mode=0) {
+	function insertChatBotMessage($channelID, $messageText, $ip=null) {
 		$this->insertCustomMessage(
 			Config::chatBotID,
 			Config::chatBotName,
@@ -1379,17 +1354,11 @@ class SChat {
 			$channelID,
 			$messageText,
                         null,
-			$ip,
-			$mode
+			$ip
 		);
 	}
 
-	function insertCustomMessage($userID, $userName, $userRole, $channelID, $text, $msgInfo = null, $ip=null, $mode=0) {
-		// The $mode parameter is used for socket updates:
-		// 0 = normal messages
-		// 1 = channel messages (e.g. login/logout, channel enter/leave, kick)
-		// 2 = messages with online user updates (nick)
-
+	function insertCustomMessage($userID, $userName, $userRole, $channelID, $text, $msgInfo = null, $ip=null) {
 		$ip = $ip ? $ip : $_SERVER['REMOTE_ADDR'];
 
 		$sql = 'INSERT INTO '.$this->getDataBaseTable('messages').'(
@@ -1421,96 +1390,6 @@ class SChat {
 			echo $result->getError();
 			die();
 		}
-
-		if(Config::socketServerEnabled) {
-			$this->sendSocketMessage(
-				$this->getSocketBroadcastMessage(
-					$this->db->getLastInsertedID(),
-					time(),
-					$userID,
-					$userName,
-					$userRole,
-					$channelID,
-					$text,
-					$mode
-				)
-			);
-		}
-	}
-
-	function getSocketBroadcastMessage(
-		$messageID,
-		$timeStamp,
-		$userID,
-		$userName,
-		$userRole,
-		$channelID,
-		$text,
-		$mode
-		) {
-		// The $mode parameter:
-		// 0 = normal messages
-		// 1 = channel messages (e.g. login/logout, channel enter/leave, kick)
-		// 2 = messages with online user updates (nick)
-
-            $json = array();
-            $json['chatID'] = Config::socketServerChatID;
-            $json['channelID'] = $channelID;
-            $json['mode'] = $mode;
-            if($mode) {
-                $json['users'] = array();
-                $onlineUsersData = $this->getOnlineUsersData($channelIDs);
-		foreach($onlineUsersData as $onlineUserData) {
-                    $onlineUserData['userName'] = $this->encodeSpecialChars($onlineUserData['userName']);
-                    $json['users'][] = $onlineUserData;
-		}
-            }
-            if($mode != 1) {
-                $json['messages'] = array();
-                $json['messages']['id'] = $messageID;
-                $json['messages']['dateTime'] = $timeStamp;
-                $json['messages']['userID'] = $userID;
-                $json['messages']['userRole'] = $userRole;
-                $json['messages']['channelID'] = $channelID;
-                $json['messages']['userName'] = $this->encodeSpecialChars($userName);
-                $json['messages']['text'] = $this->encodeSpecialChars($text);
-            }
-            return $json;
-	}
-
-	function sendSocketMessage($message) {
-		// Open a TCP socket connection to the socket server:
-		if($socket = @socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) {
-			if(@socket_connect($socket,	Config::socketServerIP,	Config::socketServerPort)) {
-				// Append a null-byte to the string as EOL (End Of Line) character
-				// which is required by Flash socket communication:
-				$message .= "\0";
-				@socket_write(
-					$socket,
-					$message,
-					strlen($message) // Using strlen to count the bytes instead of the number of UTF-8 characters
-				);
-			}
-			@socket_close($socket);
-		}
-	}
-
-	function updateSocketAuthentication($userID, $socketRegistrationID=null, $channels=null) {
-            // If no $socketRegistrationID or no $channels are given the authentication is removed for the given user:
-            $json = array();
-            $json['chatID'] = Config::socketServerChatID;
-            $json['userID'] = $userID;
-            $json['regID'] = $socketRegistrationID;
-            $json['channels'] = $channels;
-            $this->sendSocketMessage(json_encode($json,JSON_UNESCAPED_UNICODE));
-	}
-
-	function setSocketRegistrationID($value) {
-		$this->setSessionVar('SocketRegistrationID', $value);
-	}
-
-	function getSocketRegistrationID() {
-		return $this->getSessionVar('SocketRegistrationID');
 	}
 
 	function rollDice($sides) {
@@ -1548,11 +1427,6 @@ class SChat {
 		if($result->error()) {
 			echo $result->getError();
 			die();
-		}
-
-		// Update the socket server authentication for the kicked user:
-		if(Config::socketServerEnabled) {
-			$this->updateSocketAuthentication($userID);
 		}
 
 		$this->removeUserFromOnlineUsersData($userID);
@@ -1737,11 +1611,6 @@ class SChat {
 					$condition .= ' OR ';
 				// Add userID to condition for removal:
 				$condition .= 'userID='.$this->db->makeSafe($row['userID']);
-
-				// Update the socket server authentication for the kicked user:
-				if(Config::socketServerEnabled) {
-					$this->updateSocketAuthentication($row['userID']);
-				}
 
 				$this->removeUserFromOnlineUsersData($row['userID']);
 
@@ -2447,20 +2316,6 @@ class SChat {
 
 		// Save the channel enter timestamp:
 		$this->setChannelEnterTimeStamp(time());
-
-		// Update the channel authentication for the socket server:
-		if(Config::socketServerEnabled) {
-			$this->updateSocketAuthentication(
-				$this->getUserID(),
-				$this->getSocketRegistrationID(),
-				array($channel,$this->getPrivateMessageID())
-			);
-		}
-
-		// Reset the logs view socket authentication session var:
-		if($this->getSessionVar('logsViewSocketAuthenticated')) {
-			$this->setSessionVar('logsViewSocketAuthenticated', false);
-		}
 	}
 
 	function isLoggedIn() {

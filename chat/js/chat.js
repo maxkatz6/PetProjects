@@ -10,11 +10,6 @@ var sChat = {
     unusedSettings: null,
     sounds: null,
     soundTransform: null,
-    socket: null,
-    socketIsConnected: null,
-    socketTimerRate: null,
-    socketReconnectTimer: null,
-    socketRegistrationID: null,
     userID: null,
     userName: null,
     userRole: null,
@@ -315,9 +310,6 @@ var sChat = {
     startChatUpdate: function() {
         // Start the chat update and retrieve current user and channel info and set the login channel:
         var infos = 'userID,userName,userRole,channelID,channelName';
-        if (sConfig.socketServerEnabled) {
-            infos += ',socketRegistrationID';
-        }
         var params = '&getInfos=' + this.encodeText(infos);
         if (!isNaN(parseInt(sConfig.loginChannelID))) {
             params += '&channelID=' + sConfig.loginChannelID;
@@ -364,79 +356,7 @@ var sChat = {
     },
 
     initializeFlashInterface: function() {
-        if (sConfig.socketServerEnabled) {
-            this.socketTimerRate = (sConfig.inactiveTimeout - 1) * 60 * 1000;
-            this.socketConnect();
-        }
         this.loadSounds();
-    },
-
-    socketConnect: function() {
-        if (!this.socketIsConnected) {
-            try {
-                if (!this.socket && FABridge.sChat) {
-                    this.socket = FABridge.sChat.create('flash.net.XMLSocket');
-                    this.socket.addEventListener('connect', this.socketConnectHandler);
-                    this.socket.addEventListener('close', this.socketCloseHandler);
-                    this.socket.addEventListener('data', this.socketDataHandler);
-                    this.socket.addEventListener('ioError', this.socketIOErrorHandler);
-                    this.socket.addEventListener('securityError', this.socketSecurityErrorHandler);
-                }
-                this.socket.connect(sConfig.socketServerHost, sConfig.socketServerPort);
-            } catch (e) {
-                this.debugMessage('socketConnect', e);
-            }
-        }
-        clearTimeout(this.socketReconnectTimer);
-        this.socketReconnectTimer = null;
-    },
-
-    socketConnectHandler: function() {
-        sChat.socketIsConnected = true;
-        // setTimeout is needed to avoid calling the flash interface recursively:
-        setTimeout(sChat.socketRegister, 0);
-    },
-
-    socketCloseHandler: function() {
-        sChat.socketIsConnected = false;
-        if (sChat.socket) {
-            clearTimeout(sChat.timer);
-            sChat.updateChat(null);
-        }
-    },
-
-    socketDataHandler: function(event) {
-        sChat.socketUpdate(event.getData());
-    },
-
-    socketIOErrorHandler: function() {
-        // setTimeout is needed to avoid calling the flash interface recursively (e.g. sound on new messages):
-        setTimeout(function() { sChat.addChatBotMessageToChatList('/error SocketIO'); }, 0);
-        setTimeout(sChat.updateChatlistView, 1);
-    },
-
-    socketSecurityErrorHandler: function() {
-        // setTimeout is needed to avoid calling the flash interface recursively (e.g. sound on new messages):
-        setTimeout(function() { sChat.addChatBotMessageToChatList('/error SocketSecurity'); }, 0);
-        setTimeout(sChat.updateChatlistView, 1);
-    },
-
-    socketRegister: function() {
-        if (this.socket && this.socketIsConnected) {
-            try {
-                this.socket.send(
-                    '<register chatID="'
-                    + sConfig.socketServerChatID
-                    + '" userID="'
-                    + this.userID
-                    + '" regID="'
-                    + this.socketRegistrationID
-                    + '"/>'
-                );
-            } catch (e) {
-                this.debugMessage('socketRegister', e);
-            }
-        }
     },
 
     loadXML: function(_str) {
@@ -474,22 +394,6 @@ var sChat = {
             }
         }
         return arguments.callee.parser.parseFromString(_str, 'text/xml');
-    },
-
-    socketUpdate: function(data) {
-        var xmlDoc = this.loadXML(data);
-        if (xmlDoc) {
-            this.handleOnlineUsers(xmlDoc.getElementsByTagName('user'));
-            // If the root node has the attribute "mode" set to "1" it is a channel message:
-            if ((sConfig.showChannelMessages || xmlDoc.firstChild.getAttribute('mode') !== '1') && !this.channelSwitch) {
-                var channelID = xmlDoc.firstChild.getAttribute('channelID');
-                if (channelID === this.channelID ||
-                        parseInt(channelID) === parseInt(this.userID) + sConfig.privateMessageDiff
-                ) {
-                    this.handleChatMessages(xmlDoc.getElementsByTagName('message'));
-                }
-            }
-        }
     },
 
     setAudioVolume: function(volume) {
@@ -763,15 +667,7 @@ var sChat = {
         clearTimeout(this.timer);
         if (this.chatStarted) {
             var timeout;
-            if (this.socketIsConnected) {
-                timeout = this.socketTimerRate;
-            } else {
-                timeout = sConfig.timerRate;
-                if (sConfig.socketServerEnabled && !this.socketReconnectTimer) {
-                    // If the socket connection fails try to reconnect once in a minute:
-                    this.socketReconnectTimer = setTimeout(sChat.socketConnect, 60000);
-                }
-            }
+            timeout = sConfig.timerRate;
             this.timer = setTimeout(function() { sChat.updateChat(null); }, timeout);
         }
     },
@@ -809,9 +705,6 @@ var sChat = {
             case 'logout':
                 this.handleLogout(infoData);
                 return;
-            case 'socketRegistrationID':
-                this.socketRegistrationID = parseInt(infoData);
-                this.socketRegister();
             }
         }
     }

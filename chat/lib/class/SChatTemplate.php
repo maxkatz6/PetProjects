@@ -112,26 +112,6 @@ class SChatTemplate {
 			case 'PRIVATE_MESSAGE_DIFF':
 				return Config::privateMessageDiff;
 
-			case 'SOCKET_SERVER_ENABLED':
-				if(Config::socketServerEnabled)
-					return 1;
-				else
-					return 0;
-
-			case 'SOCKET_SERVER_HOST':
-				if(Config::socketServerHost) {
-					$socketServerHost = Config::socketServerHost;
-				} else {
-					$socketServerHost = (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME']);
-				}
-				return rawurlencode($socketServerHost);
-
-			case 'SOCKET_SERVER_PORT':
-				return Config::socketServerPort;
-
-			case 'SOCKET_SERVER_CHAT_ID':
-				return Config::socketServerChatID;
-
 			case 'STYLE_SHEETS':
 				return $this->getStyleSheetLinkTags();
 				
