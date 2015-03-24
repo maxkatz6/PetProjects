@@ -104,12 +104,6 @@ class SChatTemplate {
 			case 'CHAT_BOT_ID':
 				return Config::chatBotID;
 
-			case 'ALLOW_USER_MESSAGE_DELETE':
-				if(Config::allowUserMessageDelete)
-					return 1;
-				else
-					return 0;
-
 			case 'INACTIVE_TIMEOUT':
 				return Config::inactiveTimeout;
 
@@ -117,12 +111,6 @@ class SChatTemplate {
 				return Config::privateChannelDiff;
 			case 'PRIVATE_MESSAGE_DIFF':
 				return Config::privateMessageDiff;
-
-			case 'SHOW_CHANNEL_MESSAGES':
-				if(Config::showChannelMessages)
-					return 1;
-				else
-					return 0;
 
 			case 'SOCKET_SERVER_ENABLED':
 				if(Config::socketServerEnabled)

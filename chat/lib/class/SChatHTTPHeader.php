@@ -14,8 +14,8 @@ class SChatHTTPHeader {
 	var $_constant;
 	var $_noCache;
 
-	function __construct($encoding='UTF-8', $contentType='text/html', $noCache=true) {
-                $this->_contentType = $contentType.'; charset='.$encoding;
+	function __construct($contentType='text/html', $noCache=true) {
+                $this->_contentType = $contentType.'; charset=UTF-8';
                 $this->_constant = true;
 		$this->_noCache = $noCache;
 	}

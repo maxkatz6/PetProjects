@@ -119,9 +119,7 @@ class SChat {
 				$this->logout();
 				return;
 			}
-		} else if(Config::forceAutoLogin ||
-			$this->getRequestVar('login') ||
-			$this->getRequestVar('userName')){
+		} else {
                     $this->login();
 		}
 
@@ -171,25 +169,7 @@ class SChat {
 	}
 
 	function isChatOpen() {
-		if($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR)
-			return true;
-		if(Config::$chatClosed)
-			return false;
-		$time = time();
-		if(Config::timeZoneOffset !== null) {
-			// Subtract the server timezone offset and add the config timezone offset:
-			$time -= date('Z', $time);
-			$time += Config::timeZoneOffset;
-		}
-		// Check the opening hours:
-		if(Config::openingHour < Config::closingHour)
-		{
-			return !(Config::openingHour > date('G', $time)) || (Config::closingHour <= date('G', $time));
-		}
-		else
-		{
-			return !(Config::openingHour > date('G', $time)) && (Config::closingHour <= date('G', $time));
-		}
+		return ($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR) || !Config::$chatClosed;
 	}
 
 	function handleRequest() {
@@ -345,7 +325,7 @@ class SChat {
 		$this->setUserName($userData['userName']);
 		$this->setLoginUserName($userData['userName']);
 		$this->setUserRole($userData['userRole']);
-		$this->setUserInfo(json_encode($userData['userInfo']));
+		$this->setUserInfo(json_encode($userData['userInfo'],JSON_UNESCAPED_UNICODE));
 		$this->setLoggedIn(true);
 		$this->setLoginTimeStamp(time());
 		
@@ -1232,7 +1212,7 @@ class SChat {
 			$maxLength =	Config::userNameMaxLength
 							- $this->stringLength($prefix)
 							- $this->stringLength($suffix);
-			$newUserName = $this->trimString($newUserName, 'UTF-8', $maxLength, true);
+			$newUserName = $this->trimString($newUserName, $maxLength, true);
 			if(!$newUserName) {
 				$this->insertChatBotMessage(
 					$this->getPrivateMessageID(),
@@ -1320,7 +1300,7 @@ class SChat {
 									NOT (userRole='.$this->db->makeSafe(SCHAT_ADMIN).')
 								AND
 									NOT (userRole='.$this->db->makeSafe(SCHAT_CHATBOT).')';
-			} else if($this->getUserRole() == SCHAT_USER && Config::allowUserMessageDelete) {
+			} else if($this->getUserRole() == SCHAT_USER) {
 				$condition = 'AND
 								(
 								userID='.$this->db->makeSafe($this->getUserID()).'
@@ -1430,7 +1410,7 @@ class SChat {
 					NOW(),
 					'.$this->db->makeSafe($this->ipToStorageFormat($ip)).',
 					'.$this->db->makeSafe($text).',
-                                        '.$this->db->makeSafe((!is_null($msgInfo) ? json_encode($msgInfo):'{}')).'
+                                        '.$this->db->makeSafe((!is_null($msgInfo) ? json_encode($msgInfo,JSON_UNESCAPED_UNICODE):'{}')).'
 				);';
 
 		// Create a new SQL query:
@@ -1485,7 +1465,7 @@ class SChat {
                     $json['users'][] = $onlineUserData;
 		}
             }
-            if($mode != 1 || Config::showChannelMessages) {
+            if($mode != 1) {
                 $json['messages'] = array();
                 $json['messages']['id'] = $messageID;
                 $json['messages']['dateTime'] = $timeStamp;
@@ -1522,7 +1502,7 @@ class SChat {
             $json['userID'] = $userID;
             $json['regID'] = $socketRegistrationID;
             $json['channels'] = $channels;
-            $this->sendSocketMessage(json_encode($json));
+            $this->sendSocketMessage(json_encode($json,JSON_UNESCAPED_UNICODE));
 	}
 
 	function setSocketRegistrationID($value) {
@@ -1810,11 +1790,11 @@ class SChat {
 	}
 
 	function sendMessages() {
-		$httpHeader = new SChatHTTPHeader('UTF-8', 'application/json'); //or text/json 
+		$httpHeader = new SChatHTTPHeader('application/json'); //or text/json 
 
 		// Send HTTP header:
 		$httpHeader->send();
-		echo json_encode($this->getMessages());
+		echo json_encode($this->getMessages(),JSON_UNESCAPED_UNICODE);
 	}
 
 	function getMessages() {
@@ -1848,23 +1828,6 @@ class SChat {
 		return $condition;
 	}
 
-	function getMessageFilter() {
-			$filterChannelMessages = '';
-			if(!Config::showChannelMessages) {
-				$filterChannelMessages = '	AND NOT (
-											text LIKE (\'/login%\')
-											OR
-											text LIKE (\'/logout%\')
-											OR
-											text LIKE (\'/channelEnter%\')
-											OR
-											text LIKE (\'/channelLeave%\')
-											OR
-											text LIKE (\'/kick%\')
-										)';
-			}
-			return $filterChannelMessages;
-	}
 
 	function getChatViewMessages() {
 		// Get the last messages in descending order (this optimises the LIMIT usage):
@@ -1881,7 +1844,6 @@ class SChat {
 					'.$this->getDataBaseTable('messages').'
 				WHERE
 					'.$this->getMessageCondition().'
-					'.$this->getMessageFilter().'
 				ORDER BY
 					id
 					DESC
@@ -1948,7 +1910,6 @@ class SChat {
 					'.$this->getDataBaseTable('messages').'
 				WHERE
 					'.$this->getTeaserMessageCondition().'
-					'.$this->getMessageFilter().'
 				ORDER BY
 					id
 					DESC
@@ -2596,18 +2557,18 @@ class SChat {
 	}
 
 	function trimMessageText($text) {
-		return $this->trimString($text, 'UTF-8', Config::messageTextMaxLength);
+		return $this->trimString($text,  Config::messageTextMaxLength);
 	}
 
 	function trimUserName($userName) {
-		return $this->trimString($userName, null, Config::userNameMaxLength, true, true);
+		return $this->trimString($userName,  Config::userNameMaxLength, true, true);
 	}
 
 	function trimChannelName($channelName) {
-		return $this->trimString($channelName, null, null, true, true);
+		return $this->trimString($channelName,  null, true, true);
 	}
 
-	function trimString($str, $sourceEncoding=null, $maxLength=null, $replaceWhitespace=false, $decodeEntities=false, $htmlEntitiesMap=null) {
+	function trimString($str, $maxLength=null, $replaceWhitespace=false, $decodeEntities=false, $htmlEntitiesMap=null) {
 		$str = trim($this->removeUnsafeCharacters($str));
 
 		if($replaceWhitespace) {

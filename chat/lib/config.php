@@ -44,9 +44,6 @@ public static $styleAvailable = array('beige','grey','Oxygen','Lithium','Sulfur'
 // Default style:
 const styleDefault = 'prosilver';
 
-// The encoding of the data source, like userNames and channelNames:
-const sourceEncoding = 'UTF-8';
-
 // Session name used to identify the session cookie:
 const sessionName = 's_chat';
 // Prefix added to every session key:
@@ -78,27 +75,12 @@ const privateChannelPrefix = '[';
 // Private channels should be distinguished by either a prefix or a suffix or both (no whitespace):
 const privateChannelSuffix = ']';
 
-const forceAutoLogin = true;
-
-// Defines if login/logout and channel enter/leave are displayed:
-const showChannelMessages = true;
-
-// Defines the timezone offset in seconds (-12*60*60 to 12*60*60) - if null, the server timezone is used:
-const timeZoneOffset = null;
-// Defines the hour of the day the chat is opened (0 - closingHour):
-const openingHour = 0;
-// Defines the hour of the day the chat is closed (openingHour - 24):
-const closingHour = 24;
-
 // Allow/Disallow users to change their userName (Nickname):
 const allowNickChange = true;
 // Changed userNames should be distinguished by either a prefix or a suffix or both (no whitespace):
 const changedNickPrefix = '(';
 // Changed userNames should be distinguished by either a prefix or a suffix or both (no whitespace):
 const changedNickSuffix = ')';
-
-// Allow/Disallow registered users to delete their own messages:
-const allowUserMessageDelete = true;
 
 // The userID used for ChatBot messages:
 const chatBotID = 2147483647;

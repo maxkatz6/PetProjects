@@ -27,7 +27,7 @@ else if (Config::$debug) {
 //$firephp->log('');
 $sChat = new CustomSChat();
 
-if (Config::$debug) {
+if (Config::$debug && function_exists('xhprof_disable')) {
     $xhprof_data = xhprof_disable();
     $xhprof_runs = new XHProfRuns_Default();
     $run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_testing");
