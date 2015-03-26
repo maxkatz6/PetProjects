@@ -1,10 +1,10 @@
 <?php
 // Define AJAX Chat user roles:
-define('SCHAT_BANNED',    6);
 define('SCHAT_CHATBOT',   4);
-define('SCHAT_ADMIN',   3);
+define('SCHAT_ADMIN',     3);
 define('SCHAT_MODERATOR', 2);
-define('SCHAT_USER',    1);
+define('SCHAT_USER',      1);
+define('SCHAT_BANNED',    0);
 
 class Config{
 public static $channels = array(
@@ -66,9 +66,6 @@ const defaultChannelID = 0;
 const privateChannelDiff = 500000000;
 // UserID plus this value are used for private messages:
 const privateMessageDiff = 1000000000;
-
-// Enable/Disable private Channels:
-const allowPrivateChannels = true;
 
 // Private channels should be distinguished by either a prefix or a suffix or both (no whitespace):
 const privateChannelPrefix = '[';

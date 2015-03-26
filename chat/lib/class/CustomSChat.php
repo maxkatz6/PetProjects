@@ -43,10 +43,10 @@ class CustomSChat extends SChat {
     function &getChannels() {
         if($this->_channels === null) {
             $this->_channels = array();
-            if($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR) {
+            if($this->getUserRole() >= SCHAT_MODERATOR) {
                 $validChannels = array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14);
             } else {	
-                $tim = json_decode($this->getUserInfo())->tim;
+                $tim = $this->getUserInfo()['tim'];
                 switch ($tim{0})
                 {
                     case "1": $validChannels= array(0,1,2,3,4,5,6,7,8,9,10); break;
@@ -67,34 +67,6 @@ class CustomSChat extends SChat {
             }
         }
         return $this->_channels;
-    }
-
-    // Store all existing channels
-    // Make sure channel names don't contain any whitespace
-    function &getAllChannels() {
-        if($this->_allChannels === null) {
-            // Get all existing channels:
-            $customChannels = array_flip(Config::$channels);
-
-            $defaultChannelFound = false;
-
-            foreach($customChannels as $name=>$id) {
-                $this->_allChannels[$this->trimChannelName($name)] = $id;
-                if($id == Config::defaultChannelID) {
-                    $defaultChannelFound = true;
-                }
-            }
-
-            if(!$defaultChannelFound) {
-                // Add the default channel as first array element to the channel list
-                // First remove it in case it appeard under a different ID
-                unset($this->_allChannels[Config::defaultChannelName]);
-                $this->_allChannels = array_merge(
-                        array($this->trimChannelName(Config::defaultChannelName)=>Config::defaultChannelID),
-                              $this->_allChannels);
-            }
-        }
-        return $this->_allChannels;
     }
 
     private static function getTIM($t)

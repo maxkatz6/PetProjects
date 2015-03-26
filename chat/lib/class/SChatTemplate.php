@@ -202,7 +202,7 @@ class SChatTemplate {
 			}
 			$channelOptions .= '<option value="'.$this->sChat->htmlEncode($name).'"'.$selected.'>'.$this->sChat->htmlEncode($name).'</option>';
 		}
-		if($this->sChat->isLoggedIn() && $this->sChat->isAllowedToCreatePrivateChannel()) {
+		if($this->sChat->isLoggedIn()) {
 			// Add the private channel of the user to the options list:
 			if(!$channelSelected && $this->sChat->getPrivateChannelID() == $this->sChat->getChannel()) {
 				$selected = ' selected="selected"';

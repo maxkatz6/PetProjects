@@ -58,7 +58,7 @@ class SChat {
 		'getInfos'	=> isset($_REQUEST['getInfos'])		? $_REQUEST['getInfos']		: null,
 		'lang'          => isset($_REQUEST['lang'])		? $_REQUEST['lang']		: null,
 		'delete'	=> isset($_REQUEST['delete'])		? (int)$_REQUEST['delete']	: null,
-                'tmc'		=> isset($_REQUEST['tmc'])		? (int)$_REQUEST['tmc']		: null);
+                'tmc'		=> isset($_REQUEST['tmc'])		? (int)$_REQUEST['tmc']		: 10);
 
 		// Remove slashes which have been added to user input strings if magic_quotes_gpc is On:
 		if(get_magic_quotes_gpc()) {
@@ -158,7 +158,7 @@ class SChat {
 	}
 
 	function isChatOpen() {
-		return ($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR) || !Config::$chatClosed;
+		return ($this->getUserRole() >= SCHAT_MODERATOR) || !Config::$chatClosed;
 	}
 
 	function handleRequest() {
@@ -176,8 +176,14 @@ class SChat {
 			// Send chat messages and online user list:
 			$this->sendMessages();
 		} else {
+                    if ($this->isLoggedIn()){
 			// Display XHTML content for non-ajax requests:
-			$this->sendXHTMLContent();
+                        $this->sendXHTMLContent(); 
+                    }
+                    else {
+                        header('Location: ../');
+                        die();
+                    }
 		}
 	}
 
@@ -230,13 +236,11 @@ class SChat {
 
 	function getTemplateFileName() {
 		switch($this->getView()) {
-			case 'chat':
-                            return SCHAT_PATH.'lib/template/chat.html';
 			case 'logs':
                             return SCHAT_PATH.'lib/template/logs.html';
+                        default:
+                            return SCHAT_PATH.'lib/template/chat.html';
 		}
-                header('Location: ../', true);
-                die();
 	}
 
 	function initView() {
@@ -258,7 +262,7 @@ class SChat {
 			case 'teaser':
 				return $this->isLoggedIn();
 			case 'logs':
-				return $this->isLoggedIn() && ($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR);
+				return $this->isLoggedIn() && ($this->getUserRole() >= SCHAT_MODERATOR);
 			default:
 				return false;
 		}
@@ -274,14 +278,14 @@ class SChat {
 		}
 
 		// If the chat is closed, only the admin may login:
-		if(!$this->isChatOpen() && $userData['userRole'] != SCHAT_ADMIN && $userData['userRole'] != SCHAT_MODERATOR) {
+		if(!$this->isChatOpen() && $userData['userRole'] < SCHAT_MODERATOR) {
 			$this->addInfoMessage('errorChatClosed');
 			return false;
 		}
 
 		// Check if userID or userName are already listed online:
 		if($this->isUserOnline($userData['userID']) || $this->isUserNameInUse($userData['userName'])) {
-			if($userData['userRole'] == SCHAT_USER || $userData['userRole'] == SCHAT_MODERATOR || $userData['userRole'] == SCHAT_ADMIN) {
+			if($userData['userRole'] == SCHAT_USER || $userData['userRole'] >= SCHAT_MODERATOR) {
 				// Set the registered user inactive and remove the inactive users so the user can be logged in again:
 				$this->setInactive($userData['userID'], $userData['userName']);
 				$this->removeInactive();
@@ -298,7 +302,7 @@ class SChat {
 		}
 
 		// Check if the max number of users is logged in (not affecting moderators or admins):
-		if(!($userData['userRole'] == SCHAT_MODERATOR || $userData['userRole'] == SCHAT_ADMIN) && $this->isMaxUsersLoggedIn()) {
+		if(!($userData['userRole'] >= SCHAT_MODERATOR) && $this->isMaxUsersLoggedIn()) {
 			$this->addInfoMessage('errorMaxUsersLoggedIn');
 			return false;
 		}
@@ -311,7 +315,7 @@ class SChat {
 		$this->setUserName($userData['userName']);
 		$this->setLoginUserName($userData['userName']);
 		$this->setUserRole($userData['userRole']);
-		$this->setUserInfo(json_encode($userData['userInfo'],JSON_UNESCAPED_UNICODE));
+		$this->setUserInfo($userData['userInfo']);
 		$this->setLoggedIn(true);
 		$this->setLoginTimeStamp(time());
 		
@@ -344,8 +348,7 @@ class SChat {
 		$this->insertChatBotMessage(
 			$this->getChannel(),
 			$text,
-			null,
-			1
+                        array()
 		);
 	}
 
@@ -408,9 +411,7 @@ class SChat {
 		$text = '/logout '.$this->getUserName().$type;
 		$this->insertChatBotMessage(
 			$this->getChannel(),
-			$text,
-			null,
-			1
+			$text
 		);
 	}
 
@@ -442,18 +443,14 @@ class SChat {
 		$text = '/channelLeave '.$this->getUserName();
 		$this->insertChatBotMessage(
 			$oldChannel,
-			$text,
-			null,
-			1
+			$text
 		);
 
 		// Channel enter message
 		$text = '/channelEnter '.$this->getUserName();
 		$this->insertChatBotMessage(
 			$this->getChannel(),
-			$text,
-			null,
-			1
+			$text
 		);
 
 		$this->addInfoMessage($channelName, 'channelSwitch');
@@ -476,7 +473,7 @@ class SChat {
 					'.$this->db->makeSafe($this->getUserName()).',
 					'.$this->db->makeSafe($this->getUserRole()).',
 					'.$this->db->makeSafe($this->getChannel()).',
-					'.$this->db->makeSafe($this->getUserInfo()).',
+					'.$this->db->makeSafe(json_encode($this->getUserInfo(),JSON_UNESCAPED_UNICODE)).',
 					NOW(),
 					'.$this->db->makeSafe($this->ipToStorageFormat($_SERVER['REMOTE_ADDR'])).'
 				);';
@@ -673,16 +670,7 @@ class SChat {
         }
 	function insertParsedMessageJoin($textParts) {
 		if(count($textParts) == 1) {
-			// join with no arguments is the own private channel, if allowed:
-			if($this->isAllowedToCreatePrivateChannel()) {
-				// Private channels are identified by square brackets:
-				$this->switchChannel($this->getChannelNameFromChannelID($this->getPrivateChannelID()));
-			} else {
-				$this->insertChatBotMessage(
-					$this->getPrivateMessageID(),
-					'/error MissingChannelName'
-				);
-			}
+			$this->switchChannel($this->getChannelNameFromChannelID($this->getPrivateChannelID()));
 		} else {
 			$this->switchChannel($textParts[1]);
 		}
@@ -853,7 +841,7 @@ class SChat {
 
 	function insertParsedMessageKick($textParts) {
 		// Only moderators/admins may kick users:
-		if($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR) {
+		if($this->getUserRole() >= SCHAT_MODERATOR) {
 			if(count($textParts) == 1) {
 				$this->insertChatBotMessage(
 					$this->getPrivateMessageID(),
@@ -885,17 +873,13 @@ class SChat {
 						if($channel !== null) {
 							$this->insertChatBotMessage(
 								$channel,
-								'/kick '.$textParts[1],
-								null,
-								1
+								'/kick '.$textParts[1]
 							);
 							// Send a copy of the message to the current user, if not in the channel:
 							if($channel != $this->getChannel()) {
 								$this->insertChatBotMessage(
 									$this->getPrivateMessageID(),
-									'/kick '.$textParts[1],
-									null,
-									1
+									'/kick '.$textParts[1]
 								);
 							}
 						}
@@ -912,7 +896,7 @@ class SChat {
 
 	function insertParsedMessageBans($textParts) {
 		// Only moderators/admins may see the list of banned users:
-		if($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR) {
+		if($this->getUserRole() >= SCHAT_MODERATOR) {
 			$this->removeExpiredBans();
 			$bannedUsers = $this->getBannedUsers();
 			if(count($bannedUsers) > 0) {
@@ -936,7 +920,7 @@ class SChat {
 
 	function insertParsedMessageUnban($textParts) {
 		// Only moderators/admins may unban users:
-		if($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR) {
+		if($this->getUserRole() >= SCHAT_MODERATOR) {
 			$this->removeExpiredBans();
 			if(count($textParts) == 1) {
 				$this->insertChatBotMessage(
@@ -1000,10 +984,7 @@ class SChat {
 			} else {
 				// Get online users for all accessible channels:
 				$channels = $this->getChannels();
-				// Add the own private channel if allowed:
-				if($this->isAllowedToCreatePrivateChannel()) {
-					array_push($channels, $this->getPrivateChannelID());
-				}
+				array_push($channels, $this->getPrivateChannelID());
 				// Add the invitation channels:
 				foreach($this->getInvitations() as $channelID) {
 					if(!in_array($channelID, $channels)) {
@@ -1045,10 +1026,8 @@ class SChat {
 	function insertParsedMessageList($textParts) {
 		// Get the names of all accessible channels:
 		$channelNames = $this->getChannelNames();
-		// Add the own private channel, if allowed:
-		if($this->isAllowedToCreatePrivateChannel()) {
-			array_push($channelNames, $this->getPrivateChannelName());
-		}
+		// Add the own private channel:
+		array_push($channelNames, $this->getPrivateChannelName());
 		// Add the invitation channels:
 		foreach($this->getInvitations() as $channelID) {
 			$channelName = $this->getChannelNameFromChannelID($channelID);
@@ -1101,7 +1080,7 @@ class SChat {
 
 	function insertParsedMessageWhois($textParts) {
 		// Only moderators/admins:
-		if($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR) {
+		if($this->getUserRole() >= SCHAT_MODERATOR) {
 			if(count($textParts) == 1) {
 				$this->insertChatBotMessage(
 					$this->getPrivateMessageID(),
@@ -1208,9 +1187,7 @@ class SChat {
 					$this->addInfoMessage($this->getUserName(), 'userName');
 					$this->insertChatBotMessage(
 						$this->getChannel(),
-						'/nick '.$oldUserName.' '.$newUserName,
-						null,
-						2
+						'/nick '.$oldUserName.' '.$newUserName
 					);
 				}
 			}
@@ -1272,9 +1249,9 @@ class SChat {
 				$condition = '';
 			} else if($this->getUserRole() == SCHAT_MODERATOR) {
 				$condition = '	AND
-									NOT (userRole='.$this->db->makeSafe(SCHAT_ADMIN).')
+									NOT (userRole='.SCHAT_ADMIN.')
 								AND
-									NOT (userRole='.$this->db->makeSafe(SCHAT_CHATBOT).')';
+									NOT (userRole='.SCHAT_CHATBOT.')';
 			} else if($this->getUserRole() == SCHAT_USER) {
 				$condition = 'AND
 								(
@@ -1321,7 +1298,7 @@ class SChat {
 
 	function floodControl() {
 		// Moderators and Admins need no flood control:
-		if($this->getUserRole() == SCHAT_MODERATOR || $this->getUserRole() == SCHAT_ADMIN) {
+		if($this->getUserRole() >= SCHAT_MODERATOR ) {
 			return true;
 		}
 		$time = time();
@@ -1346,20 +1323,19 @@ class SChat {
 		return true;
 	}
 
-	function insertChatBotMessage($channelID, $messageText, $ip=null) {
+	function insertChatBotMessage($channelID, $messageText, $msgInfo = null) {
 		$this->insertCustomMessage(
 			Config::chatBotID,
 			Config::chatBotName,
 			SCHAT_CHATBOT,
 			$channelID,
 			$messageText,
-                        null,
-			$ip
+                        $msgInfo
 		);
 	}
 
-	function insertCustomMessage($userID, $userName, $userRole, $channelID, $text, $msgInfo = null, $ip=null) {
-		$ip = $ip ? $ip : $_SERVER['REMOTE_ADDR'];
+	function insertCustomMessage($userID, $userName, $userRole, $channelID, $text, $msgInfo = null) {
+		$ip = $_SERVER['REMOTE_ADDR'];
 
 		$sql = 'INSERT INTO '.$this->getDataBaseTable('messages').'(
 								userID,
@@ -1618,9 +1594,7 @@ class SChat {
 				$text = '/logout '.$row['userName'].' Timeout';
 				$this->insertChatBotMessage(
 					$row['channel'],
-					$text,
-					null,
-					1
+					$text
 				);
 			}
 
@@ -1730,11 +1704,16 @@ class SChat {
                 $rows = array();
 		// Add the messages in reverse order so it is ascending again:
 		while($row = $result->fetch()) {
-                    $row['userName'] = $this->encodeSpecialChars($row['userName']);
-                    $row['text'] = $this->encodeSpecialChars($row['text']);
-                    $row['dateTime'] =date('r', $row['timeStamp']);
-                    unset($row['timeStamp']);
-                    $rows[] = $row;
+                    $rows[] = array(
+                        'id' => (int)$row['id'],
+                        'uID' => (int)$row['userID'],
+                        'role' => (int)$row['userRole'],
+                        'cID' => (int)$row['channelID'],
+                        'name' => $this->encodeSpecialChars($row['userName']),
+                        'text' => $this->encodeSpecialChars($row['text']),
+                        'time' => date('r', $row['timeStamp']),
+                        'info' => json_decode($row['msgInfo'], true)
+                    );
 		}
 		$result->free();
 
@@ -1743,9 +1722,17 @@ class SChat {
 
 	function getChatViewJSONMessages() {
             $json = array();
-            $json['infos'] = $this->getInfoMessages();
+            $inf = $this->getInfoMessages();
+            $msg = $this->getChatViewMessages();
+            
+            if ($inf != null){
+                $json['infos'] = $inf;
+            }
+            if ($msg != null){
+                $json['msgs'] = $msg;
+            }
             $json['users'] = $this->getOnlineUsersData(array($this->getChannel()));
-            $json['msgs'] = $this->getChatViewMessages();
+            
             return $json;
 	}
 
@@ -1782,7 +1769,7 @@ class SChat {
 				ORDER BY
 					id
 					DESC
-				LIMIT '.($this->getRequestVar('tmc')?$this->getRequestVar('tmc'):Config::requestMessagesLimit).';';
+				LIMIT '.$this->getRequestVar('tmc').';';
 
 		// Create a new SQL query:
 		$result = $this->db->sqlQuery($sql);
@@ -1796,11 +1783,12 @@ class SChat {
                 $rows = array();
 		// Add the messages in reverse order so it is ascending again:
 		while($row = $result->fetch()) {
-                    $row['userName'] = $this->encodeSpecialChars($row['userName']);
-                    $row['text'] = $this->encodeSpecialChars($row['text']);
-                    $row['dateTime'] =date('r', $row['timeStamp']);
-                    unset($row['timeStamp']);
-                    $rows[] = $row;
+                    $rows[] = array(
+                        'channelID' =>  (int)$row['channelID'],
+                        'userName' =>  $this->encodeSpecialChars($row['userName']),
+                        'text' =>  $this->encodeSpecialChars($row['text']),
+                        'dateTime' =>  date('r', $row['timeStamp'])
+                    );
 		}
 		$result->free();
 
@@ -1811,8 +1799,9 @@ class SChat {
             $json = array();
             $json['infos'] = $this->getInfoMessages();
             $json['users'] = $this->getOnlineUsersData();
-            if ($this->getRequestVar('tmc') != 0)
+            if ($this->getUserRole() >= SCHAT_MODERATOR && $this->getRequestVar('tmc') != 0){
                 $json['msgs'] = $this->getTeaserViewMessages();
+            }
             return $json;
 	}
 
@@ -1912,7 +1901,8 @@ class SChat {
 					channel AS channelID,
 					UNIX_TIMESTAMP(dateTime) AS timeStamp,
 					ip,
-					text
+					text,
+                                        msgInfo
 				FROM
 					'.$this->getDataBaseTable('messages').'
 				WHERE
@@ -1933,13 +1923,17 @@ class SChat {
                 $rows = array();
 		// Add the messages in reverse order so it is ascending again:
 		while($row = $result->fetch()) {
-                    $row['userName'] =$this->encodeSpecialChars($row['userName']);
-                    $row['text'] = $this->encodeSpecialChars($row['text']);
-                    $row['ip'] = ($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR ? 
-                            $this->ipFromStorageFormat($row['ip']) : '0.0.0.0');
-                    $row['dateTime'] =date('r', $row['timeStamp']);
-                    unset($row['timeStamp']);
-                    $rows[] = $row;
+                    $rows[] = array(
+                        'id' => (int)$row['id'],
+                        'uID' => (int)$row['userID'],
+                        'role' => (int)$row['userRole'],
+                        'cID' => (int)$row['channelID'],
+                        'name' => $this->encodeSpecialChars($row['userName']),
+                        'text' => $this->encodeSpecialChars($row['text']),
+                        'time' => date('r', $row['timeStamp']),
+                        'info' => json_decode($row['msgInfo'], true),
+                        'ip' => $this->ipFromStorageFormat($row['ip'])
+                    );
 		}
 		$result->free();
                 
@@ -2039,11 +2033,19 @@ class SChat {
 				die();
 			}
 
-			while($row = $result->fetch()) {
-                            if ($this->getUserRole() == SCHAT_ADMIN || $this->getUserRole() == SCHAT_MODERATOR)
-                                $row['ip'] = $this->ipFromStorageFormat($row['ip']);
-                            else unset($row['ip']);
-                            array_push($this->_onlineUsersData, $row);
+			while($row = $result->fetch()) {        
+                            $user = array(
+                                'id' => (int)$row['userID'],
+                                'role' => (int)$row['userRole'],
+                                'room' => (int)$row['channel'],
+                                'time' => (int)$row['timeStamp'],
+                                'name' => $this->encodeSpecialChars($row['userName']),
+                                'info' => json_decode($row['userInfo'], true),
+                            );
+                            if ($this->getUserRole() >= SCHAT_MODERATOR){
+                                $user['ip'] = $this->ipFromStorageFormat($row['ip']);
+                            }
+                            $this->_onlineUsersData[] = $user;
 			}
 
 			$result->free();
@@ -2052,7 +2054,7 @@ class SChat {
 		if($channelIDs || $key) {
 			$onlineUsersData = array();
 			foreach($this->_onlineUsersData as $userData) {
-				if($channelIDs && !in_array($userData['channel'], $channelIDs)) {
+				if($channelIDs && !in_array($userData['room'], $channelIDs)) {
 					continue;
 				}
 				if($key) {
@@ -2084,7 +2086,7 @@ class SChat {
 		}
 		$userID = ($userID === null) ? $this->getUserID() : $userID;
 		for($i=0; $i<count($this->_onlineUsersData); $i++) {
-			if($this->_onlineUsersData[$i]['userID'] == $userID) {
+			if($this->_onlineUsersData[$i]['id'] == $userID) {
 				array_splice($this->_onlineUsersData, $i, 1);
 				break;
 			}
@@ -2096,11 +2098,11 @@ class SChat {
 	}
 
 	function getOnlineUsers($channelIDs=null) {
-		return $this->getOnlineUsersData($channelIDs, 'userName');
+		return $this->getOnlineUsersData($channelIDs, 'name');
 	}
 
 	function getOnlineUserIDs($channelIDs=null) {
-		return $this->getOnlineUsersData($channelIDs, 'userID');
+		return $this->getOnlineUsersData($channelIDs, 'id');
 	}
 
 	function destroySession() {
@@ -2514,31 +2516,31 @@ class SChat {
 	}
 
 	function getIDFromName($userName) {
-		$userDataArray = $this->getOnlineUsersData(null,'userName',$userName);
+		$userDataArray = $this->getOnlineUsersData(null,'name',$userName);
 		if($userDataArray && isset($userDataArray[0])) {
-			return $userDataArray[0]['userID'];
+			return $userDataArray[0]['id'];
 		}
 		return null;
 	}
 
 	function getNameFromID($userID) {
-		$userDataArray = $this->getOnlineUsersData(null,'userID',$userID);
+		$userDataArray = $this->getOnlineUsersData(null,'id',$userID);
 		if($userDataArray && isset($userDataArray[0])) {
-			return $userDataArray[0]['userName'];
+			return $userDataArray[0]['name'];
 		}
 		return null;
 	}
 
 	function getChannelFromID($userID) {
-		$userDataArray = $this->getOnlineUsersData(null,'userID',$userID);
+		$userDataArray = $this->getOnlineUsersData(null,'id',$userID);
 		if($userDataArray && isset($userDataArray[0])) {
-			return $userDataArray[0]['channel'];
+			return $userDataArray[0]['room'];
 		}
 		return null;
 	}
 
 	function getIPFromID($userID) {
-		$userDataArray = $this->getOnlineUsersData(null,'userID',$userID);
+		$userDataArray = $this->getOnlineUsersData(null,'id',$userID);
 		if($userDataArray && isset($userDataArray[0])) {
 			return $userDataArray[0]['ip'];
 		}
@@ -2546,9 +2548,9 @@ class SChat {
 	}
 
 	function getRoleFromID($userID) {
-		$userDataArray = $this->getOnlineUsersData(null,'userID',$userID);
+		$userDataArray = $this->getOnlineUsersData(null,'id',$userID);
 		if($userDataArray && isset($userDataArray[0])) {
-			return $userDataArray[0]['userRole'];
+			return $userDataArray[0]['role'];
 		}
 		return null;
 	}
@@ -2629,19 +2631,6 @@ class SChat {
 		}
 		return $userID + Config::privateMessageDiff;
 	}
-	function isAllowedToCreatePrivateChannel() {
-		if(Config::allowPrivateChannels) {
-			switch($this->getUserRole()) {
-				case SCHAT_USER:
-				case SCHAT_MODERATOR:
-				case SCHAT_ADMIN:
-					return true;
-				default:
-					return false;
-			}
-		}
-		return false;
-	}
 
 	function isAllowedToListHiddenUsers() {
 		// Hidden users are users within private or restricted channels:
@@ -2656,13 +2645,13 @@ class SChat {
 
 	function isUserOnline($userID=null) {
 		$userID = ($userID === null) ? $this->getUserID() : $userID;
-		$userDataArray = $this->getOnlineUsersData(null,'userID',$userID);
+		$userDataArray = $this->getOnlineUsersData(null,'id',$userID);
 		return $userDataArray && count($userDataArray) > 0;
 	}
 
 	function isUserNameInUse($userName=null) {
 		$userName = ($userName === null) ? $this->getUserName() : $userName;
-		$userDataArray = $this->getOnlineUsersData(null,'userName',$userName);
+		$userDataArray = $this->getOnlineUsersData(null,'name',$userName);
 		return $userDataArray && count($userDataArray) > 0;
 	}
 
@@ -2689,7 +2678,7 @@ class SChat {
 
 	function validateChannel($channelID) {
             return ($channelID !== null && (in_array($channelID, $this->getChannels())
-                || $channelID == $this->getPrivateChannelID() && $this->isAllowedToCreatePrivateChannel()
+                || $channelID == $this->getPrivateChannelID()
                 || in_array($channelID, $this->getInvitations())));
 	}
 
@@ -2701,8 +2690,7 @@ class SChat {
 		if(false) {
 			// Here is the place to check user authentication
 		} else {
-			// Guest users:
-			return $this->getGuestUser();
+                    $this->logout();
 		}
 	}
 
@@ -2721,10 +2709,7 @@ class SChat {
 	// Make sure channel names don't contain any whitespace
 	function &getAllChannels() {
 		if($this->_allChannels === null) {
-			$this->_allChannels = array();
-
-			// Default channel, public to everyone:
-			$this->_allChannels[$this->trimChannelName(Config::defaultChannelName)] = Config::defaultChannelID;
+			$this->_allChannels = array_flip(Config::$channels);
 		}
 		return $this->_allChannels;
 	}

@@ -40,7 +40,8 @@ var sChat = {
     inUrlBBCode: null,
 
     audioHtml5: [],
-
+    selQuo: [], // selected quotes
+    
     init: function(lang, initSettings, initStyle, initialize, initializeFunction, finalizeFunction) {
         this.httpRequest = {};
         this.usersList = [];
@@ -309,14 +310,13 @@ var sChat = {
 
     startChatUpdate: function() {
         // Start the chat update and retrieve current user and channel info and set the login channel:
-        var infos = 'userID,userName,userRole,channelID,channelName';
-        var params = '&getInfos=' + this.encodeText(infos);
+        var params = '&getInfos=' + this.encodeText('userID,userName,userRole,channelID,channelName');
         if (!isNaN(parseInt(sConfig.loginChannelID))) {
             params += '&channelID=' + sConfig.loginChannelID;
         } else if (sConfig.loginChannelName !== null) {
             params += '&channelName=' + this.encodeText(sConfig.loginChannelName);
         }
-        this.updateChat(params + "&text=%7B%22text%22%3A%22%2Fwho%22%7D");
+        this.updateChat(params);
     },
 
     updateChat: function(paramString) {
@@ -712,18 +712,12 @@ var sChat = {
    
     handleOnlineUsers: function(json) {
         if (json && json.length) {
-            var index,
-                userID,
-                userName,
-                userRole,
-                userInfo,
-                i,
-                onlineUsers = [];
+            var index,userID,userName,userRole,userInfo,i,onlineUsers = [];
             for (i = 0; i < json.length; i++) {
-                userID = parseInt(json[i].userID);
-                userName = json[i].userName ? json[i].userName : '';
-                userRole = parseInt(json[i].userRole);
-                userInfo = JSON.parse(json[i].userInfo);
+                userID = json[i].id;
+                userName = json[i].name ? json[i].name : '';
+                userRole = json[i].role;
+                userInfo = json[i].info;
                 onlineUsers.push(userID);
                 index = this.arraySearch(userID, this.usersList);
                 if (index === -1) {
@@ -748,26 +742,26 @@ var sChat = {
         if (json && json.length) {
             for (i = 0; i < json.length; i++) {
                 this.DOMbuffering = true;
-                userName = json[i].userName ? json[i].userName : '';
+                userName = json[i].name ? json[i].name : '';
                 messageText = json[i].text ? json[i].text : '';
                 if (i === (json.length - 1)) {
                     this.DOMbuffering = false;
                 }
                 this.addMessageToChatList(
-                    new Date(json[i].dateTime),
-                    parseInt(json[i].userID),
+                    new Date(json[i].time),
+                    json[i].uID,
                     userName,
-                    parseInt(json[i].userRole),
-                    parseInt(json[i].id),
+                    json[i].role,
+                    json[i].id,
                     messageText,
-                    parseInt(json[i].channelID),
+                    json[i].cID,
                     json[i].ip,
-                    JSON.parse(json[i].msgInfo)
+                    json[i].info
                 );
             }
             this.DOMbuffering = false;
             this.updateChatlistView();
-            this.lastID = parseInt(json[json.length - 1].id);
+            this.lastID = json[json.length - 1].id;
         }
     },
 
@@ -1046,13 +1040,12 @@ var sChat = {
         if (new RegExp('(?:^|, |])' + this.userName + ',','gm').test(messageText)){
             rowClass += ' toMe';
         }
-        var dateTime = '<span class="dateTime">' + this.formatDate('(%H:%i:%s)', dateObject) + '</span> ';
-
+        
         var newDiv = document.createElement('div');
         newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);
         newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
-            + /*'<a href="javascript:sChat.blinkMessage('+ messageID+ ');">'+*/dateTime//+'</a>'
+            + '<a  class="dateTime" href="javascript:sChat.selectQuote('+ messageID+ ');">'+this.formatDate('(%H:%i:%s)', dateObject)+' </a>'
             + '<span class="'
             + userClass + '"'
             + (sConfig.settings['nickColors'] && msgInfo && msgInfo.ncol? ' style="color:'+msgInfo.ncol+'" ': '') 
@@ -1063,18 +1056,21 @@ var sChat = {
             + '</span>'
             + colon
             + '<span ' + ((sConfig.settings['msgColors'] && msgInfo && msgInfo.mcol)? 'style="color:'+msgInfo.mcol+'">' : '>') 
-            + ((sConfig.settings['msgColors'] && sConfig.settings['gradiens'] && msgInfo && msgInfo.msgGrad)? helper.grad(this.replaceText(messageText), msgInfo.msgGrad) : this.replaceText(messageText)) +'<span>';
+            + ((sConfig.settings['msgColors'] && sConfig.settings['gradiens'] && msgInfo && msgInfo.msgGrad)? helper.grad(this.replaceText(messageText), msgInfo.msgGrad) : this.replaceText(messageText)) +'</span>';
 
         return newDiv;
 
     },
-    blinkMessage: function (messageID)
+    selectQuote: function (messageID)
     {
         var messageNode = this.getMessageNode(messageID);
-        window.location.hash = messageNode.id;
-        //messageNode.style.display = 'none';
+        var time = (messageNode.firstChild.className === "dateTime" ? messageNode.firstChild : messageNode.childNodes[1] );
+        this.insertText(' см ' + time.innerHTML);
+        this.dom['inputField'].focus();
+        this.dom['inputField'].selectionStart = this.dom['inputField'].selectionEnd = this.dom['inputField'].value.length; 
+        this.selQuo.push(messageID);
     },
-  
+    
     getMessageDocumentID: function(messageID) {
         return ((messageID === null) ? 'sChat_lm_' + (this.localID++) : 'sChat_m_' + messageID);
     },
@@ -1115,11 +1111,11 @@ var sChat = {
 
     isAllowedToDeleteMessage: function(messageID, userID, userRole, channelID) {
         if ((((this.userRole === 1 && sConfig.allowUserMessageDelete && (userID === this.userID ||
-                parseInt(channelID) === parseInt(this.userID) + sConfig.privateMessageDiff ||
-                parseInt(channelID) === parseInt(this.userID) + sConfig.privateChannelDiff)) ||
+                channelID === this.userID + sConfig.privateMessageDiff ||
+                channelID === this.userID + sConfig.privateChannelDiff)) ||
             (this.userRole === 5 && sConfig.allowUserMessageDelete && (userID === this.userID ||
-                parseInt(channelID) === parseInt(this.userID) + sConfig.privateMessageDiff ||
-                parseInt(channelID) === parseInt(this.userID) + sConfig.privateChannelDiff)) ||
+                channelID === this.userID + sConfig.privateMessageDiff ||
+                channelID === this.userID + sConfig.privateChannelDiff)) ||
             this.userRole === 2) && userRole !== 3 && userRole !== 4) || this.userRole === 3) {
             return true;
         }
@@ -1390,7 +1386,7 @@ var sChat = {
     },
 
     getRoleClass: function(roleID) {
-        switch (parseInt(roleID)) {
+        switch (roleID) {
         case 0:
             return 'guest';
         case 1:
@@ -1503,13 +1499,25 @@ var sChat = {
             }
         } else {
             text = this.parseToUserBold(text);
+            text = this.parseUserQuetes(text);
         }
         return text;
     },
     parseToUserBold: function(text){
         return text.replace(new RegExp('(?:(' + this.userNamesList.join('|') + '|Сервер),(?: |))*','gm'), function (a,b) {return (a !== '' ? '[b]'+a+'[/b]':'');});
     },
-
+    parseUserQuetes: function(text){
+        return text.replace(/\(\d\d:\d\d:\d\d\)/g, function(a)
+        {
+            for (var i = 0; i < sChat.selQuo.length; i++)
+            {
+                var q = sChat.selQuo[i], n =sChat.getMessageNode(q);;
+                if (n && n.innerHTML.indexOf(a) > -1) return '[q]'+q+'[/q]';
+            }
+            return a;
+        });
+    },
+    
     parseIgnoreInputCommand: function(text, textParts) {
         var userName, ignoredUserNames = this.getIgnoredUserNames(), i;
         if (textParts.length > 1) {
@@ -2254,8 +2262,10 @@ var sChat = {
                         sChat.containsUnclosedTags(content)) {
                     return str;
                 }
-                if ( content === '') return '';
+                if (!content || content.length === 0) return '';
                 switch (tag) {
+                    case 'q':
+                        return sChat.replaceBBMessageQuote(content);
                     case 'quote':
                         return sChat.replaceBBCodeQuote(content, attribute);
                     case 's':
@@ -2268,7 +2278,33 @@ var sChat = {
             }
         );
     },
-
+    
+    replaceBBMessageQuote: function(messageID)
+    {
+        var m = this.getMessageNode(messageID);
+        var t = m ? (m.firstChild.className === "dateTime" ? m.firstChild : m.childNodes[1]).innerHTML : "(00:00:00)";
+        return '<a class="dateTime" href="javascript:sChat.blinkMessage('+messageID+');">'+t+'</a>';
+    },
+    
+    blinkMessage: function (messageID)
+    {
+        var messageNode = this.getMessageNode(messageID);
+        if (!messageNode) return;
+        window.location.hash = messageNode.id;
+        var k = 0.1, c = 0;
+        messageNode.style.opacity = 1;
+        var b = setInterval(function()
+        {
+            var o = parseFloat(messageNode.style.opacity);
+            if ( o >= 1  || o <= 0) {
+                k = -k;
+                c++;
+            }
+            messageNode.style.opacity = o + k;
+            if (c >= 14) {messageNode.style.opacity = 1; clearInterval(b);}
+        }, 40);
+    },
+    
     replaceBBCodeQuote: function(content, attribute) {
         return (attribute ? '<span class="quote"><cite>'
             + this.lang['cite'].replace(/%s/, attribute)

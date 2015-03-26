@@ -20,7 +20,7 @@
 #content a {text-decoration:none;}
 #content a:hover {text-decoration:underline;}
 #content #copyright {font-size:0.8em;}
-#content #chatList span.dateTime {font-size:0.7em;}
+#content #chatList a.dateTime {font-size:0.7em;text-decoration:none;color:inherit;}
 #content #chatList span.guest {	font-weight:bold;}
 #content #chatList span.user {	font-weight:bold;}
 #content #chatList span.customUser {font-weight:bold;}

@@ -34,6 +34,6 @@ if (Config::$debug && function_exists('xhprof_disable')) {
     // Формируем ссылку на данные профайлинга и записываем ее в консоль
     $link = "http://" . $_SERVER['HTTP_HOST'] . "/schat/chat/debug/xhprof-0.9.4/xhprof_html/index.php?run=".$run_id."&source=xhprof_testing\n";
     $firephp = FirePHP::getInstance(true);
-    $firephp->info($link);
+    //$firephp->info($link);
 }
 ?>

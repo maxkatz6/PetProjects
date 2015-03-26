@@ -87,13 +87,13 @@ var sConfig = {
 	nonPersistentSettings: [],
 
 	// Defines the list of allowed BBCodes:
-	bbCodeTags:['b','i','s','quote','tgw'],
+	bbCodeTags:['b','i','s','quote','tgw','q'],
 
 	// Defines the list of allowed color codes:
-	colorCodes: ['000000','494949','717171','41166f','53377a','4b0082',
+	colorCodes:['000000','494949','717171','41166f','53377a','4b0082',
                     '6835ba','9739b7','810aa9','a70ddb','735184','a60073',
                     'ba0671','bb438a','71001e','a5003c','b80642','c32025',
-                    'fc2847', 'dc143c', 'cc3737','e3691e','c06411','eb9d58',
+                    'fc2847','dc143c','cc3737','e3691e','c06411','eb9d58',
                     'c4b122','a6b929','929e32','609c0c','67b64b','00af4c',
                     '009d7a','03c89c','00aab7','017e90','0687c1','01adeb',
                     '007fff','0078b7','0558a6','1065dc','0d14e5','00416a'],
