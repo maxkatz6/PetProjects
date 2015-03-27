@@ -1653,7 +1653,7 @@ var sChat = {
     },
 
     scriptLinkEncode: function(text) {
-        return this.decodeText(this.encodeText(this.addSlashes(this.decodeSpecialChars(text))));
+        return this.encodeText(this.addSlashes(this.decodeSpecialChars(text)));
     },
 
     scriptLinkDecode: function(text) {

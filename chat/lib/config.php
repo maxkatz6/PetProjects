@@ -126,9 +126,10 @@ const logsPurgeLogs = false;
 // Max time difference in days for old messages before they are purged from the database:
 const logsPurgeTimeDiff = 365;
 
+const debug = true;
+
 public static $chatClosed = false;
 public static $gzipEnabled = false;
-public static $debug = true;
 
 public static  $msgGrad = array(
     'Sagita' => array('eb8100','d520a0','8d13db')

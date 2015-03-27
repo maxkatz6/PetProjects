@@ -653,19 +653,10 @@ class SChat {
 	}
         function insertParsedMessageDebug($textParts)
         {
-            if (Config::$debug) {
-                $xhprof_data = xhprof_disable();
-                $xhprof_runs = new XHProfRuns_Default();
-                $run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_testing");
-                // Формируем ссылку на данные профайлинга и записываем ее в консоль
-                $link = "http://" . $_SERVER['HTTP_HOST'] . "/schat/chat/debug/xhprof-0.9.4/xhprof_html/index.php?run={$run_id}&source=xhprof_testing\n";
-                if(count($textParts) == 1) {
-                    $firephp = FirePHP::getInstance(true);
-                    $firephp->info($link, 'profiling data');
-                }
-                else if ($textParts[1] == 'true') {
-                    $this->insertChatBotMessage($this->getPrivateMessageID(),$link);
-                }
+            if (Config::debug && $this->getUserRole() >= SCHAT_MODERATOR) {//unsafe
+              /*  $firephp = FirePHP::getInstance(true);
+                $merge = eval(implode(' ',array_slice($textParts,1)));
+                $firephp->info($merge);*/
             }
         }
 	function insertParsedMessageJoin($textParts) {

@@ -16,6 +16,5 @@ $mainframe->initialise();
 define('J_PREFIX', $mainframe->getCfg('dbprefix'));
 Config::$dbConnection['link'] = JFactory::getDBO()->getConnection();
 Config::$dbConnection['name']  = $mainframe->getCfg('db');
-Config::$debug       = Config::$debug       || $mainframe->getCfg('debug');
 Config::$chatClosed  = Config::$chatClosed  || $mainframe->getCfg('offline');
 Config::$gzipEnabled = Config::$gzipEnabled || $mainframe->getCfg('qzip');

@@ -22,7 +22,7 @@ require(SCHAT_PATH.'lib/class/SChatLanguage.php');
 require(SCHAT_PATH.'lib/class/SChatTemplate.php');
 require(SCHAT_PATH.'lib/class/CustomSChat.php');
 
-if (Config::$debug) {
+if (Config::debug) {
     require_once(SCHAT_PATH.'debug/FirePHP.class.php');
     if (function_exists('xhprof_enable')){
         require_once(SCHAT_PATH.'debug/xhprof-0.9.4/xhprof_lib/utils/xhprof_lib.php');
