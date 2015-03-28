@@ -23,15 +23,15 @@ class SChatEncoding {
 	}
 
 	public static function htmlEncode($str) {
-		return SChatEncoding::encodeSpecialChars($str);
+		return self::encodeSpecialChars($str);
 	}
 
 	public static function encodeSpecialChars($str) {
-		return strtr($str, SChatEncoding::getSpecialChars());
+		return strtr($str, self::getSpecialChars());
 	}
 
 	public static function decodeSpecialChars($str) {
-		return strtr($str, array_flip(SChatEncoding::getSpecialChars()));
+		return strtr($str, array_flip(self::getSpecialChars()));
 	}
 
 	public static function encodeEntities($str, $encoding='UTF-8', $convmap=null) {
@@ -80,7 +80,7 @@ class SChatEncoding {
 
 	public static function removeUnsafeCharacters($str) {
 		// Remove NO-WS-CTL, non-whitespace control characters (RFC 2822), decimal 1–8, 11–12, 14–31, and 127:
-		return preg_replace(SChatEncoding::getRegExp_NO_WS_CTL(), '', $str);
+		return preg_replace(self::getRegExp_NO_WS_CTL(), '', $str);
 	}
 
 }

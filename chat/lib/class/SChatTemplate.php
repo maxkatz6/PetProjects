@@ -60,10 +60,10 @@ class SChatTemplate {
                         case 'VN':
                             return VER;
 			case 'SCHAT_URL':
-				return $this->sChat->htmlEncode($this->sChat->getChatURL());
+				return SChatEncoding::encodeSpecialChars($this->sChat->getChatURL());
 
 			case 'LANG':
-				return $this->sChat->htmlEncode($this->sChat->getLang((isset($tagData[2]) ? $tagData[2] : null)));				
+				return SChatEncoding::encodeSpecialChars($this->sChat->getLang((isset($tagData[2]) ? $tagData[2] : null)));				
 			case 'LANG_CODE':
 				return $this->sChat->getLangCode();
 
@@ -150,8 +150,8 @@ class SChatTemplate {
                 'Describe', 'Ignore', 'IgnoreList', 'Whereis', 'Kick', 'Unban', 'Bans', 'Whois', 'Who', 'List', 'Roll', 'Nick');
             foreach ($list as $item)
             {
-                $ret .= '<dl><dt>'.$this->sChat->htmlEncode($this->sChat->getLang('helpItemDesc'.$item)).'</dt>'
-                        .'<dd>'.$this->sChat->htmlEncode($this->sChat->getLang('helpItemCode'.$item)).'</dd></dl>';
+                $ret .= '<dl><dt>'.SChatEncoding::encodeSpecialChars($this->sChat->getLang('helpItemDesc'.$item)).'</dt>'
+                        .'<dd>'.SChatEncoding::encodeSpecialChars($this->sChat->getLang('helpItemCode'.$item)).'</dd></dl>';
             }
             return $ret.'</div>';
         }
@@ -183,7 +183,7 @@ class SChatTemplate {
 		$styleSheets = '';
 		foreach(Config::$styleAvailable as $style) {
 			$alternate = ($style == Config::styleDefault) ? '' : 'alternate ';
-			$styleSheets .= '<link rel="'.$alternate.'stylesheet" type="text/css" href="css/'.rawurlencode($style).'.css?'.VER.'" title="'.$this->sChat->htmlEncode($style).'"/>';
+			$styleSheets .= '<link rel="'.$alternate.'stylesheet" type="text/css" href="css/'.rawurlencode($style).'.css?'.VER.'" title="'.SChatEncoding::encodeSpecialChars($style).'"/>';
 		}
 		return $styleSheets;
 	}
@@ -200,7 +200,7 @@ class SChatTemplate {
 			if($selected) {
 				$channelSelected = true;
 			}
-			$channelOptions .= '<option value="'.$this->sChat->htmlEncode($name).'"'.$selected.'>'.$this->sChat->htmlEncode($name).'</option>';
+			$channelOptions .= '<option value="'.SChatEncoding::encodeSpecialChars($name).'"'.$selected.'>'.SChatEncoding::encodeSpecialChars($name).'</option>';
 		}
 		if($this->sChat->isLoggedIn()) {
 			// Add the private channel of the user to the options list:
@@ -211,13 +211,13 @@ class SChatTemplate {
 				$selected = '';
 			}
 			$privateChannelName = $this->sChat->getPrivateChannelName();
-			$channelOptions .= '<option value="'.$this->sChat->htmlEncode($privateChannelName).'"'.$selected.'>'.$this->sChat->htmlEncode($privateChannelName).'</option>';
+			$channelOptions .= '<option value="'.SChatEncoding::encodeSpecialChars($privateChannelName).'"'.$selected.'>'.SChatEncoding::encodeSpecialChars($privateChannelName).'</option>';
 		}
 		// If current channel is not in the list, try to retrieve the channelName:
 		if(!$channelSelected) {
 			$channelName = $this->sChat->getChannelName();
 			if($channelName !== null) {
-				$channelOptions .= '<option value="'.$this->sChat->htmlEncode($channelName).'" selected="selected">'.$this->sChat->htmlEncode($channelName).'</option>';
+				$channelOptions .= '<option value="'.SChatEncoding::encodeSpecialChars($channelName).'" selected="selected">'.SChatEncoding::encodeSpecialChars($channelName).'</option>';
 			} else {
 				// Show an empty selection:
 				$channelOptions .= '<option value="" selected="selected">---</option>';
@@ -230,7 +230,7 @@ class SChatTemplate {
 		$styleOptions = '';
 		foreach(Config::$styleAvailable as $style) {
 			$selected = ($style == Config::styleDefault) ? ' selected="selected"' : '';
-			$styleOptions .= '<option value="'.$this->sChat->htmlEncode($style).'"'.$selected.'>'.$this->sChat->htmlEncode($style).'</option>';
+			$styleOptions .= '<option value="'.SChatEncoding::encodeSpecialChars($style).'"'.$selected.'>'.SChatEncoding::encodeSpecialChars($style).'</option>';
 		}
 		return $styleOptions;
 	}
@@ -240,7 +240,7 @@ class SChatTemplate {
 		$languageNames = Config::$langNames;
 		foreach(Config::$langAvailable as $langCode) {
 			$selected = ($langCode == $this->sChat->getLangCode()) ? ' selected="selected"' : '';
-			$languageOptions .= '<option value="'.$this->sChat->htmlEncode($langCode).'"'.$selected.'>'.$languageNames[$langCode].'</option>';
+			$languageOptions .= '<option value="'.SChatEncoding::encodeSpecialChars($langCode).'"'.$selected.'>'.$languageNames[$langCode].'</option>';
 		}
 		return $languageOptions;
 	}
@@ -248,7 +248,7 @@ class SChatTemplate {
 	function getErrorMessageTags() {
 		$errorMessages = '';
 		foreach($this->sChat->getInfoMessages('error') as $error) {
-			$errorMessages .= '<div>'.$this->sChat->htmlEncode($this->sChat->getLang($error)).'</div>';
+			$errorMessages .= '<div>'.SChatEncoding::encodeSpecialChars($this->sChat->getLang($error)).'</div>';
 		}
 		return $errorMessages;
 	}
@@ -260,10 +260,10 @@ class SChatTemplate {
 			if($this->sChat->getUserRole() != SCHAT_ADMIN && Config::logsUserAccessChannelList && !in_array($value, Config::logsUserAccessChannelList)) {
 				continue;
 			}
-			$channelOptions .= '<option value="'.$value.'">'.$this->sChat->htmlEncode($key).'</option>';
+			$channelOptions .= '<option value="'.$value.'">'.SChatEncoding::encodeSpecialChars($key).'</option>';
 		}
-		$channelOptions .= '<option value="-1">'.$this->sChat->htmlEncode($this->sChat->getLang('logsPrivateChannels')).'</option>';
-		$channelOptions .= '<option value="-2">'.$this->sChat->htmlEncode($this->sChat->getLang('logsPrivateMessages')).'</option>';
+		$channelOptions .= '<option value="-1">'.SChatEncoding::encodeSpecialChars($this->sChat->getLang('logsPrivateChannels')).'</option>';
+		$channelOptions .= '<option value="-2">'.SChatEncoding::encodeSpecialChars($this->sChat->getLang('logsPrivateMessages')).'</option>';
 		return $channelOptions;
 	}
 

@@ -41,6 +41,7 @@ var sChat = {
 
     audioHtml5: [],
     selQuo: [], // selected quotes
+    needScroll: true,
     
     init: function(lang, initSettings, initStyle, initialize, initializeFunction, finalizeFunction) {
         this.httpRequest = {};
@@ -70,13 +71,6 @@ var sChat = {
             this.addEvent(window, 'load', function () {
                 self.initialize();
             });
-        }
-
-        var a = document.createElement('audio');
-        if (!!a.canPlayType) {
-            this.audioHtml5['mp3'] = !!(a.canPlayType('audio/mpeg;').replace(/no/, ''));
-            this.audioHtml5['ogg'] = !!(a.canPlayType && a.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, ''));
-            this.audioHtml5['wav'] = !!(a.canPlayType && a.canPlayType('audio/wav; codecs="1"').replace(/no/, ''));
         }
     },
 
@@ -201,9 +195,10 @@ var sChat = {
                 this.setStartChatHandler();
                 this.requestTeaserContent();
             }
-        }
-     //   if (helper.isMobile())     //на телефоне выводит список онлайн
-      //      this.sendMessage('/who'); //хз, как оно будет, работает через раз
+        }        
+        sChat.dom['chatList'].onscroll = function(){
+            sChat.needScroll = ((sChat.dom['chatList'].scrollTop + sChat.dom['chatList'].offsetHeight) >= sChat.dom['chatList'].scrollHeight);
+        };
     },
 
     requestTeaserContent: function() {
@@ -232,7 +227,14 @@ var sChat = {
         if (this.dom['inputField']) {
             this.dom['inputField'].focus();
         }
-        this.loadFlashInterface();
+        var a = document.getElementById('audioPlayer');
+        if (!!a.canPlayType) {
+            this.audioHtml5['mp3'] = !!(a.canPlayType('audio/mpeg;').replace(/no/, ''));
+            this.audioHtml5['ogg'] = !!(a.canPlayType && a.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, ''));
+            this.audioHtml5['wav'] = !!(a.canPlayType && a.canPlayType('audio/wav; codecs="1"').replace(/no/, ''));
+        }
+        if (!this.audioHtml5 || !this.audioHtml5['mp3'])
+            this.loadFlashInterface();
         this.startChatUpdate();
     },
 
@@ -452,7 +454,12 @@ var sChat = {
     },
 
     playSound: function(soundID) {
-        if (this.sounds && this.sounds[soundID]) {
+        if (this.audioHtml5 && this.audioHtml5['mp3']){
+            document.getElementById('audioPlayer').src = this.dirs['sounds'] + soundID + ".mp3";
+            document.getElementById('audioPlayer').play();
+            return true;
+        }
+        else if (this.sounds && this.sounds[soundID]) {
             try {
                 // play() parameters are
                 // startTime:Number (default = 0),
@@ -468,7 +475,7 @@ var sChat = {
 
     playSoundOnNewMessage: function(dateObject, userID, userName, userRole, messageID, messageText) {
         var messageParts;
-        if (sConfig.settings['audio'] && this.sounds && this.lastID && !this.channelSwitch) {
+        if (sConfig.settings['audio'] && this.lastID && !this.channelSwitch) {
 
         if (new RegExp('(?:^|, |])' + this.userName + ',','gm').test(messageText)){
                 this.playSound(sConfig.settings['soundPrivate']);
@@ -867,7 +874,8 @@ var sChat = {
             );
         }
         this.toggleArrowButton(menuID);
-        this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
+        if (isInline && this.needScroll)
+            this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
     },
 
     getUserNodeStringItems: function(encodedUserName, userID, isInline) {
@@ -1190,7 +1198,7 @@ var sChat = {
             }
         }
 
-        if (sConfig.settings['autoScroll']) {
+        if (sConfig.settings['autoScroll'] && this.needScroll) {
             this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
         }
     },
@@ -2324,6 +2332,7 @@ var sChat = {
 	            var hostArr = host.split('.'),
 	                fe = (sa1 ? sa1.split(/\.|\//g).pop().toLowerCase() : ''),
                     c = (sChat.dom['chatList'].offsetWidth - 50);
+                    var aa = "onload=\"sChat.updateChatlistView();\" ";
 	            switch (fe) {
 	            case "mp3":
 	                return s + (sChat.audioHtml5['mp3'] ? "<audio style=\"height:30px; width:"+Math.min(c, 400)+"px;\" src=\"" + a + "\" controls></audio> " : '<a href="' + a + '" onclick="window.open(this.href); return false;">Скачать mp3 </a> ');
@@ -2339,19 +2348,19 @@ var sChat = {
 	                    + c
 	                    + 'px; max-height:200px;" src="'
 	                    + a
-	                    + '"/>'
+	                    + '"'+aa+'/>'
 	                    + '</a>';
 	            default:
 	            {
                         var width = Math.min(c, 400),
                         height = width / 1.7;
 	                if (sa2 && sChat.inArray(hostArr, 'youtube'))
-	                    return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa2.split(/[=\?&]+/)[2] + '" frameborder="0" allowfullscreen="ture"></iframe>';
+	                    return s + '<iframe '+aa+' width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa2.split(/[=\?&]+/)[2] + '" frameborder="0" allowfullscreen="ture"></iframe>';
 	                else if (sa1){
                             if (sChat.inArray(hostArr, 'youtu'))
-                                return s + '<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
+                                return s + '<iframe '+aa+' width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
                             else if (sChat.inArray(hostArr, 'coub'))
-                                return s + '<iframe width="'+width+'" height="'+height+'" src="http://coub.com/embed/'+fe+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
+                                return s + '<iframe '+aa+' width="'+width+'" height="'+height+'" src="http://coub.com/embed/'+fe+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
                         }
 	                return s + '<a href="' + a + '" onclick="window.open(this.href); return false;">' + helper.truncate(a, 35) + '</a>';
 	            }
