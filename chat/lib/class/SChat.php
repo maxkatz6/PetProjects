@@ -39,16 +39,14 @@ class SChat {
 
     function initRequestVars() {
 	$this->_requestVars = array(
-	'ajax'          => isset($_REQUEST['ajax'])		? true				: false,
+	'ajax'          => isset($_REQUEST['ajax']),
+	'logout'	=> isset($_REQUEST['logout']),
 	'userID'	=> isset($_REQUEST['userID'])		? (int)$_REQUEST['userID']	: null,
 	'userName'	=> isset($_REQUEST['userName'])		? $_REQUEST['userName']		: null,
 	'channelID'	=> isset($_REQUEST['channelID'])	? (int)$_REQUEST['channelID']	: null,
 	'channelName'	=> isset($_REQUEST['channelName'])	? $_REQUEST['channelName']	: null,
 	'text'		=> isset($_POST['text'])		? $_POST['text']		: null,
 	'lastID'	=> isset($_REQUEST['lastID'])		? (int)$_REQUEST['lastID']	: 0,
-	'login'		=> isset($_REQUEST['login'])		? true				: false,
-	'logout'	=> isset($_REQUEST['logout'])		? true				: false,
-	'password'	=> isset($_REQUEST['password'])		? $_REQUEST['password']		: null,
 	'view'		=> isset($_REQUEST['view'])		? $_REQUEST['view']		: null,
 	'year'		=> isset($_REQUEST['year'])		? (int)$_REQUEST['year']	: null,
 	'month'		=> isset($_REQUEST['month'])		? (int)$_REQUEST['month']	: null,
@@ -59,7 +57,7 @@ class SChat {
 	'lang'          => isset($_REQUEST['lang'])		? $_REQUEST['lang']		: null,
 	'delete'	=> isset($_REQUEST['delete'])		? (int)$_REQUEST['delete']	: null,
 	'tmc'		=> isset($_REQUEST['tmc'])		? (int)$_REQUEST['tmc']		: 10);
-
+	
 	// Remove slashes which have been added to user input strings if magic_quotes_gpc is On:
 	if(get_magic_quotes_gpc()) {
 	    // It is safe to remove the slashes as we escape user data ourself
@@ -122,7 +120,10 @@ class SChat {
 
 	if($this->getView() == 'chat') {
 	    $this->initChatViewSession();
-	} 
+	}
+	else {
+	    $this->removeInactive();
+	}
 
 	if(!$this->getRequestVar('ajax') && !headers_sent()) {
 	    // Set langCode cookie:
@@ -280,14 +281,9 @@ class SChat {
 
 	// Check if userID or userName are already listed online:
 	if($this->isUserOnline($userData['userID']) || $this->isUserNameInUse($userData['userName'])) {
-	    if($userData['userRole'] == SCHAT_USER || $userData['userRole'] >= SCHAT_MODERATOR) {
-		// Set the registered user inactive and remove the inactive users so the user can be logged in again:
-		$this->setInactive($userData['userID'], $userData['userName']);
-		$this->removeInactive();
-	    } else {
-		$this->addInfoMessage('errorUserInUse');
-		return false;
-	    }
+	    // Set the registered user inactive and remove the inactive users so the user can be logged in again:
+	    $this->setInactive($userData['userID'], $userData['userName']);
+	    $this->removeInactive();
 	}
 
 	// Check if user is banned or in a user group not permitted in chat:
@@ -297,7 +293,7 @@ class SChat {
 	}
 
 	// Check if the max number of users is logged in (not affecting moderators or admins):
-	if(!($userData['userRole'] >= SCHAT_MODERATOR) && $this->isMaxUsersLoggedIn()) {
+	if($userData['userRole'] <= SCHAT_MODERATOR && count($this->getOnlineUsersData()) >= Config::maxUsersLoggedIn) {
 	    $this->addInfoMessage('errorMaxUsersLoggedIn');
 	    return false;
 	}
@@ -311,6 +307,8 @@ class SChat {
 	$this->setLoginUserName($userData['userName']);
 	$this->setUserRole($userData['userRole']);
 	$this->setUserInfo($userData['userInfo']);
+	$this->setSessionVar('mob', $userData['mob']);
+	
 	$this->setLoggedIn(true);
 	$this->setLoginTimeStamp(time());
 
@@ -459,7 +457,8 @@ class SChat {
 			    channel,
 			    userInfo,
 			    dateTime,
-			    ip
+			    ip,
+			    mob
 		    )
 		    VALUES (
 			    '.$this->db->makeSafe($this->getUserID()).',
@@ -468,7 +467,8 @@ class SChat {
 			    '.$this->db->makeSafe($this->getChannel()).',
 			    '.$this->db->makeSafe(json_encode($this->getUserInfo(),JSON_UNESCAPED_UNICODE)).',
 			    NOW(),
-			    '.$this->db->makeSafe($this->ipToStorageFormat($_SERVER['REMOTE_ADDR'])).'
+			    '.$this->db->makeSafe($this->ipToStorageFormat($_SERVER['REMOTE_ADDR'])).',
+			    '.$this->db->makeSafe($this->getSessionVar('mob')).'
 		    );';
 
 	// Create a new SQL query:
@@ -1526,7 +1526,7 @@ class SChat {
 	    $sql = 'UPDATE
 				    '.$this->getDataBaseTable('online').'
 			    SET
-				    dateTime = DATE_SUB(NOW(), interval '.(intval(Config::inactiveTimeout)+1).' MINUTE)
+				    dateTime = DATE_SUB(NOW(), interval '.(intval(Config::inactiveTimeoutMobile)+1).' MINUTE)
 			    WHERE
 				    '.$condition.';';
 
@@ -1546,12 +1546,12 @@ class SChat {
 	    $sql = 'SELECT
 				    userID,
 				    userName,
-				    channel
+				    channel,
+				    userInfo
 			    FROM
 				    '.$this->getDataBaseTable('online').'
 			    WHERE
-				    NOW() > DATE_ADD(dateTime, interval '.Config::inactiveTimeout.' MINUTE);';
-
+				    NOW() > DATE_ADD(dateTime, interval IF (mob = 0, '.Config::inactiveTimeout.', '.Config::inactiveTimeoutMobile.') MINUTE);';
 	    // Create a new SQL query:
 	    $result = $this->db->sqlQuery($sql);
 
@@ -1572,10 +1572,9 @@ class SChat {
 			    $this->removeUserFromOnlineUsersData($row['userID']);
 
 			    // Insert logout timeout message:
-			    $text = '/logout '.$row['userName'].' Timeout';
 			    $this->insertChatBotMessage(
 				    $row['channel'],
-				    $text
+				    '/logout '.$row['userName'].' Timeout'
 			    );
 		    }
 
@@ -2638,10 +2637,6 @@ class SChat {
 	}
 	$bannedUserDataArray = $this->getBannedUsersData('userName',$userName);
 	return $bannedUserDataArray && isset($bannedUserDataArray[0]);
-    }
-
-    function isMaxUsersLoggedIn() {
-	return count($this->getOnlineUsersData()) >= Config::maxUsersLoggedIn;
     }
 
     function validateChannel($channelID) {

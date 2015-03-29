@@ -86,6 +86,8 @@ const chatBotName = 'Сервер';
 
 // Minutes until a user is declared inactive (last status update) - the minimum is 2 minutes:
 const inactiveTimeout = 2;
+// Minutes until a user is declared inactive. mobile
+const inactiveTimeoutMobile = 15;
 // Interval in minutes to check for inactive users:
 const inactiveCheckInterval = 2;
 
