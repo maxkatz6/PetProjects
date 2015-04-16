@@ -29,7 +29,7 @@ var sChat = {
     baseDirection: null,
     originalDocumentTitle: null,
     blinkInterval: null,
-    infocus:true,
+    infocus: true,
     httpRequest: null,
     retryTimer: null,
     retryTimerDelay: null,
@@ -42,7 +42,9 @@ var sChat = {
     audioHtml5: [],
     selQuo: [], // selected quotes
     needScroll: true,
-    
+    selAddressee: '',
+    removeOld: false,
+
     init: function(lang, initSettings, initStyle, initialize, initializeFunction, finalizeFunction) {
         this.httpRequest = {};
         this.usersList = [];
@@ -292,16 +294,14 @@ var sChat = {
         for (var i = 0; i < sConfig.emoticonCodes.length; i++) {
             // Replace specials characters in emoticon codes:
             sConfig.emoticonCodes[i] = this.encodeSpecialChars(sConfig.emoticonCodes[i]);
+            var cl = sConfig.emoticonFiles[i].indexOf('_') !== 1 ? "smile" : "sticker";
+            
             this.DOMbuffer = this.DOMbuffer
-                + '<a href="javascript:sChat.insertText(\''
+                + '<a class="'+cl+'" href="javascript:sChat.insertText(\''
                 + this.scriptLinkEncode(sConfig.emoticonCodes[i])
-                + '\');"><img src="'
-                + this.dirs['emoticons']
-                + sConfig.emoticonFiles[i]
-                + '" alt="'
-                + sConfig.emoticonCodes[i]
-                + '" title="'
-                + sConfig.emoticonCodes[i]
+                + '\');"><img src="'+this.dirs['emoticons'] + sConfig.emoticonFiles[i]
+                + '" alt="'+sConfig.emoticonCodes[i]
+                + '" title="'+sConfig.emoticonCodes[i]
                 + '"/></a>';
         }
         if (this.dom['emoticonsContainer']) {
@@ -408,10 +408,14 @@ var sChat = {
             }
             this.setSetting('audioVolume', volume);
             try {
-                if (!this.soundTransform) {
-                    this.soundTransform = FABridge.sChat.create('flash.media.SoundTransform');
+                if (this.audioHtml5 && this.audioHtml5['mp3']) {
+                    document.getElementById('audioPlayer').volume = volume;
+                } else {
+                    if (!this.soundTransform) {
+                        this.soundTransform = FABridge.sChat.create('flash.media.SoundTransform');
+                    }
+                    this.soundTransform.setVolume(volume);
                 }
-                this.soundTransform.setVolume(volume);
             } catch (e) {
                 this.debugMessage('setAudioVolume', e);
             }
@@ -425,8 +429,21 @@ var sChat = {
             var sound, urlRequest;
             for (var key in sConfig.soundFiles) {
                 sound = FABridge.sChat.create('flash.media.Sound');
-                sound.addEventListener('complete', this.soundLoadCompleteHandler);
-                sound.addEventListener('ioError', this.soundIOErrorHandler);
+                sound.addEventListener('complete', function(event) {
+                    var sound = event.getTarget();
+                    for (var key in sConfig.soundFiles) {
+                        // Get the sound key by matching the sound URL with the sound filename:
+                        if ((new RegExp(sConfig.soundFiles[key])).test(sound.getUrl())) {
+                            // Add the loaded sound to the sounds list:
+                            sChat.sounds[key] = sound;
+                        }
+                    }
+                });
+                sound.addEventListener('ioError', function() {
+                    // setTimeout is needed to avoid calling the flash interface recursively (e.g. sound on new messages):
+                    setTimeout(function() { sChat.addChatBotMessageToChatList('/error SoundIO'); }, 0);
+                    setTimeout(sChat.updateChatlistView, 1);
+                });
                 urlRequest = FABridge.sChat.create('flash.net.URLRequest');
                 urlRequest.setUrl(this.dirs['sounds'] + sConfig.soundFiles[key]);
                 sound.load(urlRequest);
@@ -434,23 +451,6 @@ var sChat = {
         } catch (e) {
             this.debugMessage('loadSounds', e);
         }
-    },
-
-    soundLoadCompleteHandler: function(event) {
-        var sound = event.getTarget();
-        for (var key in sConfig.soundFiles) {
-            // Get the sound key by matching the sound URL with the sound filename:
-            if ((new RegExp(sConfig.soundFiles[key])).test(sound.getUrl())) {
-                // Add the loaded sound to the sounds list:
-                sChat.sounds[key] = sound;
-            }
-        }
-    },
-
-    soundIOErrorHandler: function() {
-        // setTimeout is needed to avoid calling the flash interface recursively (e.g. sound on new messages):
-        setTimeout(function() { sChat.addChatBotMessageToChatList('/error SoundIO'); }, 0);
-        setTimeout(sChat.updateChatlistView, 1);
     },
 
     playSound: function(soundID) {
@@ -521,19 +521,6 @@ var sChat = {
                 }
                 break;
             }
-        }
-    },
-
-    fillSoundSelection: function(selectionID, selectedSound) {
-        var selection = document.getElementById(selectionID);
-        // Skip the first, empty selection:
-        var i = 1;
-        for (var key in sConfig.soundFiles) {
-            selection.options[i] = new Option(key, key);
-            if (key === selectedSound) {
-                selection.options[i].selected = true;
-            }
-            i++;
         }
     },
 
@@ -702,7 +689,7 @@ var sChat = {
                 this.userID = parseInt(infoData);
                 break;
             case 'userName':
-                this.userName = infoData;
+                sWebCam.username = this.userName = infoData;
                 this.encodedUserName = this.scriptLinkEncode(infoData);
                 this.userNodeString = null;
                 break;
@@ -819,14 +806,21 @@ var sChat = {
         }
     },
 
-    toUser: function(nick, priv) {
-        if (priv)
+    toUser: function (nick, priv) {
+        if (this.removeOld || priv) {
+            this.dom['inputField'].value = this.dom['inputField'].value.substr(this.selAddressee.length);
+            this.removeOld = false;
+            this.selAddressee = '';
+        }
+        if (priv) {
             this.insertMessageWrapper('/msg ' + nick + ' ');
-        else{
-            if (!(new RegExp('(?:^|, )' + nick + ', ','gm').test(this.dom['inputField'].value)))
+        } else {
+            if (!(new RegExp('(?:^|, )' + nick + ', ', 'gm').test(this.dom['inputField'].value))) {
                 this.dom['inputField'].value = nick + ", " + this.dom['inputField'].value;
+                this.selAddressee = nick + ", " + this.selAddressee;
+            }
             this.dom['inputField'].focus();
-            this.dom['inputField'].selectionStart = this.dom['inputField'].selectionEnd = this.dom['inputField'].value.length; 
+            this.dom['inputField'].selectionStart = this.dom['inputField'].selectionEnd = this.dom['inputField'].value.length;
         }
     },
 
@@ -861,23 +855,25 @@ var sChat = {
         if (menuID.indexOf('ium') >= 0) {
             isInline = true;
         }
-        if (!document.getElementById(menuID).firstChild) {
-            this.updateDOM(
-                menuID,
-                this.getUserNodeStringItems(
-                    this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),
-                    userID,
-                    isInline
-                ),
-                false,
-                true
-            );
-        }
+        this.updateDOM(
+            menuID,
+            this.getUserNodeStringItems(
+                this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),
+                userID,
+                isInline
+            ),
+            false,
+            true
+        );
         this.toggleArrowButton(menuID);
         if (isInline && this.needScroll)
             this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
     },
 
+    inviteVideo: function(encodedUserName){
+        this.sendMessageWrapper('/inviteVideo ' + encodedUserName + ' ' + this.userName + ' ' +sWebCam.room);
+    },
+    
     getUserNodeStringItems: function(encodedUserName, userID, isInline) {
         var menu;
         if (encodedUserName !== this.encodedUserName) {
@@ -894,21 +890,14 @@ var sChat = {
                 + ' \');">'
                 + this.lang['userMenuDescribe']
                 + '</a></li>'
-                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/query '
-                + encodedUserName
-                + '\');">'
-                + this.lang['userMenuOpenPrivateChannel']
-                + '</a></li>'
-                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/query\');">'
-                + this.lang['userMenuClosePrivateChannel']
-                + '</a></li>'
                 + '<li><a href="javascript:sChat.sendMessageWrapper(\'/ignore '
                 + encodedUserName
                 + '\');">'
                 + this.lang['userMenuIgnore']
-                + '</a></li>';
+                + '</a></li>'
+                + (sWebCam.room !== null && (sWebCam.owner || !sWebCam.private) ? '<li><a href="javascript:sChat.inviteVideo(\'' + encodedUserName + '\');">Пригласить в канал</a></li>': "");
             if (isInline) {
-                menu += '<li><a href="javascript:sChat.sendMessageWrapper(\'/invite '
+               menu += '<li><a href="javascript:sChat.sendMessageWrapper(\'/invite '
                     + encodedUserName
                     + '\');">'
                     + this.lang['userMenuInvite']
@@ -938,24 +927,13 @@ var sChat = {
             }
         } else {
             menu = '<li><a target="_blank" href="/index.php/jomsocial/profile/">Профиль</a></li>'
-                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/quit\');">'
-                + this.lang['userMenuLogout']
-                + '</a></li>'
-                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/who\');">'
-                + this.lang['userMenuWho']
-                + '</a></li>'
-                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/ignore\');">'
-                + this.lang['userMenuIgnoreList']
-                + '</a></li>'
-                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/list\');">'
-                + this.lang['userMenuList']
-                + '</a></li>'
-                + '<li><a href="javascript:sChat.insertMessageWrapper(\'/action \');">'
-                + this.lang['userMenuAction']
-                + '</a></li>'
-                + '<li><a href="javascript:sChat.insertMessageWrapper(\'/roll \');">'
-                + this.lang['userMenuRoll']
-                + '</a></li>';
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/quit\');">'+this.lang['userMenuLogout']+'</a></li>'
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/who\');">'+this.lang['userMenuWho']+'</a></li>'
+                + '<li><a href="javascript:sChat.sendMessageWrapper(\'/ignore\');">'+this.lang['userMenuIgnoreList']+'</a></li>'
+                + '<li><a href="javascript:sChat.insertMessageWrapper(\'/action \');">'+this.lang['userMenuAction']+'</a></li>'
+                + (sChat.channelID === 2 ? '<li><a href="javascript:sChat.openVideoChannel(false);">Открыть публичный канал</a></li>'
+                + '<li><a href="javascript:sChat.openVideoChannel(true);">Открыть приватный канал</a></li>' : "")
+                + '<li><a href="javascript:sChat.insertMessageWrapper(\'/roll \');">'+this.lang['userMenuRoll']+'</a></li>';
             if (this.userRole === 1 || this.userRole === 2 || this.userRole === 3) {
                 menu += '<li><a href="javascript:sChat.sendMessageWrapper(\'/join\');">'
                     + this.lang['userMenuEnterPrivateRoom']
@@ -969,7 +947,15 @@ var sChat = {
         }
         return menu;
     },
-
+    
+    openVideoChannel: function(priv)
+    {
+        var key = sWebCam.createRoom(priv);
+        if (!priv)
+            this.sendMessageWrapper('/opVideo ' + key);
+        else this.addChatBotMessageToChatList('Приватный канал успешно создан.');
+    },
+    
     setOnlineListRowClasses: function() {
         if (this.dom['onlineList']) {
             var node = this.dom['onlineList'].firstChild;
@@ -1465,7 +1451,6 @@ var sChat = {
             );
         }
     },
-
     sendMessage: function(txt) {
         txt = txt ? txt : this.dom['inputField'].value;
         if (!txt) {
@@ -1488,7 +1473,10 @@ var sChat = {
                 +  this.encodeText(JSON.stringify(msg));
             this.makeRequest(sConfig.ajaxURL, 'POST', message);
         }
-        this.dom['inputField'].value = '';
+        if (this.dom['inputField'].value.indexOf(this.selAddressee) != 0) this.selAddressee = '';
+        this.removeOld = true;
+
+        this.dom['inputField'].value = this.getSetting('saveAddressee') ? this.selAddressee : '';
         this.dom['inputField'].focus();
         this.updateMessageLengthCounter();
     },
@@ -1503,6 +1491,9 @@ var sChat = {
                 break;
             case '/clear':
                 this.clearChatList();
+                return false;
+            case '/closeVid':
+                sWebCam.close();
                 return false;
             }
         } else {
@@ -1711,6 +1702,7 @@ var sChat = {
             + '&channelName='
             + this.encodeText(channel);
         this.makeRequest(sConfig.ajaxURL, 'POST', message);
+        
         if (this.dom['inputField']) {
             this.dom['inputField'].focus();
         }
@@ -1859,9 +1851,9 @@ var sChat = {
             var textParts = text.split(' ');
             switch (textParts[0]) {
             case '/login':
-                return this.replaceCommandLogin(textParts);
+                return '<span class="chatBotMessage">'+this.lang['login'].replace(/%s/, "<a href=\"javascript:sChat.toUser('" + textParts[1] + "');\">" + textParts[1] + "</a>")+ '</span>';
             case '/logout':
-                return this.replaceCommandLogout(textParts);
+                return '<span class="chatBotMessage">'+this.lang['logout' + (textParts.length === 3 ? textParts[2] : '')].replace(/%s/, textParts[1]) + '</span>';
             case '/channelEnter':
                 return this.replaceCommandChannelEnter(textParts);
             case '/channelLeave':
@@ -1921,6 +1913,10 @@ var sChat = {
                 return this.replaceCommandRoll(textParts);
             case '/nick':
                 return this.replaceCommandNick(textParts);
+            case '/opVideo': 
+                return '<span class="chatBotMessage">Публичный канал был создан пользователем ' + textParts[1] + ". <a href=\"javascript:sWebCam.joinRoom('" + textParts[2] + "');\">Подключиться</a>.</span>";
+            case '/inviteVideo':
+                return '<span class="chatBotMessage">' + textParts[1] + " приглашает вас в канал. <a href=\"javascript:sWebCam.joinRoom('" + textParts[2] + "');\">Подключиться</a>.</span>";
             case '/error':
                 return this.replaceCommandError(textParts);
             }
@@ -1929,19 +1925,8 @@ var sChat = {
         }
         return text;
     },
-
-    replaceCommandLogin: function(textParts) {
-        return '<span class="chatBotMessage">'
-            + this.lang['login'].replace(/%s/, "<a href=\"javascript:sChat.toUser('" + textParts[1] + "');\">" + textParts[1] + "</a>")
-            + '</span>';
-    },
-
-    replaceCommandLogout: function(textParts) {
-        return '<span class="chatBotMessage">'
-            + this.lang['logout' + (textParts.length === 3 ? textParts[2] : '')].replace(/%s/, textParts[1])
-            + '</span>';
-    },
-
+    
+    
     replaceCommandChannelEnter: function(textParts) {
         return '<span class="chatBotMessage">'
             + this.lang['channelEnter'].replace(/%s/, textParts[1])
@@ -2341,26 +2326,32 @@ var sChat = {
 	            case "png":
 	            case "bmp":
 	            case "gif":
+	            case "svg":
 	                return s + '<a href="'
 	                    + a
 	                    + '" onclick="window.open(this.href); return false;">'
-	                    + '<img class="bbCodeImage" style="max-width:'
-	                    + c
-	                    + 'px; max-height:200px;" src="'
+	                    + '<img class="bbCodeImage" style="max-width:90%; max-height:200px;" src="'
 	                    + a
 	                    + '"'+aa+'/>'
 	                    + '</a>';
 	            default:
 	            {
+                        var req = sa2 && sa2.split(/[=\?&#]+/);
                         var width = Math.min(c, 400),
                         height = width / 1.7;
-	                if (sa2 && sChat.inArray(hostArr, 'youtube'))
-	                    return s + '<iframe '+aa+' width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa2.split(/[=\?&]+/)[2] + '" frameborder="0" allowfullscreen="ture"></iframe>';
+	                if (sa2 && sChat.inArray(hostArr, 'youtube')){
+                            var t = req[3] === 't' ? req[4] : false;
+	                    return s + '<iframe '+aa+' width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + req[2] + (t ? helper.ytSTime(t) :"")+ '" frameborder="0" allowfullscreen="true"></iframe>';
+                        }
 	                else if (sa1){
-                            if (sChat.inArray(hostArr, 'youtu'))
-                                return s + '<iframe '+aa+' width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa1 + '" frameborder="0" allowfullscreen="ture"></iframe>';
+                            if (sChat.inArray(hostArr, 'youtu')){
+                                var t = sa2 && (req[1] === 't' ? req[2] : false);
+                                return s + '<iframe '+aa+' width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/' + sa1 + (t ? helper.ytSTime(t) :"")+'" frameborder="0" allowfullscreen="true"></iframe>';
+                            }
                             else if (sChat.inArray(hostArr, 'coub'))
                                 return s + '<iframe '+aa+' width="'+width+'" height="'+height+'" src="http://coub.com/embed/'+fe+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
+                            else if (sChat.inArray(hostArr, 'soundcloud'))
+                                return s + '<iframe width="80%" height="120" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url='+str+'"></iframe>';
                         }
 	                return s + '<a href="' + a + '" onclick="window.open(this.href); return false;">' + helper.truncate(a, 35) + '</a>';
 	            }
@@ -2573,100 +2564,4 @@ var sChat = {
           }
         }
 
-};
-
-var helper = {
-    isMobile: function() {
-        var a = navigator.userAgent || navigator.vendor || window.opera;
-        return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4));
-    },
-    truncate: function(str, maxlength) {
-        return (str.length > maxlength ? str.slice(0, maxlength - 3) + '...' : str);
-    },
-    getTIM: function(t){
-        switch(t)
-        {
-        case "1ile":
-                return "Дон Кихот";
-        case "1sei":
-                return "Дюма";
-        case "1lii":
-                return "Робеспьер";
-        case "1ese":
-                return "Гюго";
-
-        case "2eie":
-                return "Гамлет";
-        case "2lsi":
-                return "Максим Горький";
-        case "2sle":
-                return "Жуков";
-        case "2iei":
-                return "Есенин";
-
-        case "3ili":
-                return "Бальзак";
-        case "3see":
-                return "Наполеон";
-        case "3esi":
-                return "Драйзер";
-        case "3lie":
-                return "Джек Лондон";
-
-        case "4lse":
-                return "Штирлиц";
-        case "4eii":
-                return "Достоевский";
-        case "4iee":
-                return "Гексли";
-        case "4sli":
-                return "Габен";
-        default:
-                return "none";
-        }
-    },
-    grad: function(Str, arr) {
-  C1=arr[0]; C2=arr[1]; C3=arr[2];
-  function c ( R, G, B, Str ) {
-    return "<span style=\"color:RGB(" + Math.floor(R) + ','+ Math.floor(G) +','+ Math.floor(B)+ ")\">" + Str + "</span>"
-  }
-  	function l ( Str ) {
-
-		while (re = /[^]+/.test (Str))
-
-			Str = Str.replace (/[^]+/g, "");
-
-		return Str.replace (/<[^>]+>?/g, "").replace (/&([a-z]{2,}|#\d+|#x[\da-f]{2});/gi, " ").length;
-
-	}
-  function g ( C1, C2, l, s ) {
-    C1 = parseInt ("0x" + C1);
-    C2 = parseInt ("0x" + C2);
-    var R1 = C1 >> 16, G1 = (C1 >> 8) & 0xFF, B1 = C1 & 0xFF;
-    var R2 = C2 >> 16, G2 = (C2 >> 8) & 0xFF, B2 = C2 & 0xFF;
-    var Res = "";
-    var d = l - s;
-    R2 -= R1; G2 -= G1; B2 -= B1;
-    for (var i = 0; iS < Str.length;) {
-      if (Str.charAt (iS) === '<') {
-        for (var t = 0; iS < Str.length; iS++) {
-          Res += Str.charAt (iS);
-          if (Str.charAt (iS) === '') t++;
-          else if (Str.charAt (iS) === '') t--;
-          else if (Str.charAt (iS) === '>' && !t) break;
-        }
-        iS++;
-      } else if (i !== l) {
-            var S = (Str.charAt (iS) == '&' && /^(&([a-z]{2,}|#\d+|#x[\da-f]{2});)/i.test (Str.substr (iS))) ? RegExp.$1 : Str.charAt (iS);
-            Res += d ? c (R1 + i * R2 / d, G1 + i * G2 / d, B1 + i * B2 / d, S) : c (R1, G1, B1, S);
-            iS += S.length;
-            i++;
-      } else break;
-    }
-    return Res;
-  }
-  var iS = 0;
-  var Len = l (Str);
-  return C3 ? g (C1, C2, Math.floor (Len / 2), 0) + g (C2, C3, Math.round (Len / 2), 1) : g (C1, C2, Len, 1);
-}
 };

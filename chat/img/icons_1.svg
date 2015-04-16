@@ -1,0 +1,22 @@
+<!--?xml version="1.0" standalone="no"?-->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+ <style>.s0{fill:none;stroke-linecap:round;stroke-width:5;stroke:#111;}.s1{fill:#111;stroke-linejoin:round;stroke-width:5;stroke:#111}</style>
+ <symbol  id="play" viewBox="0 0 100 100" >
+    <polygon points="33,25 77,50 33,75 "></polygon>
+ </symbol >
+ <symbol  id="pause" viewBox="0 0 100 100" >
+    <polygon points="30,25 45,25 45,75 30,75"></polygon>
+    <polygon points="55,25 70,25 70,75 55,75"></polygon>
+ </symbol >
+ <symbol id="mute" viewBox="0 0 75 75">
+    <polygon points="39.4 13.8 22.2 28.6 6 28.6 6 47.7 22 47.7 39.4 62.8 39.4 13.8" class="s1"/>
+    <path d="M48.7 50.3 69.4 26" class="s0"/>
+    <path d="M69.4 50.3 48.7 26" class="s0"/>
+ </symbol>
+<symbol id="unmute" viewBox="0 0 75 75">
+  <polygon points="39 14 22 29 6 29 6 48 22 48 39 63 39 14" class="s1"/>
+  <path d="M48 49C50 46 51 42 51 38 51 34 50 31 48 28" class="s0"/>
+  <path d="M55 21C59 26 61 32 61 38 61 45 59 51 55 56" class="s0"/>
+  <path d="M62 63C67 56 70 48 70 38 70 29 67 21 62 14" class="s0"/>
+ </symbol>
+</svg>

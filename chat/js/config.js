@@ -13,9 +13,6 @@ var sConfig = {
 	// The base URL of the chat directory, used to retrieve media files (images, sound files, etc.):
 	baseURL: './',
 
-	// A regular expression for allowed source URL's for media content (e.g. images displayed inline);
-	regExpMediaUrl: '^((http)|(https)):\\/\\/',
-
 	// If set to false the chat update is delayed until the event defined in sChat.setStartChatHandler():
 	startChatOnLoad: true,
 
@@ -43,6 +40,7 @@ var sConfig = {
 
 	// Defines the settings which can be modified by users:
 	settings: {
+	    saveAddressee: true,
 		// Defines if BBCode tags are replaced with the associated HTML code tags:
 		bbCode: true,
 
@@ -60,7 +58,7 @@ var sConfig = {
 
 		// The default color, uses the page default font color if set to null:
 		fontColor: '#000000',
-                nickColor: '#000000',
+        nickColor: '#000000',
                 
 		// Defines if sounds are played:
 		audio: true,
@@ -80,7 +78,9 @@ var sConfig = {
 		// Defines the sound that is played on error messages:
 		soundError:   'sound_6',
 		// Defines the sound that is played when private messages are received:
-		soundPrivate: 'sound_7'
+		soundPrivate: 'sound_7',
+
+        myVideo: true
 	},
 
 	// Defines a list of settings which are not to be stored in a session cookie:
@@ -124,7 +124,7 @@ var sConfig = {
     ':help',
     ':hi',
     ':hmm',
-    ':i_am_so_happy',
+    ':so_happy',
     ':lol',
     ':mad',
     ':mocking',
@@ -220,7 +220,7 @@ var sConfig = {
     'help.gif',
     'hi.gif',
     'hmm.gif',
-    'i_am_so_happy.gif',
+    'so_happy.gif',
     'lol.gif',
     'mad.gif',
     'mocking.gif',
@@ -341,6 +341,12 @@ var sConfig = {
 	messageTextMaxLength: 1040,
 
 	// Debug allows console logging or alerts on caught errors - false/0 = no debug, true/1/2 = console log, 2 = alerts
-	debug: false
+	debug: false,
 
+///videochat
+        defCamW: 370,
+        defCamH: 300,
+        maxVidW: 320,
+        maxVidH: 240,
+        vidFPS:10
 };

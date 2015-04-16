@@ -152,19 +152,29 @@ body.s_chat {
 }
 
 #content #emoticonsContainer {
-	position:absolute;
-	left: 120px;
-	bottom: 50px;
-	padding:3px;
-	z-index:1;
-        max-width: 300px;
-        max-height: 400px;
-        overflow: auto;
+    position:absolute;
+    left: 120px;
+    bottom: 50px;
+    padding:3px;
+    z-index:1;
+    width: 320px;
+    max-height: 400px;
+    overflow: auto;
 }
 
 #content #emoticonsContainer a {
-	margin-left:1px;
-	margin-right:1px;
+    margin-left:1px;
+    margin-right:1px;
+    text-align: center;
+    display:inline-block;
+}
+
+a.sticker {
+  width: 32%;
+}
+a.sticker img {
+  height: 100px;
+  max-width: 100%;
 }
 #content #emoticonsContainer img {
 	vertical-align:middle;
@@ -323,7 +333,6 @@ div.colorPicker-swatch {
   cursor: pointer;
   line-height: 12px;
 }
-
 @media (max-width: 700px) {
 	#content #mainPanelContainer { top:65px; left:5px; right:5px; bottom:75px; }
 	#content #headline { margin:0; padding:0 0 0 5px; line-height:25px; }
@@ -356,7 +365,7 @@ div.colorPicker-swatch {
     #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 
         { font-size: 0.9em; text-align: left;}
     #content #emoticonsContainer 
-        {left: 0; bottom:35px; max-height: 300px; width: 220px; }
+        {left: 0; bottom:35px; max-height: 300px; width: 270px; }
     #content #mainPanelContainer #chatList 
         {position: absolute; top: 0; left: 0; right: 0; bottom: 67px ; height: auto;}
     #content #headline { position: absolute; top: 0; text-indent: 25px; line-height: 30px; left:0!important; right:0!important;}

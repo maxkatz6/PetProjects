@@ -38,8 +38,9 @@ class SChat {
     }
 
     function initRequestVars() {
-	$this->_requestVars = array(
-	'ajax'          => isset($_REQUEST['ajax']),
+        $this->_requestVars = array(
+        'ajax'          => isset($_REQUEST['ajax']),
+	'exp'          => isset($_REQUEST['exp']),
 	'logout'	=> isset($_REQUEST['logout']),
 	'userID'	=> isset($_REQUEST['userID'])		? (int)$_REQUEST['userID']	: null,
 	'userName'	=> isset($_REQUEST['userName'])		? $_REQUEST['userName']		: null,
@@ -234,7 +235,7 @@ class SChat {
 	    case 'logs':
 		return SCHAT_PATH.'lib/template/logs.html';
 	    default:
-		return SCHAT_PATH.'lib/template/chat.html';
+		return SCHAT_PATH.($this->getRequestVar('exp')?'lib/template/mob.html':'lib/template/chat.html');
 	}
     }
 
@@ -606,22 +607,24 @@ class SChat {
 		case '/whereis':
 		    $this->insertParsedMessageWhereis($textParts);
 		    break;
-		// Listing information about a User:
 		case '/whois':
 		    $this->insertParsedMessageWhois($textParts);
 		    break;
-		// Rolling dice:
 		case '/roll':
-		    $this->insertParsedMessageRoll($textParts);
+		    $this->roll($textParts);
 		    break;
-		// Switching userName:
 		case '/nick':
-		    $this->insertParsedMessageNick($textParts);
+		    $this->changeNick($textParts);
 		    break;
 		case '/debug':
-		    $this->insertParsedMessageDebug($textParts);
+		    $this->debug($textParts);
 		    break;
-		// Custom or unknown command:
+		case '/opVideo':	
+		    $this->insertParsedMessageOpenVideo($this->getUserName(),$this->getChannel(),$textParts);
+		    break;
+		case '/inviteVideo':		    
+		    $this->insertParsedMessageInviteVideo($textParts);
+		    break;
 		default:
 		    $this->insertCustomMessage(
 			$this->getUserID(),
@@ -641,7 +644,7 @@ class SChat {
 	    );
 	}
     }
-    function insertParsedMessageDebug($textParts)
+    function debug($textParts)
     {
 	if (Config::debug && $this->getUserRole() >= SCHAT_MODERATOR) {//unsafe
 	  /*  $firephp = FirePHP::getInstance(true);
@@ -707,7 +710,41 @@ class SChat {
 	    }
 	}
     }
-
+    
+    function insertParsedMessageOpenVideo($userName, $channel, $textParts)
+    {
+	if (count($textParts) < 2){
+	    $this->insertChatBotMessage($this->getPrivateMessageID(),'/error MissingKey');
+	}
+	else{
+	    $this->insertChatBotMessage($channel,$textParts[0].' '.$userName.' '.$textParts[1]);
+	}
+    }
+    
+    function insertParsedMessageInviteVideo($textParts) {
+	if(count($textParts) < 4) {
+	    if(count($textParts) == 3) {
+		$this->insertChatBotMessage($this->getPrivateMessageID(),'/error MissingKey');
+	    } else {
+		$this->insertChatBotMessage($this->getPrivateMessageID(),'/error MissingUserName');
+	    }
+	} else {
+	    // Get UserID from UserName:
+	    $toUserID = $this->getIDFromName($textParts[1]);
+	    if($toUserID === null) {
+		if($this->getQueryUserName() !== null) {
+		    // Close the current query:
+		    $this->insertMessage('/query');
+		} else {
+		    $this->insertChatBotMessage($this->getPrivateMessageID(),'/error UserNameNotFound '.$textParts[1]);
+		}
+	    } else {
+		$this->insertChatBotMessage($this->getPrivateMessageID(), 'Приглашение отправленно');
+		$this->insertChatBotMessage($this->getPrivateMessageID($toUserID), $textParts[0].' '.$textParts[2].' '.$textParts[3]);
+	    }
+	}
+    }
+    
     function insertParsedMessageInvite($textParts) {
 	    if($this->getChannel() == $this->getPrivateChannelID() || in_array($this->getChannel(), $this->getChannels())) {
 		    if(count($textParts) == 1) {
@@ -1091,10 +1128,11 @@ class SChat {
 	    }
     }
 
-    function insertParsedMessageRoll($textParts) {
+    function roll($textParts) {
+	 mt_srand((double)microtime()*1000000);
 	    if(count($textParts) == 1) {
 		    // default is one d6:
-		    $text = '/roll '.$this->getUserName().' 1d6 '.$this->rollDice(6);
+		    $text = '/roll '.$this->getUserName().' 1d6 '.mt_rand(1, 6);
 	    } else {
 		    $diceParts = explode('d', $textParts[1]);
 		    if (count($diceParts) == 1)
@@ -1111,10 +1149,10 @@ class SChat {
 
 			    $text = '/roll '.$this->getUserName().' '.$number.'d'.$sides.' ';
 			    for($i=0; $i<$number; $i++) 
-				    $text .= ($i != 0 ? ',' : '').$this->rollDice($sides);
+				    $text .= ($i != 0 ? ',' : '').mt_rand(1, $sides);
 		    } else {
 			    // if dice syntax is invalid, roll one d6:
-			    $text = '/roll '.$this->getUserName().' 1d6 '.$this->rollDice(6);
+			    $text = '/roll '.$this->getUserName().' 1d6 '.mt_rand(1, 6);
 		    }
 	    }
 	    $this->insertChatBotMessage(
@@ -1123,7 +1161,7 @@ class SChat {
 	    );
     }
 
-    function insertParsedMessageNick($textParts) {
+    function changeNick($textParts) {
 	    if(!Config::allowNickChange) {
 		    $this->insertChatBotMessage(
 			    $this->getPrivateMessageID(),
@@ -1347,13 +1385,6 @@ class SChat {
 		    echo $result->getError();
 		    die();
 	    }
-    }
-
-    function rollDice($sides) {
-	    // seed with microseconds since last "whole" second:
-	    mt_srand((double)microtime()*1000000);
-
-	    return mt_rand(1, $sides);
     }
 
     function kickUser($userName, $banMinutes=null, $userID=null) {

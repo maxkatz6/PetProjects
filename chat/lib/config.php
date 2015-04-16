@@ -9,7 +9,8 @@ define('SCHAT_BANNED',    0);
 class Config{
 public static $channels = array(
 0 => 'Общая',
-9 => 'Диванная',
+1 => 'Диванная',
+2 => 'Видеочат',
 10 => 'Альфа',
 11 => 'Бета',
 12 => 'Гамма',
@@ -128,7 +129,7 @@ const logsPurgeLogs = false;
 // Max time difference in days for old messages before they are purged from the database:
 const logsPurgeTimeDiff = 365;
 
-const debug = true;
+const debug = false;
 
 public static $chatClosed = false;
 public static $gzipEnabled = false;
