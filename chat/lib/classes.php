@@ -8,7 +8,7 @@
  */
 // Load configuration
 require_once(SCHAT_PATH.'lib/config.php');
-require_once(SCHAT_PATH.'lib/joomla.php');
+require_once(SCHAT_PATH.'lib/sJoomla.php');
 
 // Include Class libraries:
 require(SCHAT_PATH.'lib/class/SChat.php');

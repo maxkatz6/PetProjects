@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 
 // Path to the chat directory:
 define('SCHAT_PATH', dirname($_SERVER['SCRIPT_FILENAME']).'/');
-define('VER', 'v5');
+define('VER', 'v6');
 
 require(SCHAT_PATH.'lib/classes.php');
 
@@ -23,7 +23,7 @@ if (Config::$gzipEnabled && substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip
 else if (Config::debug) {
     ob_start();
 }
- 
+
 $sChat = new CustomSChat();
 
 if (Config::debug && function_exists('xhprof_disable')) {

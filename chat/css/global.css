@@ -1,402 +1,109 @@
-/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @author Philip Nicolcev
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- */
-
 /* Positioning */
-body.s_chat {
-	padding:0;
-	margin:0;
-}
-#loginContent {
-	margin: 0 auto 0;
-	padding-top: 20px;
-	width:250px;
-}
-#loginContent #loginHeadline {
-	margin:0;
-	line-height:35px;
-}
-#loginContent #loginForm div {
-	margin:5px 0;
-}
-#loginContent #loginRegisteredUsers {
-    padding-top:5px;
-}
-#loginContent #copyright {
-	margin:20px 0 0 0;
-	text-align:right;
-}
-#content {
-	position:absolute;
-	width:100%;
-	height:100%;
-}
-#content #copyright {
-	position:absolute;
-	right:20px;
-	top:20px;
-}
-#content #headline {
-	position:absolute;
-        min-height: 20px;
-	right:0px;
-	left:0px;
-	top:0px;
-	padding:0 0 0 20px;
-	line-height:45px;
-	margin:0;
-}
-#content #logoutChannelContainer {
-	position:absolute;
-	z-index:2;
-	left:20px;
-	top:50px;
-	right: 20px;
-}
-#content #logoutChannelContainer select{
-	width:105px;
-	height:25px;
-}
-#content #chatList {
-	height:100%;
-	overflow:auto;
-}
-#content #chatList .toMe {
-	border:1px double #B22222;
-}
-
-#content #mainPanelContainer { 
-	position:absolute;
-	left:20px;
-	right:20px;
-	top:85px;
-	bottom: 100px;
-}
-#content #onlineListContainer, #content #helpContainer, #content #settingsContainer {
-	float:right;
-	height:100%;
-	overflow:auto;
-	margin-left:10px;
-	position:relative;
-}
-#content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 {
-	line-height:25px;
-	padding: 0 10px;
-	margin:0;
-	text-align:center;
-}
-#content #onlineListContainer {
-	width:256px;
-}
-#content #helpContainer, #content #settingsContainer {
-	width:360px;
-}
-#content #onlineListContainer #onlineList, #content #helpContainer #helpList, #content #settingsContainer #settingsList {
-	position:absolute;
-	left:0px;
-	right:0px;
-	top:25px;
-	bottom:0px;
-	overflow:auto;
-}
-#content #helpContainer #helpList dl, #content #settingsContainer #settingsList dl {
-	overflow:hidden;
-	padding:5px;
-	margin:0;
-}
-#content #helpContainer #helpList dt, #content #settingsContainer #settingsList dt {
-	float:left;
-	width:55%;
-	padding:0 2% 0 0;
-	margin:0;
-	clear:left;
-}
-#content #helpContainer #helpList dd, #content #settingsContainer #settingsList dd {
-	width:43%;
-	float:left;
-	margin:0;
-	padding:0;
-}
-#content #inputFieldContainer {
-	position:absolute;
-	left:20px;
-	right:20px;
-	bottom: 45px;
-	padding-right:2px;
-}
-#content #inputFieldContainer #inputField {
-	width:100%;
-	height:40px;
-	padding:0;
-}
-#content #submitButtonContainer {
-	position:absolute;
-	right:20px;
-	bottom: 15px;
-}
-#content #bbCodeContainer {
-	position:absolute;
-	left:20px;
-	bottom: 15px;
-	padding:3px;
-}
-#content #bbCodeContainer input {
-	display:block;
-	float:left; 
-	margin-right:2px;
-}
-
-#content #emoticonsContainer {
-    position:absolute;
-    left: 120px;
-    bottom: 50px;
-    padding:3px;
-    z-index:1;
-    width: 320px;
-    max-height: 400px;
-    overflow: auto;
-}
-
-#content #emoticonsContainer a {
-    margin-left:1px;
-    margin-right:1px;
-    text-align: center;
-    display:inline-block;
-}
-
-a.sticker {
-  width: 32%;
-}
-a.sticker img {
-  height: 100px;
-  max-width: 100%;
-}
-#content #emoticonsContainer img {
-	vertical-align:middle;
-	margin-bottom:2px;
-}
-#content #optionsContainer {
-	position:absolute;
-	right:20px;
-	top: 50px;
-	padding:3px 0 3px 3px;
-    z-index: 3;
-}
-#content #optionsContainer input {
-    vertical-align:middle;
-}
-#content #bbCodeContainer input, #content #logoutButton, #content #submitButton, #loginContent #loginButton {
-	padding: 4px 10px;
-}
-#content #logoutButton {
-	display:block;
-	float:left;
-	margin: 0 5px 5px 0;
-}    
-#content #showUserListButton 
-    {display: none;}
-#content #chatList div {
-	padding: 2px 10px;
-}
-#content #chatList img {
-	vertical-align:middle;
-	margin-bottom:2px;
-}
-#content #chatList cite {
-	margin-right:5px;
-}
-#content #chatList .bbCodeImage {
-	vertical-align:top;
-	overflow:auto;
-	margin:5px;
-}
-#content #chatList .delete {
-	display:block;
-	float:right;
-	width:10px;
-	height:10px;
-	margin-top:2px;
-	padding-left:5px;
-	background:url('../img/delete.png') no-repeat right;
-}
-#content #onlineListContainer #onlineList div {
-	padding: 2px 10px;
-}
-#content #onlineListContainer #onlineList a {
-	display:block;
-}
-#content #onlineListContainer #onlineList ul {
-	margin: 5px 0;
-	padding-left:20px;
-}
-#content #settingsContainer #settingsList select.left {
-	text-align:right;
-}
-
+body.s_chat{padding:0;margin:0;}
+#content{position:absolute;width:100%;height:100%;}
+#headline{position:absolute;min-height:20px;right:0;left:0;top:0;padding:0 0 0 20px;line-height:45px;margin:0;}
+#logoutChannelContainer{position:absolute;z-index:2;left:20px;top:50px;right: 20px;}
+#logoutChannelContainer select{width:105px;height:25px;}
+#chatList{height:100%;overflow:auto;}
+#chatList .toMe{border:1px double #B22222;}
+#mainPanelContainer{position:absolute;left:20px;right:20px;top:85px;bottom: 100px;}
+#onlineListContainer,#helpContainer,#settingsContainer{float:right;height:100%;overflow:auto;margin-left:10px;position:relative;}
+#mainPanelContainer h3{line-height:25px;padding: 0 10px;margin:0;text-align:center;}
+#onlineListContainer{width:256px;}
+#helpContainer,#settingsContainer{width:360px;}
+#onlineList,#helpList,#settingsList{position:absolute;left:0;right:0;top:25px;bottom:0;overflow:auto;}
+#helpList dl,#settingsList dl{overflow:hidden;padding:5px;margin:0;}
+#helpList dt,#settingsList dt{float:left;width:55%;padding:0 2% 0 0;margin:0;clear:left;}
+#helpList dd,#settingsList dd{width:43%;float:left;margin:0;padding:0;}
+#inputFieldContainer{position:absolute;left:20px;right:20px;bottom: 45px;padding-right:2px;}
+#inputField{width:100%;height:40px;padding:0;}
+#submitButtonContainer{position:absolute;right:20px;bottom: 15px;}
+#bbCodeContainer{position:absolute;left:20px;bottom: 15px;padding:3px;}
+#bbCodeContainer input{display:block;float:left;margin-right:2px;}
+#emoticonsContainer{position:absolute;left:120px;bottom:50px;padding:3px;z-index:3;width:320px;max-height:400px;overflow:auto;}
+#emoticonsContainer a{margin-left:1px;margin-right:1px;text-align: center;display:inline-block;}
+a.sticker{width:32%;}
+a.sticker img{height:100px;max-width:100%;}
+#emoticonsContainer img{vertical-align:middle;margin-bottom:2px;}
+#optionsContainer{position:absolute;right:20px;top:50px;padding:3px 0 3px 3px;z-index:3;}
+#optionsContainer input{vertical-align:middle;}
+#bbCodeContainer input,#logoutButton,#submitButton,#loginButton{padding:4px 10px;}
+#logoutButton{display:block;float:left;margin: 0 5px 5px 0;}    
+#showUserListButton{display: none;}
+#chatList div{padding:2px 10px;}
+#chatList img{vertical-align:middle;margin-bottom:2px;}
+#chatList cite{margin-right:5px;}
+#chatList .bbCodeImage{vertical-align:top;overflow:auto;margin:5px;}
+#chatList .delete{display:block;float:right;width:10px;height:10px;margin-top:2px;padding-left:5px;background:url('../img/delete.png') no-repeat right;}
+#onlineList div{padding: 2px 10px;}
+#onlineList a{display:block;}
+#onlineList ul{margin: 5px 0;padding-left:20px;}
+#settingsList select.left{text-align:right;}
 /* Buttons */
-#content #optionsContainer input, #content #settingsContainer #settingsList input.button, #content #showMenuButton {
-	background: url('../img/buttons-sprite.png') no-repeat;
-	vertical-align:middle;
-	width:22px;
-	height:22px;
-	padding:0;
-}
-#content #optionsContainer #helpButton {
-	background-position: -69px -22px;
-}
-#content #optionsContainer #settingsButton {
-	background-position: -92px 0px;
-}
-#content #optionsContainer #onlineListButton {
-	background-position: -69px 0px;
-}
-#content #optionsContainer #audioButton {
-	background-position: 0px 0px;
-}
-#content #optionsContainer #audioButton.off {
-	background-position: 0px -22px;
-}
-#content #optionsContainer #autoScrollButton {
-	background-position: -23px 0px;
-}
-#content #optionsContainer #autoScrollButton.off {
-	background-position: -23px -22px;
-}
-#content #settingsContainer #settingsList input.playback {
-	background-position: -92px -22px;
-	margin-bottom:3px;
-}
-#content #logoutChannelContainer #showMenuButton {
-	background-position: -46px 0px;
-	display:none;
-}
-#content #logoutChannelContainer #showMenuButton.off {
-	background-position: -46px -22px;
-}
-
+#optionsContainer input,#settingsList input.button, #showMenuButton{background: url('../img/buttons-sprite.png') no-repeat;vertical-align:middle;width:22px;height:22px;padding:0;}
+input#helpButton{background-position:-69px -22px;}
+input#settingsButton{background-position:-92px 0;}
+input#onlineListButton{background-position:-69px 0;}
+input#audioButton{background-position:0 0;}
+input#audioButton.off{background-position:0 -22px;}
+input#autoScrollButton{background-position:-23px 0;}
+input#autoScrollButton.off{background-position:-23px -22px;}
+#settingsList input.playback{background-position:-92px -22px;margin-bottom:3px;}
+#showMenuButton{background-position: -46px 0;display:none;}
+#showMenuButton.off{background-position: -46px -22px;}
 /* Borders */
-#content img {
-	border:none;
-}
-#content #chatList, #content #onlineListContainer, #content #helpContainer, #content #settingsContainer,  #content textarea {
-	border-width: 1px;
-	border-style:solid;
-        word-wrap: break-word; 
-}
-#content #chatList .deleteSelected {
-	border-width:1px;
-	border-style:dotted;
-}
-
+#content img{border:none;}
+#chatList,#onlineListContainer,#helpContainer,#settingsContainer,#content textarea{border-width: 1px;border-style:solid;word-wrap: break-word;}
+#chatList .deleteSelected{border-width:1px;border-style:dotted;}
 /* Misc */
-#content #bbCodeContainer input, #content #optionsContainer input.button, #content #settingsContainer #settingsList input.button, #content #logoutButton, #content #submitButton, #loginContent #loginButton {
-	cursor:pointer;
-}
-
-/*https://github.com/laktek/really-simple-color-picker*/
-div.colorPicker-picker {
-  height: 16px;
-  width: 16px;
-  padding: 0 !important;
-  border: 1px solid #ccc;
-  background: url('../img/colorpicker.gif') no-repeat top right;
-  cursor: pointer;
-  line-height: 16px;
-  font-size:0.75em;
-  font-weight:bold;
-  text-align: center;
-}
-
-div.colorPicker-palette {
-  width: 110px;
-  position: absolute;
-  border: 1px solid #598FEF;
-  background-color: #EFEFEF;
-  padding: 2px;
-  z-index: 9999;
-}
-  div.colorPicker_hexWrap {width: 100%; float:left }
-  div.colorPicker_hexWrap label {font-size: 95%; color: #2F2F2F; margin: 5px 2px; width: 25%}
-  div.colorPicker_hexWrap input {margin: 5px 2px; padding: 0; font-size: 95%; border: 1px solid #000; width: 65%; }
-
-div.colorPicker-swatch {
-  height: 12px;
-  width: 12px;
-  border: 1px solid #000;
-  margin: 2px;
-  float: left;
-  cursor: pointer;
-  line-height: 12px;
-}
+#bbCodeContainer input,#optionsContainer input.button,#settingsList input.button,#logoutButton,#submitButton{cursor:pointer;}
+/*https://github.com/laktek/really-simple-color-picker */
+div.colorPicker-picker{height:16px;width:16px;padding:0 !important;border: 1px solid #ccc;background: url('../img/colorpicker.gif') no-repeat top right;cursor: pointer;line-height: 16px;font-size:0.75em;font-weight:bold;text-align:center;}
+div.colorPicker-palette{width:110px;position:absolute;border:1px solid #598FEF;background-color:#EFEFEF;padding:2px;z-index:9999;}
+div.colorPicker_hexWrap{width: 100%;float:left}
+div.colorPicker_hexWrap label {font-size: 95%; color: #2F2F2F; margin: 5px 2px; width: 25%}
+div.colorPicker_hexWrap input {margin:5px 2px;padding:0;font-size:95%;border:1px solid #000;width:65%;}
+div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;float:left;cursor:pointer;line-height:12px;}
 @media (max-width: 700px) {
-	#content #mainPanelContainer { top:65px; left:5px; right:5px; bottom:75px; }
-	#content #headline { margin:0; padding:0 0 0 5px; line-height:25px; }
-	#content #copyright { top:0; right:30px; line-height: 25px;}
-	#content #logoutChannelContainer { top:30px; left:5px;right: 0; }
-	#content #logoutChannelContainer label { display:none; }
-	#content #emoticonsContainer { display:none; }
-	#content #bbCodeContainer { left:5px; padding:0; }
-	#content #bbCodeContainer #bbCodeEmoticon { display:block; }
-	#content #bbCodeContainer #bbCodeQuote { display:none; }
-	#content #optionsContainer { top:30px; right:5px; }
-	#content #chatList { left:5px; right:150px; bottom:115px; font-size:12px; }
-	#content #inputFieldContainer #inputField { height:20px; }
-	#content #inputFieldContainer { left:5px; right:5px; }
-	#content #onlineListContainer, #content #helpContainer, #content #settingsContainer { margin-left:0; border-left-width:0; }
+	#mainPanelContainer { top:65px; left:5px; right:5px; bottom:75px; }
+	#headline { margin:0; padding:0 0 0 5px; line-height:25px; }
+	#copyright { top:0; right:30px; line-height: 25px;}
+	#logoutChannelContainer { top:30px; left:5px;right: 0; }
+	#logoutChannelContainer label, #emoticonsContainer,#bbCodeContainer #bbCodeQuote { display:none; }
+	#bbCodeContainer { left:5px; padding:0; }
+	#bbCodeEmoticon { display:block; }
+	#optionsContainer { top:30px; right:5px; }
+	#chatList { left:5px; right:150px; bottom:115px; font-size:12px; }
+	#inputField { height:20px; }
+	#inputFieldContainer { left:5px; right:5px; }
+	#onlineListContainer, #helpContainer, #settingsContainer { margin-left:0; border-left-width:0; }
 }
-
 @media (max-width: 480px) {
     #content { position: static; }
-    #content #mainPanelContainer, #content #bbCodeContainer, 
-    #content #inputFieldContainer, #content #submitButtonContainer 
-        {position: absolute; display: block; bottom: 2px; }
-    #content #mainPanelContainer 
-        {height:auto; top:30px; left:0; right:0; }
-    #content #optionsContainer, #content #emoticonsContainer,
-    #content #messageLengthCounter, #content #bbCodeContainer #commandAction  {display: none;}
-    #content #optionsContainer {top: 25px;}
-    #content #onlineListContainer, #content #helpContainer, #content #settingsContainer 
-        {z-index: 1;bottom: 0;right: 0;top: 0;position: absolute;height: auto;width: 100%; display: none;}
-    #content #onlineListContainer h3, #content #helpContainer h3, #content #settingsContainer h3 
-        { font-size: 0.9em; text-align: left;}
-    #content #emoticonsContainer 
-        {left: 0; bottom:35px; max-height: 300px; width: 270px; }
-    #content #mainPanelContainer #chatList 
-        {position: absolute; top: 0; left: 0; right: 0; bottom: 67px ; height: auto;}
-    #content #headline { position: absolute; top: 0; text-indent: 25px; line-height: 30px; left:0!important; right:0!important;}
-    #content #logoutChannelContainer 
-        {top:0;right: 3px; position:absolute;left:3px;float: right;}
-    #content #logoutButton 
-        {float:right; margin:0; height: 30px !important;}
-    #content #channelSelection 
-        {width: inherit !important;height: 30px !important; float:right; max-width: 95px;}
-    #content #showUserListButton 
-        {float: left; height: 20px; width: 20px; background: url('../img/buttons-sprite.png') no-repeat; display: block;top:3px;position: absolute;}
-    #content #inputFieldContainer #inputField 
-        {position: absolute;bottom: 28px;height: 35px; }
-    #content #submitButtonContainer 
-        {right:2px;max-height: 30px !important;}
+    #mainPanelContainer, #bbCodeContainer, #inputFieldContainer, #submitButtonContainer {position: absolute; display: block; bottom: 2px; }
+    #mainPanelContainer {height:auto; top:30px; left:0; right:0; }
+    #optionsContainer, #emoticonsContainer,#messageLengthCounter, #bbCodeContainer #commandAction  {display: none;}
+    #optionsContainer {top: 25px;}
+    #onlineListContainer, #helpContainer, #settingsContainer {z-index: 1;bottom: 0;right: 0;top: 0;position: absolute;height: auto;width: 100%; display: none;}
+    #mainPanelContainer h3 { font-size: 0.9em; text-align: left;}
+    #emoticonsContainer {left: 0; bottom:35px; max-height: 300px; width: 270px; }
+    #chatList {position: absolute; top: 0; left: 0; right: 0; bottom: 67px ; height: auto;}
+    #headline { position: absolute; top: 0; text-indent: 25px; line-height: 30px; left:0!important; right:0!important;}
+    #logoutChannelContainer {top:0;right: 3px; position:absolute;left:3px;float: right;}
+    #logoutButton {float:right; margin:0; height: 30px !important;}
+    #channelSelection {width: inherit !important;height: 30px !important; float:right; max-width: 95px;}
+    #showUserListButton {float: left; height: 20px; width: 20px; background: url('../img/buttons-sprite.png') no-repeat; display: block;top:3px;position: absolute;}
+    #inputField {position: absolute;bottom: 28px;height: 35px; }
+    #submitButtonContainer {right:2px;max-height: 30px !important;}
 }
 @media (max-width: 300px) {
-    #content #mainPanelContainer 
-        {height:auto; top:20px; left:0; right:0;}
-    #content #bbCodeContainer, #content #submitButtonContainer {display: none;}
-    #content #mainPanelContainer #chatList 
-        {position: absolute; top: 0; left: 0; right: 0; bottom: 21px ; height: auto; font-size: 0.7em;}
-    #content #logoutChannelContainer 
-        {top:0;right:0;left:0;}
-    #content #logoutButton 
-        {float:right; margin:0; height: 20px!important;}
-    #content #channelSelection 
-        {height:20px !important}
-    #content #inputFieldContainer, #content #inputFieldContainer #inputField 
-        {bottom: 0px;height: 20px; left: 0; right: 0;}
-    #content #headline a{ display: none;}
-    #content #showUserListButton 
-        {top:0;}
+    #mainPanelContainer {height:auto; top:20px; left:0; right:0;}
+    #bbCodeContainer, #submitButtonContainer {display: none;}
+    #chatList {position: absolute; top: 0; left: 0; right: 0; bottom: 21px ; height: auto; font-size: 0.7em;}
+    #logoutChannelContainer {top:0;right:0;left:0;}
+    #logoutButton {float:right; margin:0; height: 20px!important;}
+    #channelSelection {height:20px !important}
+    #inputFieldContainer, #inputField {bottom: 0;height: 20px; left: 0; right: 0;}
+    #headline a{ display: none;}
+    #showUserListButton {top:0;}
 }

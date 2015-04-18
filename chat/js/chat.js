@@ -807,13 +807,14 @@ var sChat = {
     },
 
     toUser: function (nick, priv) {
-        if (this.removeOld || priv) {
+        if (this.removeOld) {
             this.dom['inputField'].value = this.dom['inputField'].value.substr(this.selAddressee.length);
             this.removeOld = false;
             this.selAddressee = '';
         }
         if (priv) {
             this.insertMessageWrapper('/msg ' + nick + ' ');
+            this.selAddressee = '/msg ' + nick + ' ';
         } else {
             if (!(new RegExp('(?:^|, )' + nick + ', ', 'gm').test(this.dom['inputField'].value))) {
                 this.dom['inputField'].value = nick + ", " + this.dom['inputField'].value;
@@ -880,9 +881,7 @@ var sChat = {
             menu = '<li><a target="_blank" href="/index.php/jomsocial/'
                 + "/index.php?option=com_community&view=profile&userid="+userID
                 + '/profile/" >Профиль</a></li>'
-                + '<li><a href="javascript:sChat.insertMessageWrapper(\'/msg '
-                + encodedUserName
-                + ' \');">'
+                + '<li><a href="javascript:sChat.toUser(\''+ encodedUserName+'\',true);">'
                 + this.lang['userMenuSendPrivateMessage']
                 + '</a></li>'
                 + '<li><a href="javascript:sChat.insertMessageWrapper(\'/describe '
@@ -1014,7 +1013,7 @@ var sChat = {
         }
         this.DOMbufferRowClass = this.DOMbufferRowClass === 'rowEven' ? 'rowOdd' : 'rowEven';
 
-        document.getElementById('chatList').appendChild(this.getChatListMessageString(
+        this.dom['chatList'].appendChild(this.getChatListMessageString(
             dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo
         ));
     },
@@ -1473,7 +1472,7 @@ var sChat = {
                 +  this.encodeText(JSON.stringify(msg));
             this.makeRequest(sConfig.ajaxURL, 'POST', message);
         }
-        if (this.dom['inputField'].value.indexOf(this.selAddressee) != 0) this.selAddressee = '';
+        if (this.dom['inputField'].value.indexOf(this.selAddressee) !== 0) this.selAddressee = '';
         this.removeOld = true;
 
         this.dom['inputField'].value = this.getSetting('saveAddressee') ? this.selAddressee : '';
@@ -2321,12 +2320,7 @@ var sChat = {
 	            switch (fe) {
 	            case "mp3":
 	                return s + (sChat.audioHtml5['mp3'] ? "<audio style=\"height:30px; width:"+Math.min(c, 400)+"px;\" src=\"" + a + "\" controls></audio> " : '<a href="' + a + '" onclick="window.open(this.href); return false;">Скачать mp3 </a> ');
-	            case "jpg":
-	            case "jpeg":
-	            case "png":
-	            case "bmp":
-	            case "gif":
-	            case "svg":
+	            case"jpg":case"jpeg":case"png":case"bmp":case"gif":case"svg":
 	                return s + '<a href="'
 	                    + a
 	                    + '" onclick="window.open(this.href); return false;">'

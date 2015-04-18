@@ -31,30 +31,39 @@
             case "4sli":return "Габен";
             default:return "none";}
     },
-    grad: function (str, arr) {
-        var c1 = arr[0], c2 = arr[1], c3 = arr[2];
-        function c(r, g, b, s) { return "<span style=\"color:RGB(" + Math.floor(r) + ',' + Math.floor(g) + ',' + Math.floor(b) + ")\">" + s + "</span>"; }
-        function l(s) {
-            while (re = /[^]+/.test(s)) s = s.replace(/[^]+/g, "");
-            return s.replace(/<[^>]+>?/g, "").replace(/&([a-z]{2,}|#\d+|#x[\da-f]{2});/gi, " ").length;
+    grad: function (Str, arr) {
+        C1 = arr[0]; C2 = arr[1]; C3 = arr[2];
+        function c(R, G, B, Str) {
+            return "<span style=\"color:RGB(" + Math.floor(R) + ',' + Math.floor(G) + ',' + Math.floor(B) + ")\">" + Str + "</span>";
+        }
+        function l(Str) {
+
+            while (re = /[^]+/.test(Str))
+
+                Str = Str.replace(/[^]+/g, "");
+
+            return Str.replace(/<[^>]+>?/g, "").replace(/&([a-z]{2,}|#\d+|#x[\da-f]{2});/gi, " ").length;
+
         }
         function g(C1, C2, l, s) {
             C1 = parseInt("0x" + C1);
             C2 = parseInt("0x" + C2);
-            var R1 = C1 >> 16, G1 = (C1 >> 8) & 0xFF, B1 = C1 & 0xFF,
-                R2 = C2 >> 16, G2 = (C2 >> 8) & 0xFF, B2 = C2 & 0xFF,
-                Res = "",d = l - s,iS=0;
+            var R1 = C1 >> 16, G1 = (C1 >> 8) & 0xFF, B1 = C1 & 0xFF;
+            var R2 = C2 >> 16, G2 = (C2 >> 8) & 0xFF, B2 = C2 & 0xFF;
+            var Res = "";
+            var d = l - s;
             R2 -= R1; G2 -= G1; B2 -= B1;
-            for (var i = 0; iS < str.length;) {
-                if (str.charAt(iS) === '<') {
-                    for (var t = 0; iS < str.length; iS++) {
-                        Res += str.charAt(iS);
-                        if (str.charAt(iS) === '') t++;
-                        else if (str.charAt(iS) === '') t--;
-                        else if (str.charAt(iS) === '>' && !t) break;
-                    }iS++;
+            for (var i = 0; iS < Str.length;) {
+                if (Str.charAt(iS) === '<') {
+                    for (var t = 0; iS < Str.length; iS++) {
+                        Res += Str.charAt(iS);
+                        if (Str.charAt(iS) === '') t++;
+                        else if (Str.charAt(iS) === '') t--;
+                        else if (Str.charAt(iS) === '>' && !t) break;
+                    }
+                    iS++;
                 } else if (i !== l) {
-                    var S = (str.charAt(iS) == '&' && /^(&([a-z]{2,}|#\d+|#x[\da-f]{2});)/i.test(str.substr(iS))) ? RegExp.$1 : str.charAt(iS);
+                    var S = (Str.charAt(iS) == '&' && /^(&([a-z]{2,}|#\d+|#x[\da-f]{2});)/i.test(Str.substr(iS))) ? RegExp.$1 : Str.charAt(iS);
                     Res += d ? c(R1 + i * R2 / d, G1 + i * G2 / d, B1 + i * B2 / d, S) : c(R1, G1, B1, S);
                     iS += S.length;
                     i++;
@@ -62,12 +71,13 @@
             }
             return Res;
         }
-        var len = l(str);
-        return c3 ? g(c1, c2, Math.floor(len / 2), 0) + g(c2, c3, Math.round(len / 2), 1) : g(c1, c2, len, 1);
+        var iS = 0;
+        var Len = l(Str);
+        return C3 ? g(C1, C2, Math.floor(Len / 2), 0) + g(C2, C3, Math.round(Len / 2), 1) : g(C1, C2, Len, 1);
     },
     ytSTime: function (t) {
         var h = t.indexOf('h') > 0, m = t.indexOf('m') > 0, s = t.indexOf('s') > 0;t = t.split(/[hms]/g);
-        return "?start=" + (h ? t[0] * 3600 : 0)+(m ? t[h ? 1 : 0] * 60 : 0)+(s ? t[h ? (m ? 2 : 1) : (m ? 1 : 0)] * 1 : 0);
+        return "?start=" + ((h ? t[0] * 3600 : 0)+(m ? t[h ? 1 : 0] * 60 : 0)+(s ? t[h ? (m ? 2 : 1) : (m ? 1 : 0)] * 1 : 0));
     },
     getWebRTCInfo: function() {
         var prefix,version;

@@ -1,6 +1,6 @@
 <?php
 
-define( '_JEXEC', 1 );
+define( '_JEXEC', 1);
 
 define( 'DS', DIRECTORY_SEPARATOR );
 define('JPATH_BASE', dirname(SCHAT_PATH));

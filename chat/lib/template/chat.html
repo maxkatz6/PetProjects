@@ -80,9 +80,9 @@
                 sChat.showHide('settingsContainer', 'none');
                 sChat.showHide('helpContainer', 'none');
             }
-            if (helper.isMobile() || !helper.getWebRTCInfo().support) {
+            if (helper.isMobile() || !sConfig.videoChat || !helper.getWebRTCInfo().support) {
                 sConfig.settings['myVideo'] = false;
-                $("#channelSelection option[value='Видеочат']").remove();
+                $("#channelSelection option[value='Видеочат']").hide();
                 $('#myVideoSetting').parent().parent().hide();
             }
 
