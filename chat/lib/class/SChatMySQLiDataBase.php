@@ -1,12 +1,4 @@
 <?php
-/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- */
-
 // Class to initialize the MySQL DataBase connection:
 class SChatDataBaseMySQLi {
 
@@ -86,6 +78,5 @@ class SChatDataBaseMySQLi {
 	function getLastInsertedID() {
 		return $this->_connectionID->insert_id;
 	}
-
 }
 ?>

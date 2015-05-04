@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @copyright (c) Sebastian Tschan
  * @license Modified MIT License

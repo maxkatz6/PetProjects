@@ -1,12 +1,4 @@
 <?php
-/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- */
-
 class SChatLanguage {
 
 	var $_regExpAcceptLangCode;
@@ -97,6 +89,5 @@ class SChatLanguage {
 	function getLangCodes() {
 		return $this->_availableLangCodes;
 	}
-	
 }
 ?>

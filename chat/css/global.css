@@ -9,7 +9,7 @@ body.s_chat{padding:0;margin:0;}
 #mainPanelContainer{position:absolute;left:20px;right:20px;top:85px;bottom: 100px;}
 #onlineListContainer,#helpContainer,#settingsContainer{float:right;height:100%;overflow:auto;margin-left:10px;position:relative;}
 #mainPanelContainer h3{line-height:25px;padding: 0 10px;margin:0;text-align:center;}
-#onlineListContainer{width:256px;}
+#onlineListContainer{width:270px;}
 #helpContainer,#settingsContainer{width:360px;}
 #onlineList,#helpList,#settingsList{position:absolute;left:0;right:0;top:25px;bottom:0;overflow:auto;}
 #helpList dl,#settingsList dl{overflow:hidden;padding:5px;margin:0;}
@@ -35,8 +35,7 @@ a.sticker img{height:100px;max-width:100%;}
 #chatList cite{margin-right:5px;}
 #chatList .bbCodeImage{vertical-align:top;overflow:auto;margin:5px;}
 #chatList .delete{display:block;float:right;width:10px;height:10px;margin-top:2px;padding-left:5px;background:url('../img/delete.png') no-repeat right;}
-#onlineList div{padding: 2px 10px;}
-#onlineList a{display:block;}
+#onlineList div{padding: 2px 5px;}
 #onlineList ul{margin: 5px 0;padding-left:20px;}
 #settingsList select.left{text-align:right;}
 /* Buttons */
@@ -64,6 +63,7 @@ div.colorPicker_hexWrap{width: 100%;float:left}
 div.colorPicker_hexWrap label {font-size: 95%; color: #2F2F2F; margin: 5px 2px; width: 25%}
 div.colorPicker_hexWrap input {margin:5px 2px;padding:0;font-size:95%;border:1px solid #000;width:65%;}
 div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;float:left;cursor:pointer;line-height:12px;}
+.vkPost{border:1px solid #45688E;border-left:5px solid #45688E;overflow:auto;width:80%;max-height:200px; cursor: pointer;}
 @media (max-width: 700px) {
 	#mainPanelContainer { top:65px; left:5px; right:5px; bottom:75px; }
 	#headline { margin:0; padding:0 0 0 5px; line-height:25px; }

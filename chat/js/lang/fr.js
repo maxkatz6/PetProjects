@@ -1,5 +1,5 @@
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @contributors Ettelcar, Massimiliano Tiraboschi, Xytovl
  * @copyright (c) Sebastian Tschan
@@ -7,7 +7,7 @@
  * @link https://blueimp.net/ajax/
  */
 
-// Ajax Chat language Object:
+// Socio!PARTY language Object:
 var sChatLang = {
 	
 	login: '%s se connecte au Chat.',

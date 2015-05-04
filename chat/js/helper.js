@@ -75,9 +75,9 @@
         var Len = l(Str);
         return C3 ? g(C1, C2, Math.floor(Len / 2), 0) + g(C2, C3, Math.round(Len / 2), 1) : g(C1, C2, Len, 1);
     },
-    ytSTime: function (t) {
-        var h = t.indexOf('h') > 0, m = t.indexOf('m') > 0, s = t.indexOf('s') > 0;t = t.split(/[hms]/g);
-        return "?start=" + ((h ? t[0] * 3600 : 0)+(m ? t[h ? 1 : 0] * 60 : 0)+(s ? t[h ? (m ? 2 : 1) : (m ? 1 : 0)] * 1 : 0));
+    ytSTime:function (t) {
+        var h=t.indexOf('h')>0,m=t.indexOf('m')>0,s=t.indexOf('s')>0;t=t.split(/[hms]/g);
+        return "?start="+(h||m||s?(h?t[0]*3600:0)+(m?t[h?1:0]*60:0)+(s?t[h?(m?2:1):(m?1:0)]*1:0):t);
     },
     getWebRTCInfo: function() {
         var prefix,version;
@@ -117,3 +117,11 @@
         };
     }
 };
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (obj, start) {
+        for (var i = (start || 0), j = this.length; i < j; i++) {
+            if (this[i] === obj) { return i; }
+        }
+        return -1;
+    }
+}

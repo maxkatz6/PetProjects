@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Yuriy Smetana (yura@stryi.com.ua, http://joomla.org.ua)
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Ім\'я користувача';
 $lang['password'] = 'Пароль';
 $lang['login'] = 'Увійти';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'Таке ім\'я вже використовуєть
 $lang['errorBanned'] = 'Користувач або IP заблокований.';
 $lang['errorMaxUsersLoggedIn'] = 'В Чаті максимальна кількість учасників.';
 $lang['errorChatClosed'] = 'Чат, тимчасово, закрито.';
-$lang['logsTitle'] = 'AJAX Chat - Logs';
+$lang['logsTitle'] = 'Socio!PARTY - Logs';
 $lang['logsDate'] = 'Дата';
 $lang['logsTime'] = 'Час';
 $lang['logsSearch'] = 'Пошук';

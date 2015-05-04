@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author SkyKnight
  * @author Dmitry Plyonkin
@@ -92,7 +92,7 @@ $lang['settings'] = 'Настройки';
 $lang['settingsBBCode'] = 'Разрешить BBCode:';
 $lang['settingsBBCodeImages'] = 'Enable image BBCode:';
 $lang['settingsBBCodeColors'] = 'Enable font color BBCode:';
-$lang['settingsHyperLinks'] = 'Разрешить ссылки:';
+$lang['settingsHyperLinks'] = 'Разрешить обработку ссылок:';
 $lang['settingsLineBreaks'] = 'Разрешить переводы строк:';
 $lang['settingsEmoticons'] = 'Разрешить смайлики:';
 $lang['settingsAutoFocus'] = 'Автоматически ставить курсор в поле ввода:';
@@ -119,7 +119,7 @@ $lang['errorUserInUse'] = 'Имя занято.';
 $lang['errorBanned'] = 'Пользователь или IP забанены.';
 $lang['errorMaxUsersLoggedIn'] = 'В чате максимальное количество пользователей. Попробуйте зайти позднее.';
 $lang['errorChatClosed'] = 'Чат закрыт в настоящий момент.';
-$lang['logsTitle'] = 'AJAX Chat - История';
+$lang['logsTitle'] = 'Socio!PARTY - История';
 $lang['logsDate'] = 'Дата';
 $lang['logsTime'] = 'Время';
 $lang['logsSearch'] = 'Поиск';

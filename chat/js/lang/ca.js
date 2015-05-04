@@ -1,5 +1,5 @@
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Manu Quintans
  * @copyright (c) Sebastian Tschan
@@ -7,7 +7,7 @@
  * @link https://blueimp.net/ajax/
  */
 
-// Ajax Chat language Object:
+// Socio!PARTY language Object:
 var sChatLang = {
 	login: '%s ha entrat al xat.',
 	logout: '%s ha sortit del xat.',

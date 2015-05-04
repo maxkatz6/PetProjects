@@ -1,5 +1,5 @@
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Asmo Soinio
  * @author Saku Laukkanen
@@ -8,7 +8,7 @@
  * @link https://blueimp.net/ajax/
  */
 
-// Ajax Chat language Object:
+// Socio!PARTY language Object:
 var sChatLang = {
 	
 	login: '%s kirjautui sisään.',

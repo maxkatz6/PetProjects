@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @copyright (c) Sebastian Tschan
  * @license Modified MIT License
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'ชื่อผู้ใช้';
 $lang['password'] = 'รหัสผ่าน';
 $lang['login'] = 'เข้าสู่ระบบ';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'ชื่อผู้ใช้นี้กำลั�
 $lang['errorBanned'] = 'ผู้ใช้นี้หรือ IP นี้ถูกแบน';
 $lang['errorMaxUsersLoggedIn'] = 'ห้องแชทเต็ม';
 $lang['errorChatClosed'] = 'ห้องแชทถูกปิดชั่วคราว';
-$lang['logsTitle'] = 'AJAX Chat - บันทึกการใช้งาน';
+$lang['logsTitle'] = 'Socio!PARTY - บันทึกการใช้งาน';
 $lang['logsDate'] = 'วันที่';
 $lang['logsTime'] = 'เวลา';
 $lang['logsSearch'] = 'ค้นหา';

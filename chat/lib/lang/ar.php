@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author pepotiger (www.dd4bb.com)
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'اسم المستخدم';
 $lang['password'] = 'كلمة المرور';
 $lang['login'] = 'دخول';

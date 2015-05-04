@@ -1,5 +1,5 @@
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author mikespook
  * @copyright (c) Sebastian Tschan
@@ -7,7 +7,7 @@
  * @link https://blueimp.net/ajax/
  */
 
-// Ajax Chat language Object:
+// Socio!PARTY language Object:
 var sChatLang = {
 	
 	login: '%s 进入聊天室。',

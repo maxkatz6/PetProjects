@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Ettelcar
  * @author Massimiliano Tiraboschi
@@ -10,7 +10,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Nom d’utilisateur';
 $lang['password'] = 'Mot de passe';
 $lang['login'] = 'Connexion';

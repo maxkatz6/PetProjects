@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Tomasz Topa, http://tomasz.topa.pl/
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Nick';
 $lang['password'] = 'Hasło';
 $lang['login'] = 'Zaloguj';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'Wybrany nick jest już używany.';
 $lang['errorBanned'] = 'Nick lub IP jest zablokowane.';
 $lang['errorMaxUsersLoggedIn'] = 'Czat jest już pełny.';
 $lang['errorChatClosed'] = 'Czat jest tymczasowo wyłączony.';
-$lang['logsTitle'] = 'AJAX Chat - Logi';
+$lang['logsTitle'] = 'Socio!PARTY - Logi';
 $lang['logsDate'] = 'Data';
 $lang['logsTime'] = 'Czas';
 $lang['logsSearch'] = 'Szukaj';

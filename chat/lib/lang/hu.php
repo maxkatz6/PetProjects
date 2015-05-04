@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @copyright (c) Sebastian Tschan
  * @license Modified MIT License
@@ -8,7 +8,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Felhasználónév';
 $lang['password'] = 'Jelszó';
 $lang['login'] = 'Belépés';
@@ -117,7 +117,7 @@ $lang['errorUserInUse'] = 'A nick már használatban van.';
 $lang['errorBanned'] = 'Ez a felhasználó vagy IP ki van tiltva.';
 $lang['errorMaxUsersLoggedIn'] = 'A chatelők száma elérte a megengedett maximumot.';
 $lang['errorChatClosed'] = 'A chat jelenleg nem üzemel.';
-$lang['logsTitle'] = 'AJAX Chat - Logok';
+$lang['logsTitle'] = 'Socio!PARTY - Logok';
 $lang['logsDate'] = 'Dátum';
 $lang['logsTime'] = 'Idő';
 $lang['logsSearch'] = 'Keresés';

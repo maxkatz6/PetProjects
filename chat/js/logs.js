@@ -82,8 +82,6 @@
 
 	sChat.setChatUpdateTimer = function() {
 		clearTimeout(this.timer);
-		var timeout;
-		timeout = this.timerRate;
-		this.timer = setTimeout('sChat.updateChat(null);', timeout);
+		this.timer = setTimeout('sChat.updateChat(null);', 3000);
 	};
 	

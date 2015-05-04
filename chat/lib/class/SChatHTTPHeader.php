@@ -1,12 +1,4 @@
 <?php
-/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- */
-
 // Class to manage HTTP header
 class SChatHTTPHeader {
 
@@ -15,8 +7,8 @@ class SChatHTTPHeader {
 	var $_noCache;
 
 	function __construct($contentType='text/html', $noCache=true) {
-                $this->_contentType = $contentType.'; charset=UTF-8';
-                $this->_constant = true;
+        $this->_contentType = $contentType.'; charset=UTF-8';
+        $this->_constant = true;
 		$this->_noCache = $noCache;
 	}
 

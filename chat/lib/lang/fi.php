@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Asmo Soinio
  * @author Saku Laukkanen
@@ -10,7 +10,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Käyttäjätunnus';
 $lang['password'] = 'Salasana';
 $lang['login'] = 'Kirjaudu sisään';
@@ -119,7 +119,7 @@ $lang['errorUserInUse'] = 'Käyttäjänimi on käytössä, ole hyvä ja valitse 
 $lang['errorBanned'] = 'Tällä IP:llä on porttikielto';
 $lang['errorMaxUsersLoggedIn'] = 'Chatissa on jo maksimimäärä käyttäjiä.';
 $lang['errorChatClosed'] = 'Chat on poistettu käytöstä toistaiseksi.';
-$lang['logsTitle'] = 'AJAX Chat-Lokitiedot';
+$lang['logsTitle'] = 'Socio!PARTY-Lokitiedot';
 $lang['logsDate'] = 'Päivä';
 $lang['logsTime'] = 'Aika';
 $lang['logsSearch'] = 'Etsi';

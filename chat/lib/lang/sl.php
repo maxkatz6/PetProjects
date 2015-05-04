@@ -1,6 +1,6 @@
 ﻿<?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Valter Pepelko
  * @copyright (c) Sebastian Tschan

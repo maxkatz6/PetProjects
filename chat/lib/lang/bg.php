@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Borislav Manolov
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Потребителско име';
 $lang['password'] = 'Парола';
 $lang['login'] = 'Вход';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'Потребителското име се изпол
 $lang['errorBanned'] = 'Потребителят или айпи адресът е изгонен.';
 $lang['errorMaxUsersLoggedIn'] = 'Чатът достигна максималния брой на влезли потребители.';
 $lang['errorChatClosed'] = 'В момента чатът е затворен.';
-$lang['logsTitle'] = 'AJAX Chat — Логове';
+$lang['logsTitle'] = 'Socio!PARTY — Логове';
 $lang['logsDate'] = 'Дата';
 $lang['logsTime'] = 'Време';
 $lang['logsSearch'] = 'Търсене';

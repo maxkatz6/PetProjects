@@ -1,12 +1,4 @@
 <?php
-/*
- * @package AJAX_Chat
- * @author Sebastian Tschan
- * @copyright (c) Sebastian Tschan
- * @license Modified MIT License
- * @link https://blueimp.net/ajax/
- */
-
 // Class to handle HTML templates
 class SChatTemplate {
 
@@ -57,39 +49,28 @@ class SChatTemplate {
 
 	function replaceTemplateTags($tagData) {
 		switch($tagData[1]) {
-                        case 'VN':
-                            return VER;
+            case 'VN':
+                return VER;
 			case 'SCHAT_URL':
 				return SChatEncoding::encodeSpecialChars($this->sChat->getChatURL());
-
 			case 'LANG':
 				return SChatEncoding::encodeSpecialChars($this->sChat->getLang((isset($tagData[2]) ? $tagData[2] : null)));				
 			case 'LANG_CODE':
 				return $this->sChat->getLangCode();
-
 			case 'BASE_DIRECTION':
 				return $this->getBaseDirectionAttribute();
-
-			case 'CONTENT_ENCODING':
-				return Config::contentEncoding;
-					
 			case 'CONTENT_TYPE':
 				return $this->_contentType;
-		
 			case 'LOGIN_URL':
 				return ($this->sChat->getRequestVar('view') == 'logs') ? './?view=logs' : './';
-				
 			case 'USER_NAME_MAX_LENGTH':
 				return Config::userNameMaxLength;
 			case 'MESSAGE_TEXT_MAX_LENGTH':
 				return Config::messageTextMaxLength;
-
 			case 'LOGIN_CHANNEL_ID':
 				return $this->sChat->getValidRequestChannelID();
-				
 			case 'SESSION_NAME':
 				return Config::sessionName;
-				
 			case 'COOKIE_EXPIRATION':
 				return Config::sessionCookieLifeTime;
 			case 'COOKIE_PATH':
@@ -98,33 +79,26 @@ class SChatTemplate {
 				return Config::sessionCookieDomain;
 			case 'COOKIE_SECURE':
 				return Config::sessionCookieSecure;
-				
 			case 'CHAT_BOT_NAME':
 				return rawurlencode(Config::chatBotName);
 			case 'CHAT_BOT_ID':
 				return Config::chatBotID;
-
 			case 'INACTIVE_TIMEOUT':
 				return Config::inactiveTimeout;
-
 			case 'PRIVATE_CHANNEL_DIFF':
 				return Config::privateChannelDiff;
 			case 'PRIVATE_MESSAGE_DIFF':
 				return Config::privateMessageDiff;
-
 			case 'STYLE_SHEETS':
 				return $this->getStyleSheetLinkTags();
-				
 			case 'CHANNEL_OPTIONS':
 				return $this->getChannelOptionTags();
 			case 'STYLE_OPTIONS':
 				return $this->getStyleOptionTags();
 			case 'LANGUAGE_OPTIONS':
 				return $this->getLanguageOptionTags();
-			
 			case 'ERROR_MESSAGES':
 				return $this->getErrorMessageTags();
-
 			case 'LOGS_CHANNEL_OPTIONS':
 				return $this->getLogsChannelOptionTags();
 			case 'LOGS_YEAR_OPTIONS':
@@ -136,27 +110,27 @@ class SChatTemplate {
 			case 'LOGS_HOUR_OPTIONS':
 				return $this->getLogsHourOptionTags();
 			case 'CLASS_WRITEABLE':
-                            return 'write_allowed';
-                        case 'HELPLIST':
-                            return $this->getHelpList();
+                return 'write_allowed';
+            case 'HELPLIST':
+                return $this->getHelpList();
 			default:
 				return $this->sChat->replaceCustomTemplateTags($tagData[1], (isset($tagData[2]) ? $tagData[2] : null));
 		}
 	}
-        function getHelpList()
+    function getHelpList()
+    {
+        $ret = '<div id="helpList">';
+        $list = array('Join', 'JoinCreate', 'Invite', 'Uninvite', 'Logout', 'PrivateMessage', 'QueryOpen', 'QueryClose', 'Action', 
+            'Describe', 'Ignore', 'IgnoreList', 'Whereis', 'Kick', 'Unban', 'Bans', 'Whois', 'Who', 'List', 'Roll', 'Nick');
+        foreach ($list as $item)
         {
-            $ret = '<div id="helpList">';
-            $list = array('Join', 'JoinCreate', 'Invite', 'Uninvite', 'Logout', 'PrivateMessage', 'QueryOpen', 'QueryClose', 'Action', 
-                'Describe', 'Ignore', 'IgnoreList', 'Whereis', 'Kick', 'Unban', 'Bans', 'Whois', 'Who', 'List', 'Roll', 'Nick');
-            foreach ($list as $item)
-            {
-                $ret .= '<dl><dt>'.SChatEncoding::encodeSpecialChars($this->sChat->getLang('helpItemDesc'.$item)).'</dt>'
-                        .'<dd>'.SChatEncoding::encodeSpecialChars($this->sChat->getLang('helpItemCode'.$item)).'</dd></dl>';
-            }
-            return $ret.'</div>';
+            $ret .= '<dl><dt>'.SChatEncoding::encodeSpecialChars($this->sChat->getLang('helpItemDesc'.$item)).'</dt>'
+                    .'<dd>'.SChatEncoding::encodeSpecialChars($this->sChat->getLang('helpItemCode'.$item)).'</dd></dl>';
         }
+        return $ret.'</div>';
+    }
 
-        // Function to display alternating table row colors:
+    // Function to display alternating table row colors:
 	function alternateRow($rowOdd='rowOdd', $rowEven='rowEven') {
 		static $i;
 		$i += 1;
@@ -257,7 +231,7 @@ class SChatTemplate {
 		$channelOptions = '';
 		$channelOptions .= '<option value="-3">------</option>';
 		foreach($this->sChat->getChannels() as $key=>$value) {
-			if($this->sChat->getUserRole() != SCHAT_ADMIN && Config::logsUserAccessChannelList && !in_array($value, Config::logsUserAccessChannelList)) {
+			if($this->sChat->getUserRole() < SCHAT_MODERATOR) {
 				continue;
 			}
 			$channelOptions .= '<option value="'.$value.'">'.SChatEncoding::encodeSpecialChars($key).'</option>';
@@ -302,6 +276,5 @@ class SChatTemplate {
 		}
 		return $hourOptions;
 	}
-
 }
 ?>

@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Saša Stojanović
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Korisničko ime';
 $lang['password'] = 'Lozinka';
 $lang['login'] = 'Prijava';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'Korisnik je već prijavljen.';
 $lang['errorBanned'] = 'Korisnik ili IP je zabranjen.';
 $lang['errorMaxUsersLoggedIn'] = 'Na chatu je prijavljen maksimalni broj korisnika.';
 $lang['errorChatClosed'] = 'Chat je trenutno nedostupan.';
-$lang['logsTitle'] = 'AJAX Chat - Beleške';
+$lang['logsTitle'] = 'Socio!PARTY - Beleške';
 $lang['logsDate'] = 'Datum';
 $lang['logsTime'] = 'Vreme';
 $lang['logsSearch'] = 'Pretraga';

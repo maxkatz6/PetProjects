@@ -1,6 +1,6 @@
 ﻿<?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @copyright (c) Sebastian Tschan
  * @license Modified MIT License
@@ -8,7 +8,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'მეტსახელი';
 $lang['password'] = 'პაროლი';
 $lang['login'] = 'შესვლა';
@@ -117,7 +117,7 @@ $lang['errorUserInUse'] = 'მეტსახელი დაკავებუ�
 $lang['errorBanned'] = 'წევრი ან IP დაბლოკილია.';
 $lang['errorMaxUsersLoggedIn'] = 'ჩატში იმყოფება წევრთა მაქსიმალური შესაძლებელი რიცხვი.';
 $lang['errorChatClosed'] = 'ჩატი ამ წუთისთვის დახურულია.';
-$lang['logsTitle'] = 'AJAX Chat - ჟურნალი';
+$lang['logsTitle'] = 'Socio!PARTY - ჟურნალი';
 $lang['logsDate'] = 'თარიღი';
 $lang['logsTime'] = 'დრო';
 $lang['logsSearch'] = 'ძიება';

@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author of translate Carlos Rocha (aka Broas@)
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Nick';
 $lang['password'] = 'Password';
 $lang['login'] = 'Entrar';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'Nick em uso.';
 $lang['errorBanned'] = 'O teu nick ou IP está banido.';
 $lang['errorMaxUsersLoggedIn'] = 'O chat atingiu o número máximo de utilizadores ligados.';
 $lang['errorChatClosed'] = 'O Chat está encerrado de momento.';
-$lang['logsTitle'] = 'AJAX Chat - Relatório';
+$lang['logsTitle'] = 'Socio!PARTY - Relatório';
 $lang['logsDate'] = 'Data';
 $lang['logsTime'] = 'Tempo';
 $lang['logsSearch'] = 'Procurar';

@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @copyright (c) Sebastian Tschan
  * @license Modified MIT License
@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 
 // Path to the chat directory:
 define('SCHAT_PATH', dirname($_SERVER['SCRIPT_FILENAME']).'/');
-define('VER', 'v6');
+define('VER', 'v7');
 
 require(SCHAT_PATH.'lib/classes.php');
 
@@ -24,15 +24,12 @@ else if (Config::debug) {
     ob_start();
 }
 
-$sChat = new CustomSChat();
+$sChat = new JoomlaSChat();
 
 if (Config::debug && function_exists('xhprof_disable')) {
     $xhprof_data = xhprof_disable();
     $xhprof_runs = new XHProfRuns_Default();
-    $run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_testing");
-    // Формируем ссылку на данные профайлинга и записываем ее в консоль
-    $link = "http://" . $_SERVER['HTTP_HOST'] . "/schat/chat/debug/xhprof-0.9.4/xhprof_html/index.php?run=".$run_id."&source=xhprof_testing\n";
     $firephp = FirePHP::getInstance(true);
-    $firephp->info($link);
+    $firephp->info("http://" . $_SERVER['HTTP_HOST'] . "/schat/chat/debug/xhprof-0.9.4/xhprof_html/index.php?run=".$xhprof_runs->save_run($xhprof_data, "xhprof_testing")."&source=xhprof_testing\n");
 }
 ?>

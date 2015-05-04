@@ -1,5 +1,5 @@
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Nebojsa Ilijoski
  * @copyright (c) Sebastian Tschan

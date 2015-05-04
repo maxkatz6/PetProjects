@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author pepotiger (www.dd4bb.com)
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'نام عبور';
 $lang['password'] = 'کلمه عبور';
 $lang['login'] = 'ورود';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'نام کاربری در حال استفاده است
 $lang['errorBanned'] = 'نام کاربری یا آیپی اخراج شده اند.';
 $lang['errorMaxUsersLoggedIn'] = 'متاسفانه تالار گفتگو به حداکثر ظرفیت خود برای کاربران حاضر رسیده است.';
 $lang['errorChatClosed'] = 'تالار گفتوگو هم اکنون بسته می باشد.';
-$lang['logsTitle'] = 'AJAX Chat - Logs';
+$lang['logsTitle'] = 'Socio!PARTY - Logs';
 $lang['logsDate'] = 'تاریخ';
 $lang['logsTime'] = 'زمان';
 $lang['logsSearch'] = 'جست و جو';

@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author panas
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Όνομα χρήστη';
 $lang['password'] = 'Κωδικός';
 $lang['login'] = 'Σύνδεση';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'Το όνομα υπάρχει ήδη.';
 $lang['errorBanned'] = 'Το όνομα χρήστη ή IP είναι αποκλεισμένα.';
 $lang['errorMaxUsersLoggedIn'] = 'Το chat έχει φτάσει το μέγιστο αριθμό χρηστών.';
 $lang['errorChatClosed'] = 'Το chat είναι κλειστό προς το παρόν.';
-$lang['logsTitle'] = 'AJAX Chat - Καταγραφές';
+$lang['logsTitle'] = 'Socio!PARTY - Καταγραφές';
 $lang['logsDate'] = 'Ημερομηνία';
 $lang['logsTime'] = 'Ώρα';
 $lang['logsSearch'] = 'Αναζήτηση';

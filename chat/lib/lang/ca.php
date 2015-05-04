@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Manu Quintans
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Usuari';
 $lang['password'] = 'Contrasenya';
 $lang['login'] = 'Accedir';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'Aquest nom d\'usuari està sent utilitzat en aquests 
 $lang['errorBanned'] = 'L\'usuari o IP està bannejat'; 
 $lang['errorMaxUsersLoggedIn'] = 'El xat ha arribat al màxim nombre d\'usuaris.';
 $lang['errorChatClosed'] = 'El xat està tancat en aquests moments.';
-$lang['logsTitle'] = 'AJAX Xat - Registre';
+$lang['logsTitle'] = 'Socio!Xat - Registre';
 $lang['logsDate'] = 'Data';
 $lang['logsTime'] = 'Hora';
 $lang['logsSearch'] = 'Buscar';

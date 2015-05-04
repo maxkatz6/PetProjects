@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Nic Mertens
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Gebruikersnaam';
 $lang['password'] = 'Wachtwoord';
 $lang['login'] = 'Inloggen';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'Gebruikersnaam is in gebruik, kies een andere.';
 $lang['errorBanned'] = 'Gebruiker of gebruikers-IP is gebanned.';
 $lang['errorMaxUsersLoggedIn'] = 'Dit chatkamer heeft het maximum toegelaten aantal ingelogde gebruikers bereikt.';
 $lang['errorChatClosed'] = 'Dit chatkamer is momenteel gesloten.';
-$lang['logsTitle'] = 'AJAX Chat - Logs';
+$lang['logsTitle'] = 'Socio!PARTY - Logs';
 $lang['logsDate'] = 'Datum';
 $lang['logsTime'] = 'Tijd';
 $lang['logsSearch'] = 'Zoek';

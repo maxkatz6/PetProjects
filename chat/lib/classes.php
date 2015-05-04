@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @copyright (c) Sebastian Tschan
  * @license Modified MIT License
@@ -20,7 +20,7 @@ require(SCHAT_PATH.'lib/class/SChatFileSystem.php');
 require(SCHAT_PATH.'lib/class/SChatHTTPHeader.php');
 require(SCHAT_PATH.'lib/class/SChatLanguage.php');
 require(SCHAT_PATH.'lib/class/SChatTemplate.php');
-require(SCHAT_PATH.'lib/class/CustomSChat.php');
+require(SCHAT_PATH.'lib/class/JoomlaSChat.php');
 
 if (Config::debug) {
     require_once(SCHAT_PATH.'debug/FirePHP.class.php');

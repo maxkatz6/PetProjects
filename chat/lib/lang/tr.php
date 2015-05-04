@@ -1,6 +1,6 @@
 <?php
 /*
- * @package AJAX_Chat
+ * @package SocioPARTY
  * @author Sebastian Tschan
  * @author Cydonian
  * @copyright (c) Sebastian Tschan
@@ -9,7 +9,7 @@
  */
 
 $lang = array();
-$lang['title'] = 'AJAX Chat';
+$lang['title'] = 'Socio!PARTY';
 $lang['userName'] = 'Üye adı';
 $lang['password'] = 'Şifre';
 $lang['login'] = 'Giriş';
@@ -118,7 +118,7 @@ $lang['errorUserInUse'] = 'Üyeismi kullanımda.';
 $lang['errorBanned'] = 'Üye veya IP yasaklanmıştır.';
 $lang['errorMaxUsersLoggedIn'] = 'Sohbet maksimum kullanıcı sayısına ulaştı.';
 $lang['errorChatClosed'] = 'Sohbet şu anda kapalıdır.';
-$lang['logsTitle'] = 'AJAX Chat - Logs';
+$lang['logsTitle'] = 'Socio!PARTY - Logs';
 $lang['logsDate'] = 'Tarih';
 $lang['logsTime'] = 'Saat';
 $lang['logsSearch'] = 'Ara';
