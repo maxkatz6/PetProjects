@@ -139,6 +139,8 @@ class Config{
     );
     public static  $nickGrad = array(
         'Тирраон' => array('300082','800090'),
-        'Sagita' => array('8d13db','ff00b4', 'ff8c00')
+        'Sagita' => array('8d13db','ff00b4', 'ff8c00'),
+        'Huginn' => array('1C1C1C','363636', '4F4F4F'),
+        'Niakriss' => array('B452CD','68228B', '000000')
     );
 }

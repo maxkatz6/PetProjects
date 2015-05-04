@@ -17,10 +17,10 @@ var sChat={
     channelName:null,
     channelSwitch:null,
     usersList:null,
-    userNamesList:null,
+    userNamesList: null,
+    userStatList: null,
     userMenuCounter:null,
     encodedUserName:null,
-    userNodeString:null,
     ignoredUserNames:null,
     lastID:null,
     localID:null,
@@ -46,8 +46,9 @@ var sChat={
     removeOld:false,
     init:function(lang,initSettings,initStyle,initialize,initializeFunction){
         this.httpRequest={};
-        this.usersList=[];
-        this.userNamesList=[];
+        this.usersList = [];
+        this.userNamesList = [];
+        this.userStatList = [];
         this.userMenuCounter=0;
         this.lastID=0;
         this.localID=0;
@@ -193,7 +194,7 @@ var sChat={
     },
     requestTeaserContent:function(){
         var params='&view=teaser';
-        params+='&getInfos='+this.encodeText('userID,userName,userRole');
+        params += '&getInfos=' + this.encodeText('userID,userName,userRole');
         if(!isNaN(parseInt(sConfig.loginChannelID))){
             params+='&channelID='+sConfig.loginChannelID;
         } else
@@ -293,7 +294,7 @@ var sChat={
     },
     startChatUpdate:function(){
         // Start the chat update and retrieve current user and channel info and set the login channel:
-        var params='&getInfos='+this.encodeText('userID,userName,userRole,channelID,channelName');
+        var params='&getInfos='+this.encodeText('userID,userName,userRole,channelID,channelName,userInfo');
         if(!isNaN(parseInt(sConfig.loginChannelID))){
             params+='&channelID='+sConfig.loginChannelID;
         } else
@@ -653,11 +654,18 @@ var sChat={
                 case 'userName':
                     sWebCam.username=this.userName=infoData;
                     this.encodedUserName=this.scriptLinkEncode(infoData);
-                    this.userNodeString=null;
                     break;
                 case 'userRole':
-                    this.userRole=parseInt(infoData);
+                    this.userRole = parseInt(infoData);
                     break;
+                case 'userInfo':{
+                    this.statusID=parseInt(infoData.s);
+                    if(this.statusID===17){
+                        sChat.sendMessageWrapper('/setStatus 0');
+                        this.statusID=0;
+                    }
+                    break;
+                }
                 case 'logout':
                     this.handleLogout(infoData);
                     return;
@@ -677,11 +685,13 @@ var sChat={
                 index=this.usersList.indexOf(userID);
                 if(index===-1){
                     this.addUserToOnlineList(userID,userName,userRole,userInfo);
-                } else
-                    if(this.userNamesList[index]!==userName){
-                        this.removeUserFromOnlineList(userID,index);
-                        this.addUserToOnlineList(userID,userName,userRole,userInfo);
+                } else{
+                    if (this.userStatList[index] !== userInfo.s) this.changeUserStatus(userID, userInfo);
+                    if (this.userNamesList[index] !== userName) {
+                        this.removeUserFromOnlineList(userID, index);
+                        this.addUserToOnlineList(userID, userName, userRole, userInfo);
                     }
+                }
             }
             // Clear the offline users from the online users list:
             for(i=0;i<this.usersList.length;i++){
@@ -690,6 +700,15 @@ var sChat={
                 }
             }
             this.setOnlineListRowClasses();
+        }
+    },
+    changeUserStatus: function (userID, userInfo) {
+        var s = document.getElementById('stat' + userID);
+        if (s) {
+            s.src = 'img/status/' + sConfig.statImg[userInfo.s];
+            s.title = sConfig.statText[userInfo.s];
+            s.style.cursor = userInfo.vKey ? 'pointer' : 'default';
+            s.onclick = userInfo.vKey ? function () { sWebCam.joinRoom(userInfo.vKey); } : function () { return false; };
         }
     },
     handleChatMessages:function(json){
@@ -755,12 +774,9 @@ var sChat={
     addUserToOnlineList:function(userID,userName,userRole,userInfo){
         this.usersList.push(userID);
         this.userNamesList.push(userName);
+        this.userStatList.push(userInfo.s);
         if(this.dom['onlineList']){
-            this.updateDOM(
-                'onlineList',
-                this.getUserNodeString(userID,userName,userRole,userInfo),
-                (this.userID===userID)
-            );
+            this.updateDOM('onlineList',this.getUserNodeString(userID,userName,userRole,userInfo),(this.userID===userID));
         }
     },
     toUser:function(nick,priv){
@@ -783,27 +799,17 @@ var sChat={
         }
     },
     getUserNodeString:function(userID,userName,userRole,userInfo){
-        var encodedUserName,str;
-        if(this.userNodeString&&userID===this.userID){
-            return this.userNodeString;
-        } else{
-            encodedUserName=this.scriptLinkEncode(userName);
-            str='<div id="'+this.getUserDocumentID(userID)+'">'
-                +'<table width="100%" style="table-layout:fixed;"><tr><td width="34"><img src="../'+userInfo.avatar+'" height="30"/></td>'
-                +'<td><a href="javascript:sChat.toUser(\''+encodedUserName+'\',false);">'+userName+'</a></td>'
-                +'<td width="14"><img width="16" id="stat'+userID+'" src="img/status/'+sConfig.statImg[userInfo.s]+'" title="'+sConfig.statText[userInfo.s]+'"/></td>'
-                +'<td width="30">'+(userInfo.tim!=='none'?'<img src="img/tim/'+userInfo.tim+'.png" border="0" title="'+helper.getTIM(userInfo.tim)+'"></img></td>':'</td>')
-                +'<td width="10">'+(userInfo.gender&&userInfo.gender!=='n'?'<img height="13" src="img/gender/'+userInfo.gender+'.png" border="0" title="'+(userInfo.gender==='m'?'Мужской':'Женский')+'"></td>':'</td>')
-                +'<td width="20"><a id="showMenuButton" style="background-position:-46px 0px;display:block;" href="javascript:sChat.toggleUserMenu(\''+this.getUserMenuDocumentID(userID)+'\', \''+encodedUserName+'\', '+userID+' );"></a></td></tr></table>'
-                +'<ul class="userMenu" style="display:none;" id="'+this.getUserMenuDocumentID(userID)+((userID===this.userID)?'">'+this.getUserNodeStringItems(encodedUserName,userID,false):'">')+'</ul>'
-                +'</div>';
-            if(userID===this.userID){
-                this.statusID=userInfo.s;
-                if(this.statusID===17) sChat.sendMessageWrapper('/setStatus 0');
-                this.userNodeString=str;
-            }
-            return str;
-        }
+        var encodedUserName=this.scriptLinkEncode(userName);
+        var str='<div id="'+this.getUserDocumentID(userID)+'">'
+            +'<table width="100%" style="table-layout:fixed;"><tr><td width="34"><img src="../'+userInfo.avatar+'" height="30"/></td>'
+            +'<td><a href="javascript:sChat.toUser(\''+encodedUserName+'\',false);">'+userName.replace('_',' ')+'</a></td>'
+            + '<td width="14"><img width="16" id="stat' + userID + '" src="img/status/' + sConfig.statImg[userInfo.s] + '" title="' + sConfig.statText[userInfo.s] + '" ' + (userInfo.vKey ? 'style="cursor:pointer;" onclick="function(){sWebCam.joinRoom('+userInfo.vKey+');"' : '') + ' /></td>'
+            +'<td width="30">'+(userInfo.tim!=='none'?'<img src="img/tim/'+userInfo.tim+'.png" border="0" title="'+helper.getTIM(userInfo.tim)+'"></img></td>':'</td>')
+            +'<td width="10">'+(userInfo.gender&&userInfo.gender!=='n'?'<img height="13" src="img/gender/'+userInfo.gender+'.png" border="0" title="'+(userInfo.gender==='m'?'Мужской':'Женский')+'"></td>':'</td>')
+            +'<td width="20"><a id="showMenuButton" style="background-position:-46px 0px;display:block;" href="javascript:sChat.toggleUserMenu(\''+this.getUserMenuDocumentID(userID)+'\', \''+encodedUserName+'\', '+userID+' );"></a></td></tr></table>'
+            +'<ul class="userMenu" style="display:none;" id="'+this.getUserMenuDocumentID(userID)+((userID===this.userID)?'">'+this.getUserNodeStringItems(encodedUserName,userID,false):'">')+'</ul>'
+            +'</div>';
+        return str;
     },
     toggleUserMenu:function(menuID,userName,userID){
         // If the menu is empty, fill it with user node menu items before toggling it.
@@ -1076,7 +1082,8 @@ var sChat={
         if(!this.dom['chatList'].childNodes) return;
         while(this.dom['chatList'].childNodes.length>500) // 500 - max messages count
             this.dom['chatList'].removeChild(this.dom['chatList'].firstChild);
-        if(sConfig.settings['autoScroll']&&this.needScroll) this.dom['chatList'].scrollTop=this.dom['chatList'].scrollHeight;
+        if (sConfig.settings['autoScroll'] && this.needScroll) this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
+        //this.updateChatListRowClasses();
     },
     encodeText:function(text){
         return encodeURIComponent(text);
@@ -1319,22 +1326,20 @@ var sChat={
             textParts=text.split(' ');
             switch(textParts[0]){
             case '/ignore':
-                text=this.parseIgnoreInputCommand(text,textParts);
+                text = sChat.parseIgnoreInputCommand(text, textParts);
                 break;
             case '/clear':
-                this.clearChatList();
+                sChat.clearChatList();
                 return false;
             case '/closeVid':
                 sWebCam.close();
                 return false;
-            case '/test':
-            {
-                var s=document.createElement("script");
-                s.type="text/javascript";
-                s.innerHTML='alert("heyy");';
-                sChat.dom["chatList"].appendChild(s);
+                case '/setStatus':
+                    setTimeout(function () { sChat.changeUserStatus(sChat.userID, { s: parseInt(textParts[1]), vKey: textParts[2] || false }); }, 500);
+                break;
+            case '/afk':
+                sChat.sendMessageWrapper('/setStatus 1');
                 return false;
-            }
             }
         } else{
             text=this.parseToUserBold(text);
@@ -1520,11 +1525,9 @@ var sChat={
             return;
         }
         clearTimeout(this.timer);
-        var message='lastID='
-            +this.lastID
-            +'&channelName='
-            +this.encodeText(channel);
-        this.makeRequest(sConfig.ajaxURL,'POST',message);
+        var message='lastID='+this.lastID+'&channelName='+this.encodeText(channel);
+        this.makeRequest(sConfig.ajaxURL, 'POST', message);
+       // this.clearOnlineUsersList();
         if(this.dom['inputField']){
             this.dom['inputField'].focus();
         }
@@ -1722,7 +1725,7 @@ var sChat={
             case '/nick':
                 return this.replaceCommandNick(textParts);
             case '/setStatus':
-                return this.replaceCommandSetStatus(textParts);
+                return '<span class="chatBotMessage">' + textParts[1] + " сменил статус на '" + sConfig.statText[parseInt(textParts[2])] + "'.</span>"; 
             case '/opVideo':
                 return '<span class="chatBotMessage">Публичный канал был создан пользователем '+textParts[1]+". <a href=\"javascript:sWebCam.joinRoom('"+textParts[2]+"');\">Подключиться</a>.</span>";
             case '/inviteVideo':
@@ -1734,22 +1737,6 @@ var sChat={
             this.debugMessage('replaceCommands',e);
         }
         return text;
-    },
-    replaceCommandSetStatus:function(textParts){
-        this.statusID=parseInt(textParts[2]);
-        var s=document.getElementById('stat'+this.getUserIDFromUserName(textParts[1]));
-        var change=false;
-        if(s){
-            change=sConfig.statText[this.statusID]!==s.title;
-            var key=textParts[3]||false;
-            if(change){
-                s.src='img/status/'+sConfig.statImg[this.statusID];
-                s.title=sConfig.statText[this.statusID];
-            }
-            s.style.cursor=key?'pointer':'default';
-            s.onclick=key?function(){sWebCam.joinRoom(key);}:function(){return false;};
-        }
-        return change&&'<span class="chatBotMessage">'+textParts[1]+" сменил статус на '"+sConfig.statText[this.statusID]+"'.</span>";
     },
     replaceCommandChannelEnter:function(textParts){
         return '<span class="chatBotMessage">'

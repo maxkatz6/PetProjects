@@ -46,7 +46,7 @@ var sConfig={
         soundPrivate:'sound_7',
         myVideo:true,
         myAudio:true,
-        vkPosts:false
+        vkPosts:true
     },
 // Defines a list of settings which are not to be stored in a session cookie:
     nonPersistentSettings:[],

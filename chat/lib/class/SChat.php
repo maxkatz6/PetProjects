@@ -198,6 +198,9 @@ class SChat {
             case 'channelName':
                 $this->addInfoMessage($this->getChannelName(), 'channelName');
                 break;
+            case 'userInfo':
+                $this->addInfoMessage($this->getUserInfo(), 'userInfo');
+                break;
         }
     }
 
