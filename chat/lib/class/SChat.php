@@ -23,7 +23,6 @@ class SChat {
     function initRequestVars() {
         $this->_requestVars = array(
         'ajax'          => isset($_REQUEST['ajax']),
-	    'exp'          => isset($_REQUEST['exp']),
 	    'logout'	=> isset($_REQUEST['logout']),
 	    'userID'	=> isset($_REQUEST['userID'])		? (int)$_REQUEST['userID']	: null,
 	    'userName'	=> isset($_REQUEST['userName'])		? $_REQUEST['userName']		: null,
@@ -221,7 +220,7 @@ class SChat {
             case 'logs':
                 return SCHAT_PATH.'lib/template/logs.html';
             default:
-                return SCHAT_PATH.($this->getRequestVar('exp')?'lib/template/mob.html':'lib/template/chat.html');
+                return SCHAT_PATH.'lib/template/chat.html';
         }
     }
 
@@ -611,6 +610,9 @@ class SChat {
                 case '/setStatus':		    
                     $this->setStatus($textParts);
                     break;
+                case '/call':
+                    $this->insertParsedMessageCall($textParts);
+                    break;
                 default:
                     $this->insertCustomMessage(
                     $this->getUserID(),
@@ -728,19 +730,26 @@ class SChat {
             // Get UserID from UserName:
             $toUserID = $this->getIDFromName($textParts[1]);
             if($toUserID === null) {
-                if($this->getQueryUserName() !== null) {
-                    // Close the current query:
-                    $this->insertMessage('/query');
-                } else {
-                    $this->insertChatBotMessage($this->getPrivateMessageID(),'/error UserNameNotFound '.$textParts[1]);
-                }
+                $this->insertChatBotMessage($this->getPrivateMessageID(),'/error UserNameNotFound '.$textParts[1]);
             } else {
                 $this->insertChatBotMessage($this->getPrivateMessageID(), 'Приглашение отправленно');
                 $this->insertChatBotMessage($this->getPrivateMessageID($toUserID), $textParts[0].' '.$textParts[2].' '.$textParts[3].' '.$textParts[4]);
             }
         }
     }
-    
+    function insertParsedMessageCall($textParts) {
+        if(count($textParts) < 2) {
+            $this->insertChatBotMessage($this->getPrivateMessageID(),'/error MissingUserName');
+        } else {
+            // Get UserID from UserName:
+            $toUserID = $this->getIDFromName($textParts[1]);
+            if($toUserID === null) {
+                $this->insertChatBotMessage($this->getPrivateMessageID(),'/error UserNameNotFound '.$textParts[1]);
+            } else {
+                $this->insertChatBotMessage($this->getPrivateMessageID($toUserID), $textParts[0].' '.$this->getUserName());
+            }
+        }
+    }
     function insertParsedMessageInvite($textParts) {
 	    if($this->getChannel() == $this->getPrivateChannelID() || in_array($this->getChannel(), $this->getChannels())) {
 		    if(count($textParts) == 1) {
@@ -1917,7 +1926,7 @@ class SChat {
 			    ORDER BY
 				    id
                     DESC
-			    LIMIT '.Config::logsRequestMessagesLimit.';';
+			    LIMIT '.$this->getRequestVar('tmc').';';
 
 	    // Create a new SQL query:
 	    $result = $this->db->sqlQuery($sql);

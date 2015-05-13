@@ -8,20 +8,21 @@
     <title>Socio!PARTY</title>
     <link rel="stylesheet" type="text/css" href="css/global.css?[VN/]"/>
     <link rel="stylesheet" type="text/css" href="css/fonts.css?[VN/]"/>
-    <link rel="stylesheet" type="text/css" href="css/webcam.css?[VN/]"/>
     [STYLE_SHEETS/]
     <!--[if lt IE 8]><script type="text/javascript"> var isIElt8=true; </script><![endif]-->
+    <script src="js/config.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="js/jquery-ui.min.js" type="text/javascript" charset="UTF-8"></script>
     <script src="js/jquery.colorPicker.min.js" type="text/javascript" charset="UTF-8"></script>
     <script src="js/helper.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
     <script src="js/chat.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/lang/[LANG_CODE/].js" type="text/javascript" charset="UTF-8"></script>
+    <link rel="stylesheet" type="text/css" href="css/webcam.css?[VN/]" />
     <script src="js/simplewebrtc.js" type="text/javascript" charset="UTF-8"></script>
     <!--script src="https://simplewebrtc.com/latest.js"></script-->
-    <script src="js/webcam.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
-    <script src="js/lang/[LANG_CODE/].js" type="text/javascript" charset="UTF-8"></script>
-    <script src="js/config.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/webcam.js?[VN/]" type="text/javascript" charset="UTF-8"></script> 
     <script src="js/FABridge.js" type="text/javascript" charset="UTF-8"></script>
+
     <script type="text/javascript">
         // <![CDATA[
         view={
@@ -56,51 +57,51 @@
                 sChat.showHide(containerID);
             }
         };
-        function initialize(){
+        sChat.initializeFunction=function(){
             if(helper.isMobile()){
                 sConfig.settings['audio']=
                     sConfig.settings['saveAddressee']=false;
-                sChat.showHide('onlineListContainer','none');
-                sChat.showHide('settingsContainer','none');
-                sChat.showHide('helpContainer','none');
+                sChat.showHide('onlineListContainer', 'none');
+                sChat.showHide('settingsContainer', 'none');
+                sChat.showHide('helpContainer', 'none');
             }
-            if (helper.isMobile() || !sConfig.videoChat || !helper.getWebRTCInfo().support) {
-                sConfig.settings['myVideo'] = sConfig.settings["myAudio"] = false;
+            if(helper.isMobile()||!sConfig.videoChat||!helper.getWebRTCInfo().support){
+                sConfig.settings['myVideo']=sConfig.settings["myAudio"]=false;
                 $("#channelSelection option[value='Видеочат']").remove();
                 $('#myAudioSetting, #myVideoSetting').parent().parent().hide();
             }
             view.bindPopups();
-            sChat.updateButton('audio','audioButton');
-            sChat.updateButton('autoScroll','autoScrollButton');
+            sChat.updateButton('audio', 'audioButton');
+            sChat.updateButton('autoScroll', 'autoScrollButton');
             document.getElementById('saveAddresseeSetting').checked=sChat.getSetting('saveAddressee');
             document.getElementById('msgColorsSetting').checked=sChat.getSetting('msgColors');
             document.getElementById('nickColorsSetting').checked=sChat.getSetting('nickColors');
             document.getElementById('gradiensSetting').checked=sChat.getSetting('gradiens');
             document.getElementById('bbCodeSetting').checked=sChat.getSetting('bbCode');
             document.getElementById('hyperLinksSetting').checked=sChat.getSetting('hyperLinks');
-            sChat.setSetting('vkPosts',sChat.getSetting('hyperLinks')&&sChat.getSetting('vkPosts'));
-            document.getElementById('vkPostsSetting').checked = sChat.getSetting('vkPosts');
-            document.getElementById('myVideoSetting').checked = sChat.getSetting('myVideo');
-            document.getElementById('myAudioSetting').checked = sChat.getSetting('myAudio');
+            sChat.setSetting('vkPosts', sChat.getSetting('hyperLinks')&&sChat.getSetting('vkPosts'));
+            document.getElementById('vkPostsSetting').checked=sChat.getSetting('vkPosts');
+            document.getElementById('myVideoSetting').checked=sChat.getSetting('myVideo');
+            document.getElementById('myAudioSetting').checked=sChat.getSetting('myAudio');
             document.getElementById('emoticonsSetting').checked=sChat.getSetting('emoticons');
             $.fn.colorPicker.defaults.colors=sConfig.colorCodes;
-            $('#fontColorSetting').val(sChat.getSetting('fontColor')).colorPicker({showHexField:false});
-            $('#nickColorSetting').val(sChat.getSetting('nickColor')).colorPicker({showHexField:false});
-            for(var i=0;i<document.getElementById('audioVolumeSetting').options.length;i++){
+            $('#fontColorSetting').val(sChat.getSetting('fontColor')).colorPicker({ showHexField:false });
+            $('#nickColorSetting').val(sChat.getSetting('nickColor')).colorPicker({ showHexField:false });
+            for(var i=0; i<document.getElementById('audioVolumeSetting').options.length; i++){
                 if(document.getElementById('audioVolumeSetting').options[i].value===sChat.getSetting('audioVolume')){
                     document.getElementById('audioVolumeSetting').options[i].selected=true;
                     break;
                 }
             }
-            sChat.fillSoundSelection('soundReceiveSetting',sChat.getSetting('soundReceive'));
-            sChat.fillSoundSelection('soundSendSetting',sChat.getSetting('soundSend'));
-            sChat.fillSoundSelection('soundEnterSetting',sChat.getSetting('soundEnter'));
-            sChat.fillSoundSelection('soundLeaveSetting',sChat.getSetting('soundLeave'));
-            sChat.fillSoundSelection('soundChatBotSetting',sChat.getSetting('soundChatBot'));
-            sChat.fillSoundSelection('soundErrorSetting',sChat.getSetting('soundError'));
-            sChat.fillSoundSelection('soundPrivateSetting',sChat.getSetting('soundPrivate'));
+            sChat.fillSoundSelection('soundReceiveSetting', sChat.getSetting('soundReceive'));
+            sChat.fillSoundSelection('soundSendSetting', sChat.getSetting('soundSend'));
+            sChat.fillSoundSelection('soundEnterSetting', sChat.getSetting('soundEnter'));
+            sChat.fillSoundSelection('soundLeaveSetting', sChat.getSetting('soundLeave'));
+            sChat.fillSoundSelection('soundChatBotSetting', sChat.getSetting('soundChatBot'));
+            sChat.fillSoundSelection('soundErrorSetting', sChat.getSetting('soundError'));
+            sChat.fillSoundSelection('soundPrivateSetting', sChat.getSetting('soundPrivate'));
             //document.getElementById('commandAction').value = sChat.lang['userMenuAction'];
-        }
+        };
         sConfig.loginChannelID=parseInt('[LOGIN_CHANNEL_ID/]');
         sConfig.sessionName='[SESSION_NAME/]';
         sConfig.cookieExpiration=parseInt('[COOKIE_EXPIRATION/]');
@@ -113,7 +114,7 @@
         sConfig.privateChannelDiff=parseInt('[PRIVATE_CHANNEL_DIFF/]');
         sConfig.privateMessageDiff=parseInt('[PRIVATE_MESSAGE_DIFF/]');
         sConfig.messageTextMaxLength=parseInt('[MESSAGE_TEXT_MAX_LENGTH/]');
-        sChat.init(sChatLang,true,true,true,initialize);
+        sChat.init();
         window.onblur=function(){
             sChat.infocus=false;
         };

@@ -113,8 +113,15 @@ class SChatTemplate {
                 return 'write_allowed';
             case 'HELPLIST':
                 return $this->getHelpList();
+      /*      case 'NotMobile':{
+                    //var_dump($this->sChat->getSessionVar('mob'));
+                    //var_dump($tagData);
+                    if ($this->sChat->getSessionVar('mob') == 0){
+                            return preg_replace_callback($this->_regExpTemplateTags, array($this, 'replaceTemplateTags'), $tagData[2]);
+                        }
+                }*/
 			default:
-				return $this->sChat->replaceCustomTemplateTags($tagData[1], (isset($tagData[2]) ? $tagData[2] : null));
+				return $tagData[0];
 		}
 	}
     function getHelpList()

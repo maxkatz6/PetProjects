@@ -118,8 +118,6 @@ class Config{
 
     // Defines the max time difference in hours for logs when no period or search condition is given:
     const logsRequestMessagesTimeDiff = 1;
-    // Defines how many logs are returned on each logs request:
-    const logsRequestMessagesLimit = 10;
 
     // Defines the earliest year used for the logs selection:
     const logsFirstYear = 2015;
@@ -135,12 +133,19 @@ class Config{
     public static $gzipEnabled = false;
 
     public static  $msgGrad = array(
-        'Sagita' => array('eb8100','d520a0','8d13db')
+        'Sagita' => array('eb8100','d520a0','8d13db'),
+        'Экселенс' => array('556B2F','006400','000000'),
+        //'Niakriss' => array('000000','300082','300082')
+        //'Эйзенхорн' => array('F70502','990200','000000'),
+        'Acedia' => array('00F5C8','00F586','0B19FE')
     );
     public static  $nickGrad = array(
         'Тирраон' => array('300082','800090'),
         'Sagita' => array('8d13db','ff00b4', 'ff8c00'),
         'Huginn' => array('1C1C1C','363636', '4F4F4F'),
-        'Niakriss' => array('B452CD','68228B', '000000')
+        'Niakriss' => array('300082','300082', '000000'),
+        'Экселенс' => array('000000','006400', '556B2F'),
+        //'Эйзенхорн' => array('000000','990200','F70502'),
+        'Acedia' => array('0B19FE','00F586','00F5C8')
     );
 }
