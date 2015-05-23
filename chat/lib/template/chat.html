@@ -59,11 +59,13 @@
         };
         sChat.initializeFunction=function(){
             if(helper.isMobile()){
-                sConfig.settings['audio']=
-                    sConfig.settings['saveAddressee']=false;
-                sChat.showHide('onlineListContainer', 'none');
-                sChat.showHide('settingsContainer', 'none');
-                sChat.showHide('helpContainer', 'none');
+                sConfig.settings['audio'] = sConfig.settings['saveAddressee'] = false;
+                if (screen.width <= 480) {
+                    sChat.showHide('onlineListContainer', 'none');
+                    document.getElementById('settingsButton').setAttribute('onclick', 'sChat.showHide("settingsContainer")');
+                    document.getElementById('settingsContainer').setAttribute('style', 'right:0;position:absolute;');
+                    document.getElementById('showUserListButton').setAttribute('onclick', 'sChat.showHide("settingsButton");sChat.showHide("settingsContainer","none");sChat.toggleArrowButton("onlineListContainer","showUserListButton");return false;');
+                }
             }
             if(helper.isMobile()||!sConfig.videoChat||!helper.getWebRTCInfo().support){
                 sConfig.settings['myVideo']=sConfig.settings["myAudio"]=false;
@@ -89,7 +91,7 @@
             $('#nickColorSetting').val(sChat.getSetting('nickColor')).colorPicker({ showHexField:false });
             for(var i=0; i<document.getElementById('audioVolumeSetting').options.length; i++){
                 if(document.getElementById('audioVolumeSetting').options[i].value===sChat.getSetting('audioVolume')){
-                    document.getElementById('audioVolumeSetting').options[i].selected=true;
+                    document.getElementById('audioVolumeSetting').options[i].selected = true;
                     break;
                 }
             }
@@ -137,7 +139,7 @@
         <a style="color: inherit; text-decoration: none;" href="/">Socio!PARTY</a>
     </h1>
     <div id="logoutChannelContainer">
-        <a id="showUserListButton" style="background-position: -46px -22px" href="javascript:sChat.toggleArrowButton('onlineListContainer', 'showUserListButton');"></a>
+        <a id="showUserListButton" style="background-position: -46px -22px" href="#"></a>
         <input type="button" id="logoutButton" value="[LANG]logout[/LANG]" onclick="sChat.logout(); "/>
         <div id="logoutChannelInner" style="overflow: hidden">
             <label for="channelSelection">[LANG]channel[/LANG]:</label>

@@ -23,23 +23,23 @@ class SChat {
     function initRequestVars() {
         $this->_requestVars = array(
         'ajax'          => isset($_REQUEST['ajax']),
-	    'logout'	=> isset($_REQUEST['logout']),
-	    'userID'	=> isset($_REQUEST['userID'])		? (int)$_REQUEST['userID']	: null,
-	    'userName'	=> isset($_REQUEST['userName'])		? $_REQUEST['userName']		: null,
-	    'channelID'	=> isset($_REQUEST['channelID'])	? (int)$_REQUEST['channelID']	: null,
+	    'logout'	    => isset($_REQUEST['logout']),
+	    'userID'	    => isset($_REQUEST['userID'])		? (int)$_REQUEST['userID']	: null,
+	    'userName'	    => isset($_REQUEST['userName'])		? $_REQUEST['userName']		: null,
+	    'channelID' 	=> isset($_REQUEST['channelID'])	? (int)$_REQUEST['channelID']: null,
 	    'channelName'	=> isset($_REQUEST['channelName'])	? $_REQUEST['channelName']	: null,
-	    'text'		=> isset($_POST['text'])		? $_POST['text']		: null,
-	    'lastID'	=> isset($_REQUEST['lastID'])		? (int)$_REQUEST['lastID']	: 0,
-	    'view'		=> isset($_REQUEST['view'])		? $_REQUEST['view']		: null,
-	    'year'		=> isset($_REQUEST['year'])		? (int)$_REQUEST['year']	: null,
-	    'month'		=> isset($_REQUEST['month'])		? (int)$_REQUEST['month']	: null,
-	    'day'		=> isset($_REQUEST['day'])		? (int)$_REQUEST['day']		: null,
-	    'hour'		=> isset($_REQUEST['hour'])		? (int)$_REQUEST['hour']	: null,
-	    'search'	=> isset($_REQUEST['search'])		? $_REQUEST['search']		: null,
-	    'getInfos'	=> isset($_REQUEST['getInfos'])		? $_REQUEST['getInfos']		: null,
-	    'lang'          => isset($_REQUEST['lang'])		? $_REQUEST['lang']		: null,
-	    'delete'	=> isset($_REQUEST['delete'])		? (int)$_REQUEST['delete']	: null,
-	    'tmc'		=> isset($_REQUEST['tmc'])		? (int)$_REQUEST['tmc']		: 10);
+	    'text'	    	=> isset($_POST['text'])		    ? $_POST['text']		    : null,
+	    'lastID'    	=> isset($_REQUEST['lastID'])		? (int)$_REQUEST['lastID']	: 0,
+	    'view'	    	=> isset($_REQUEST['view'])	    	? $_REQUEST['view']	    	: null,
+	    'year'	    	=> isset($_REQUEST['year'])	    	? (int)$_REQUEST['year']	: null,
+	    'month'	    	=> isset($_REQUEST['month'])		? (int)$_REQUEST['month']	: null,
+	    'day'	    	=> isset($_REQUEST['day'])	    	? (int)$_REQUEST['day']		: null,
+	    'hour'	    	=> isset($_REQUEST['hour'])	    	? (int)$_REQUEST['hour']	: null,
+	    'search'	    => isset($_REQUEST['search'])		? $_REQUEST['search']		: null,
+	    'getInfos'	    => isset($_REQUEST['getInfos'])		? $_REQUEST['getInfos']		: null,
+	    'lang'          => isset($_REQUEST['lang'])	    	? $_REQUEST['lang']	    	: null,
+	    'delete'	    => isset($_REQUEST['delete'])		? (int)$_REQUEST['delete']	: null,
+	    'tmc'	    	=> isset($_REQUEST['tmc'])	    	? (int)$_REQUEST['tmc']		: 10);
         
         // Remove slashes which have been added to user input strings if magic_quotes_gpc is On:
         if(get_magic_quotes_gpc()) {
@@ -613,13 +613,16 @@ class SChat {
                 case '/call':
                     $this->insertParsedMessageCall($textParts);
                     break;
+                case '/server':
+                    if ($this->getUserRole() >= SCHAT_MODERATOR){
+                        $this->insertChatBotMessage($this->getChannel(), substr($text, 8));
+                    }
+                    else{
+                        $this->insertCustomMessage($this->getUserID(),$this->getUserName(),$this->getUserRole(),$this->getChannel(),$text, $msgInfo);
+                    }
+                    break;
                 default:
-                    $this->insertCustomMessage(
-                    $this->getUserID(),
-                    $this->getUserName(),
-                    $this->getUserRole(),
-                    $this->getChannel(),
-                    $text, $msgInfo);
+                    $this->insertCustomMessage($this->getUserID(),$this->getUserName(),$this->getUserRole(),$this->getChannel(),$text, $msgInfo);
             }
         } else {
             // No command found, just insert the plain message:
@@ -639,6 +642,7 @@ class SChat {
         if (count($textParts) < 3){
             if (array_key_exists('vKey', $info)){unset($info['vKey']);}
         }else{
+            $textParts[2] = $this->trimString(implode(' ',array_slice($textParts,2)),20,$info['s']===17,true);
             if (array_key_exists('vKey', $info) && $info['vKey'] === $textParts[2]){return;}
             $key = $info['vKey'] = $textParts[2];
         }
@@ -746,6 +750,7 @@ class SChat {
             if($toUserID === null) {
                 $this->insertChatBotMessage($this->getPrivateMessageID(),'/error UserNameNotFound '.$textParts[1]);
             } else {
+                $this->insertChatBotMessage($this->getPrivateMessageID(), 'Вы отправили вызов пользователю '.$textParts[1]);
                 $this->insertChatBotMessage($this->getPrivateMessageID($toUserID), $textParts[0].' '.$this->getUserName());
             }
         }
@@ -1187,9 +1192,7 @@ class SChat {
 			    $prefix = Config::changedNickPrefix;
 			    $suffix = Config::changedNickSuffix;
 		    }
-		    $maxLength =	Config::userNameMaxLength
-						    - $this->stringLength($prefix)
-						    - $this->stringLength($suffix);
+		    $maxLength = Config::userNameMaxLength - SChatString::stringLength($prefix) - SChatString::stringLength($suffix);
 		    $newUserName = $this->trimString($newUserName, $maxLength, true);
 		    if(!$newUserName) {
 			    $this->insertChatBotMessage(
@@ -1665,7 +1668,7 @@ class SChat {
 		    case 'logs':
 			    return $this->getLogsViewJSONMessages();
 		    default:
-			    return array("infos" => array("logout" => $this->encodeSpecialChars(Config::logoutData)));
+			    return array("infos" => array("logout" => SChatEncoding::encodeSpecialChars(Config::logoutData)));
 	    }
     }
 
@@ -1706,7 +1709,7 @@ class SChat {
 			    ORDER BY
 				    id
 				    DESC
-			    LIMIT '.Config::requestMessagesLimit.';';
+			    LIMIT '.($this->getRequestVar('lastID') == 0?Config::requestMessagesLimit:200).';';
 
 	    // Create a new SQL query:
 	    $result = $this->db->sqlQuery($sql);
@@ -1725,8 +1728,8 @@ class SChat {
                 'uID' => (int)$row['userID'],
                 'role' => (int)$row['userRole'],
                 'cID' => (int)$row['channelID'],
-                'name' => $this->encodeSpecialChars($row['userName']),
-                'text' => $this->encodeSpecialChars($row['text']),
+                'name' => SChatEncoding::encodeSpecialChars($row['userName']),
+                'text' => SChatEncoding::encodeSpecialChars($row['text']),
                 'time' => date('r', $row['timeStamp']),
                 'info' => json_decode($row['msgInfo'], true)
             );
@@ -1799,8 +1802,8 @@ class SChat {
 	    while($row = $result->fetch()) {
             $rows[] = array(
                 'channelID' =>  (int)$row['channelID'],
-                'userName' =>  $this->encodeSpecialChars($row['userName']),
-                'text' =>  $this->encodeSpecialChars($row['text']),
+                'userName' =>  SChatEncoding::encodeSpecialChars($row['userName']),
+                'text' =>  SChatEncoding::encodeSpecialChars($row['text']),
                 'dateTime' =>  date('r', $row['timeStamp'])
             );
 	    }
@@ -1945,8 +1948,8 @@ class SChat {
                 'uID' => (int)$row['userID'],
                 'role' => (int)$row['userRole'],
                 'cID' => (int)$row['channelID'],
-                'name' => $this->encodeSpecialChars($row['userName']),
-                'text' => $this->encodeSpecialChars($row['text']),
+                'name' => SChatEncoding::encodeSpecialChars($row['userName']),
+                'text' => SChatEncoding::encodeSpecialChars($row['text']),
                 'time' => date('r', $row['timeStamp']),
                 'info' => json_decode($row['msgInfo'], true),
                 'ip' => $this->ipFromStorageFormat($row['ip'])
@@ -2056,11 +2059,14 @@ class SChat {
                     'role' => (int)$row['userRole'],
                     'room' => (int)$row['channel'],
                     'time' => (int)$row['timeStamp'],
-                    'name' => $this->encodeSpecialChars($row['userName']),
+                    'name' => SChatEncoding::encodeSpecialChars($row['userName']),
                     'info' => json_decode($row['userInfo'], true),
                 );
                 if ($this->getUserRole() >= SCHAT_MODERATOR){
                     $user['ip'] = $this->ipFromStorageFormat($row['ip']);
+                }
+                if ($this->_view == 'teaser'){
+                    $user['roomName'] = array_key_exists((int)$row['channel'], Config::$channels) ? Config::$channels[(int)$row['channel']] : "Приватные комнаты";
                 }
                 $this->_onlineUsersData[] = $user;
 		    }
@@ -2422,14 +2428,6 @@ class SChat {
 	    return SChatEncoding::removeUnsafeCharacters($str);
     }
 
-    function subString($str, $start=0, $length=null, $encoding='UTF-8') {
-	    return SChatString::subString($str, $start, $length, $encoding);
-    }
-
-    function stringLength($str, $encoding='UTF-8') {
-	    return SChatString::stringLength($str, $encoding);
-    }
-
     function trimMessageText($text) {
 	    return $this->trimString($text,  Config::messageTextMaxLength);
     }
@@ -2452,31 +2450,15 @@ class SChat {
 
 	    if($decodeEntities) {
 		    // Decode entities:
-		    $str = $this->decodeEntities($str, 'UTF-8', $htmlEntitiesMap);
+		    $str = SChatEncoding::decodeEntities($str, 'UTF-8', $htmlEntitiesMap);
 	    }
 
 	    if($maxLength) {
 		    // Cut the string to the allowed length:
-		    $str = $this->subString($str, 0, $maxLength);
+		    $str = SChatString::subString($str, 0, $maxLength);
 	    }
 
 	    return $str;
-    }
-
-    function encodeEntities($str, $encoding='UTF-8', $convmap=null) {
-	    return SChatEncoding::encodeEntities($str, $encoding, $convmap);
-    }
-
-    function decodeEntities($str, $encoding='UTF-8', $htmlEntitiesMap=null) {
-	    return SChatEncoding::decodeEntities($str, $encoding, $htmlEntitiesMap);
-    }
-
-    function encodeSpecialChars($str) {
-	    return SChatEncoding::encodeSpecialChars($str);
-    }
-
-    function decodeSpecialChars($str) {
-	    return SChatEncoding::decodeSpecialChars($str);
     }
 
     function ipToStorageFormat($ip) {
@@ -2585,12 +2567,12 @@ class SChat {
 		    return $this->getPrivateChannelID();
 	    }
 	    // Try to retrieve a private room ID:
-	    $strlenChannelName = $this->stringLength($channelName);
-	    $strlenPrefix = $this->stringLength(Config::privateChannelPrefix);
-	    $strlenSuffix = $this->stringLength(Config::privateChannelSuffix);
-	    if($this->subString($channelName,0,$strlenPrefix) == Config::privateChannelPrefix
-		    && $this->subString($channelName,$strlenChannelName-$strlenSuffix) == Config::privateChannelSuffix) {
-		    $userName = $this->subString(
+	    $strlenChannelName = SChatString::stringLength($channelName);
+	    $strlenPrefix = SChatString::stringLength(Config::privateChannelPrefix);
+	    $strlenSuffix = SChatString::stringLength(Config::privateChannelSuffix);
+	    if(SChatString::subString($channelName,0,$strlenPrefix) == Config::privateChannelPrefix
+		    && SChatString::subString($channelName,$strlenChannelName-$strlenSuffix) == Config::privateChannelSuffix) {
+		    $userName = SChatString::subString(
 						    $channelName,
 						    $strlenPrefix,
 						    $strlenChannelName-($strlenPrefix+$strlenSuffix)

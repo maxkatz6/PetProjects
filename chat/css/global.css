@@ -82,8 +82,7 @@ div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;f
     #content { position: static; }
     #mainPanelContainer, #bbCodeContainer, #inputFieldContainer, #submitButtonContainer {position: absolute; display: block; bottom: 2px; }
     #mainPanelContainer {height:auto; top:30px; left:0; right:0; }
-    #optionsContainer, #emoticonsContainer,#messageLengthCounter, #bbCodeContainer #commandAction  {display: none;}
-    #optionsContainer {top: 25px;}
+     #helpButton,#onlineListButton,#audioButton,#autoScrollButton,#settingsButton, #emoticonsContainer,#messageLengthCounter, #bbCodeContainer #commandAction  {display: none;}
     #onlineListContainer, #helpContainer, #settingsContainer {z-index: 1;bottom: 0;right: 0;top: 0;position: absolute;height: auto;width: 100%; display: none;}
     #mainPanelContainer h3 { font-size: 0.9em; text-align: left;}
     #emoticonsContainer {left: 0; bottom:35px; max-height: 300px; width: 270px; }

@@ -176,11 +176,11 @@ var sConfig={
     statImg:[
         'na_meste.png', 'menya_net.png', 'skoro_budu.png', 'ne_bespokoit.png', 'otoshel_pokurit.png',
         'granit.png', 'igrayu.png', 'smotry_kino.png', 'sply.png', 'rab.png', 'party_hard!.png',
-        'ne_v_nastroyeniji.png', 'v_yarosti.png', 'bolen.png', 'em.png', 'pyan.png', 'utochka.png', 'webcam.png'
+        'ne_v_nastroyeniji.png', 'v_yarosti.png', 'bolen.png', 'em.png', 'pyan.png', 'utochka.png', 'webcam.png','utochka.png'
     ],
     statText:[
         'На месте', 'Нет на месте', 'Скоро буду', 'Не беспокоить', 'Отошел покурить',
         'Грызу гранит науки', 'Играю', 'Смотрю кино', 'Сплю', 'Работаю', 'Party Hard!',
-        'Не в настроении', 'В ярости', 'Болен', 'Кушаю', 'Пьян', 'Я - уточко', 'Подключен к видеоканалу'
+        'Не в настроении', 'В ярости', 'Болен', 'Кушаю', 'Пьян', 'Я - уточко', 'Подключен к видеоканалу','--'
     ]
 };
