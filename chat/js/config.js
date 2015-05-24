@@ -44,7 +44,8 @@ var sConfig={
         soundPrivate:'sound_7',
         myVideo:true,
         myAudio:true,
-        vkPosts:true
+        vkPosts: true,
+        radio: true
     },
     // Defines the list of allowed BBCodes:
     bbCodeTags:['b', 'i', 's', 'quote', 'tgw', 'q'],
@@ -146,8 +147,6 @@ var sConfig={
     maxVidH:240,
     vidFPS:10,
     iceServers:[
-        { url:'turn:numb.viagenie.ca', credential:'wanderer12', username:'maxim1296@yandex.ru' },
-        { url:'stun:numb.viagenie.ca', credential:'wanderer12', username:'maxim1296@yandex.ru' },
         { url:'stun:stun01.sipphone.com' },
         { url:'stun:stun.ekiga.net' },
         { url:'stun:stun.fwdnet.net' },
@@ -176,7 +175,7 @@ var sConfig={
     statImg:[
         'na_meste.png', 'menya_net.png', 'skoro_budu.png', 'ne_bespokoit.png', 'otoshel_pokurit.png',
         'granit.png', 'igrayu.png', 'smotry_kino.png', 'sply.png', 'rab.png', 'party_hard!.png',
-        'ne_v_nastroyeniji.png', 'v_yarosti.png', 'bolen.png', 'em.png', 'pyan.png', 'utochka.png', 'webcam.png','utochka.png'
+        'ne_v_nastroyeniji.png', 'v_yarosti.png', 'bolen.png', 'em.png', 'pyan.png', 'utochka.png', 'webcam.png','an.png'
     ],
     statText:[
         'На месте', 'Нет на месте', 'Скоро буду', 'Не беспокоить', 'Отошел покурить',

@@ -7,7 +7,7 @@ class SChatEncoding {
 		static $specialChars;
 		if(!$specialChars) {
 			// As &apos; is not supported by IE, we use &#39; as replacement for "'":
-			$specialChars = array('&'=>'&amp;', '<'=>'&lt;', '>'=>'&gt;', "'"=>'&#39;', '"'=>'&quot;');	
+			$specialChars = ['&'=>'&amp;', '<'=>'&lt;', '>'=>'&gt;', "'"=>'&#39;', '"'=>'&quot;'];	
 		}
 		return $specialChars;
 	}

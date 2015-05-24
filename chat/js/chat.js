@@ -35,8 +35,9 @@ var sChat={
     selQuo:[], // selected quotes
     needScroll:true,
     selAddressee:'',
-    removeOld:false,
-    init:function(){
+    removeOld: false,
+    paramString:'',
+    init: function () {
         this.initDirectories();
         this.initSettings();
         this.initStyle();
@@ -66,6 +67,7 @@ var sChat={
             key,
             value,
             number;
+        this.settingsInitiated = true;
         if(cookie){
             settingsArray=cookie.split('&');
             for(i=0; i<settingsArray.length; i++){
@@ -92,7 +94,6 @@ var sChat={
                     sConfig.settings[key]=value;
                 }
             }
-            this.settingsInitiated=true;
         }
     },
     persistSettings:function(){
@@ -167,14 +168,17 @@ var sChat={
     },
     startChatUpdate:function(){
         // Start the chat update and retrieve current user and channel info and set the login channel:
-        var params='&getInfos='+this.encodeText('userID,userName,userRole,channelID,channelName,userInfo');
-        if(!isNaN(parseInt(sConfig.loginChannelID))) params+='&channelID='+sConfig.loginChannelID;
-        else if(sConfig.loginChannelName!==null) params+='&channelName='+this.encodeText(sConfig.loginChannelName);
-        this.updateChat(params);
+        this.paramString += '&getInfos=' + this.encodeText('userID,userName,userRole,channelID,channelName,userInfo');
+        if (!isNaN(parseInt(sConfig.loginChannelID))) this.paramString += '&channelID=' + sConfig.loginChannelID;
+        else if (sConfig.loginChannelName !== null) this.paramString += '&channelName=' + this.encodeText(sConfig.loginChannelName);
+        this.updateChat();
     },
-    updateChat:function(paramString){
+    updateChat:function(){
         var requestUrl=sConfig.ajaxURL+'&lastID='+this.lastID;
-        if(paramString) requestUrl+=paramString;
+        if(this.paramString){
+            requestUrl += this.paramString;
+            this.paramString='';
+        }
         this.makeRequest(requestUrl, 'GET', null);
     },
     loadFlashInterface:function(){
@@ -325,7 +329,7 @@ var sChat={
                 identifier=arguments.callee.identifier;
             } else identifier=0;
             //if the response takes longer than retryTimerDelay to give an OK status, abort the connection and start again.
-            this.retryTimer=setTimeout(function(){ sChat.updateChat(null); }, sChat.retryTimerDelay);
+            this.retryTimer=setTimeout(function(){ sChat.updateChat(); }, sChat.retryTimerDelay);
             this.getHttpRequest(identifier).open(method, url, true);
             this.getHttpRequest(identifier).onreadystatechange=function(){
                 try{
@@ -345,7 +349,7 @@ var sChat={
                         this.debugMessage('makeRequest::logRetry', e);
                     }
                     try{
-                        sChat.timer=setTimeout(function(){ sChat.updateChat(null); }, sConfig.timerRate);
+                        sChat.timer=setTimeout(function(){ sChat.updateChat(); }, sConfig.timerRate);
                     } catch(e){
                         this.debugMessage('makeRequest::setTimeout', e);
                     }
@@ -359,7 +363,7 @@ var sChat={
                 this.addChatBotMessageToChatList('/error ConnectionTimeout');
                 this.updateChatlistView();
             }
-            this.timer=setTimeout(function(){ sChat.updateChat(null); }, sConfig.timerRate);
+            this.timer=setTimeout(function(){ sChat.updateChat(); }, sConfig.timerRate);
         }
     },
     handleResponse:function(identifier){
@@ -383,6 +387,7 @@ var sChat={
         this.handleInfoMessages(json.infos);
         this.handleOnlineUsers(json.users);
         this.handleChatMessages(json.msgs);
+        sPlayer.handleRadio(json.radio);
         this.channelSwitch=null;
         this.setChatUpdateTimer();
     },
@@ -390,7 +395,7 @@ var sChat={
         clearTimeout(this.timer);
         if(this.chatStarted){
             var timeout=sConfig.timerRate;
-            this.timer=setTimeout(function(){ sChat.updateChat(null); }, timeout);
+            this.timer=setTimeout(function(){ sChat.updateChat(); }, timeout);
         }
     },
     handleInfoMessages:function(infos){
@@ -423,10 +428,8 @@ var sChat={
                     this.userRole=parseInt(infoData);
                     break;
                 case 'userInfo':
-                {
                     if(infoData.s===17) sChat.sendMessageWrapper('/setStatus 0');
                     break;
-                }
                 case 'logout':
                     this.handleLogout(infoData);
                     return;
@@ -465,7 +468,24 @@ var sChat={
             s.style.cursor=userInfo.vKey&&userInfo.s===17?'pointer':'default';
             s.onclick=userInfo.vKey&&userInfo.s===17?function(){ sWebCam.joinRoom(sChat.scriptLinkEncode(userInfo.vKey)); }:function(){ return false; };
         }
-        this.userStatList[this.usersList.indexOf(userID)]=userInfo.s;
+        if(userID===this.userID){
+            var selStat = document.getElementById('statusSelect'), userStat = document.getElementById('userStat');
+            if (userInfo.s === 18) {
+                if (!userStat) {
+                    userStat = document.createElement('option');
+                    userStat.id = 'userStat';
+                }
+                if(userStat.textContent) userStat.textContent=userInfo.vKey;
+                else userStat.innerText= userInfo.vKey;
+                userStat.value = 'userStat';
+                selStat.appendChild(userStat);
+                selStat.value = 'userStat';
+            } else{
+                if(userStat) userStat.remove();
+                selStat.value = userInfo.s;
+            }
+        }
+        this.userStatList[this.usersList.indexOf(userID)] = userInfo.s === 18 ? 'userStat' : userInfo.s;
     },
     handleChatMessages:function(json){
         var userName, messageText, i;
@@ -597,7 +617,7 @@ var sChat={
                     +'</a></li>'+'<li><a href="javascript:sChat.sendMessageWrapper(\'/whois '+encodedUserName+'\');">'+sChatLang['userMenuWhois']+'</a></li>';
         } else{
 
-            menu='<li style="text-indent:-3px;"><select onchange="sChat.setStatus(this.options[this.selectedIndex].value)" style="background: transparent;border:none;outline:none;cursor:pointer;">'+sChat.getStatusUserNodeItem()+'</select></li>'
+            menu='<li style="text-indent:-3px;"><select id="statusSelect" onchange="sChat.setStatus(this.options[this.selectedIndex].value)" style="background: transparent;border:none;outline:none;cursor:pointer;">'+sChat.getStatusUserNodeItem()+'</select></li>'
                 +'<li><a target="_blank" href="/index.php/jomsocial/profile/">Профиль</a></li>'
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/quit\');">'+sChatLang['userMenuLogout']+'</a></li>'
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/who\');">'+sChatLang['userMenuWho']+'</a></li>'
@@ -622,7 +642,7 @@ var sChat={
         var statHTML='';
         for(var i=0; i<sConfig.statText.length-1; i++) // not include last - webcam
             statHTML += '<option value="' + i + '"' + (i === this.userStatList[this.usersList.indexOf(this.userID)] ? ' selected="selected">' : '>') + sConfig.statText[i] + '</option>';
-        return statHTML +'<option value="18"'+(18===this.userStatList[this.usersList.indexOf(this.userID)]?' selected="selected">':'>')+'--Свой статус--</option>';
+        return statHTML +'<option value="18"'+('userStat'===this.userStatList[this.usersList.indexOf(this.userID)]?' selected="selected">':'>')+'--Свой статус--</option>';
     },
     setStatus: function (id){
         var stat;
@@ -1088,7 +1108,7 @@ var sChat={
                 try{
                     this.dom['chatList'].removeChild(messageNode);
                     if(nextSibling) this.updateChatListRowClasses(nextSibling);
-                    this.updateChat('&delete='+messageID);
+                    this.paramString+='&delete='+messageID;
                 } catch(e){
                     this.setClass(messageNode, originalClass);
                 }

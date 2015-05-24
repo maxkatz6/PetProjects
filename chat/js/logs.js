@@ -82,7 +82,7 @@ sChat.switchLanguage = function (langCode) {
 
 sChat.setChatUpdateTimer = function () {
     clearTimeout(this.timer);
-    this.timer = setTimeout('sChat.updateChat(null);', 3000);
+    this.timer = setTimeout('sChat.updateChat();', 3000);
 };
 
 sChat.getChatListChild = function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo) {

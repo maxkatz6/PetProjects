@@ -7,7 +7,7 @@ define('SCHAT_USER',      1);
 define('SCHAT_BANNED',    0);
 
 class Config{
-    public static $channels = array(
+    public static $channels = [
     0 => 'Общая',
     1 => 'Диванная',
     2 => 'Видеочат',
@@ -15,33 +15,33 @@ class Config{
     11 => 'Бета',
     12 => 'Гамма',
     13 => 'Дельта',
-    14 => 'Админы');
+    14 => 'Админы'];
 
     // Database connection values:
-    public static  $dbConnection = array(
+    public static  $dbConnection = [
     /*'host' => 'localhost', 
     'user' => 'root',
     'pass' => '',
     'name' => 'chat',
-    'link' => null*/);
+    'link' => null*/];
 
     // Available languages:
-    public static  $langAvailable = array(
+    public static  $langAvailable = [
       'ar','bg','ca','cy','cz','da','de','el','en','es','et','fa','fi','fr','gl','he','hr','hu','in','it','ja','ka','kr','mk','nl','nl-be','no','pl','pt-br','pt-pt','ro','ru','sk','sl','sr','sv','th','tr','uk','zh','zh-tw'
-    );
+    ];
     // Default language:
     const langDefault = 'ru';
     // Language names (each languge code in available languages must have a display name assigned here):
-    public static $langNames = array(
+    public static $langNames = [
       'ar'=>'عربي', 'bg'=>'Български', 'ca'=>'Català', 'cy'=>'Cymraeg', 'cz'=>'Česky', 'da'=>'Dansk', 'de'=>'Deutsch', 'el'=>'Ελληνικα', 'en'=>'English',
       'es'=>'Español', 'et'=>'Eesti', 'fa'=>'فارسی', 'fi'=>'Suomi', 'fr'=>'Français', 'gl'=>'Galego', 'he'=>'עברית', 'hr' => 'Hrvatski', 'hu' => 'Magyar', 'in'=>'Bahasa Indonesia', 'it'=>'Italiano',
       'ja'=>'日本語','ka'=>'ქართული','kr'=>'한 글','mk'=>'Македонски', 'nl'=>'Nederlands', 'nl-be'=>'Nederlands (België)', 'no'=>'Norsk', 'pl'=> 'Polski', 'pt-br'=>'Português (Brasil)', 'pt-pt'=>'Português (Portugal)',
       'ro'=>'România', 'ru'=>'Русский', 'sk'=> 'Slovenčina', 'sl'=>'Slovensko', 'sr'=>'Srpski', 'sv'=> 'Svenska', 'th'=>'&#x0e20;&#x0e32;&#x0e29;&#x0e32;&#x0e44;&#x0e17;&#x0e22;',
       'tr'=>'Türkçe', 'uk'=>'Українська', 'zh'=>'中文 (简体)', 'zh-tw'=>'中文 (繁體)'
-    );
+    ];
 
     // Available styles:
-    public static $styleAvailable = array('beige','grey','Oxygen','Lithium','Sulfur','prosilver','Core','MyBB','vBulletin','XenForo');
+    public static $styleAvailable = ['beige','grey','Oxygen','Lithium','Sulfur','prosilver','Core','MyBB','vBulletin','XenForo'];
     // Default style:
     const styleDefault = 'prosilver';
 
@@ -127,19 +127,22 @@ class Config{
     // Max time difference in days for old messages before they are purged from the database:
     const logsPurgeTimeDiff = 365;
 
+    const radioInfo = true;
+    const radioServer = /*false*/'http://109.87.163.34:1256';
+    
     const debug = false;
 
     public static $chatClosed = false;
     public static $gzipEnabled = false;
 
-    public static  $msgGrad = array(
+    public static  $msgGrad = [
         'Sagita' => array('eb8100','d520a0','8d13db'),
         'Экселенс' => array('556B2F','006400','000000'),
         //'Niakriss' => array('000000','300082','300082')
         //'Эйзенхорн' => array('F70502','990200','000000'),
         'Acedia' => array('00F5C8','00F586','0B19FE')
-    );
-    public static  $nickGrad = array(
+    ];
+    public static  $nickGrad = [
         'Тирраон' => array('300082','800090'),
         'Sagita' => array('8d13db','ff00b4', 'ff8c00'),
         'Huginn' => array('1C1C1C','363636', '4F4F4F'),
@@ -147,5 +150,5 @@ class Config{
         'Экселенс' => array('000000','006400', '556B2F'),
         //'Эйзенхорн' => array('000000','990200','F70502'),
         'Acedia' => array('0B19FE','00F586','00F5C8')
-    );
+    ];
 }

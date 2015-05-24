@@ -44,7 +44,7 @@ class SChatTemplate {
 		}
 
 		// Replace template tags ([TAG/] and [TAG]content[/TAG]) and return parsed template content:
-		$this->_parsedContent = preg_replace_callback($this->_regExpTemplateTags, array($this, 'replaceTemplateTags'), $this->_parsedContent);
+		$this->_parsedContent = preg_replace_callback($this->_regExpTemplateTags, [$this, 'replaceTemplateTags'], $this->_parsedContent);
 	}
 
 	function replaceTemplateTags($tagData) {
@@ -89,6 +89,10 @@ class SChatTemplate {
 				return Config::privateChannelDiff;
 			case 'PRIVATE_MESSAGE_DIFF':
 				return Config::privateMessageDiff;
+            case 'radioServer':
+                return Config::radioServer;
+            case 'radioInfo':
+                return Config::radioInfo;
 			case 'STYLE_SHEETS':
 				return $this->getStyleSheetLinkTags();
 			case 'CHANNEL_OPTIONS':
@@ -113,13 +117,6 @@ class SChatTemplate {
                 return 'write_allowed';
             case 'HELPLIST':
                 return $this->getHelpList();
-      /*      case 'NotMobile':{
-                    //var_dump($this->sChat->getSessionVar('mob'));
-                    //var_dump($tagData);
-                    if ($this->sChat->getSessionVar('mob') == 0){
-                            return preg_replace_callback($this->_regExpTemplateTags, array($this, 'replaceTemplateTags'), $tagData[2]);
-                        }
-                }*/
 			default:
 				return $tagData[0];
 		}
@@ -127,8 +124,8 @@ class SChatTemplate {
     function getHelpList()
     {
         $ret = '<div id="helpList">';
-        $list = array('Join', 'JoinCreate', 'Invite', 'Uninvite', 'Logout', 'PrivateMessage', 'QueryOpen', 'QueryClose', 'Action', 
-            'Describe', 'Ignore', 'IgnoreList', 'Whereis', 'Kick', 'Unban', 'Bans', 'Whois', 'Who', 'List', 'Roll', 'Nick');
+        $list = ['Join', 'JoinCreate', 'Invite', 'Uninvite', 'Logout', 'PrivateMessage', 'QueryOpen', 'QueryClose', 'Action', 
+            'Describe', 'Ignore', 'IgnoreList', 'Whereis', 'Kick', 'Unban', 'Bans', 'Whois', 'Who', 'List', 'Roll', 'Nick'];
         foreach ($list as $item)
         {
             $ret .= '<dl><dt>'.SChatEncoding::encodeSpecialChars($this->sChat->getLang('helpItemDesc'.$item)).'</dt>'

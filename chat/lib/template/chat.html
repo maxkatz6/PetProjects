@@ -17,12 +17,13 @@
     <script src="js/helper.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
     <script src="js/chat.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
     <script src="js/lang/[LANG_CODE/].js" type="text/javascript" charset="UTF-8"></script>
-    <link rel="stylesheet" type="text/css" href="css/webcam.css?[VN/]" />
+    <link href="css/webcam.css?[VN/]" rel="stylesheet" type="text/css" />
+    <link href="css/jplayer.blue.monday.css" rel="stylesheet" type="text/css" />
+    <script src="js/jquery.jplayer.min.js" type="text/javascript"></script>
+    <script src="js/player.js" type="text/javascript" charset="UTF-8"></script>
     <script src="js/simplewebrtc.js" type="text/javascript" charset="UTF-8"></script>
-    <!--script src="https://simplewebrtc.com/latest.js"></script-->
     <script src="js/webcam.js?[VN/]" type="text/javascript" charset="UTF-8"></script> 
     <script src="js/FABridge.js" type="text/javascript" charset="UTF-8"></script>
-
     <script type="text/javascript">
         // <![CDATA[
         view={
@@ -60,12 +61,12 @@
         sChat.initializeFunction=function(){
             if(helper.isMobile()){
                 sConfig.settings['audio'] = sConfig.settings['saveAddressee'] = false;
-                if (screen.width <= 480) {
-                    sChat.showHide('onlineListContainer', 'none');
-                    document.getElementById('settingsButton').setAttribute('onclick', 'sChat.showHide("settingsContainer")');
-                    document.getElementById('settingsContainer').setAttribute('style', 'right:0;position:absolute;');
-                    document.getElementById('showUserListButton').setAttribute('onclick', 'sChat.showHide("settingsButton");sChat.showHide("settingsContainer","none");sChat.toggleArrowButton("onlineListContainer","showUserListButton");return false;');
-                }
+            }
+            if (window.innerWidth <= 480) {
+                sChat.showHide('onlineListContainer', 'none');
+                document.getElementById('settingsButton').setAttribute('onclick', 'sChat.showHide("settingsContainer")');
+                document.getElementById('settingsContainer').setAttribute('style', 'right:0;position:absolute;');
+                document.getElementById('showUserListButton').setAttribute('onclick', 'sChat.showHide("settingsButton");sChat.showHide("settingsContainer","none");sChat.toggleArrowButton("onlineListContainer","showUserListButton");return false;');
             }
             if(helper.isMobile()||!sConfig.videoChat||!helper.getWebRTCInfo().support){
                 sConfig.settings['myVideo']=sConfig.settings["myAudio"]=false;
@@ -84,8 +85,9 @@
             sChat.setSetting('vkPosts', sChat.getSetting('hyperLinks')&&sChat.getSetting('vkPosts'));
             document.getElementById('vkPostsSetting').checked=sChat.getSetting('vkPosts');
             document.getElementById('myVideoSetting').checked=sChat.getSetting('myVideo');
-            document.getElementById('myAudioSetting').checked=sChat.getSetting('myAudio');
-            document.getElementById('emoticonsSetting').checked=sChat.getSetting('emoticons');
+            document.getElementById('myAudioSetting').checked = sChat.getSetting('myAudio');
+            document.getElementById('emoticonsSetting').checked = sChat.getSetting('emoticons');
+            document.getElementById('radioSetting').checked = sChat.getSetting('radio');
             $.fn.colorPicker.defaults.colors=sConfig.colorCodes;
             $('#fontColorSetting').val(sChat.getSetting('fontColor')).colorPicker({ showHexField:false });
             $('#nickColorSetting').val(sChat.getSetting('nickColor')).colorPicker({ showHexField:false });
@@ -103,6 +105,7 @@
             sChat.fillSoundSelection('soundErrorSetting', sChat.getSetting('soundError'));
             sChat.fillSoundSelection('soundPrivateSetting', sChat.getSetting('soundPrivate'));
             //document.getElementById('commandAction').value = sChat.lang['userMenuAction'];
+            sPlayer.initRadio();
         };
         sConfig.loginChannelID=parseInt('[LOGIN_CHANNEL_ID/]');
         sConfig.sessionName='[SESSION_NAME/]';
@@ -115,7 +118,8 @@
         sConfig.inactiveTimeout=parseInt('[INACTIVE_TIMEOUT/]');
         sConfig.privateChannelDiff=parseInt('[PRIVATE_CHANNEL_DIFF/]');
         sConfig.privateMessageDiff=parseInt('[PRIVATE_MESSAGE_DIFF/]');
-        sConfig.messageTextMaxLength=parseInt('[MESSAGE_TEXT_MAX_LENGTH/]');
+        sConfig.messageTextMaxLength = parseInt('[MESSAGE_TEXT_MAX_LENGTH/]');
+        sConfig.radioServer='[radioServer/]';
         sChat.init();
         window.onblur=function(){
             sChat.infocus=false;
@@ -263,7 +267,11 @@
                 </dl>
                 <dl>
                     <dt><label for="myAudioSetting">Передавать звук в видеочате.</label></dt>
-                    <dd><input type="checkbox" id="myAudioSetting" onchange="sChat.setSetting('myAudio', this.checked); " /></dd>
+                    <dd><input type="checkbox" id="myAudioSetting" onchange="sChat.setSetting('myAudio', this.checked); "/></dd>
+                </dl>
+                <dl>
+                    <dt><label for="radioSetting">Радио SocioFM</label></dt>
+                    <dd><input type="checkbox" id="radioSetting" onchange="sChat.setSetting('radio', this.checked);"/></dd>
                 </dl>
             </div>
         </div>
