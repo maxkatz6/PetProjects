@@ -39,14 +39,13 @@ a.sticker img{height:100px;max-width:100%;}
 #onlineList ul{margin: 5px 0;padding-left:20px;}
 #settingsList select.left{text-align:right;}
 /* Buttons */
-#optionsContainer input,#settingsList input.button, #showMenuButton{background: url('../img/buttons-sprite.png') no-repeat;vertical-align:middle;width:22px;height:22px;padding:0;}
+#optionsContainer input,#settingsList input.button, #showMenuButton{background: url('../img/icons.png') no-repeat;vertical-align:middle;width:22px;height:22px;padding:0;}
 input#helpButton{background-position:-69px -22px;}
 input#settingsButton{background-position:-92px 0;}
 input#onlineListButton{background-position:-69px 0;}
 input#audioButton{background-position:0 0;}
 input#audioButton.off{background-position:0 -22px;}
-input#autoScrollButton{background-position:-23px 0;}
-input#autoScrollButton.off{background-position:-23px -22px;}
+input#rulesButton{background-position:-23px 0;}
 #settingsList input.playback{background-position:-92px -22px;margin-bottom:3px;}
 #showMenuButton{background-position: -46px 0;display:none;}
 #showMenuButton.off{background-position: -46px -22px;}
@@ -82,7 +81,7 @@ div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;f
     #content { position: static; }
     #mainPanelContainer, #bbCodeContainer, #inputFieldContainer, #submitButtonContainer {position: absolute; display: block; bottom: 2px; }
     #mainPanelContainer {height:auto; top:30px; left:0; right:0; }
-     #helpButton,#onlineListButton,#audioButton,#autoScrollButton,#settingsButton, #emoticonsContainer,#messageLengthCounter, #bbCodeContainer #commandAction  {display: none;}
+     #helpButton,#onlineListButton,#audioButton,#rulesButton,#settingsButton, #emoticonsContainer,#messageLengthCounter, #bbCodeContainer #commandAction  {display: none;}
     #onlineListContainer, #helpContainer, #settingsContainer {z-index: 1;bottom: 0;right: 0;top: 0;position: absolute;height: auto;width: 100%; display: none;}
     #mainPanelContainer h3 { font-size: 0.9em; text-align: left;}
     #emoticonsContainer {left: 0; bottom:35px; max-height: 300px; width: 270px; }
@@ -91,7 +90,7 @@ div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;f
     #logoutChannelContainer {top:0;right: 3px; position:absolute;left:3px;float: right;}
     #logoutButton {float:right; margin:0; height: 30px !important;}
     #channelSelection {width: inherit !important;height: 30px !important; float:right; max-width: 95px;}
-    #showUserListButton {float: left; height: 20px; width: 20px; background: url('../img/buttons-sprite.png') no-repeat; display: block;top:3px;position: absolute;}
+    #showUserListButton {float: left; height: 20px; width: 20px; background: url('../img/icons.png') no-repeat; display: block;top:3px;position: absolute;}
     #inputField {position: absolute;bottom: 28px;height: 35px; }
     #submitButtonContainer {right:2px;max-height: 30px !important;}
 }

@@ -66,7 +66,7 @@
                 sChat.showHide('onlineListContainer', 'none');
                 document.getElementById('settingsButton').setAttribute('onclick', 'sChat.showHide("settingsContainer")');
                 document.getElementById('settingsContainer').setAttribute('style', 'right:0;position:absolute;');
-                document.getElementById('showUserListButton').setAttribute('onclick', 'sChat.showHide("settingsButton");sChat.showHide("settingsContainer","none");sChat.toggleArrowButton("onlineListContainer","showUserListButton");return false;');
+                document.getElementById('showUserListButton').setAttribute('onclick', 'sChat.showHide("settingsButton",null,true);sChat.showHide("rulesButton",null,true);sChat.showHide("settingsContainer","none");sChat.toggleArrowButton("onlineListContainer","showUserListButton");return false;');
             }
             if(helper.isMobile()||!sConfig.videoChat||!helper.getWebRTCInfo().support){
                 sConfig.settings['myVideo']=sConfig.settings["myAudio"]=false;
@@ -75,7 +75,6 @@
             }
             view.bindPopups();
             sChat.updateButton('audio', 'audioButton');
-            sChat.updateButton('autoScroll', 'autoScrollButton');
             document.getElementById('saveAddresseeSetting').checked=sChat.getSetting('saveAddressee');
             document.getElementById('msgColorsSetting').checked=sChat.getSetting('msgColors');
             document.getElementById('nickColorsSetting').checked=sChat.getSetting('nickColors');
@@ -87,7 +86,7 @@
             document.getElementById('myVideoSetting').checked=sChat.getSetting('myVideo');
             document.getElementById('myAudioSetting').checked = sChat.getSetting('myAudio');
             document.getElementById('emoticonsSetting').checked = sChat.getSetting('emoticons');
-            document.getElementById('radioSetting').checked = sChat.getSetting('radio');
+            document.getElementById('radioSetting').checked = !!'[radioServer/]' && sChat.getSetting('radio');
             $.fn.colorPicker.defaults.colors=sConfig.colorCodes;
             $('#fontColorSetting').val(sChat.getSetting('fontColor')).colorPicker({ showHexField:false });
             $('#nickColorSetting').val(sChat.getSetting('nickColor')).colorPicker({ showHexField:false });
@@ -151,11 +150,11 @@
         </div>
     </div>
     <div id="optionsContainer">
+        <input type="image" src="img/pixel.gif" class="button" id="rulesButton" alt="Правила чата" title="Правила чата" onclick="window.open('rules.html', '_blank', 'height=565,width=440')" />
         <input type="image" src="img/pixel.gif" class="button" id="helpButton" alt="[LANG]toggleHelp[/LANG]" title="[LANG]toggleHelp[/LANG]" onclick=" view.toggleContainer('helpContainer',['onlineListContainer','settingsContainer']); "/>
         <input type="image" src="img/pixel.gif" class="button" id="settingsButton" alt="[LANG]toggleSettings[/LANG]" title="[LANG]toggleSettings[/LANG]" onclick=" view.toggleContainer('settingsContainer',['onlineListContainer','helpContainer']); "/>
         <input type="image" src="img/pixel.gif" class="button" id="onlineListButton" alt="[LANG]toggleOnlineList[/LANG]" title="[LANG]toggleOnlineList[/LANG]" onclick=" view.toggleContainer('onlineListContainer',['settingsContainer','helpContainer']); "/>
         <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="[LANG]toggleAudio[/LANG]" title="[LANG]toggleAudio[/LANG]" onclick=" sChat.toggleSetting('audio','audioButton'); "/>
-        <input type="image" src="img/pixel.gif" class="button" id="autoScrollButton" alt="[LANG]toggleAutoScroll[/LANG]" title="[LANG]toggleAutoScroll[/LANG]" onclick=" sChat.toggleSetting('autoScroll','autoScrollButton'); "/>
     </div>
     <div id="mainPanelContainer">
         <div id="onlineListContainer">

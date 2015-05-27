@@ -1692,7 +1692,7 @@ class SChat {
 			    ORDER BY
 				    id
 				    DESC
-			    LIMIT '.($this->getRequestVar('lastID') == 0?Config::requestMessagesLimit:200).';';
+			    LIMIT '.($this->getRequestVar('lastID') == 0?Config::requestMessagesLimit:100).';';
 
 	    // Create a new SQL query:
 	    $result = $this->db->sqlQuery($sql);

@@ -128,7 +128,7 @@ class Config{
     const logsPurgeTimeDiff = 365;
 
     const radioInfo = true;
-    const radioServer = /*false*/'http://109.87.163.34:1256';
+    const radioServer = false;//'http://109.87.163.34:1256';
     
     const debug = false;
 
@@ -136,19 +136,19 @@ class Config{
     public static $gzipEnabled = false;
 
     public static  $msgGrad = [
-        'Sagita' => array('eb8100','d520a0','8d13db'),
-        'Экселенс' => array('556B2F','006400','000000'),
-        //'Niakriss' => array('000000','300082','300082')
-        //'Эйзенхорн' => array('F70502','990200','000000'),
-        'Acedia' => array('00F5C8','00F586','0B19FE')
+        'Sagita'   => ['eb8100','d520a0','8d13db'],
+        'Экселенс' => ['556B2F','006400','000000'],
+        'Niakriss' => ['F0003C','6808EF','000000'],
+        //'Эйзенхорн' => ['F70502','990200','000000'],
+        'Acedia'   => ['00F5C8','00F586','0B19FE']
     ];
     public static  $nickGrad = [
-        'Тирраон' => array('300082','800090'),
-        'Sagita' => array('8d13db','ff00b4', 'ff8c00'),
-        'Huginn' => array('1C1C1C','363636', '4F4F4F'),
-        'Niakriss' => array('300082','300082', '000000'),
-        'Экселенс' => array('000000','006400', '556B2F'),
-        //'Эйзенхорн' => array('000000','990200','F70502'),
-        'Acedia' => array('0B19FE','00F586','00F5C8')
+        'Тирраон' => ['300082','800090'],
+        'Sagita'  => ['8d13db','ff00b4', 'ff8c00'],
+        'Huginn'  => ['1C1C1C','363636', '4F4F4F'],
+        'Niakriss'=> ['000000','6808EF', 'F0003C'],
+        'Экселенс'=> ['000000','006400', '556B2F'],
+        //'Эйзенхорн' => ['000000','990200','F70502'],
+        'Acedia'  => ['0B19FE','00F586','00F5C8']
     ];
 }
