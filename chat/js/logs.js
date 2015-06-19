@@ -1,23 +1,24 @@
 sChat.logsMonitorMode = null;
 sChat.logsLastID = null;
 sChat.logsCommand = null;
+//sChat.userRole=3;
 
 sChat.startChatUpdate = function () {
     var infos = 'userID,userName,userRole';
-    this.updateChat('&getInfos=' + this.encodeText(infos));
+    this.paramString='&getInfos='+this.encodeText(infos);
+    this.updateChat();
 };
 
-sChat.updateChat = function (paramString) {
+sChat.updateChat = function () {
     // Only update if we have parameters, are in monitor mode or the lastID has changed since the last update:
-    if (paramString || this.logsMonitorMode || !this.logsLastID || this.lastID !== this.logsLastID) {
+    if (this.logsMonitorMode || !this.logsLastID || this.lastID !== this.logsLastID) {
         // Update the logsLastID for the lastID check:
         this.logsLastID = this.lastID;
 
-        var requestUrl = sConfig.ajaxURL
-                        + '&lastID='
-                        + this.lastID;
-        if (paramString) {
-            requestUrl += paramString;
+        var requestUrl = sConfig.ajaxURL+ '&lastID='+ this.lastID;
+        if (this.paramString) {
+            requestUrl += this.paramString;
+            this.paramString = '';
         }
         requestUrl += '&' + this.getLogsCommand();
         this.makeRequest(requestUrl, 'GET', null);
@@ -98,10 +99,11 @@ sChat.getChatListChild = function (dateObject, userID, userName, userRole, messa
     if (new RegExp('(?:^|, |])' + this.userName + ',', 'gm').test(messageText)) rowClass += ' toMe';
     var text = this.replaceText(messageText);
     var newDiv = document.createElement('div');
+    newDiv.style.minHeight = "20px";
     newDiv.className = rowClass;
     newDiv.id = this.getMessageDocumentID(messageID);
     newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
-        + '<span>' + this.formatDate(dateObject) + ' </span><span class="' + userClass + '"'
+        + '<a class="dateTime" href="#" onclick="sChat.dom[\'yearSelection\'].value =' + dateObject.getFullYear() + ';sChat.dom[\'monthSelection\'].value =' + (dateObject.getMonth()+1) + ';sChat.dom[\'daySelection\'].value =' + dateObject.getDate() + ';sChat.dom[\'hourSelection\'].value =' + dateObject.getHours() + '">' + this.formatDate(dateObject) + ' </a><span class="' + userClass + '"'
         + (sConfig.settings['nickColors'] && msgInfo && msgInfo.ncol ? ' style="color:' + msgInfo.ncol + '" ' : '') + ">"
         + ((sConfig.settings['nickColors'] && sConfig.settings['gradiens'] && msgInfo && msgInfo.nickGrad) ? helper.grad(userName, msgInfo.nickGrad) : userName)
         + '</span>' + colon + '<span ' + ((sConfig.settings['msgColors'] && msgInfo && msgInfo.mcol) ? 'style="color:' + msgInfo.mcol + '">' : '>')

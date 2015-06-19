@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 
 // Path to the chat directory:
 define('SCHAT_PATH', dirname($_SERVER['SCRIPT_FILENAME']).'/');
-define('VER', 'v10');
+define('VER', 'v12');
 
 require(SCHAT_PATH.'lib/classes.php');
 

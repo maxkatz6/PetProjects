@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE HTML >
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="[LANG_CODE/]" lang="[LANG_CODE/]" dir="[BASE_DIRECTION/]">
+<head>
+    <meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width,user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Socio!PARTY</title>
+    <link rel="stylesheet" type="text/css" href="css/global.css?[VN/]"/>
+    <link rel="stylesheet" type="text/css" href="css/fonts.css?[VN/]"/>
+    <script src="js/config.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/helper.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/chat.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/lang/[LANG_CODE/].js" type="text/javascript" charset="UTF-8"></script>
+    [STYLE_SHEETS/]
+    <script type="text/javascript">
+        // <![CDATA[
+        sChat.initializeFunction = function () {
+            if (window.innerWidth <= 480) {
+                sChat.showHide('onlineListContainer', 'none');
+                document.getElementById('settingsButton').setAttribute('onclick', 'sChat.showHide("settingsContainer")');
+                document.getElementById('settingsContainer').setAttribute('style', 'right:0;position:absolute;');
+                sChat.addEvent(document.getElementById('showUserListButton'), 'click', function () { sChat.showHide("settingsButton", null, true); sChat.showHide("rulesButton", null, true); sChat.showHide("settingsContainer", "none"); sChat.toggleButton("onlineListContainer", "showUserListButton"); return false; });
+            }
+            sChat.addEvent(document.getElementById('bbCodeEmoticon'), 'click', function () { sChat.showHide('emoticonsContainer') });
+            document.getElementById('saveAddresseeSetting').checked=sChat.getSetting('saveAddressee');
+            document.getElementById('msgColorsSetting').checked=sChat.getSetting('msgColors');
+            document.getElementById('nickColorsSetting').checked=sChat.getSetting('nickColors');
+            document.getElementById('gradiensSetting').checked=sChat.getSetting('gradiens');
+            document.getElementById('bbCodeSetting').checked=sChat.getSetting('bbCode');
+            document.getElementById('hyperLinksSetting').checked=sChat.getSetting('hyperLinks');
+            sChat.setSetting('vkPosts', sChat.getSetting('hyperLinks')&&sChat.getSetting('vkPosts'));
+            document.getElementById('vkPostsSetting').checked=sChat.getSetting('vkPosts');
+            document.getElementById('emoticonsSetting').checked = sChat.getSetting('emoticons');
+            helper.colorPicker(document.getElementById('fontColorSetting'), sChat.getSetting('fontColor'), function (v) { sChat.setFontColor(v); });
+            helper.colorPicker(document.getElementById('nickColorSetting'), sChat.getSetting('nickColor'), function (v) { sChat.setSetting('nickColor', v); });
+        };
+        sConfig.settings['audio'] = sConfig.settings['saveAddressee'] = false;
+        sConfig.loginChannelID=parseInt('[LOGIN_CHANNEL_ID/]');
+        sConfig.sessionName='[SESSION_NAME/]';
+        sConfig.cookieExpiration=parseInt('[COOKIE_EXPIRATION/]');
+        sConfig.cookiePath='[COOKIE_PATH/]';
+        sConfig.cookieDomain='[COOKIE_DOMAIN/]';
+        sConfig.cookieSecure='[COOKIE_SECURE/]';
+        sConfig.chatBotName=decodeURIComponent('[CHAT_BOT_NAME/]');
+        sConfig.chatBotID='[CHAT_BOT_ID/]';
+        sConfig.inactiveTimeout=parseInt('[INACTIVE_TIMEOUT/]');
+        sConfig.privateChannelDiff=parseInt('[PRIVATE_CHANNEL_DIFF/]');
+        sConfig.privateMessageDiff=parseInt('[PRIVATE_MESSAGE_DIFF/]');
+        sConfig.messageTextMaxLength = parseInt('[MESSAGE_TEXT_MAX_LENGTH/]');
+        sConfig.mobile=true;
+        sConfig.radioServer = sConfig.videoChat = false;
+        sChat.addEvent(window, 'click', function (e) {
+            var t=e.target||e.srcElement, c=document.getElementById('emoticonsContainer');
+            if(e!==t&&t.id!=='bbCodeEmoticon') c.style.display='none';
+        });
+        sChat.init();
+        // ]]>
+    </script>
+</head>
+
+<body class="s_chat">
+<div id="content">
+    <h1 id="headline">
+        <a style="color: inherit; text-decoration: none;" href="/">Socio!PARTY</a>
+    </h1>
+    <div id="logoutChannelContainer">
+        <a id="showUserListButton" class="arrowBut" href="#"></a>
+        <input type="button" id="logoutButton" value="[LANG]logout[/LANG]" onclick="sChat.logout(); "/>
+        <div id="logoutChannelInner" style="overflow: hidden">
+            <label for="channelSelection">[LANG]channel[/LANG]:</label>
+            <select id="channelSelection" onchange="sChat.switchChannel(this.options[this.selectedIndex].value); ">[CHANNEL_OPTIONS/]</select>
+        </div>
+    </div>
+    <div id="optionsContainer">
+        <input type="image" src="img/pixel.gif" class="button" id="rulesButton" alt="Правила чата" title="Правила чата" onclick="helper.popupCenter('rules.html', '_blank', '400', '500')"/>
+        <input type="image" src="img/pixel.gif" class="button" id="helpButton" alt="[LANG]toggleHelp[/LANG]" title="[LANG]toggleHelp[/LANG]" onclick=" sChat.toggleContainer('helpContainer', ['onlineListContainer', 'settingsContainer']); "/>
+        <input type="image" src="img/pixel.gif" class="button" id="settingsButton" alt="[LANG]toggleSettings[/LANG]" title="[LANG]toggleSettings[/LANG]" onclick=" sChat.toggleContainer('settingsContainer', ['onlineListContainer', 'helpContainer']); "/>
+        <input type="image" src="img/pixel.gif" class="button" id="onlineListButton" alt="[LANG]toggleOnlineList[/LANG]" title="[LANG]toggleOnlineList[/LANG]" onclick=" sChat.toggleContainer('onlineListContainer', ['settingsContainer', 'helpContainer']); "/>
+    </div>
+    <div id="mainPanelContainer">
+        <div id="onlineListContainer">
+            <h3>[LANG]onlineUsers[/LANG]</h3>
+            <div id="onlineList"></div>
+        </div>
+        <div id="settingsContainer" style="display: none;">
+            <h3>[LANG]settings[/LANG]</h3>
+            <div id="settingsList">
+                <dl>
+                    <dt><label for="styleSelection">[LANG]style[/LANG]:</label></dt>
+                    <dd><select id="styleSelection" onchange="sChat.setActiveStyleSheet(sChat.getSelectedStyle()); ">[STYLE_OPTIONS/]</select></dd>
+                </dl>
+                <dl>
+                    <dt><label for="languageSelection">[LANG]language[/LANG]:</label></dt>
+                    <dd><select id="languageSelection" onchange="sChat.switchLanguage(this.value); ">[LANGUAGE_OPTIONS/]</select></dd>
+                </dl>
+                <dl>
+                    <dt><label for="saveAddresseeSetting">Сохранять адресата</label></dt>
+                    <dd><input type="checkbox" id="saveAddresseeSetting" onclick="sChat.setSetting('saveAddressee', this.checked); "/></dd>
+                </dl>
+                <dl>
+                    <dt><label for="bbCodeSetting">[LANG]settingsBBCode[/LANG]</label></dt>
+                    <dd><input type="checkbox" id="bbCodeSetting" onclick="sChat.setSetting('bbCode', this.checked); "/></dd>
+                </dl>
+                <dl>
+                    <dt><label for="hyperLinksSetting">[LANG]settingsHyperLinks[/LANG]</label></dt>
+                    <dd><input type="checkbox" id="hyperLinksSetting" onclick="sChat.setSetting('hyperLinks', this.checked); sChat.setSetting('vkPosts', this.checked&&sChat.getSetting('vkPosts')); document.getElementById('vkPostsSetting').checked=sChat.getSetting('vkPosts');"/></dd>
+                </dl>
+                <dl>
+                    <dt><label for="hyperLinksSetting">Обработка постов ВК</label></dt>
+                    <dd><input type="checkbox" id="vkPostsSetting" onclick="sChat.setSetting('vkPosts', this.checked); "/></dd>
+                </dl>
+                <dl>
+                    <dt><label for="emoticonsSetting">[LANG]settingsEmoticons[/LANG]</label></dt>
+                    <dd><input type="checkbox" id="emoticonsSetting" onclick="sChat.setSetting('emoticons', this.checked); "/></dd>
+                </dl>
+                <dl>
+                    <dt><label for="msgColorsSetting">Разрешить цветные сообщения:</label></dt>
+                    <dd><input type="checkbox" id="msgColorsSetting" onclick="sChat.setSetting('msgColors', this.checked); "/></dd>
+                </dl>
+                <dl>
+                    <dt><label for="nickColorsSetting">Разрешить цветные ники:</label></dt>
+                    <dd><input type="checkbox" id="nickColorsSetting" onclick="sChat.setSetting('nickColors', this.checked); "/></dd>
+                </dl>
+                <dl>
+                    <dt><label for="gradiensSetting">Разрешить градиентный текст:</label></dt>
+                    <dd><input type="checkbox" id="gradiensSetting" onclick="sChat.setSetting('gradiens', this.checked); "/></dd>
+                </dl>
+                <dl>
+                    <dt><label for="fontColorSetting">Цвет сообщений</label></dt>
+                    <dd><div name="fontColorSetting" id="fontColorSetting"></div></dd>
+                </dl>
+                <dl>
+                    <dt><label for="nickColorSetting">Цвет никнейма</label></dt>
+                    <dd><div name="nickColorSetting" id="nickColorSetting"></div></dd>
+                </dl>
+            </div>
+        </div>
+        <div id="chatList"></div>
+    </div>
+
+    <div id="inputFieldContainer">
+        <textarea maxlength="1000" style="resize: none;" id="inputField" rows="1" cols="50" title="[LANG]inputLineBreak[/LANG]" onkeydown="sChat.handleInputFieldKeyDown(event);" onkeyup="sChat.updateMessageLengthCounter();"></textarea>
+    </div>
+    <div id="submitButtonContainer">
+        <input type="button" id="submitButton" value="[LANG]messageSubmit[/LANG]" onclick=" sChat.sendMessage(); "/>
+    </div>
+    <div id="bbCodeContainer">
+        <input id="bbCodeBold" type="button" value="b" title="[LANG]bbCodeTitleBold[/LANG]" onclick=" sChat.insertBBCode('b'); " style="font-weight: bold;"/>
+        <input id="bbCodeItalic" type="button" value="i" title="[LANG]bbCodeTitleItalic[/LANG]" onclick=" sChat.insertBBCode('i'); " style="font-style: italic;"/>
+        <input id="bbCodeStrike" type="button" value="s" onclick=" sChat.insertBBCode('s'); " style="text-decoration: line-through;"/>
+        <input id="bbCodeQuote" type="button" value="[LANG]bbCodeLabelQuote[/LANG]" title="[LANG]bbCodeTitleQuote[/LANG]" onclick=" sChat.insertBBCode('quote'); "/>
+        <input id="bbCodeEmoticon" type="button" title="[LANG]bbCodeTitleEmoticon[/LANG]" value=":)"/>
+    </div>
+    <div id="emoticonsContainer" dir="ltr" style="display: none;" class="popup"></div>
+</div>
+</body>
+</html>

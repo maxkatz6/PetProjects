@@ -7,8 +7,6 @@ var sConfig={
     timerRate:3000,
     // The URL to retrieve the XML chat messages (must at least contain one parameter):
     ajaxURL:'./?ajax=true',
-    // The base URL of the chat directory, used to retrieve media files (images, sound files, etc.):
-    baseURL:'./',
     // Defines the IDs of DOM nodes accessed by the chat:
     domIDs:{
         chatList:'chatList',
@@ -139,7 +137,9 @@ var sConfig={
     // Max messageText length:
     messageTextMaxLength:1040,
     // Debug allows console logging or alerts on caught errors - false/0 = no debug, true/1/2 = console log, 2 = alerts
-    debug:true,
+    debug: true,
+    radioServer: false,
+    mobile: false,
     ///videochat
     videoChat:true,
     defCamS:0.15,

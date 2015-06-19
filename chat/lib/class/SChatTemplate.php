@@ -117,6 +117,8 @@ class SChatTemplate {
                 return 'write_allowed';
             case 'HELPLIST':
                 return $this->getHelpList();
+            case 'IsMobile':
+                return $this->sChat->getSessionVar('mob');
 			default:
 				return $tagData[0];
 		}
@@ -163,6 +165,9 @@ class SChatTemplate {
 			$alternate = ($style == Config::styleDefault) ? '' : 'alternate ';
 			$styleSheets .= '<link rel="'.$alternate.'stylesheet" type="text/css" href="css/'.rawurlencode($style).'.css?'.VER.'" title="'.SChatEncoding::encodeSpecialChars($style).'"/>';
 		}
+        if (!$this->sChat->getSessionVar('mob')) $styleSheets.= 
+            '<link href="css/webcam.css?'.VER.'" rel="stylesheet" type="text/css" />
+            <link href="css/jplayer.blue.monday.css" rel="stylesheet" type="text/css" />';
 		return $styleSheets;
 	}
 

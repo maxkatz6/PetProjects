@@ -2,35 +2,40 @@ var sChat={
     settingsInitiated:null,
     styleInitiated:null,
     timer:null,
-    dirs:null,
     chatStarted:null,
-    dom:{},
-    sounds:null,
-    soundTransform:null,
+    dom: {},
+
     userID:null,
-    userName:null,
-    userRole:null,
+    userName: null,
+    encodedUserName: null,
+    userRole: null,
+
     channelID:null,
     channelName:null,
-    channelSwitch:null,
+    channelSwitch: null,
+
     usersList:[],
     userNamesList:[],
-    userStatList:[],
-    userMenuCounter:0,
-    encodedUserName:null,
-    ignoredUserNames:null,
-    lastID:0,
-    localID:0,
-    originalDocumentTitle:null,
-    blinkInterval:null,
-    infocus:true,
+    userStatList: [],
+
+    uniCounter: 0,
+
+    ignoredUserNames: null,
+
+    lastID: 0,
+
+    localID: 0,
+
+    originalDocumentTitle: null,
+
+    blinkInterval: null,
+
+    infocus: true,
+
     httpRequest:{},
-    retryTimer:null,
-    retryTimerDelay:sConfig.inactiveTimeout*1500,
-    DOMbuffering:false,
-    DOMbuffer:"",
+    retryTimer: null,
+
     DOMbufferRowClass:'rowOdd',
-    vk:0,
     audioHtml5:[],
     selQuo:[], // selected quotes
     needScroll:true,
@@ -38,13 +43,12 @@ var sChat={
     removeOld: false,
     paramString:'',
     init: function () {
-        this.initDirectories();
         this.initSettings();
         this.initStyle();
         this.addEvent(window, 'load', function(){
             for(var key in sConfig.domIDs) sChat.dom[key]=document.getElementById(sConfig.domIDs[key]);
             sChat.setUnloadHandler();
-            sChat.initEmoticons();
+            setTimeout(sChat.initEmoticons,0);
             if(sConfig.settings['fontColor']) if(sChat.dom['inputField']) sChat.dom['inputField'].style.color=sConfig.settings['fontColor'];
             sChat.setSelectedStyle();
             sChat.initializeFunction();
@@ -53,12 +57,6 @@ var sChat={
         });
     },
     initializeFunction:function(){},
-    initDirectories:function(){
-        this.dirs={};
-        this.dirs['emoticons']=sConfig.baseURL+'img/emoticons/';
-        this.dirs['sounds']=sConfig.baseURL+'sounds/';
-        this.dirs['flash']=sConfig.baseURL+'flash/';
-    },
     initSettings:function(){
         var cookie=this.readCookie(sConfig.sessionName+'_settings'),
             i,
@@ -112,13 +110,12 @@ var sChat={
     startChat:function(){
         this.chatStarted=true;
         if(!(sChat.isMenuOpened()&&helper.isMobile())&&this.dom['inputField']) this.dom['inputField'].focus();
-        var a=document.getElementById('audioPlayer');
-        if(a&&!!a.canPlayType){
+        var a = document.createElement('audio');
+        if (a && !!a.canPlayType) {
             this.audioHtml5['mp3']=!!(a.canPlayType('audio/mpeg;').replace(/no/, ''));
             this.audioHtml5['ogg']=!!(a.canPlayType&&a.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, ''));
             this.audioHtml5['wav']=!!(a.canPlayType&&a.canPlayType('audio/wav; codecs="1"').replace(/no/, ''));
         }
-        if(!this.audioHtml5||!this.audioHtml5['mp3']) this.loadFlashInterface();
         this.startChatUpdate();
     },
     setUnloadHandler:function(){
@@ -150,21 +147,19 @@ var sChat={
         }
     },
     initEmoticons:function(){
-        this.DOMbuffer="";
+        var buffer = "";
         for(var i=0; i<sConfig.emoticonCodes.length; i++){
             // Replace specials characters in emoticon codes:
-            sConfig.emoticonCodes[i]=this.encodeSpecialChars(sConfig.emoticonCodes[i]);
+            sConfig.emoticonCodes[i] = sChat.encodeSpecialChars(sConfig.emoticonCodes[i]);
             var cl=sConfig.emoticonFiles[i].indexOf('_')!==1?"smile":"sticker";
-            this.DOMbuffer=this.DOMbuffer
-                +'<a class="'+cl+'" href="javascript:sChat.insertText(\''
-                +this.scriptLinkEncode(sConfig.emoticonCodes[i])
-                +'\');"><img src="'+this.dirs['emoticons']+sConfig.emoticonFiles[i]
+            buffer += '<a class="' + cl + '" href="javascript:sChat.insertText(\''
+                + sChat.scriptLinkEncode(sConfig.emoticonCodes[i])
+                + '\');"><img src="img/emoticons/' + sConfig.emoticonFiles[i]
                 +'" alt="'+sConfig.emoticonCodes[i]
                 +'" title="'+sConfig.emoticonCodes[i]
                 +'"/></a>';
         }
-        if(this.dom['emoticonsContainer']) this.updateDOM('emoticonsContainer', this.DOMbuffer);
-        this.DOMbuffer="";
+        if (sChat.dom['emoticonsContainer']) sChat.updateDOM('emoticonsContainer', buffer);
     },
     startChatUpdate:function(){
         // Start the chat update and retrieve current user and channel info and set the login channel:
@@ -173,93 +168,21 @@ var sChat={
         else if (sConfig.loginChannelName !== null) this.paramString += '&channelName=' + this.encodeText(sConfig.loginChannelName);
         this.updateChat();
     },
-    updateChat:function(){
+    updateChat:function(pS){
         var requestUrl=sConfig.ajaxURL+'&lastID='+this.lastID;
         if(this.paramString){
             requestUrl += this.paramString;
             this.paramString='';
         }
+        if(pS) requestUrl+=pS;
         this.makeRequest(requestUrl, 'GET', null);
     },
-    loadFlashInterface:function(){
-        if(this.dom['flashInterfaceContainer']){
-            this.updateDOM('flashInterfaceContainer',
-                '<object id="sChatFlashInterface" style="position:absolute; left:-100px;" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="'
-                +window.location.protocol
-                +'//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" height="1" width="1"><param name="flashvars" value="bridgeName=sChat"/><param name="src" value="'
-                +this.dirs['flash']+
-                'FABridge.swf"/><embed name="sChatFlashInterface" type="application/x-shockwave-flash" pluginspage="'
-                +window.location.protocol
-                +'//www.macromedia.com/go/getflashplayer" src="'+this.dirs['flash']+'FABridge.swf" height="1" width="1" flashvars="bridgeName=sChat"/></object>'
-            );
-            FABridge.addInitializationCallback('sChat', function(){ sChat.loadSounds(); });
-        }
-    },
-    setAudioVolume:function(volume){
-        volume=parseFloat(volume);
-        if(!isNaN(volume)){
-            if(volume<0) volume=0.0;
-            else if(volume>1) volume=1.0;
-            this.setSetting('audioVolume', volume);
-            try{
-                if(this.audioHtml5&&this.audioHtml5['mp3']) document.getElementById('audioPlayer').volume=volume;
-                else{
-                    if(!this.soundTransform) this.soundTransform=FABridge.sChat.create('flash.media.SoundTransform');
-                    this.soundTransform.setVolume(volume);
-                }
-            } catch(e){
-                this.debugMessage('setAudioVolume', e);
-            }
-        }
-    },
-    loadSounds:function(){
-        try{
-            this.setAudioVolume(sConfig.settings['audioVolume']);
-            this.sounds={};
-            var sound, urlRequest;
-            for(var key in sConfig.soundFiles){
-                sound=FABridge.sChat.create('flash.media.Sound');
-                sound.addEventListener('complete', function(event){
-                    var sound=event.getTarget();
-                    for(var key in sConfig.soundFiles) // Get the sound key by matching the sound URL with the sound filename:
-                        if((new RegExp(sConfig.soundFiles[key])).test(sound.getUrl())) // Add the loaded sound to the sounds list:
-                            sChat.sounds[key]=sound;
-                });
-                sound.addEventListener('ioError', function(){
-                    // setTimeout is needed to avoid calling the flash interface recursively (e.g. sound on new messages):
-                    setTimeout(function(){ sChat.addChatBotMessageToChatList('/error SoundIO'); }, 0);
-                    setTimeout(sChat.updateChatlistView, 1);
-                });
-                urlRequest=FABridge.sChat.create('flash.net.URLRequest');
-                urlRequest.setUrl(this.dirs['sounds']+sConfig.soundFiles[key]);
-                sound.load(urlRequest);
-            }
-        } catch(e){
-            this.debugMessage('loadSounds', e);
-        }
-    },
-    playSound:function(soundID){
-        if(this.audioHtml5&&this.audioHtml5['mp3']){
-            document.getElementById('audioPlayer').src=this.dirs['sounds']+soundID+".mp3";
-            document.getElementById('audioPlayer').play();
-            return true;
-        } else if(this.sounds&&this.sounds[soundID])
-            try{
-                // play() parameters are
-                // startTime:Number (default = 0),
-                // loops:int (default = 0) and
-                // sndTransform:SoundTransform  (default = null)
-                return this.sounds[soundID].play(0, 0, this.soundTransform);
-            } catch(e){
-                this.debugMessage('playSound', e);
-            }
-        return null;
-    },
+
     playSoundOnNewMessage:function(dateObject, userID, userName, userRole, messageID, messageText){
         var messageParts;
         if(sConfig.settings['audio']&&this.lastID&&!this.channelSwitch){
             if(new RegExp('(?:^|, |])'+this.userName+',', 'gm').test(messageText)){
-                this.playSound(sConfig.settings['soundPrivate']);
+                sPlayer.playSound(sConfig.settings['soundPrivate']);
                 return;
             }
             messageParts=messageText.split(' ', 1);
@@ -268,36 +191,36 @@ var sChat={
                 switch(messageParts[0]){
                 case '/login':
                 case '/channelEnter':
-                    this.playSound(sConfig.settings['soundEnter']);
+                    sPlayer.playSound(sConfig.settings['soundEnter']);
                     break;
                 case '/logout':
                 case '/channelLeave':
                 case '/kick':
-                    this.playSound(sConfig.settings['soundLeave']);
+                    sPlayer.playSound(sConfig.settings['soundLeave']);
                     break;
                 case '/error':
-                    this.playSound(sConfig.settings['soundError']);
+                    sPlayer.playSound(sConfig.settings['soundError']);
                     break;
                 default:
-                    this.playSound(sConfig.settings['soundChatBot']);
+                    sPlayer.playSound(sConfig.settings['soundChatBot']);
                 }
                 break;
             case this.userID:
                 switch(messageParts[0]){
                 case '/privmsgto':
-                    this.playSound(sConfig.settings['soundPrivate']);
+                    sPlayer.playSound(sConfig.settings['soundPrivate']);
                     break;
                 default:
-                    this.playSound(sConfig.settings['soundSend']);
+                    sPlayer.playSound(sConfig.settings['soundSend']);
                 }
                 break;
             default:
                 switch(messageParts[0]){
                 case '/privmsg':
-                    this.playSound(sConfig.settings['soundPrivate']);
+                    sPlayer.playSound(sConfig.settings['soundPrivate']);
                     break;
                 default:
-                    this.playSound(sConfig.settings['soundReceive']);
+                    sPlayer.playSound(sConfig.settings['soundReceive']);
                 }
                 break;
             }
@@ -329,7 +252,7 @@ var sChat={
                 identifier=arguments.callee.identifier;
             } else identifier=0;
             //if the response takes longer than retryTimerDelay to give an OK status, abort the connection and start again.
-            this.retryTimer=setTimeout(function(){ sChat.updateChat(); }, sChat.retryTimerDelay);
+            this.retryTimer=setTimeout(function(){ sChat.updateChat(); }, sConfig.inactiveTimeout*1500);
             this.getHttpRequest(identifier).open(method, url, true);
             this.getHttpRequest(identifier).onreadystatechange=function(){
                 try{
@@ -353,6 +276,7 @@ var sChat={
                     } catch(e){
                         this.debugMessage('makeRequest::setTimeout', e);
                     }
+                    sChat.debugMessage('makeRequest::catch', __e);
                 }
             };
             if(method==='POST') this.getHttpRequest(identifier).setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -387,7 +311,7 @@ var sChat={
         this.handleInfoMessages(json.infos);
         this.handleOnlineUsers(json.users);
         this.handleChatMessages(json.msgs);
-        sPlayer.handleRadio(json.radio);
+        if (sConfig.radioServer) sPlayer.handleRadio(json.radio);
         this.channelSwitch=null;
         this.setChatUpdateTimer();
     },
@@ -421,9 +345,12 @@ var sChat={
                     this.userID=parseInt(infoData);
                     break;
                 case 'userName':
-                    sWebCam.username=this.userName=infoData;
+                {
+                    if(sConfig.videoChat) sWebCam.username=infoData;
+                    this.userName=infoData;
                     this.encodedUserName=this.scriptLinkEncode(infoData);
                     break;
+                }
                 case 'userRole':
                     this.userRole=parseInt(infoData);
                     break;
@@ -466,7 +393,7 @@ var sChat={
             s.src='img/status/'+sConfig.statImg[userInfo.s];
             s.title = userInfo.s === 18 ? userInfo.vKey : sConfig.statText[userInfo.s];
             s.style.cursor=userInfo.vKey&&userInfo.s===17?'pointer':'default';
-            s.onclick=userInfo.vKey&&userInfo.s===17?function(){ sWebCam.joinRoom(sChat.scriptLinkEncode(userInfo.vKey)); }:function(){ return false; };
+            s.onclick = sConfig.videoChat && userInfo.vKey && userInfo.s === 17 ? function () { sWebCam.joinRoom(sChat.scriptLinkEncode(userInfo.vKey)); } : function () { return false; };
         }
         if(userID===this.userID){
             var selStat = document.getElementById('statusSelect'), userStat = document.getElementById('userStat');
@@ -491,10 +418,8 @@ var sChat={
         var userName, messageText, i;
         if(json&&json.length){
             for(i=0; i<json.length; i++){
-                this.DOMbuffering=true;
                 userName=json[i].name?json[i].name:'';
                 messageText=json[i].text?json[i].text:'';
-                if(i===(json.length-1)) this.DOMbuffering=false;
                 this.addMessageToChatList(
                     new Date(json[i].time),
                     json[i].uID,
@@ -507,7 +432,6 @@ var sChat={
                     json[i].info
                 );
             }
-            this.DOMbuffering=false;
             this.updateChatlistView();
             this.lastID=json[json.length-1].id;
         }
@@ -577,7 +501,7 @@ var sChat={
             + '<td width="14"><img width="16" id="stat' + userID + '"/></td>'
             +'<td width="30">'+(userInfo.tim!=='none'?'<img src="img/tim/'+userInfo.tim+'.png" border="0" title="'+helper.getTIM(userInfo.tim)+'"></img></td>':'</td>')
             +'<td width="10">'+(userInfo.gender&&userInfo.gender!=='n'?'<img height="13" src="img/gender/'+userInfo.gender+'.png" border="0" title="'+(userInfo.gender==='m'?'Мужской':'Женский')+'"></td>':'</td>')
-            +'<td width="20"><a id="showMenuButton" style="background-position:-46px 0px;display:block;" href="javascript:sChat.toggleUserMenu(\''+this.getUserMenuDocumentID(userID)+'\', \''+encodedUserName+'\', '+userID+' );"></a></td></tr></table>'
+            + '<td width="20"><a class="arrowBut" id="showMenu' + userID + '" href="javascript:sChat.toggleUserMenu(\'' + this.getUserMenuDocumentID(userID) + '\', \'' + encodedUserName + '\', ' + userID + ' );"></a></td></tr></table>'
             +'<ul class="userMenu" style="display:none;" id="'+this.getUserMenuDocumentID(userID)+((userID===this.userID)?'">'+this.getUserNodeStringItems(encodedUserName, userID, false):'">')+'</ul>'
             +'</div>';
     },
@@ -587,15 +511,12 @@ var sChat={
         if(menuID.indexOf('ium')>=0) isInline=true;
         this.updateDOM(
             menuID,
-            this.getUserNodeStringItems(
-                this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),
-                userID,
-                isInline
-            ),
+            this.getUserNodeStringItems(this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),userID,isInline),
             false,
             true
         );
-        this.toggleArrowButton(menuID);
+        if (isInline) this.showHide(menuID);
+        else this.toggleButton(menuID, 'showMenu' + userID);
         if(isInline&&this.needScroll) this.dom['chatList'].scrollTop=this.dom['chatList'].scrollHeight;
     },
     inviteVideo:function(encodedUserName){ this.sendMessageWrapper('/inviteVideo '+encodedUserName+' '+this.userName+' '+sWebCam.room+' '+sWebCam.priv); },
@@ -606,7 +527,7 @@ var sChat={
                 +'<li><a href="javascript:sChat.toUser(\''+encodedUserName+'\',true);">'+sChatLang['userMenuSendPrivateMessage']+'</a></li>'
                 +'<li><a href="javascript:sChat.insertMessageWrapper(\'/describe '+encodedUserName+' \');">'+sChatLang['userMenuDescribe']+'</a></li>'
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/ignore '+encodedUserName+'\');">'+sChatLang['userMenuIgnore']+'</a></li>'
-                +(sWebCam.room!==null&&(sWebCam.owner||!sWebCam.private)?'<li><a href="javascript:sChat.inviteVideo(\''+encodedUserName+'\');">Пригласить в канал</a></li>':"")
+                + (sWebCam !== undefined && sWebCam.room != null && (sWebCam.owner || !sWebCam.private) ? '<li><a href="javascript:sChat.inviteVideo(\'' + encodedUserName + '\');">Пригласить в канал</a></li>' : "")
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/call '+encodedUserName+'\');">Вызвать в чат</a></li>';
             if(isInline)
                 menu+='<li><a href="javascript:sChat.sendMessageWrapper(\'/invite '+encodedUserName+'\');">'+sChatLang['userMenuInvite']+'</a></li>'
@@ -640,7 +561,7 @@ var sChat={
     },
     getStatusUserNodeItem: function(){
         var statHTML='';
-        for(var i=0; i<sConfig.statText.length-1; i++) // not include last - webcam
+        for(var i=0; i<sConfig.statText.length-2; i++) // not include last - webcam
             statHTML += '<option value="' + i + '"' + (i === this.userStatList[this.usersList.indexOf(this.userID)] ? ' selected="selected">' : '>') + sConfig.statText[i] + '</option>';
         return statHTML +'<option value="18"'+('userStat'===this.userStatList[this.usersList.indexOf(this.userID)]?' selected="selected">':'>')+'--Свой статус--</option>';
     },
@@ -949,7 +870,6 @@ var sChat={
         }
     },
     handleInputFieldKeyDown:function(event){
-        var text, lastWord, i;
         // Enter key without shift should send messages
         if(event.keyCode===13&&!event.shiftKey){
             this.sendMessage();
@@ -960,29 +880,8 @@ var sChat={
             }
             return false;
         }
-        // Tab should complete usernames
-        else if(event.keyCode===9&&!event.shiftKey){
-            text=this.dom['inputField'].value;
-            if(text){
-                var c=text.match(/[\wа-я]+/gi);
-                lastWord=c.slice(-1)[0];
-                if(lastWord.length>1)
-                    for(i=0; i<this.userNamesList.length; i++)
-                        if(this.userNamesList[i].replace("(", "").toLowerCase().indexOf(lastWord.toLowerCase())===0){
-                            this.dom['inputField'].value=text.replace(new RegExp(lastWord+'$'), this.userNamesList[i]);
-                            break;
-                        }
-            }
-            try{
-                event.preventDefault();
-            } catch(e){
-                event.returnValue=false; // IE
-            }
-            return false;
-        }
         return true;
     },
-    handleInputFieldKeyUp:function(){ this.updateMessageLengthCounter(); },
     updateMessageLengthCounter:function(){ if(this.dom['messageLengthCounter']) this.updateDOM('messageLengthCounter', this.dom['inputField'].value.length+'/1000', false, true); },
     sendMessage:function(txt){
         txt=txt?txt:this.dom['inputField'].value;
@@ -1092,7 +991,7 @@ var sChat={
                 case '/invite':
                 case '/uninvite':
                 case '/roll':
-                    userName=textParts[1];
+                    userName=textParts[1]; 
                     break;
                 }
         }
@@ -1108,7 +1007,7 @@ var sChat={
                 try{
                     this.dom['chatList'].removeChild(messageNode);
                     if(nextSibling) this.updateChatListRowClasses(nextSibling);
-                    this.paramString+='&delete='+messageID;
+                    this.updateChat('&delete=' + messageID);
                 } catch(e){
                     this.setClass(messageNode, originalClass);
                 }
@@ -1185,14 +1084,25 @@ var sChat={
         var node=document.getElementById(buttonID);
         if(node) node.className=(this.getSetting(setting)?'button':'button off');
     },
-    toggleArrowButton:function(idShowHide, idBut){
-        var button = (idBut != null ? document.getElementById(idBut) : document.getElementById(idShowHide).parentNode.firstChild.firstChild.firstChild.lastChild.firstChild);
-        if(button!=null)
-            if(button.style.backgroundPosition==="-46px -22px") button.style.backgroundPosition="-46px 0px";
-            else button.style.backgroundPosition="-46px -22px";
+    toggleButton:function(idShowHide, idBut){
+        if (idBut) {
+            var button = document.getElementById(idBut);
+            button.className = button.className.indexOf(' off') !== -1 ?
+                button.className = button.className.replace(' off', '') :
+                button.className + ' off';
+        }
         this.showHide(idShowHide);
     },
+    toggleContainer:function(containerID,hideContainerIDs){
+        if (hideContainerIDs) 
+            sChat.showHide(hideContainerIDs, 'none');
+        sChat.showHide(containerID);
+    },
     showHide:function(id, styleDisplay, displayInline){
+        if (id instanceof Array) {
+            for (var i = 0; i < id.length; i++) this.showHide(id[i], styleDisplay, displayInline);
+            return;
+        }
         var node=document.getElementById(id);
         if(node)
             if(styleDisplay) node.style.display=styleDisplay;
@@ -1322,7 +1232,7 @@ var sChat={
             case '/nick':
                 return '<span class="chatBotMessage">'+sChatLang['nick'].replace(/%s/, textParts[1]).replace(/%s/, textParts[2])+'</span>';
             case '/setStatus':
-                return '<span class="chatBotMessage">' + textParts[1] + " сменил статус на '" + (textParts[2] == 18 ? textParts.slice(3).join(' ') : sConfig.statText[parseInt(textParts[2])]) + "'.</span>";
+                return '<span class="chatBotMessage">' + textParts[1] + " сменил статус на \"" + (textParts[2] == 18 ? textParts.slice(3).join(' ') : sConfig.statText[parseInt(textParts[2])]) + "\".</span>";
             case '/opVideo':
                 return '<span class="chatBotMessage">Публичный канал был создан пользователем '+textParts[1]+". <a href=\"javascript:sWebCam.joinRoom('"+textParts[2]+"');\">Подключиться</a>.</span>";
             case '/inviteVideo':
@@ -1388,7 +1298,7 @@ var sChat={
         for(var i=0; i<users.length; i++){
             if(i>0) menu+=', ';
             menu+='<a href="javascript:sChat.toggleUserMenu(\''
-                +this.getInlineUserMenuDocumentID(this.userMenuCounter, i)
+                + this.getInlineUserMenuDocumentID(this.uniCounter, i)
                 +'\', \''
                 +this.scriptLinkEncode(users[i])
                 +'\', null);" title="'
@@ -1396,11 +1306,11 @@ var sChat={
                 +((users[i]===this.userName)?'<b>'+users[i]+'</b>':users[i])
                 +'</a>'
                 +'<ul class="inlineUserMenu" id="'
-                +this.getInlineUserMenuDocumentID(this.userMenuCounter, i)
+                + this.getInlineUserMenuDocumentID(this.uniCounter, i)
                 +'" style="display:none;">'
                 +'</ul>';
         }
-        this.userMenuCounter++;
+        this.uniCounter++;
         return menu;
     },
     containsUnclosedTags:function(str){
@@ -1441,7 +1351,9 @@ var sChat={
     blinkMessage:function(messageID){
         var messageNode=this.getMessageNode(messageID);
         if(!messageNode) return;
-        window.location.hash=messageNode.id;
+        if (messageNode.scrollIntoView) 
+            messageNode.scrollIntoView({ block: "end", behavior: "smooth" });
+        else window.location.hash = messageNode.id;
         var k=0.1, c=0;
         messageNode.style.opacity=1;
         var b=setInterval(function(){
@@ -1492,7 +1404,7 @@ var sChat={
             });
     },
     replaceVK:function(str, t){
-        var method, args, id='vk'+this.vk++, imC=0;
+        var method, args, id = 'vk' + this.uniCounter++, imC = 0;
         var p=t.split(/&amp;|[=\?&/\\#]+/);
         if(t.indexOf('/wall')===0){
             method='wall.getById';
@@ -1559,7 +1471,7 @@ var sChat={
                 if(!arguments.callee.regExp) arguments.callee.regExp=new RegExp('(="[^"]*$)|(&[^;]*$)', '');
                 // Avoid replacing emoticons in tag attributes or XHTML entities:
                 if(p1.match(arguments.callee.regExp)) return str;
-                if(p2) return sChat.replaceEmoticons(p1)+'<img src="'+sChat.dirs['emoticons']+sConfig.emoticonFiles[sConfig.emoticonCodes.indexOf(p2)]+'" alt="'+p2+'" />'+sChat.replaceEmoticons(p3);
+                if(p2) return sChat.replaceEmoticons(p1)+'<img src="img/emoticons/'+sConfig.emoticonFiles[sConfig.emoticonCodes.indexOf(p2)]+'" alt="'+p2+'" />'+sChat.replaceEmoticons(p3);
                 return str;
             }
         );

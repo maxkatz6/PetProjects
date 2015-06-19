@@ -2,78 +2,52 @@
 <!DOCTYPE HTML >
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="[LANG_CODE/]" lang="[LANG_CODE/]" dir="[BASE_DIRECTION/]">
 <head>
-    <!--meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width,user-scalable=no" /-->
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Socio!PARTY</title>
-    <link rel="stylesheet" type="text/css" href="css/global.css?[VN/]"/>
-    <link rel="stylesheet" type="text/css" href="css/fonts.css?[VN/]"/>
     [STYLE_SHEETS/]
-    <!--[if lt IE 8]><script type="text/javascript"> var isIElt8=true; </script><![endif]-->
+    <link rel="stylesheet" type="text/css" href="css/global.css?[VN/]"/>
+    <link rel="stylesheet" type="text/css" href="css/fonts.css?[VN/]"/> 
+    <!--[if gt IE 7]><script src="//code.jquery.com/jquery-1.11.2.min.js"></script><![endif]--> 
+    <!--[if !IE]>--><script src="//code.jquery.com/jquery-2.1.4.min.js"></script><script src="js/simplewebrtc.js" type="text/javascript" charset="UTF-8"></script><!--<![endif]-->
     <script src="js/config.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
-    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-    <script src="js/jquery-ui.min.js" type="text/javascript" charset="UTF-8"></script>
-    <script src="js/jquery.colorPicker.min.js" type="text/javascript" charset="UTF-8"></script>
     <script src="js/helper.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
     <script src="js/chat.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
     <script src="js/lang/[LANG_CODE/].js" type="text/javascript" charset="UTF-8"></script>
-    <link href="css/webcam.css?[VN/]" rel="stylesheet" type="text/css" />
-    <link href="css/jplayer.blue.monday.css" rel="stylesheet" type="text/css" />
+    <script src="js/jquery-ui.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/webcam.js?[VN/]" type="text/javascript" charset="UTF-8"></script>
     <script src="js/jquery.jplayer.min.js" type="text/javascript"></script>
     <script src="js/player.js" type="text/javascript" charset="UTF-8"></script>
-    <script src="js/simplewebrtc.js" type="text/javascript" charset="UTF-8"></script>
-    <script src="js/webcam.js?[VN/]" type="text/javascript" charset="UTF-8"></script> 
-    <script src="js/FABridge.js" type="text/javascript" charset="UTF-8"></script>
+
     <script type="text/javascript">
         // <![CDATA[
-        view={
-            bindPopups:function(){
-                this.bindButtonToPopup('bbCodeEmoticon','emoticonsContainer');
-            },
-            bindButtonToPopup:function(buttonID,popupID){
-                var buttonElement=document.getElementById(buttonID),
-                    popupElement=document.getElementById(popupID);
-                if(!buttonElement||!popupElement){
-                    return;
-                }
-                if(!buttonElement.linkedPopupID){ // For IE<9 we need to avoid re-attaching events.
-                    buttonElement.linkedPopupID=popupID;
-                    sChat.addEvent(buttonElement,'click',this.toggleButton);
-                }
-            },
-            toggleButton:function(e){
-                // Workaround for IE<9.
-                // If you don't care about IE8, remove the crud and use "this" to find the target.
-                e=e||window.event;
-                var target=e.target||e.srcElement;
-                target.className=(target.className==='button'?'button off':'button');
-                sChat.showHide(target.linkedPopupID);
-            },
-            toggleContainer:function(containerID,hideContainerIDs){
-                if(hideContainerIDs){
-                    for(var i=0;i<hideContainerIDs.length;i++){
-                        sChat.showHide(hideContainerIDs[i],'none');
-                    }
-                }
-                sChat.showHide(containerID);
-            }
-        };
-        sChat.initializeFunction=function(){
-            if(helper.isMobile()){
-                sConfig.settings['audio'] = sConfig.settings['saveAddressee'] = false;
-            }
+        function resize() {
             if (window.innerWidth <= 480) {
-                sChat.showHide('onlineListContainer', 'none');
-                document.getElementById('settingsButton').setAttribute('onclick', 'sChat.showHide("settingsContainer")');
-                document.getElementById('settingsContainer').setAttribute('style', 'right:0;position:absolute;');
-                document.getElementById('showUserListButton').setAttribute('onclick', 'sChat.showHide("settingsButton",null,true);sChat.showHide("rulesButton",null,true);sChat.showHide("settingsContainer","none");sChat.toggleArrowButton("onlineListContainer","showUserListButton");return false;');
+                sChat.showHide(['settingsButton', 'rulesButton', 'onlineListContainer', 'settingsContainer'], 'none');
+                document.getElementById('settingsButton').onclick= function () {
+                    sChat.showHide("settingsContainer");
+                };
+            } else{
+                document.getElementById('settingsButton').onclick = function () {
+                    sChat.toggleContainer('settingsContainer', ['onlineListContainer', 'helpContainer']);
+                };
+                sChat.showHide(['settingsButton', 'rulesButton'], 'inline');
             }
-            if(helper.isMobile()||!sConfig.videoChat||!helper.getWebRTCInfo().support){
+        }
+        sChat.initializeFunction = function () {
+            resize();
+            sChat.addEvent(document.getElementById('showUserListButton'), 'click', function () {
+                sChat.showHide(["settingsButton", "rulesButton"], null, true);
+                sChat.showHide("settingsContainer", "none");
+                sChat.toggleButton("onlineListContainer", "showUserListButton");
+                return false;
+            });
+            if (!sConfig.videoChat) {
                 sConfig.settings['myVideo']=sConfig.settings["myAudio"]=false;
                 $("#channelSelection option[value='Видеочат']").remove();
                 $('#myAudioSetting, #myVideoSetting').parent().parent().hide();
             }
-            view.bindPopups();
+            sChat.addEvent(document.getElementById('bbCodeEmoticon'), 'click', function () { sChat.showHide('emoticonsContainer') });
             sChat.updateButton('audio', 'audioButton');
             document.getElementById('saveAddresseeSetting').checked=sChat.getSetting('saveAddressee');
             document.getElementById('msgColorsSetting').checked=sChat.getSetting('msgColors');
@@ -86,10 +60,9 @@
             document.getElementById('myVideoSetting').checked=sChat.getSetting('myVideo');
             document.getElementById('myAudioSetting').checked = sChat.getSetting('myAudio');
             document.getElementById('emoticonsSetting').checked = sChat.getSetting('emoticons');
-            document.getElementById('radioSetting').checked = !!'[radioServer/]' && sChat.getSetting('radio');
-            $.fn.colorPicker.defaults.colors=sConfig.colorCodes;
-            $('#fontColorSetting').val(sChat.getSetting('fontColor')).colorPicker({ showHexField:false });
-            $('#nickColorSetting').val(sChat.getSetting('nickColor')).colorPicker({ showHexField:false });
+            document.getElementById('radioSetting').checked = sConfig.radioServer && sChat.getSetting('radio');
+            helper.colorPicker(document.getElementById('fontColorSetting'), sChat.getSetting('fontColor'), function (v) { sChat.setFontColor(v); });
+            helper.colorPicker(document.getElementById('nickColorSetting'), sChat.getSetting('nickColor'), function (v) { sChat.setSetting('nickColor', v); });
             for(var i=0; i<document.getElementById('audioVolumeSetting').options.length; i++){
                 if(document.getElementById('audioVolumeSetting').options[i].value===sChat.getSetting('audioVolume')){
                     document.getElementById('audioVolumeSetting').options[i].selected = true;
@@ -103,9 +76,11 @@
             sChat.fillSoundSelection('soundChatBotSetting', sChat.getSetting('soundChatBot'));
             sChat.fillSoundSelection('soundErrorSetting', sChat.getSetting('soundError'));
             sChat.fillSoundSelection('soundPrivateSetting', sChat.getSetting('soundPrivate'));
-            //document.getElementById('commandAction').value = sChat.lang['userMenuAction'];
-            sPlayer.initRadio();
+            sPlayer.initSounds();
+            if (sConfig.radioServer)
+                sPlayer.initRadio();
         };
+
         sConfig.loginChannelID=parseInt('[LOGIN_CHANNEL_ID/]');
         sConfig.sessionName='[SESSION_NAME/]';
         sConfig.cookieExpiration=parseInt('[COOKIE_EXPIRATION/]');
@@ -118,31 +93,31 @@
         sConfig.privateChannelDiff=parseInt('[PRIVATE_CHANNEL_DIFF/]');
         sConfig.privateMessageDiff=parseInt('[PRIVATE_MESSAGE_DIFF/]');
         sConfig.messageTextMaxLength = parseInt('[MESSAGE_TEXT_MAX_LENGTH/]');
-        sConfig.radioServer='[radioServer/]';
-        sChat.init();
-        window.onblur=function(){
-            sChat.infocus=false;
-        };
-        window.onfocus=function(){
-            sChat.infocus=true;
-            document.title='Socio!PARTY';
-        };
-        $(document).click(function(event){
-            if($(event.target).closest('#emoticonsContainer').length===0&&$(event.target).attr('id')!=='bbCodeEmoticon'){
-                $('#emoticonsContainer').hide();
-            }
+        sConfig.mobile=false;
+        sConfig.radioServer = '[radioServer/]' ? '[radioServer/]' : false;
+        sConfig.videoChat = sConfig.videoChat && helper.getWebRTCInfo();
+            
+        sChat.addEvent(window, 'resize', function(){if(typeof sizewait!='undefined'){clearTimeout(sizewait);}sizewait=setTimeout('resize()',200); });
+        sChat.addEvent(window, 'blur', function () {sChat.infocus = false;});
+        sChat.addEvent(window, 'focus', function () {sChat.infocus = true;document.title = 'Socio!PARTY';});
+        sChat.addEvent(window, 'click', function (e) {
+            var t=e.target||e.srcElement, c=document.getElementById('emoticonsContainer');
+            if(e!==t&&t.id!=='bbCodeEmoticon') c.style.display='none';
         });
+
+        sChat.init();
         // ]]>
     </script>
 </head>
 
 <body class="s_chat">
+<!--[if lt IE 8]><p style="position: absolute;background-color: white;z-index: 10;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p><![endif]-->
 <div id="content">
     <h1 id="headline">
         <a style="color: inherit; text-decoration: none;" href="/">Socio!PARTY</a>
     </h1>
     <div id="logoutChannelContainer">
-        <a id="showUserListButton" style="background-position: -46px -22px" href="#"></a>
+        <a id="showUserListButton" class="arrowBut" href="#"></a>
         <input type="button" id="logoutButton" value="[LANG]logout[/LANG]" onclick="sChat.logout(); "/>
         <div id="logoutChannelInner" style="overflow: hidden">
             <label for="channelSelection">[LANG]channel[/LANG]:</label>
@@ -150,11 +125,11 @@
         </div>
     </div>
     <div id="optionsContainer">
-        <input type="image" src="img/pixel.gif" class="button" id="rulesButton" alt="Правила чата" title="Правила чата" onclick="window.open('rules.html', '_blank', 'height=565,width=440')" />
-        <input type="image" src="img/pixel.gif" class="button" id="helpButton" alt="[LANG]toggleHelp[/LANG]" title="[LANG]toggleHelp[/LANG]" onclick=" view.toggleContainer('helpContainer',['onlineListContainer','settingsContainer']); "/>
-        <input type="image" src="img/pixel.gif" class="button" id="settingsButton" alt="[LANG]toggleSettings[/LANG]" title="[LANG]toggleSettings[/LANG]" onclick=" view.toggleContainer('settingsContainer',['onlineListContainer','helpContainer']); "/>
-        <input type="image" src="img/pixel.gif" class="button" id="onlineListButton" alt="[LANG]toggleOnlineList[/LANG]" title="[LANG]toggleOnlineList[/LANG]" onclick=" view.toggleContainer('onlineListContainer',['settingsContainer','helpContainer']); "/>
-        <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="[LANG]toggleAudio[/LANG]" title="[LANG]toggleAudio[/LANG]" onclick=" sChat.toggleSetting('audio','audioButton'); "/>
+        <input type="image" src="img/pixel.gif" class="button" id="rulesButton" alt="Правила чата" title="Правила чата" onclick="helper.popupCenter('rules.html', '_blank', '400', '500')"/>
+        <input type="image" src="img/pixel.gif" class="button" id="helpButton" alt="[LANG]toggleHelp[/LANG]" title="[LANG]toggleHelp[/LANG]" onclick=" sChat.toggleContainer('helpContainer', ['onlineListContainer', 'settingsContainer']); "/>
+        <input type="image" src="img/pixel.gif" class="button" id="settingsButton" alt="[LANG]toggleSettings[/LANG]" title="[LANG]toggleSettings[/LANG]"/>
+        <input type="image" src="img/pixel.gif" class="button" id="onlineListButton" alt="[LANG]toggleOnlineList[/LANG]" title="[LANG]toggleOnlineList[/LANG]" onclick=" sChat.toggleContainer('onlineListContainer', ['settingsContainer', 'helpContainer']); "/>
+        <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="[LANG]toggleAudio[/LANG]" title="[LANG]toggleAudio[/LANG]" onclick=" sChat.toggleSetting('audio', 'audioButton'); "/>
     </div>
     <div id="mainPanelContainer">
         <div id="onlineListContainer">
@@ -177,48 +152,48 @@
                 </dl>
                 <dl>
                     <dt><label for="saveAddresseeSetting">Сохранять адресата</label></dt>
-                    <dd><input type="checkbox" id="saveAddresseeSetting" onclick="sChat.setSetting('saveAddressee',this.checked); "/></dd>
+                    <dd><input type="checkbox" id="saveAddresseeSetting" onclick="sChat.setSetting('saveAddressee', this.checked); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="bbCodeSetting">[LANG]settingsBBCode[/LANG]</label></dt>
-                    <dd><input type="checkbox" id="bbCodeSetting" onclick="sChat.setSetting('bbCode',this.checked); "/></dd>
+                    <dd><input type="checkbox" id="bbCodeSetting" onclick="sChat.setSetting('bbCode', this.checked); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="hyperLinksSetting">[LANG]settingsHyperLinks[/LANG]</label></dt>
-                    <dd><input type="checkbox" id="hyperLinksSetting" onclick="sChat.setSetting('hyperLinks',this.checked); sChat.setSetting('vkPosts',this.checked&&sChat.getSetting('vkPosts')); document.getElementById('vkPostsSetting').checked=sChat.getSetting('vkPosts');"/></dd>
+                    <dd><input type="checkbox" id="hyperLinksSetting" onclick="sChat.setSetting('hyperLinks', this.checked); sChat.setSetting('vkPosts', this.checked&&sChat.getSetting('vkPosts')); document.getElementById('vkPostsSetting').checked=sChat.getSetting('vkPosts');"/></dd>
                 </dl>
                 <dl>
                     <dt><label for="hyperLinksSetting">Обработка постов ВК</label></dt>
-                    <dd><input type="checkbox" id="vkPostsSetting" onclick="sChat.setSetting('vkPosts',this.checked); "/></dd>
+                    <dd><input type="checkbox" id="vkPostsSetting" onclick="sChat.setSetting('vkPosts', this.checked); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="emoticonsSetting">[LANG]settingsEmoticons[/LANG]</label></dt>
-                    <dd><input type="checkbox" id="emoticonsSetting" onclick="sChat.setSetting('emoticons',this.checked); "/></dd>
+                    <dd><input type="checkbox" id="emoticonsSetting" onclick="sChat.setSetting('emoticons', this.checked); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="msgColorsSetting">Разрешить цветные сообщения:</label></dt>
-                    <dd><input type="checkbox" id="msgColorsSetting" onclick="sChat.setSetting('msgColors',this.checked); "/></dd>
+                    <dd><input type="checkbox" id="msgColorsSetting" onclick="sChat.setSetting('msgColors', this.checked); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="nickColorsSetting">Разрешить цветные ники:</label></dt>
-                    <dd><input type="checkbox" id="nickColorsSetting" onclick="sChat.setSetting('nickColors',this.checked); "/></dd>
+                    <dd><input type="checkbox" id="nickColorsSetting" onclick="sChat.setSetting('nickColors', this.checked); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="gradiensSetting">Разрешить градиентный текст:</label></dt>
-                    <dd><input type="checkbox" id="gradiensSetting" onclick="sChat.setSetting('gradiens',this.checked); "/></dd>
+                    <dd><input type="checkbox" id="gradiensSetting" onclick="sChat.setSetting('gradiens', this.checked); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="fontColorSetting">Цвет сообщений</label></dt>
-                    <dd><input type="text" name="fontColorSetting" id="fontColorSetting" onchange="sChat.setFontColor(this.value); "/></dd>
+                    <dd><div name="fontColorSetting" id="fontColorSetting"></div></dd>
                 </dl>
                 <dl>
                     <dt><label for="nickColorSetting">Цвет никнейма</label></dt>
-                    <dd><input type="color" id="nickColorSetting" onchange="sChat.setSetting('nickColor',this.value); "/></dd>
+                    <dd><div name="nickColorSetting" id="nickColorSetting"></div></dd>
                 </dl>
                 <dl>
                     <dt><label for="audioVolumeSetting">[LANG]settingsAudioVolume[/LANG]</label></dt>
                     <dd>
-                        <select class="left" id="audioVolumeSetting" onchange="sChat.setAudioVolume(this.options[this.selectedIndex].value); ">
+                        <select class="left" id="audioVolumeSetting" onchange="if (!sConfig.mobile) sPlayer.setAudioVolume(this.options[this.selectedIndex].value); ">
                             <option value="1.0">100 %</option>
                             <option value="0.9">90 %</option>
                             <option value="0.8">80 %</option>
@@ -234,35 +209,35 @@
                 </dl>
                 <dl>
                     <dt><label for="soundReceiveSetting">[LANG]settingsSoundReceive[/LANG]</label></dt>
-                    <dd><select id="soundReceiveSetting" onchange="sChat.setSetting('soundReceive',this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundReceiveSetting" onchange="sChat.setSetting('soundReceive', this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundSendSetting">[LANG]settingsSoundSend[/LANG]</label></dt>
-                    <dd><select id="soundSendSetting" onchange="sChat.setSetting('soundSend',this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundSendSetting" onchange="sChat.setSetting('soundSend', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundEnterSetting">[LANG]settingsSoundEnter[/LANG]</label></dt>
-                    <dd><select id="soundEnterSetting" onchange="sChat.setSetting('soundEnter',this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundEnterSetting" onchange="sChat.setSetting('soundEnter', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundLeaveSetting">[LANG]settingsSoundLeave[/LANG]</label></dt>
-                    <dd><select id="soundLeaveSetting" onchange="sChat.setSetting('soundLeave',this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundLeaveSetting" onchange="sChat.setSetting('soundLeave', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundChatBotSetting">[LANG]settingsSoundChatBot[/LANG]</label></dt>
-                    <dd><select id="soundChatBotSetting" onchange="sChat.setSetting('soundChatBot',this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundChatBotSetting" onchange="sChat.setSetting('soundChatBot', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundErrorSetting">[LANG]settingsSoundError[/LANG]</label></dt>
-                    <dd><select id="soundErrorSetting" onchange="sChat.setSetting('soundError',this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundErrorSetting" onchange="sChat.setSetting('soundError', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundPrivateSetting">[LANG]settingsSoundPrivate[/LANG]</label></dt>
-                    <dd><select id="soundPrivateSetting" onchange="sChat.setSetting('soundPrivate',this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sChat.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundPrivateSetting" onchange="sChat.setSetting('soundPrivate', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="myVideoSetting">Передавать видео в видеочате.</label></dt>
-                    <dd><input type="checkbox" id="myVideoSetting" onchange="sChat.setSetting('myVideo',this.checked); "/></dd>
+                    <dd><input type="checkbox" id="myVideoSetting" onchange="sChat.setSetting('myVideo', this.checked); "/></dd>
                 </dl>
                 <dl>
                     <dt><label for="myAudioSetting">Передавать звук в видеочате.</label></dt>
@@ -278,7 +253,7 @@
     </div>
 
     <div id="inputFieldContainer">
-        <textarea maxlength="1000" style="resize: none;" id="inputField" rows="1" cols="50" title="[LANG]inputLineBreak[/LANG]" onkeydown=" sChat.handleInputFieldKeyDown(event); " onkeyup=" sChat.handleInputFieldKeyUp(event); "></textarea>
+        <textarea maxlength="1000" style="resize:none;" id="inputField" rows="1" cols="50" title="[LANG]inputLineBreak[/LANG]" onkeydown=" sChat.handleInputFieldKeyDown(event);" onkeyup="sChat.updateMessageLengthCounter();"></textarea>
     </div>
     <div id="submitButtonContainer">
         <span id="messageLengthCounter">0/1000</span>
@@ -294,7 +269,5 @@
     </div>
     <div id="emoticonsContainer" dir="ltr" style="display: none;" class="popup"></div>
 </div>
-<div id="flashInterfaceContainer"></div>
-<audio id="audioPlayer" style="display: none;"></audio>
 </body>
 </html>

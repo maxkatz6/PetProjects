@@ -8,32 +8,26 @@
          url('fonts/tngan-webfont.svg#tengwar_annatarregular') format('svg');
     font-weight: normal; font-style: normal;
 }
-#loginContent {font-family:Verdana, Arial, Helvetica, sans-serif;font-size:0.9em;}
-#loginContent h1 {font-size:1.3em;font-family:"Trebuchet MS", Verdana, Arial, sans-serif;font-weight:bold;}
-#loginContent a {text-decoration:none;}
-#loginContent a:hover {	text-decoration:underline;}
-#loginContent #loginRegisteredUsers {font-size:0.8em;}
-#loginContent #copyright {font-size:0.8em;}
 #content {font-family: Verdana, Arial, Helvetica, sans-serif;font-size:0.9em;}
-#content h1 {font-size:1.3em;font-family:"Trebuchet MS", Verdana, Arial, sans-serif;font-weight:bold;}
-#content h3 {font-size:1.0em;}
-#content a {text-decoration:none;}
-#content a:hover {text-decoration:underline;}
-#content #copyright {font-size:0.8em;}
-#content #chatList a.dateTime {font-size:0.7em;text-decoration:none;color:inherit;}
-#content #chatList span.guest {	font-weight:bold;}
-#content #chatList span.user {	font-weight:bold;}
-#content #chatList span.customUser {font-weight:bold;}
-#content #chatList span.moderator {font-weight:bold;}
-#content #chatList span.admin {	font-weight:bold;}
-#content #chatList span.chatBot {font-weight:bold;font-style:italic;}
-#content #chatList .chatBotMessage {font-style:italic;}
-#content #chatList .chatBotErrorMessage {font-style:italic;}
-#content #chatList .privmsg {font-style:italic;}
-#content #chatList .action {font-style:italic;}
-#content #chatList q {font-variant:small-caps;}
-#content #chatList code {font-size:1.2em;}
-#content #onlineListContainer #onlineList div {font-size:0.9em;}
-#content #helpContainer #helpList, #content #settingsContainer #settingsList {font-size:0.9em;}
-#content #helpContainer #helpList dd {font-style:italic;}
-#content #chatList .tgw {font-family: TengwarAnnatar;font-size:1.6em;}
+h1 {font-size:1.3em;font-family:"Trebuchet MS", Verdana, Arial, sans-serif;font-weight:bold;}
+h3 {font-size:1.0em;}
+a {text-decoration:none;}
+a:hover {text-decoration:underline;}
+#copyright {font-size:0.8em;}
+#chatList a.dateTime {font-size:0.7em;text-decoration:none;color:inherit;}
+#chatList span.guest {	font-weight:bold;}
+#chatList span.user {	font-weight:bold;}
+#chatList span.customUser {font-weight:bold;}
+#chatList span.moderator {font-weight:bold;}
+#chatList span.admin {	font-weight:bold;}
+#chatList span.chatBot {font-weight:bold;font-style:italic;}
+#chatList .chatBotMessage {font-style:italic;}
+#chatList .chatBotErrorMessage {font-style:italic;}
+#chatList .privmsg {font-style:italic;}
+#chatList .action {font-style:italic;}
+#chatList q {font-variant:small-caps;}
+#chatList code {font-size:1.2em;}
+#onlineListContainer #onlineList div {font-size:0.9em;}
+#helpContainer #helpList, #content #settingsContainer #settingsList {font-size:0.9em;}
+#helpContainer #helpList dd {font-style:italic;}
+#chatList .tgw {font-family: TengwarAnnatar;font-size:1.6em;}

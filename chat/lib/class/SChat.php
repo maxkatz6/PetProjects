@@ -221,7 +221,7 @@ class SChat {
             case 'logs':
                 return SCHAT_PATH.'lib/template/logs.html';
             default:
-                return SCHAT_PATH.'lib/template/chat.html';
+                return SCHAT_PATH.($this->getSessionVar('mob') ? 'lib/template/mob.html' :'lib/template/chat.html');
         }
     }
 

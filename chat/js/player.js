@@ -1,4 +1,5 @@
-﻿var sPlayer ={
+﻿var sPlayer = {
+    soundPlayer: null,
     initRadio: function (){
         if (helper.isMobile() || !sChat.getSetting('radio') || !sConfig.radioServer) return;
         this.appendPlayer('#onlineListContainer', 'jp_radio');
@@ -25,7 +26,7 @@
             },
             errorAlerts: true,
             swfPath: "flash/",
-            solution: "html, flash",
+            solution: "flash, html", //html stream is bad in opera 
             supplied: "mp3",
             preload: "none",
             wmode: "window",
@@ -34,7 +35,7 @@
             keyEnabled: true,
             cssSelectorAncestor: '#jp_radio_cont'
         });
-        setInterval('sChat.paramString += "&radio=true";', 20000);
+        setInterval('sChat.paramString+="&radio=true";', 20000);
     },
     appendPlayer: function (sel,id){
         switch (id) {
@@ -53,13 +54,20 @@
     },
     initSounds: function () {
         $('<div id="jp_sounds" class="jp-jplayer"></div>').appendTo(document.body).jPlayer({
-            ready: function (event) {
-                $(this).jPlayer("setMedia", {mp3:'sounds/sound_1.mp3'}).jPlayer('play');
-            },
-            errorAlerts: true,
-            swfPath: "flash/",
-            solution: "html, flash",
-            supplied: "mp3"
+            ready: function (){ sPlayer.soundPlayer=$(this); },
+            errorAlerts: true, swfPath: "flash/", solution: "html, flash", supplied: "mp3"
         });
+    },
+    playSound: function(s){
+        if (this.soundPlayer && sChat.getSetting('audio')) this.soundPlayer.jPlayer("setMedia", { mp3: 'sounds/' + s + '.mp3' }).jPlayer('play');
+    },
+    setAudioVolume: function (volume) {
+        volume = parseFloat(volume);
+        if (this.soundPlayer && !isNaN(volume)) {
+            if (volume < 0) volume = 0.0;
+            else if (volume > 1) volume = 1.0;
+            sChat.setSetting('audioVolume', volume);
+            this.soundPlayer.jPlayer("volume", volume);
+        }
     },
 }
