@@ -1,162 +1,84 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using NAudio.Midi;
+using Newtonsoft.Json;
 
 namespace midi
 {
-	static class Program
+	internal static class Program
 	{
-		static readonly MidiOut MidiOut = new MidiOut(0);
-		static Instruments instrument = Instruments.MusicBox;
+		private static readonly MidiOut MidiOut = new MidiOut(0);
+
 		public static void Main()
 		{
-			Console.WriteLine(instrument);
-			MidiOut.Send(MidiMessage.ChangePatch((int)instrument, 1).RawData);
-			using (var sr = new StreamReader("lilium_musicbox.txt"))
-				foreach (var part in Regex.Split(sr.ReadToEnd(), @"(?:\r\n){2,}"))
-					MidiOut.Play(part);
-			Main();
-        }
-
-		public static void Play(this MidiOut midiOut, string n)
-		{
-            var na = n.Split('|');
-			for (int i = 0; i < na[1].Length; i++)
+			JsonConvert.DefaultSettings = () =>
 			{
-				for (int j = 0; j < na.Length / 2; j++)
-					if (na[j*2 + 1][i] != '-')
+				var settings = new JsonSerializerSettings();
+				settings.Converters.Add(new Tab.PartConverter());
+				return settings;
+			};
+			while (true)
+			{
+				var files = new DirectoryInfo(Environment.CurrentDirectory + @"\tabs").GetFiles("*.json");
+				for (var index = 0; index < files.Length; ++index)
+					Console.WriteLine(index + " " + files[index].Name);
+				int n;
+				if (!int.TryParse(Console.ReadLine(), out n) || n > files.Length) break;
+				
+				using (var streamReader = new StreamReader(@"tabs\" + files[n].Name))
+				{
+					var tablature = JsonConvert.DeserializeObject<Tab>(streamReader.ReadToEnd());
+					Console.Title = tablature.Name + " | Type: " + tablature.Type + " Sleep: " + tablature.Sleep;
+
+					MidiOut.Send(MidiMessage.ChangePatch((int) tablature.Type, 1).RawData);
+					MidiOut.Play(tablature, tones =>
 					{
-						var nt = new Note(byte.Parse(na[j*2]), na[j*2 + 1][i]);
-                      //  Console.Write(nt.Octave.ToString() + nt.Tone);
-						midiOut.Send(MidiMessage.StartNote(nt.Id, 100, 1).RawData);
-					}
-				//Console.Write(" ");
-				Thread.Sleep(95);
+						Console.Clear();
+						Console.WriteLine(" " + new string('─', tones.Count*4 + 1));
+						Console.ForegroundColor = ConsoleColor.White;
+						for (var o = 8; o >= 0; o--)
+						{
+							var s = tones.Aggregate("", (c, t) => c + (t >= o ? "|███" : "|   "));
+							Console.WriteLine(o + s + "|\r\n " + s + "|");
+						}
+						Console.ForegroundColor = ConsoleColor.Cyan;
+						Console.WriteLine(" " + new string('─', tones.Count*4 + 1));
+						Console.WriteLine("   c   C   d   D   e   f   F   g   G   a   A   b ");
+					});
+				}
 			}
 		}
-		public enum Instruments
+
+		public static void Play(this MidiOut midiOut, Tab tab, Action<List<int>> act = null)
 		{
-			AcousticPiano,
-			BriteAcouPiano,
-			ElectricGrandPiano,
-			HonkyTonkPiano,
-			ElecPiano1,
-			ElecPiano2,
-			Harsichord,
-			Clavichord,
-			Celesta,
-			Glockenspiel,
-			MusicBox,
-			Vibraphone,
-			Marimba,
-			Xylophone,
-			TubularBells,
-			Dulcimer,
-			DrawbarOrgan,
-			PercOrgan,
-			RockOrgan,
-			ChurchOrgan,
-			ReedOrgan,
-			Accordian,
-			Harmonica,
-			TangoAccordian,
-			AcousticGuitar,
-			SteelAcousGuitar,
-			ElJazzGuitar,
-			ElectricGuitar,
-			ElMutedGuitar,
-			OverdrivenGuitar,
-			DistortionGuitar,
-			GuitarHarmonic,
-			AcousticBass,
-			ElBassFinger,
-			ElBassPick,
-			FretlessBass,
-			SlapBass1,
-			SlapBass2,
-			SynthBass1,
-			SynthBass2,
-			Violin,
-			Viola,
-			Cello,
-			ContraBass,
-			TremeloStrings,
-			PizzStrings,
-			OrchStrings,
-			Timpani,
-			StringEns1,
-			StringEns2,
-			SynthStrings1,
-			SynthStrings2,
-			ChoirAahs,
-			VoiceOohs,
-			SynthVoice,
-			OrchestraHit,
-			Trumpet,
-			Trombone,
-			Tuba,
-			MutedTrumpet,
-			FrenchHorn,
-			BrassSection,
-			SynthBrass1,
-			SynthBrass2,
-			SopranoSax,
-			AltoSax,
-			TenorSax,
-			BaritoneSax,
-			Oboe,
-			EnglishHorn,
-			Bassoon,
-			Clarinet,
-			Piccolo,
-			Flute,
-			Recorder,
-			PanFlute,
-			BlownBottle,
-			Shakuhachi,
-			Whistle,
-			Ocarina,
-			Lead1Square,
-			Lead2Sawtooth,
-			Lead3Calliope,
-			Lead4Chiff,
-			Lead5Charang,
-			Lead6Voice,
-			Lead7Fifths,
-			Lead8BassLd,
-			Pad1NewAge,
-			Pad2Warm,
-			Pad3Polysynth,
-			Pad4Choir,
-			Pad5Bowed,
-			Pad6Metallic,
-			Pad7Halo,
-			Pad8Sweep,
-			FX1Rain,
-			FX2Soundtrack,
-			FX3Crystal,
-			FX4Atmosphere,
-			FX5Brightness,
-			FX6Goblins,
-			FX7Echoes,
-			FX8SciFi,
-			Sitar,
-			Banjo,
-			Shamisen,
-			Koto,
-			Kalimba,
-			Bagpipe,
-			Fiddle,
-			Shanai,
-			TinkerBell,
-			Agogo,
-			SteelDrums,
-			Woodblock,
-			TaikoDrum,
-			MelodicTom,
-			SynthDrum,
-			ReverseCymbal,
-			GuitarFretNoise,
-			Br
+			var visNote = new List<int> { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+
+			foreach (var parts in tab.Parts)
+			{
+				for (var step = 0; step < parts[0].Length; ++step)
+				{
+					for (var o = 0; o < parts.Length; ++o)
+						if (parts[o].Notes[step].Tone != Tones.none)
+						{
+							foreach (Tones tones in Enum.GetValues(typeof (Tones)))
+								if (tones != Tones.none)
+									visNote[(int) tones] = parts[o].Notes[step].Tone == tones ? parts[o].Octave : visNote[(int) tones];
+							midiOut.Send(MidiMessage.StartNote(parts[o].Notes[step].Id, sbyte.MaxValue, 1).RawData);
+						}
+					if (act != null)
+						if (visNote.Exists(i1 => i1 != -1))
+						{
+							act(visNote);
+							visNote = new List<int> { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+						}
+					Thread.Sleep(tab.Sleep);
+				}
+			}
+		}
+	}
+}
