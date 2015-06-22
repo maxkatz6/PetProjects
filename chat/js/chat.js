@@ -1165,12 +1165,13 @@ var sChat={
         try{
             text=text.replace(/[\u200B-\u200D\uFEFF]/g, '');
             text=text.replace(/\n/g, '<br/>');
-            if(text.charAt(0)==='/') text=this.replaceCommands(text);
-            else{
-                text=this.replaceBBCode(text);
-                text=this.replaceHyperLinks(text);
-                text=this.replaceEmoticons(text);
+            if(text.charAt(0)==='/'){
+                var t = this.replaceCommands(text);
+                if (!!t) return t; 
             }
+            text=this.replaceBBCode(text);
+            text=this.replaceHyperLinks(text);
+            text=this.replaceEmoticons(text);
         } catch(e){
             this.debugMessage('replaceText', e);
         }
@@ -1285,6 +1286,10 @@ var sChat={
                         +'</a>'
                     );
                 return '<span class="chatBotMessage">'+sChatLang['bans']+' '+listUsers.join(', ')+'</span>';
+            }
+            default :
+            {
+                return false;
             }
             }
         } catch(e){
