@@ -90,7 +90,7 @@
     <Compile Include="Core\Reflection.cs" />
     <Compile Include="Core\Timer.cs" />
     <Compile Include="GAPI\DirectX11\DxEffect.cs" />
-    <Compile Include="Graphics\2D\Batch.cs" />
+    <Compile Include="Graphics\GUI\Batch.cs" />
     <Compile Include="Graphics\Components\GameObject.cs" />
     <Compile Include="Graphics\Builders\GeometryGenerator.cs" />
     <Compile Include="Graphics\Components\Drawable\Model.cs" />

@@ -9,7 +9,6 @@ namespace Ormeli.Graphics
 		Vector3 Position { get; set; }
 		Vector2 TexCoord { get; set; }
 		Color4 Color { get; set; }
-		int Number { get; }
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -38,8 +37,6 @@ namespace Ormeli.Graphics
 			get { return Color4.Black; }
 			set { }
 		}
-
-		public int Number => 0;
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -53,8 +50,6 @@ namespace Ormeli.Graphics
 			new Attrib(AttribIndex.Color, Vector4.SizeInBytes/sizeof (float), AttribType.Float,
 				Vector3.SizeInBytes)
 		};
-
-		public int Number => 1;
 
 		public Vector3 Position { get; set; }
 		public Color4 Color { get; set; }
@@ -77,8 +72,6 @@ namespace Ormeli.Graphics
 			new Attrib(AttribIndex.TexCoord, Vector2.SizeInBytes/sizeof (float), AttribType.Float,
 				Vector3.SizeInBytes)
 		};
-
-		public int Number => 2;
 
 		public Vector3 Position { get; set; }
 		public Vector2 TexCoord { get; set; }
