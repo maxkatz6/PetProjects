@@ -24,7 +24,7 @@ namespace Ormeli.Graphics
 				Vector2.SizeInBytes)
 		};
 
-		private Vector2 Location;
+		public Vector2 Location { get; set; }
 		public Vector2 TexCoord { get; set; }
 
 		public Vector3 Position
