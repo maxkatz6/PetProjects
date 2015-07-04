@@ -1,24 +1,23 @@
 ﻿using Ormeli.Core.Patterns;
-using Ormeli.Graphics.Cameras;
 using SharpDX;
 
-namespace Ormeli.Graphics
+namespace Ormeli.Graphics.Drawable
 {
-    public class Model : Disposable, IDrawable
-    {
-        public Mesh[] Meshes { get; set; }
-        public int MeshCount => Meshes.Length;
+	public class Model : Disposable, IDrawable
+	{
+		public Mesh[] Meshes { get; set; }
+		public int MeshCount => Meshes.Length;
 
-        public Mesh GetMesh(int id)
-        {
-            return Meshes[id];
-        }
-        
-        public void Draw(Matrix m)
-        {
-            var v = m * Camera.Current.ViewProjection;
-            for (int i = 0; i < MeshCount; i++)
-                Meshes[i].Draw(v);
-        }
-    }
+		public Mesh this[int i]
+		{
+			get { return Meshes[i]; }
+			set { Meshes[i] = value; }
+		}
+
+		public void Draw(Matrix m)
+		{
+			for (var i = 0; i < MeshCount; i++)
+				Meshes[i].Draw(m);
+		}
+	}
 }

@@ -1,90 +1,92 @@
 ﻿using System.Runtime.InteropServices;
-using Ormeli.GAPI.Interfaces;
+using Ormeli.GAPI;
 using SharpDX;
 
-namespace Ormeli.Graphics.Components
+namespace Ormeli.Graphics
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct BitmapVertex
-    {
-        public static readonly int SizeInBytes = Marshal.SizeOf(typeof(ColorVertex));
+	public interface IVertex
+	{
+		Vector3 Position { get; set; }
+		Vector2 TexCoord { get; set; }
+		Color4 Color { get; set; }
+		int Number { get; }
+	}
 
-        public static readonly Attrib[] Attribs =
-        {
-            new Attrib(AttribIndex.Position, Vector2.SizeInBytes/sizeof (float), Attrib.OrmeliType.Float, 0),
-            new Attrib(AttribIndex.TexCoord, Vector2.SizeInBytes/sizeof (float), Attrib.OrmeliType.Float,
-                Vector2.SizeInBytes)
-        };
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	public struct BitmapVertex : IVertex
+	{
+		public static readonly int SizeInBytes = Marshal.SizeOf(typeof (ColorVertex));
 
-        public const int Number = 0;
+		public static readonly Attrib[] Attribs =
+		{
+			new Attrib(AttribIndex.Position, Vector2.SizeInBytes/sizeof (float), AttribType.Float, 0),
+			new Attrib(AttribIndex.TexCoord, Vector2.SizeInBytes/sizeof (float), AttribType.Float,
+				Vector2.SizeInBytes)
+		};
 
-        public Vector2 Position;
-        public Vector2 TexCoord;
+		public Vector2 Location { get; set; }
+		public Vector2 TexCoord { get; set; }
 
-        public BitmapVertex(Vector2 pos, Vector2 texCoord)
-        {
-            Position = pos;
-            TexCoord = texCoord;
-        }
+		public Vector3 Position
+		{
+			get { return new Vector3(Location, 0); }
+			set { Location = new Vector2(value.X, value.Y); }
+		}
 
-        public BitmapVertex(float x, float y, float u, float v)
-        {
-            Position = new Vector2(x, y);
-            TexCoord = new Vector2(u, v);
-        }
-    }
+		public Color4 Color
+		{
+			get { return Color4.Black; }
+			set { }
+		}
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct ColorVertex
-    {
-        public static readonly int SizeInBytes = Marshal.SizeOf(typeof(ColorVertex));
+		public int Number => 0;
+	}
 
-        public static readonly Attrib[] Attribs =
-        {
-            new Attrib(AttribIndex.Position, Vector3.SizeInBytes/sizeof (float), Attrib.OrmeliType.Float, 0),
-            new Attrib(AttribIndex.Color, Vector4.SizeInBytes/sizeof (float), Attrib.OrmeliType.Float,
-                Vector3.SizeInBytes)
-        };
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	public struct ColorVertex : IVertex
+	{
+		public static readonly int SizeInBytes = Marshal.SizeOf(typeof (ColorVertex));
 
-        public const int Number = 1;
+		public static readonly Attrib[] Attribs =
+		{
+			new Attrib(AttribIndex.Position, Vector3.SizeInBytes/sizeof (float), AttribType.Float, 0),
+			new Attrib(AttribIndex.Color, Vector4.SizeInBytes/sizeof (float), AttribType.Float,
+				Vector3.SizeInBytes)
+		};
 
-        public Vector3 Position;
-        public Color4 Color;
+		public int Number => 1;
 
-        public ColorVertex(Vector3 pos, Color4 color)
-        {
-            Position = pos;
-            Color = color;
-        }
-    }
+		public Vector3 Position { get; set; }
+		public Color4 Color { get; set; }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct TextureVertex
-    {
-        public static readonly int SizeInBytes = Marshal.SizeOf(typeof(TextureVertex));
+		public Vector2 TexCoord
+		{
+			get { return Vector2.Zero; }
+			set { }
+		}
+	}
 
-        public static readonly Attrib[] Attribs =
-        {
-            new Attrib(AttribIndex.Position, Vector3.SizeInBytes/sizeof (float), Attrib.OrmeliType.Float, 0),
-            new Attrib(AttribIndex.TexCoord, Vector2.SizeInBytes/sizeof (float), Attrib.OrmeliType.Float,
-                Vector3.SizeInBytes)
-        };
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	public struct TextureVertex : IVertex
+	{
+		public static readonly int SizeInBytes = Marshal.SizeOf(typeof (TextureVertex));
 
-        public const int Number = 2;
+		public static readonly Attrib[] Attribs =
+		{
+			new Attrib(AttribIndex.Position, Vector3.SizeInBytes/sizeof (float), AttribType.Float, 0),
+			new Attrib(AttribIndex.TexCoord, Vector2.SizeInBytes/sizeof (float), AttribType.Float,
+				Vector3.SizeInBytes)
+		};
 
-        public Vector3 Position;
-        public Vector2 TexCoord;
+		public int Number => 2;
 
-        public TextureVertex(Vector3 pos, Vector2 texCoord)
-        {
-            Position = pos;
-            TexCoord = texCoord;
-        }
+		public Vector3 Position { get; set; }
+		public Vector2 TexCoord { get; set; }
 
-        public TextureVertex(float x, float y, float z, float u, float v)
-        {
-            Position = new Vector3(x, y, z);
-            TexCoord = new Vector2(u, v);
-        }
-    }
+		public Color4 Color
+		{
+			get { return Color4.Black; }
+			set { }
+		}
+	}
 }

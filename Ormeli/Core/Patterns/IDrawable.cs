@@ -2,8 +2,8 @@
 
 namespace Ormeli.Core.Patterns
 {
-    interface IDrawable
-    {
-        void Draw(Matrix m);
-    }
+	public interface IDrawable
+	{
+		void Draw(Matrix m);
+	}
 }
