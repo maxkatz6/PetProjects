@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Ormeli</RootNamespace>
     <AssemblyName>Ormeli</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <ProductVersion>12.0.0</ProductVersion>
@@ -19,51 +19,7 @@
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <NuGetPackageImportStamp>4a6b3a94</NuGetPackageImportStamp>
-    <LangVersion>experimental</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
-    <Optimize>False</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <WarningLevel>4</WarningLevel>
-    <Optimize>false</Optimize>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
@@ -75,23 +31,38 @@
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'x64' ">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>Ormeli.Program</StartupObject>
+    <StartupObject>Ormeli.App</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;DX</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>6</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;DX</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>false</Optimize>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AssimpNet">
       <HintPath>..\..\..\Other\Assimp\AssimpNet.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
-    </Reference>
     <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.D3DCompiler">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.D3DCompiler.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D11, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -110,61 +81,35 @@
   <ItemGroup>
     <Compile Include="App\App.cs" />
     <Compile Include="App\Config.cs" />
-    <Compile Include="App\HardwareDescription.cs" />
     <Compile Include="Core\BinaryOperations.cs" />
     <Compile Include="Core\ErrorProvider.cs" />
-    <Compile Include="App\Program.cs" />
     <Compile Include="Core\FPS.cs" />
     <Compile Include="Core\Patterns\Builder.cs" />
     <Compile Include="Core\Patterns\Disposable.cs" />
     <Compile Include="Core\Patterns\IDrawable.cs" />
     <Compile Include="Core\Reflection.cs" />
     <Compile Include="Core\Timer.cs" />
-    <Compile Include="GAPI\Interfaces\Effect.cs" />
-    <Compile Include="Graphics\Builders\MeshBuilder.cs" />
-    <Compile Include="Graphics\Components\Object.cs" />
-    <Compile Include="Graphics\Effects\Effect2D.cs" />
+    <Compile Include="GAPI\DirectX11\DxEffect.cs" />
+    <Compile Include="Graphics\Components\GameObject.cs" />
     <Compile Include="Graphics\Builders\GeometryGenerator.cs" />
     <Compile Include="Graphics\Components\Drawable\Model.cs" />
-    <Compile Include="Graphics\Loop.cs" />
+    <Compile Include="Graphics\Components\Transform.cs" />
+    <Compile Include="GAPI\Loop.cs" />
     <Compile Include="Graphics\Cameras\Camera.cs" />
     <Compile Include="Graphics\Cameras\FreeCamera.cs" />
     <Compile Include="Graphics\Cameras\TargetCamera.cs" />
     <Compile Include="Graphics\Components\Buffer.cs" />
-    <Compile Include="GAPI\Cg\CgEffectBase.cs" />
-    <Compile Include="GAPI\Cg\CgType.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgBehaviorEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgBufferAccessEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgBufferusageEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgDomainEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgErrorEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgGLEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgParameterClassEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgProfileEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgResourceEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\CgTypeEnum.cs" />
-    <Compile Include="GAPI\Cg\Enums\HelperEnum.cs" />
-    <Compile Include="GAPI\Cg\CG.cs" />
     <Compile Include="GAPI\DirectX11\DxAttribs.cs" />
     <Compile Include="GAPI\DirectX11\DxCreator.cs" />
-    <Compile Include="GAPI\Interfaces\ICreator.cs" />
-    <Compile Include="GAPI\Interfaces\IEffectAttribs.cs" />
-    <Compile Include="GAPI\OpenGL\GlCreator.cs" />
+    <Compile Include="GAPI\EffectAttribs.cs" />
     <Compile Include="Graphics\Components\Drawable\Texture.cs" />
-    <Compile Include="GAPI\OpenGL\GlAttribs.cs" />
     <Compile Include="Graphics\Builders\ModelBuilder.cs" />
-    <Compile Include="Graphics\Effects\ColTexEffect.cs" />
     <Compile Include="Graphics\Components\Drawable\Mesh.cs" />
     <Compile Include="Graphics\Components\Vertex.cs" />
     <Compile Include="Graphics\Components\Scene.cs" />
-    <Compile Include="Graphics\Managers\EffectManager.cs" />
     <Compile Include="Input\Input.cs" />
-    <Compile Include="Input\Key.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GAPI\DirectX11\DxRender.cs" />
-    <Compile Include="GAPI\OpenGL\GlRender.cs" />
-    <Compile Include="GAPI\Interfaces\IRender.cs" />
     <Compile Include="Math\MathHelper.cs" />
   </ItemGroup>
   <ItemGroup />
@@ -173,22 +118,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="Resources\Effects\2DEffect.cgfx">
+    <Content Include="Resources\Effects\TexEffect.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Font\font.fnt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\glut32_32.dll" />
-    <None Include="Resources\Effects\ColTexEffect.cgfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Models\Castle\castle.mtl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Models\Castle\castle.obj">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
     <None Include="Resources\Models\Paris\Paris2010.mtl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -204,33 +136,6 @@
     <None Include="Resources\Models\Stone Bridge\Map__2_Normal_Bump.tga">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\Models\Venice\venice.mtl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Models\Venice\venice.obj">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\cgGL_64.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\cgGL_32.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\cgD3D11_64.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\cgD3D11_32.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\cg_64.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\cg_32.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\glut32_64.dll" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assimp32.dll">
@@ -238,38 +143,6 @@
     </Content>
     <Content Include="Assimp64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="cg.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="cgD3D11.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="cgGL.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\DevIL.dll" />
-    <Content Include="Resources\Models\Castle\antenna_01_01_01_01.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Castle\dr1.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Castle\rftq1.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Castle\scd1b.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Castle\wd1.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\font.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\ILU.dll" />
-    <Content Include="Resources\Models\NVIDIA.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Models\Paris\texture\160_1.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -638,180 +511,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Models\Stone Bridge\bridge_spec.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\base.1.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\flatroof1.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\flatroof2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\flatroof3.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\flatroof4.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\flatroof5.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\flatroof6.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\flatroof7.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\flatroof8.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\flatroof9.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\park_bright.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\rooftile.1.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\rooftile.2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\rooftile.3.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\rooftile.4.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\rooftile.5.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\rooftile.6.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\rooftile.7.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\rooftile.8.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\rooftile.9.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\streets.color.bright2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\streets.color.mid_red.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture0.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture0.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture1.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture10.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture3.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture3.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture4.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture4.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture5.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture6.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture6.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture7.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture7.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture8.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture8.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\texture9.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\tree_texture.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.2stories_2tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.2stories_3tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.2stories_5tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.2stories_6tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.2stories_7tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.2stories_9tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.3stories_3tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.3stories_4tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.3stories_5tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.3stories_6tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.3stories_8tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.3stories_9tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.4stories_1tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.4stories_3tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.4stories_4tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\ven.5stories_4tiles.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\venice_satellite.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Models\Venice\texture\venice_satellite_mid.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

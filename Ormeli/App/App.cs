@@ -1,69 +1,48 @@
 ﻿using System;
-using System.Globalization;
-using System.Threading;
-using Ormeli.GAPI.DirectX11;
-using Ormeli.GAPI.Interfaces;
-using Ormeli.GAPI.OpenGL;
+using Ormeli.Core;
+using Ormeli.GAPI;
 using Ormeli.Graphics;
-using Timer = Ormeli.Core.Timer;
 
 namespace Ormeli
 {
-    public enum RenderType
-    {
-        DirectX11=1,
-        OpenGl3
-    }
+	public static class App
+	{
+		/*          TODO необходимое
+		 * Just DO IT! Keep It Simple, Stupid!
+		 * Доработка системы сцен. http://docs.unity3d.ru/ScriptReference/Transform.html http://www.gamedev.ru/code/forum/?id=184194 http://www.gamedev.ru/pages/warzes/forum/?id=182048&page=4
+		 * GUI. Font. Signed Distance Field http://habrahabr.ru/post/215905/ http://www.gamedev.ru/code/forum/?id=175763&page=2
+		 * Текст в геометрическом шейдере http://blogs.agi.com/insight3d/index.php/2008/08/29/rendering-text-fast/ 
+		 *          TODO Возможно
+		 * Поддержка DirectX12. Изначально как миррорная версия или отдельное GAPI
+		 * Постобработка
+		 * Частицы
+		 * JSON как контейнер информации
+		 * Скриптинг
+         */
+		internal static Render Render;
+		internal static Creator Creator;
+		internal static readonly Loop Loop = new Loop();
 
-    public enum EffectLanguage
-    {
-        CG,
-        HLSL,
-        GLSL
-    }
+		public static void Main()
+		{
+			using (var t = new Timer(true))
+			{
+				Creator.InitGAPI(out Render, out Creator);
 
-    public static class App
-    {
-        public static RenderType RenderType;
-        public static EffectLanguage EffectLanguage;
+				Console.WriteLine(Config.Render + " renderer started in " + t.Frame() + " microseconds");
 
-        internal static IRender Render;
-        internal static ICreator Creator;
-        internal static readonly Loop Loop = new Loop();
+				var Scene = new Scene();
+				Scene.Load();
 
-        public static void Initialize(RenderType render, EffectLanguage effectLanguage = EffectLanguage.CG)
-        {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+				Console.WriteLine("Scene loaded in " + t.Frame() + " microseconds");
 
-            RenderType = render;
-            EffectLanguage = effectLanguage;
+				Scene.Run();
+			}
+		}
 
-            if (RenderType == RenderType.DirectX11)
-                Render = new DxRender();
-            else Render = new GlRender();
-
-            using (var t = new Timer())
-            {
-                t.Start();
-
-                Render.CreateWindow();
-                Render.Initialize();
-                Render.ZBuffer(true);
-                Render.AlphaBlending(true);
-
-                Creator = Render.GetCreator();
-
-                t.Frame();
-                Console.WriteLine(render + " renderer started in " + t.FrameTime + " microseconds");
-                Console.WriteLine(HardwareDescription.VideoCardDescription);
-                Console.WriteLine("VideoCard Memory: " + HardwareDescription.VideoCardMemory);
-                Console.WriteLine("----------------------------------------------");
-            }
-        }
-
-        public static void Exit(int code = 0)
-        {
-            Environment.Exit(code);
-        }
-    }
+		public static void Exit(int code = 0)
+		{
+			Environment.Exit(code);
+		}
+	}
 }
