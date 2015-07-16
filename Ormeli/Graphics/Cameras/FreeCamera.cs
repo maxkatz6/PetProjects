@@ -1,5 +1,4 @@
-﻿using Ormeli.Math;
-using SharpDX;
+﻿using SharpDX;
 
 namespace Ormeli.Graphics.Cameras
 {
@@ -70,7 +69,7 @@ namespace Ormeli.Graphics.Cameras
 
 			Transform.Rotation = new Vector3(Transform.Rotation.X%MathHelper.TwoPi, Transform.Rotation.Y%MathHelper.TwoPi, 0);
 
-			//Some optimisations.
+			//Some optimisation.
 			float cosPitch = rotation[1, 1],
 				sinPitch = -rotation[2, 1],
 				cosYaw = rotation[0, 0],
@@ -80,6 +79,12 @@ namespace Ormeli.Graphics.Cameras
 				yaxis = new Vector3(sinYaw*sinPitch, cosPitch, cosYaw*sinPitch),
 				zaxis = new Vector3(sinYaw*cosPitch, -sinPitch, cosPitch*cosYaw);
 
+			ViewRotation = new Matrix(
+				xaxis.X, yaxis.X, zaxis.X, 0,
+				xaxis.Y, yaxis.Y, zaxis.Y, 0,
+				xaxis.Z, yaxis.Z, zaxis.Z, 0,
+				0,0,0, 1) * Projection;
+			
 			ViewProjection = new Matrix(
 				xaxis.X, yaxis.X, zaxis.X, 0,
 				xaxis.Y, yaxis.Y, zaxis.Y, 0,

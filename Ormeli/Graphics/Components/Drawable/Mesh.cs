@@ -1,26 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Ormeli.Core.Patterns;
+﻿using System.Runtime.InteropServices;
 using Ormeli.GAPI;
-using Ormeli.Graphics.Builders;
 using SharpDX;
 
 namespace Ormeli.Graphics.Drawable
 {
-	public class Mesh : IDrawable
+	public struct GeometryInfo<T> where T : struct, IVertex
 	{
-		private static readonly Dictionary<string, Effect> effects = new Dictionary<string, Effect>();
+		public T[] Vertices { get; set; }
+		public int[] Indices { get; set; }
+	}
+	public class Mesh
+	{
 
-		public Mesh(string ef, Attrib[] attribs, int[] ind)
+		public Mesh(Effect ef, int[] ind)
 		{
-			if (effects.ContainsKey(ef)) Effect = effects[ef];
-			else
-			{
-				Effect = new Effect(ef, attribs);
-				effects.Add(ef, Effect);
-			}
+			Effect = ef;
 			IndexCount = ind.Length;
-			Ib = App.Creator.CreateBuffer(ind, BindFlag.IndexBuffer, BufferUsage.Default, CpuAccessFlags.None);
+			Ib = Buffer.Create(ind, BindFlag.IndexBuffer, BufferUsage.Default, CpuAccessFlags.None);
 		}
 
 		public Buffer Vb { get; private set; }
@@ -34,15 +30,17 @@ namespace Ormeli.Graphics.Drawable
 		public virtual void Draw(Matrix matrix)
 		{
 			Effect.SetMatrix(matrix);
-			Effect.Render(this);
+			App.Render.SetVertexBuffer(Vb, VertexSize);
+			App.Render.SetIndexBuffer(Ib);
+			Effect.Render(IndexCount);
 		}
 
 		protected void SetVertices<T>(T[] vert, bool isDynamic) where T : struct
 		{
 			IsDynamic = isDynamic;
 			Vb = IsDynamic
-				? App.Creator.CreateBuffer(vert, BindFlag.VertexBuffer)
-				: App.Creator.CreateBuffer(vert, BindFlag.VertexBuffer, BufferUsage.Default, CpuAccessFlags.None);
+				? Buffer.Create(vert, BindFlag.VertexBuffer)
+				: Buffer.Create(vert, BindFlag.VertexBuffer, BufferUsage.Default, CpuAccessFlags.None);
 			VertexSize = Marshal.SizeOf(vert[0]);
 		}
 	}
@@ -50,8 +48,8 @@ namespace Ormeli.Graphics.Drawable
 
 	public class TextureMesh : Mesh
 	{
-		public TextureMesh(string effect, GeometryInfo<TextureVertex> geometry, bool isDynamic = false)
-			: base(effect, TextureVertex.Attribs, geometry.Indices)
+		public TextureMesh(Effect effect, GeometryInfo<TextureVertex> geometry, bool isDynamic = false)
+			: base(effect, geometry.Indices)
 		{
 			SetVertices(geometry.Vertices, isDynamic);
 		}

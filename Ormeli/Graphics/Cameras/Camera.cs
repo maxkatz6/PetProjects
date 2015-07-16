@@ -8,11 +8,11 @@ namespace Ormeli.Graphics.Cameras
 		{
 			UpdateScreenMatrices();
 		}
-
-		public Matrix ViewProjection { get; set; }
-		public Matrix Projection { get; set; }
-		public Matrix Ortho { get; set; }
-		public Transform Transform { get; set; }
+		public Matrix ViewRotation { get; protected set; }
+		public Matrix ViewProjection { get; protected set; }
+		public Matrix Projection { get; protected set; }
+		public Matrix Ortho { get; protected set; }
+		public Transform Transform { get; protected set; }
 
 		public void UpdateScreenMatrices()
 		{
@@ -21,7 +21,7 @@ namespace Ormeli.Graphics.Cameras
 
 		public void UpdateScreenMatrices(int width, int height)
 		{
-			Projection = Matrix.PerspectiveFovRH(1, //MathHelper.ToRadians(45);
+			Projection = Matrix.PerspectiveFovRH(MathHelper.ToRadians(60),
 				(float) width/height, Config.ScreenNear,
 				Config.ScreenDepth);
 

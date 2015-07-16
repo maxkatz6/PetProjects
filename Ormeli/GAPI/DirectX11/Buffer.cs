@@ -1,0 +1,100 @@
+﻿#if DX
+using System;
+using System.Runtime.InteropServices;
+using SharpDX.Direct3D11;
+
+namespace Ormeli.GAPI
+{
+	public enum BindFlag
+	{
+		VertexBuffer = 1,
+		IndexBuffer = 2,
+		ConstantBuffer = 4
+	}
+
+	public enum SetDataOptions
+	{
+		NoOverwrite,
+		Discard
+	}
+
+	public enum BufferUsage
+	{
+		Default = 0,
+		Immutable = 1,
+		Dynamic = 2,
+		DXStaging = 3
+	}
+
+	public enum CpuAccessFlags
+	{
+		Write = 1,
+		Read = 2,
+		None = 0
+	}
+	
+	public struct Buffer
+	{
+		private readonly SharpDX.Direct3D11.Buffer _buffer;
+
+		private Buffer(SharpDX.Direct3D11.Buffer handle)
+		{
+			_buffer = handle;
+		}
+
+		public static implicit operator SharpDX.Direct3D11.Buffer(Buffer buf)
+		{
+			return buf._buffer;
+		}
+
+		public static implicit operator IntPtr(Buffer buf)
+		{
+			return buf._buffer.NativePointer;
+		}
+
+		public static implicit operator int(Buffer buf)
+		{
+			return (int)buf._buffer.NativePointer;
+		}
+
+
+		public static Buffer Create<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
+			CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
+		{
+			var vbd = new BufferDescription(
+				Marshal.SizeOf(typeof(T)),
+				(ResourceUsage)bufferUsage,
+				(BindFlags)bufferTarget,
+				(SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+				ResourceOptionFlags.None,
+				0
+				);
+			return new Buffer(new SharpDX.Direct3D11.Buffer(App.Render.Device, vbd));
+		}
+
+		public static Buffer Create<T>(T[] objs, BindFlag bufferTarget,
+			BufferUsage bufferUsage = BufferUsage.Dynamic,
+			CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
+		{
+			var vbd = new BufferDescription(
+				objs.Length * Marshal.SizeOf(typeof(T)),
+				(ResourceUsage)bufferUsage,
+				(BindFlags)bufferTarget,
+				(SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+				ResourceOptionFlags.None, 0
+				);
+			return new Buffer(SharpDX.Direct3D11.Buffer.Create(App.Render.Device, objs, vbd));
+		}
+
+		public IntPtr MapBuffer(int offset = 0)
+		{
+			return App.Render.DeviceContext.MapSubresource(_buffer, offset, MapMode.WriteDiscard, MapFlags.None).DataPointer;
+		}
+
+		public void UnmapBuffer()
+		{
+			App.Render.DeviceContext.UnmapSubresource(_buffer, 0);
+		}
+	}
+}
+#endif

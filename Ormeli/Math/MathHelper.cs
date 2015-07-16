@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Ormeli.Math
+namespace Ormeli
 {
 	public static class MathHelper
 	{
@@ -60,29 +60,16 @@ namespace Ormeli.Math
 
 		public static float FastSin(float x)
 		{
-			if (x < -Pi)
-				FastSin(TwoPi + x);
-			else if (x > Pi)
-				FastSin(x - TwoPi);
+			x = WrapAngle(x);
 
 			var sin = (x < 0 ? x*(QuadPi + PiConst*x) : x*(QuadPi - PiConst*x));
-
 			return (sin < 0 ? .225f*(sin*-sin - sin) + sin : .225f*(sin*sin - sin) + sin);
 		}
 
 		public static float FastCos(float x)
 		{
-			if (x < -Pi)
-				FastCos(TwoPi + x);
-			else if (x > Pi)
-				FastCos(x - TwoPi);
-
-			x += PiOver2;
-			if (x > Pi)
-				x -= TwoPi;
-
+			x = WrapAngle(x);
 			var cos = (x < 0 ? x*(QuadPi + PiConst*x) : x*(QuadPi - PiConst*x));
-
 			return (cos < 0 ? .225f*(cos*-cos - cos) + cos : .225f*(cos*cos - cos) + cos);
 		}
 

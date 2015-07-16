@@ -14,7 +14,8 @@ namespace Ormeli.Graphics.Cameras
 
 		public override void Update()
 		{
-			ViewProjection = Matrix.LookAtLH(Transform.Position, Target.Position, Vector3.Zero)*Projection;
+			ViewRotation = Matrix.LookAtLH(Vector3.Zero, Target.Position, Vector3.Zero)*Projection;
+            ViewProjection = Matrix.LookAtLH(Transform.Position, Target.Position, Vector3.Zero)*Projection;
 		}
 	}
 }

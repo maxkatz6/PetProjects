@@ -28,8 +28,8 @@ namespace Ormeli
 		}
 
 		public static string Tittle { get; set; } = "Engine";
-		public static int Height { get; set; } = 800;
-		public static int Width { get; set; } = 1200;
+		public static int Height { get; set; } = 1000;
+		public static int Width { get; set; } = 1920;
 		public static bool VerticalSyncEnabled { get; set; } = false;
 		public static bool FullScreen { get; set; } = false;
 		public static bool Enable4xMSAA { get; set; } = false;

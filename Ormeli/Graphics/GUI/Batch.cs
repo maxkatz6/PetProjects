@@ -1,12 +1,14 @@
 ﻿﻿using System;
 using System.Runtime.InteropServices;
+﻿using Ormeli.GAPI;
 ﻿using Ormeli.Graphics.Drawable;
 ﻿using SharpDX;
+﻿using Buffer = Ormeli.GAPI.Buffer;
 
 namespace Ormeli.Graphics
 {
 	//TODO//
-    public class SpriteBatch : Mesh
+    public class SpriteBatch
     {
         private const int MaxBatchSize = 2048;
         private const int MinBatchSize = 128;
@@ -15,11 +17,13 @@ namespace Ormeli.Graphics
         private const int MaxVertexCount = MaxBatchSize * VerticesPerSprite;
         private const int MaxIndexCount = MaxBatchSize * IndicesPerSprite;
 
-        private SpriteInfo[] _spriteQueue;
+	    private Effect Effect;
+		public Buffer Vb { get; }
+		public Buffer Ib { get; }
+		private Sprite[] _spriteQueue;
         private int _spriteQueueCount;
 
         private int _vertexBufferPosition;
-	    private Scene Scene;
 	    private static readonly int[] indices;
         static SpriteBatch()
         {
@@ -35,14 +39,15 @@ namespace Ormeli.Graphics
             }
         }
 
-        public SpriteBatch(Scene scene) : base("", BitmapVertex.Attribs, indices)
+        public SpriteBatch()
         {
-	        Scene = scene;
-            _spriteQueue = new SpriteInfo[MaxBatchSize];
-	        SetVertices(new BitmapVertex[MaxVertexCount], true);
+			Effect = Effect.FromFile("");
+			Vb = Buffer.Create(new BitmapVertex[MaxVertexCount], BindFlag.VertexBuffer);
+			Ib = Buffer.Create(indices, BindFlag.IndexBuffer, BufferUsage.Default, CpuAccessFlags.None);
+            _spriteQueue = new Sprite[MaxBatchSize];
         }
 
-        public void Begin()
+	    public void Begin()
         {
             _spriteQueueCount = 0;
             _vertexBufferPosition = 0;
@@ -56,7 +61,7 @@ namespace Ormeli.Graphics
                 Array.Resize(ref _spriteQueue, _spriteQueue.Length * 2);
             }
 
-            _spriteQueue[_spriteQueueCount++] = new SpriteInfo
+            _spriteQueue[_spriteQueueCount++] = new Sprite
             {
                 Color = color,
                 Texture = texture,
@@ -73,7 +78,7 @@ namespace Ormeli.Graphics
 				var _z = App.Render.IsDepthEnabled;
 				App.Render.ZBuffer(false);
 
-				Draw(Scene.Camera.Ortho);
+				//Draw(Scene.Current.Camera.Ortho);
 				
                 FlushBatch();
 				App.Render.ZBuffer(_z);
@@ -108,7 +113,7 @@ namespace Ormeli.Graphics
         private void DrawBatchPerTexture(Texture texture, int offset, int count)
         {
             Effect.SetTexture(texture);
-            Effect.Render(this);
+            Effect.Render(count);
 	        DrawBatchPerTextureAndPass(texture, offset, count);
         }
 
@@ -138,35 +143,35 @@ namespace Ormeli.Graphics
                 }
 
                 // Sets the data directly to the buffer in memory
-                int offsetInBytes = _vertexBufferPosition * VerticesPerSprite * BitmapVertex.SizeInBytes;
-               /* _vertexBuffer.SetDynamicData(ptr =>
+				var ptr = Vb.MapBuffer(_vertexBufferPosition * VerticesPerSprite * BitmapVertex.SizeInBytes).ToPointer();
+                var p = (BitmapVertex*)ptr;
+                for (int i = 0; i < batchSize; i++)
                 {
-                    var p = (BitmapVertex*)ptr;
-                    for (int i = 0; i < batchSize; i++)
-                    {
-                        var sp = _spriteQueue[offset + i];
-                        int left = (-(Config.Width >> 1)) + (int)sp.Destination.X;
-                        int right = left + (int)sp.Destination.Width;
-                        int top = (Config.Height >> 1) + (int)sp.Destination.Y;
-                        int bottom = top - (int)sp.Destination.Height;
+                    var sp = _spriteQueue[offset + i];
+                    int left = (-(Config.Width >> 1)) + (int)sp.Destination.X;
+                    int right = left + (int)sp.Destination.Width;
+                    int top = (Config.Height >> 1) + (int)sp.Destination.Y;
+                    int bottom = top - (int)sp.Destination.Height;
 
-                        p++->Location = new Vector2(left, top);
-                        p++->Location = new Vector2(right, top);
-                        p++->Location = new Vector2(left, bottom);
-                        p->Location = new Vector2(right, bottom);
-                        p -= 3;
+                    p++->Location = new Vector2(left, top);
+                    p++->Location = new Vector2(right, top);
+                    p++->Location = new Vector2(left, bottom);
+                    p->Location = new Vector2(right, bottom);
+                    p -= 3;
 
-                      //  if (!sp.CustomSource) continue;
-                        var v = new Vector2(sp.Source.X, sp.Source.Y);
-                        var w = sp.Source.Width*deltaX;
-                        var h = sp.Source.Height * deltaY;
-                        p++->TexCoord = v;
-                        p++->TexCoord = v + new Vector2(w, 0);
-                        p++->TexCoord = v + new Vector2(0, h);
-                        p->TexCoord = v + new Vector2(w, h);
-                    }
-                }, offsetInBytes, noOverwrite);
-				*/
+                    if (sp.CustomSource) p -= 3;
+					else continue;
+
+                    var v = new Vector2(sp.Source.X, sp.Source.Y);
+                    var w = sp.Source.Width*deltaX;
+                    var h = sp.Source.Height * deltaY;
+                    p++->TexCoord = v;
+                    p++->TexCoord = v + new Vector2(w, 0);
+                    p++->TexCoord = v + new Vector2(0, h);
+                    p->TexCoord = v + new Vector2(w, h);
+                }
+				Vb.UnmapBuffer();
+				
                 // Draw from the specified index
                 int startIndex = _vertexBufferPosition * IndicesPerSprite;
                 int indexCount = batchSize * IndicesPerSprite;
@@ -181,7 +186,7 @@ namespace Ormeli.Graphics
         #region Nested type: SpriteInfo
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct SpriteInfo // TODO данные о вершинах хранить в этой структуре (переименновать в Sprite). При изменении данных, редактировать вершины.
+        public struct Sprite // TODO данные о вершинах хранить в этой структуре (переименновать в Sprite). При изменении данных, редактировать вершины.
         {
             public Texture Texture;
             public RectangleF Source;
@@ -189,7 +194,6 @@ namespace Ormeli.Graphics
             public RectangleF Destination;
             public Color Color;
         }
-
         #endregion
     }
 }

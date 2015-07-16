@@ -1,7 +1,5 @@
 ﻿using System;
-using Ormeli.Core;
 using Ormeli.GAPI;
-using Ormeli.Graphics;
 
 namespace Ormeli
 {
@@ -19,30 +17,18 @@ namespace Ormeli
 		 * JSON как контейнер информации
 		 * Скриптинг
          */
+		internal static Window Window;
 		internal static Render Render;
-		internal static Creator Creator;
-		internal static readonly Loop Loop = new Loop();
 
-		public static void Main()
+		public static void Initialize()
 		{
-			using (var t = new Timer(true))
-			{
-				Creator.InitGAPI(out Render, out Creator);
-
-				Console.WriteLine(Config.Render + " renderer started in " + t.Frame() + " microseconds");
-
-				var Scene = new Scene();
-				Scene.Load();
-
-				Console.WriteLine("Scene loaded in " + t.Frame() + " microseconds");
-
-				Scene.Run();
-			}
+			Window = Window.Create();
+			Render = Render.Create();
 		}
 
-		public static void Exit(int code = 0)
+		public static void Exit()
 		{
-			Environment.Exit(code);
+			Environment.Exit(0);
 		}
 	}
 }
