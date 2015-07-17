@@ -4,10 +4,20 @@ using SharpDX;
 
 namespace Ormeli.Graphics.Drawable
 {
-	public struct GeometryInfo<T> where T : struct, IVertex
+	public struct GeometryInfo<Vertex> where Vertex : struct, IVertex
 	{
-		public T[] Vertices { get; set; }
+		public Vertex[] Vertices { get; set; }
 		public int[] Indices { get; set; }
+
+		public GeometryInfo<Vertex> Transform(Matrix m)
+		{
+			for (int i = 0; i < Vertices.Length; i++)
+			{
+				Vertices[i].Position = Vector3.TransformCoordinate(Vertices[i].Position, m);
+				//Vertices[i].Normal = Vector3.TransformNormal(Vertices[i].Normal, m);
+			}
+			return this;
+		}
 	}
 	public class Mesh
 	{

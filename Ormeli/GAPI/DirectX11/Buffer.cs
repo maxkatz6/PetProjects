@@ -1,6 +1,7 @@
 ﻿#if DX
 using System;
 using System.Runtime.InteropServices;
+using SharpDX;
 using SharpDX.Direct3D11;
 
 namespace Ormeli.GAPI
@@ -32,7 +33,7 @@ namespace Ormeli.GAPI
 		Read = 2,
 		None = 0
 	}
-	
+
 	public struct Buffer
 	{
 		private readonly SharpDX.Direct3D11.Buffer _buffer;
@@ -54,18 +55,17 @@ namespace Ormeli.GAPI
 
 		public static implicit operator int(Buffer buf)
 		{
-			return (int)buf._buffer.NativePointer;
+			return (int) buf._buffer.NativePointer;
 		}
-
 
 		public static Buffer Create<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
 			CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
 		{
 			var vbd = new BufferDescription(
-				Marshal.SizeOf(typeof(T)),
-				(ResourceUsage)bufferUsage,
-				(BindFlags)bufferTarget,
-				(SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+				Marshal.SizeOf(typeof (T)),
+				(ResourceUsage) bufferUsage,
+				(BindFlags) bufferTarget,
+				(SharpDX.Direct3D11.CpuAccessFlags) ((long) cpuAccessFlags*65536),
 				ResourceOptionFlags.None,
 				0
 				);
@@ -77,13 +77,21 @@ namespace Ormeli.GAPI
 			CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
 		{
 			var vbd = new BufferDescription(
-				objs.Length * Marshal.SizeOf(typeof(T)),
-				(ResourceUsage)bufferUsage,
-				(BindFlags)bufferTarget,
-				(SharpDX.Direct3D11.CpuAccessFlags)((long)cpuAccessFlags * 65536),
+				objs.Length*Marshal.SizeOf(typeof (T)),
+				(ResourceUsage) bufferUsage,
+				(BindFlags) bufferTarget,
+				(SharpDX.Direct3D11.CpuAccessFlags) ((long) cpuAccessFlags*65536),
 				ResourceOptionFlags.None, 0
 				);
 			return new Buffer(SharpDX.Direct3D11.Buffer.Create(App.Render.Device, objs, vbd));
+		}
+
+		public void Write<T>(T[] arr, int offset = 0) where T : struct
+		{
+			DataStream s;
+			App.Render.DeviceContext.MapSubresource(_buffer, 0, MapMode.WriteDiscard, MapFlags.None, out s);
+			s.WriteRange(arr);
+			UnmapBuffer();
 		}
 
 		public IntPtr MapBuffer(int offset = 0)
@@ -97,4 +105,5 @@ namespace Ormeli.GAPI
 		}
 	}
 }
+
 #endif

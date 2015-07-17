@@ -19,7 +19,7 @@ namespace Ormeli.Core
 
 		public static void SendError(Exception ex, bool sendExp = false)
 		{
-			SendError(ex.Source + ex.Message + "\r\r");
+			SendError(ex.Source + "\r\r"+ex.Message + "\r\r");
 			if (sendExp) throw ex;
 		}
 	}

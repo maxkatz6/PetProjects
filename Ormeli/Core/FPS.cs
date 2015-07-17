@@ -3,7 +3,7 @@
 namespace Ormeli.Core
 {
 	/// <summary>
-	///     FramesPerSecond counter
+	/// FramesPerSecond counter
 	/// </summary>
 	public class Fps
 	{

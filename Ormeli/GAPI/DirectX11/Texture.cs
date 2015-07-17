@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
+using Ormeli.Core;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
@@ -59,7 +61,7 @@ namespace Ormeli.GAPI
 				}
 			});
 		}
-		
+
 		private Texture(ShaderResourceView resourceView, int w, int h)
 		{
 			ResourceView = resourceView;
@@ -80,11 +82,12 @@ namespace Ormeli.GAPI
 			return tex.ResourceView.NativePointer;
 		}
 
-		public static implicit operator int (Texture tex)
+		public static implicit operator int(Texture tex)
 		{
 			return tex.ResourceView.NativePointer.ToInt32();
 		}
-		public static implicit operator Texture (string tex)
+
+		public static implicit operator Texture(string tex)
 		{
 			return FromFile(tex);
 		}
@@ -117,32 +120,27 @@ namespace Ormeli.GAPI
 
 		private static Texture Load(string fileName)
 		{
-			Bitmap bit = new Bitmap(fileName);
-			
-			var c = new Color4[ bit.Width, bit.Height];
-			for (int y = 0; y < bit.Height; y++)
-				for (int x = 0; x < bit.Width; x++)
-				{
-					var p = bit.GetPixel(x, y);
-					c[x, y] = new Color(p.R, p.G, p.B, p.A);
-				}
-			return Create(Rotate(Rotate(Rotate(c))));
-		}
-		static T[,] Rotate<T>(T[,] oldMatrix)
-		{
-			T[,] newMatrix = new T[oldMatrix.GetLength(1), oldMatrix.GetLength(0)];
+			if (!File.Exists(fileName))
+			{
+				ErrorProvider.SendError("Dx11.Texture.Load() : file " + fileName + " not found.");
+				return Null;
+			}
+			var bit = new Bitmap(fileName);
+
+			var newMatrix = new Color4[bit.Height, bit.Width];
 			int newColumn, newRow = 0;
-			for (int oldColumn = oldMatrix.GetLength(1) - 1; oldColumn >= 0; oldColumn--)
+			for (var oldColumn = 0; oldColumn < bit.Height; oldColumn++)
 			{
 				newColumn = 0;
-				for (int oldRow = 0; oldRow < oldMatrix.GetLength(0); oldRow++)
+				for (var oldRow = 0; oldRow < bit.Width; oldRow++)
 				{
-					newMatrix[newRow, newColumn] = oldMatrix[oldRow, oldColumn];
+					var p = bit.GetPixel(oldRow, oldColumn);
+					newMatrix[newRow, newColumn] = new Color(p.R, p.G, p.B, p.A);
 					newColumn++;
 				}
 				newRow++;
 			}
-			return newMatrix;
+			return Create(newMatrix);
 		}
 
 		public static unsafe Texture Create(Color4[,] array, Format format = Format.R32G32B32A32_Float)
@@ -157,20 +155,22 @@ namespace Ormeli.GAPI
 					new DataBox(new DataStream(new IntPtr(p), array.Length*16, true, true).DataPointer,
 						w*FormatHelper.SizeOfInBytes(format), 0)
 				};
-			return new Texture(new ShaderResourceView(App.Render.Device, new Texture2D(App.Render.Device, new Texture2DDescription
-			{
-				ArraySize = 1,
-				BindFlags = BindFlags.ShaderResource,
-				CpuAccessFlags = 0,
-				Format = format,
-				Height = h,
-				MipLevels = 1,
-				OptionFlags = 0,
-				Usage = ResourceUsage.Default,
-				Width = w,
-				SampleDescription = new SampleDescription(1, 0)
-			}, v)), w, h);
+			return
+				new Texture(new ShaderResourceView(App.Render.Device, new Texture2D(App.Render.Device, new Texture2DDescription
+				{
+					ArraySize = 1,
+					BindFlags = BindFlags.ShaderResource,
+					CpuAccessFlags = 0,
+					Format = format,
+					Height = h,
+					MipLevels = 1,
+					OptionFlags = 0,
+					Usage = ResourceUsage.Default,
+					Width = w,
+					SampleDescription = new SampleDescription(1, 0)
+				}, v)), w, h);
 		}
 	}
 }
+
 #endif

@@ -5,7 +5,8 @@ namespace Ormeli.Graphics.Drawable
 {
 	public class Skydome : Model
 	{
-		readonly TextureMesh skyMesh =  new TextureMesh(Effect.FromFile("TexEffect.hlsl"), GeometryGenerator.CreateSphere<TextureVertex>());
+		private readonly TextureMesh skyMesh = new TextureMesh(Effect.FromFile("TexEffect.hlsl"),
+			GeometryGenerator.CreateHemiSphere<TextureVertex>());
 
 		public Texture Texture { set { skyMesh.Texture = value; } }
 

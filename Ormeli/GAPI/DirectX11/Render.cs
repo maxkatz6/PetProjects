@@ -13,6 +13,8 @@ namespace Ormeli.GAPI
 	public sealed class Render : Disposable
 	{
 		private IntPtr _lastVB, _lastIB;
+		private BlendState AlphaBlendingTrue, AlphaBlendingFalse;
+		private DepthStencilState DepthStencilStateTrue, DepthStencilStateFalse;
 		internal DepthStencilView DepthStencilView;
 		internal Device Device;
 		internal DeviceContext DeviceContext;
@@ -21,9 +23,6 @@ namespace Ormeli.GAPI
 		public Color4 BackColor { get; set; }
 		public bool IsBlendEnabled { get; private set; }
 		public bool IsDepthEnabled { get; private set; }
-
-		private BlendState AlphaBlendingTrue, AlphaBlendingFalse;
-		private DepthStencilState DepthStencilStateTrue, DepthStencilStateFalse;
 
 		public static Render Create()
 		{
@@ -186,9 +185,11 @@ namespace Ormeli.GAPI
 		public void AlphaBlending(bool isBlendEnabled)
 		{
 			if (IsBlendEnabled == isBlendEnabled) return;
-			DeviceContext.OutputMerger.SetBlendState(isBlendEnabled ? AlphaBlendingTrue : AlphaBlendingFalse, new Color4(0, 0, 0, 0f));
+			DeviceContext.OutputMerger.SetBlendState(isBlendEnabled ? AlphaBlendingTrue : AlphaBlendingFalse,
+				new Color4(0, 0, 0, 0f));
 			IsBlendEnabled = isBlendEnabled;
 		}
+
 		public void ZBuffer(bool isDepthEnabled)
 		{
 			if (IsDepthEnabled == isDepthEnabled) return;
@@ -242,4 +243,5 @@ namespace Ormeli.GAPI
 		}
 	}
 }
+
 #endif
