@@ -17,7 +17,7 @@ namespace Ormeli
 		 * JSON как контейнер информации
 		 * Скриптинг
          */
-		internal static Window Window = Window.Create();
+		public static Window Window = Window.Create();
 		internal static Render Render = Render.Create();
 
 		public static void Exit()

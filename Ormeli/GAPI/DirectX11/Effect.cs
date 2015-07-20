@@ -84,6 +84,7 @@ namespace Ormeli.GAPI
 			}
 
 			e.ConstantMatrixBuffer = Buffer.Create<Matrix>(BindFlag.ConstantBuffer);
+
 			e.SampleState = new SamplerState(App.Render.Device, new SamplerStateDescription
 			{
 				//Filter = Filter.Anisotropic,
@@ -131,7 +132,7 @@ namespace Ormeli.GAPI
 
 		public unsafe void SetMatrix(Matrix mt)
 		{
-			*(Matrix*) ConstantMatrixBuffer.MapBuffer() = Matrix.Transpose(mt);
+			*(Matrix*)ConstantMatrixBuffer.MapBuffer() = Matrix.Transpose(mt);
 			ConstantMatrixBuffer.UnmapBuffer();
 			App.Render.DeviceContext.VertexShader.SetConstantBuffer(0, ConstantMatrixBuffer);
 		}

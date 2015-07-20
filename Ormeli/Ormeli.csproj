@@ -100,8 +100,8 @@
     <Compile Include="GAPI\DirectX11\Effect.cs" />
     <Compile Include="GAPI\DirectX11\Window.cs" />
     <Compile Include="Graphics\Components\Drawable\Skydome.cs" />
-    <Compile Include="Graphics\GUI\Batch.cs" />
     <Compile Include="Graphics\Components\GameObject.cs" />
+    <Compile Include="Graphics\GUI\Batch.cs" />
     <Compile Include="Graphics\GUI\NewFolder1\CharRenderCall.cs" />
     <Compile Include="Graphics\GUI\NewFolder1\Helpers.cs" />
     <Compile Include="Graphics\GUI\NewFolder1\NewFolder1\SpriteRenderer.cs" />
@@ -126,7 +126,6 @@
     <Compile Include="GAPI\DirectX11\Texture.cs" />
     <Compile Include="Graphics\Components\Drawable\Mesh.cs" />
     <Compile Include="Graphics\Components\Vertex.cs" />
-    <Compile Include="Graphics\Components\Scene.cs" />
     <Compile Include="Graphics\GUI\BitmapGS.cs" />
     <Compile Include="Graphics\GUI\Bitmap.cs" />
     <Compile Include="Input\Input.cs" />

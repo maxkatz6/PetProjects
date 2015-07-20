@@ -18,18 +18,6 @@ namespace Ormeli.Graphics.Cameras
 		public float RotateFactor { get; set; } = 1;
 		public bool NegativeRotation { get; } = true;
 
-		public void MoveWASD()
-		{
-			if (Input.IsKeyDown(Input.Key.W))
-				DirectionMove(Vector3.ForwardRH);
-			else if (Input.IsKeyDown(Input.Key.S))
-				DirectionMove(Vector3.BackwardRH);
-			if (Input.IsKeyDown(Input.Key.A))
-				DirectionMove(Vector3.Left);
-			else if (Input.IsKeyDown(Input.Key.D))
-				DirectionMove(Vector3.Right);
-		}
-
 		public void DirectionMove(Vector3 direction)
 		{
 			Move(direction*Speed);

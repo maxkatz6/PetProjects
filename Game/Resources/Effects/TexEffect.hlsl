@@ -4,7 +4,8 @@ SamplerState SampleType
 	AddressU = Mirror;
 	AddressV = Mirror;
 };
-cbuffer MatrixBuffer
+
+cbuffer MatrixBuffer  :  register(b0)
 {
 	matrix WVP;
 };
