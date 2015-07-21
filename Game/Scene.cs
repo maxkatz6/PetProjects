@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Ormeli;
-using Ormeli.Core.Patterns;
-using Ormeli.GAPI;
-using Ormeli.Graphics;
-using Ormeli.Graphics.Cameras;
-using Ormeli.Graphics.Drawable;
+using Lain;
+using Lain.Core.Patterns;
+using Lain.GAPI;
+using Lain.Graphics;
+using Lain.Graphics.Cameras;
+using Lain.Graphics.Drawable;
 using SharpDX;
 
 namespace Game
@@ -33,8 +33,8 @@ namespace Game
 		{
 			Skydome.Draw(Camera.ViewRotation);
 
-			foreach (var m in _objects)
-				m.Model?.Draw(m.Transform.WorldMatrix*Camera.ViewProjection);
+            foreach (var m in _objects)
+                m.Model?.Draw(m.Transform != null ? m.Transform.WorldMatrix * Camera.ViewProjection : Camera.ViewProjection);
 		}
 
 		public void Update()

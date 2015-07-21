@@ -33,8 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpDX.Mathematics">
-      <HintPath>..\..\..\..\sharpDX300\Bin\Desktop\SharpDX.Mathematics.dll</HintPath>
+    <Reference Include="SharpDX.Mathematics, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\SharpDX 3.0\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -59,12 +60,6 @@
     <None Include="Resources\Models\Stone Bridge\Map__2_Normal_Bump.tga">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Ormeli\Ormeli.csproj">
-      <Project>{89832441-1f0c-4425-8611-31f9bda9650d}</Project>
-      <Name>Ormeli</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Sky\Sky_04.jpg">
@@ -97,6 +92,12 @@
     <Content Include="Resources\Sky\Sky_68.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lain\Lain.csproj">
+      <Project>{06dbd564-d4e2-4469-8069-7bf141bb7c4e}</Project>
+      <Name>Lain</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
