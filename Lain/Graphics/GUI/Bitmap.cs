@@ -15,12 +15,12 @@ namespace Lain.Graphics.GUI
 		{
 			Effect = Effect.FromFile("BitmapEffect.hlsl");
 			Ib = Buffer.Create(new[] {0, 1, 2, 0, 3, 1}, BindFlag.IndexBuffer, BufferUsage.Default,
-				CpuAccessFlags.None);
+				CpuAccessFlag.None);
 		}
 
 		public Bitmap()
 		{
-			Vb = Buffer.Create(new BitmapVertex[4], BindFlag.VertexBuffer, BufferUsage.Default, CpuAccessFlags.None);
+			Vb = Buffer.Create(new BitmapVertex[4], BindFlag.VertexBuffer, BufferUsage.Default, CpuAccessFlag.None);
 		}
 		public Texture Texture { get; set; } = Texture.Null;
 
@@ -80,7 +80,7 @@ namespace Lain.Graphics.GUI
 					Location = new Vector2(right, top),
 					TexCoord = new Vector2(1, 0)
 				}
-			}, BindFlag.VertexBuffer, BufferUsage.Default, CpuAccessFlags.None);
+			}, BindFlag.VertexBuffer, BufferUsage.Default, CpuAccessFlag.None);
 		}
 	}
 }

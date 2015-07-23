@@ -8,7 +8,7 @@ using Lain.Graphics.Cameras;
 using Lain.Graphics.Drawable;
 using SharpDX;
 
-namespace Game
+namespace Test
 {
 	public class Scene : Disposable
 	{
@@ -27,15 +27,23 @@ namespace Game
 		};
 		public FreeCamera Camera = new FreeCamera(new Transform {Position = new Vector3(0, 50, 0)});
         public Skydome Skydome = new Skydome { Texture = Config.GetDataPath("Sky_68.jpg", "Sky") };
+        public SpriteBatch SpriteBatch = new SpriteBatch();
 
-		
 		public void DrawAll()
 		{
-			Skydome.Draw(Camera.ViewRotation);
+            Skydome.Draw(Camera.ViewRotation);
 
             foreach (var m in _objects)
                 m.Model?.Draw(m.Transform != null ? m.Transform.WorldMatrix * Camera.ViewProjection : Camera.ViewProjection);
-		}
+
+          
+            SpriteBatch.Begin();
+            SpriteBatch.Draw(Texture.Null, new RectangleF(50, 0, 200, 200), new RectangleF(0, 0, 5, 5));
+            SpriteBatch.Draw(Texture.Null, new RectangleF(0, 0, 50, 50), new RectangleF(0, 0, 5, 5));
+            SpriteBatch.Draw(Texture.Null, new RectangleF(500, 0, 200, 200), new RectangleF(0, 0, 5, 5));
+            SpriteBatch.Draw(Texture.Null, new RectangleF(500, 500, 50, 50), new RectangleF(0, 0, 5, 5));
+            SpriteBatch.End();
+        }
 
 		public void Update()
 		{
@@ -58,7 +66,7 @@ namespace Game
 
 		static void Main()
 		{
-			using (var scene = new Scene())
+            using (var scene = new Scene())
 				App.Window.Run(scene.DrawAll, scene.Update);
 		}
 	}

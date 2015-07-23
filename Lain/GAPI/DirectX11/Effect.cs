@@ -109,7 +109,7 @@ namespace Lain.GAPI
 			return effects[s];
 		}
 
-		public void Render(int count)
+		public void Render(int count, bool draw = true)
 		{
 			var tech = techniques.First().Value;
 			tech.AttribsContainer.Accept();
@@ -124,7 +124,7 @@ namespace Lain.GAPI
 				App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 				App.Render.DeviceContext.GeometryShader.Set(null);
 			}
-			else
+			else if (draw)
 			{
 				App.Render.DeviceContext.DrawIndexed(count, 0, 0);
 			}

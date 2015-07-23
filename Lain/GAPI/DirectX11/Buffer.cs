@@ -27,12 +27,12 @@ namespace Lain.GAPI
 		DXStaging = 3
 	}
 
-	public enum CpuAccessFlags
+	public enum CpuAccessFlag
 	{
-		Write = 1,
-		Read = 2,
-		None = 0
-	}
+		Write = CpuAccessFlags.Write,
+		Read = CpuAccessFlags.Read,
+		None = CpuAccessFlags.None
+    }
 
 	public struct Buffer
 	{
@@ -59,13 +59,13 @@ namespace Lain.GAPI
 		}
 
 		public static Buffer Create<T>(BindFlag bufferTarget, BufferUsage bufferUsage = BufferUsage.Dynamic,
-			CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
+            CpuAccessFlag cpuAccessFlags = CpuAccessFlag.Write) where T : struct
 		{
 			var vbd = new BufferDescription(
 				Marshal.SizeOf(typeof (T)),
 				(ResourceUsage) bufferUsage,
 				(BindFlags) bufferTarget,
-				(SharpDX.Direct3D11.CpuAccessFlags) ((long) cpuAccessFlags*65536),
+				(CpuAccessFlags) cpuAccessFlags,
 				ResourceOptionFlags.None,
 				0
 				);
@@ -74,13 +74,13 @@ namespace Lain.GAPI
 
 		public static Buffer Create<T>(T[] objs, BindFlag bufferTarget,
 			BufferUsage bufferUsage = BufferUsage.Dynamic,
-			CpuAccessFlags cpuAccessFlags = CpuAccessFlags.Write) where T : struct
+            CpuAccessFlag cpuAccessFlags = CpuAccessFlag.Write) where T : struct
 		{
 			var vbd = new BufferDescription(
 				objs.Length*Marshal.SizeOf(typeof (T)),
 				(ResourceUsage) bufferUsage,
 				(BindFlags) bufferTarget,
-				(SharpDX.Direct3D11.CpuAccessFlags) ((long) cpuAccessFlags*65536),
+				(CpuAccessFlags)cpuAccessFlags,
 				ResourceOptionFlags.None, 0
 				);
 			return new Buffer(SharpDX.Direct3D11.Buffer.Create(App.Render.Device, objs, vbd));

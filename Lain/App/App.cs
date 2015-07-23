@@ -11,7 +11,6 @@ namespace Lain
 		 * GUI. Font. Signed Distance Field http://habrahabr.ru/post/215905/ http://www.gamedev.ru/code/forum/?id=175763&page=2
 		 * Текст в геометрическом шейдере http://blogs.agi.com/insight3d/index.php/2008/08/29/rendering-text-fast/ 
 		 *          TODO Возможно
-		 * Поддержка DirectX12. Изначально как миррорная версия или отдельное GAPI
 		 * Постобработка
 		 * Частицы
 		 * JSON как контейнер информации

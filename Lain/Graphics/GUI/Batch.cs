@@ -1,7 +1,6 @@
 ﻿﻿using System;
 using System.Runtime.InteropServices;
 ﻿using Lain.GAPI;
-﻿using Lain.Graphics.Drawable;
 ﻿using SharpDX;
 ﻿using Buffer = Lain.GAPI.Buffer;
 
@@ -41,9 +40,9 @@ namespace Lain.Graphics
 
         public SpriteBatch()
         {
-			Effect = Effect.FromFile("");
+			Effect = Effect.FromFile("BitmapEffect.hlsl");
 			Vb = Buffer.Create(new BitmapVertex[MaxVertexCount], BindFlag.VertexBuffer);
-			Ib = Buffer.Create(indices, BindFlag.IndexBuffer, BufferUsage.Default, CpuAccessFlags.None);
+			Ib = Buffer.Create(indices, BindFlag.IndexBuffer, BufferUsage.Default, CpuAccessFlag.None);
             _spriteQueue = new Sprite[MaxBatchSize];
         }
 
@@ -53,7 +52,7 @@ namespace Lain.Graphics
             _vertexBufferPosition = 0;
         }
 
-        public void Draw(Texture texture, RectangleF destinationRectangle, RectangleF? sourceRectangle, Color color)
+        public void Draw(Texture texture, RectangleF destinationRectangle, RectangleF? sourceRectangle/*, Color color*/)
         {     
             // Resize the buffer of SpriteInfo
             if (_spriteQueueCount >= _spriteQueue.Length)
@@ -63,7 +62,7 @@ namespace Lain.Graphics
 
             _spriteQueue[_spriteQueueCount++] = new Sprite
             {
-                Color = color,
+                //Color = color,
                 Texture = texture,
                 CustomSource = sourceRectangle.HasValue,
                 Source = sourceRectangle ?? new RectangleF(0, 0, texture.Width, texture.Height),
@@ -113,7 +112,7 @@ namespace Lain.Graphics
         private void DrawBatchPerTexture(Texture texture, int offset, int count)
         {
             Effect.SetTexture(texture);
-            Effect.Render(count);
+            Effect.Render(count, false);
 	        DrawBatchPerTextureAndPass(texture, offset, count);
         }
 
@@ -148,18 +147,24 @@ namespace Lain.Graphics
                 for (int i = 0; i < batchSize; i++)
                 {
                     var sp = _spriteQueue[offset + i];
-                    int left = (-(Config.Width >> 1)) + (int)sp.Destination.X;
+
+                    /*int left = (-(Config.Width >> 1)) + (int)sp.Destination.X;
                     int right = left + (int)sp.Destination.Width;
                     int top = (Config.Height >> 1) + (int)sp.Destination.Y;
-                    int bottom = top - (int)sp.Destination.Height;
+                    int bottom = top - (int)sp.Destination.Height;*/
+
+                    var left = sp.Destination.X / Config.Width * 2 - 1;
+                    var right = left + sp.Destination.Width / Config.Width * 2;
+                    var top = -(sp.Destination.Y / Config.Height * 2 - 1);
+                    var bottom = top - (sp.Destination.Height / Config.Height * 2); //є[-1;1]
 
                     p++->Location = new Vector2(left, top);
                     p++->Location = new Vector2(right, top);
                     p++->Location = new Vector2(left, bottom);
-                    p->Location = new Vector2(right, bottom);
-                    p -= 3;
+                    p++->Location = new Vector2(right, bottom);
+                   // p -= 3;
 
-                    if (sp.CustomSource) p -= 3;
+                    if (sp.CustomSource) p -= 4;
 					else continue;
 
                     var v = new Vector2(sp.Source.X, sp.Source.Y);
@@ -168,13 +173,15 @@ namespace Lain.Graphics
                     p++->TexCoord = v;
                     p++->TexCoord = v + new Vector2(w, 0);
                     p++->TexCoord = v + new Vector2(0, h);
-                    p->TexCoord = v + new Vector2(w, h);
+                    p++->TexCoord = v + new Vector2(w, h);
                 }
 				Vb.UnmapBuffer();
 				
                 // Draw from the specified index
                 int startIndex = _vertexBufferPosition * IndicesPerSprite;
                 int indexCount = batchSize * IndicesPerSprite;
+                App.Render.SetIndexBuffer(Ib);
+                App.Render.SetVertexBuffer(Vb, BitmapVertex.SizeInBytes);
                 App.Render.Draw(indexCount,startIndex);
 
                 // Update position, offset and remaining count

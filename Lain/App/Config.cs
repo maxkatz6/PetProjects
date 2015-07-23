@@ -7,8 +7,9 @@ namespace Lain
 	{
 		public enum RenderType
 		{
-			DirectX11
-		}
+			DirectX11,
+            DirectX12
+        }
 
 		public static readonly bool IsDebug;
 		public static readonly bool IsMono;

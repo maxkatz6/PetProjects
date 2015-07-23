@@ -26,7 +26,7 @@ namespace Lain.Graphics.Drawable
 		{
 			Effect = ef;
 			IndexCount = ind.Length;
-			Ib = Buffer.Create(ind, BindFlag.IndexBuffer, BufferUsage.Default, CpuAccessFlags.None);
+			Ib = Buffer.Create(ind, BindFlag.IndexBuffer, BufferUsage.Default, CpuAccessFlag.None);
 		}
 
 		public Buffer Vb { get; private set; }
@@ -50,7 +50,7 @@ namespace Lain.Graphics.Drawable
 			IsDynamic = isDynamic;
 			Vb = IsDynamic
 				? Buffer.Create(vert, BindFlag.VertexBuffer)
-				: Buffer.Create(vert, BindFlag.VertexBuffer, BufferUsage.Default, CpuAccessFlags.None);
+				: Buffer.Create(vert, BindFlag.VertexBuffer, BufferUsage.Default, CpuAccessFlag.None);
 			VertexSize = Marshal.SizeOf(vert[0]);
 		}
 	}

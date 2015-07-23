@@ -157,4 +157,4 @@ $RECYCLE.BIN/
 
 
 # allow any files in Resources
-!Game/Resources
+!Test/Resources/
