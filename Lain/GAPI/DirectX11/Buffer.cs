@@ -15,9 +15,9 @@ namespace Lain.GAPI
 
 	public enum SetDataOptions
 	{
-		NoOverwrite,
-		Discard
-	}
+		NoOverwrite = MapMode.WriteNoOverwrite,
+		Discard = MapMode.WriteDiscard
+    }
 
 	public enum BufferUsage
 	{
@@ -86,17 +86,17 @@ namespace Lain.GAPI
 			return new Buffer(SharpDX.Direct3D11.Buffer.Create(App.Render.Device, objs, vbd));
 		}
 
-		public void Write<T>(T[] arr, int offset = 0) where T : struct
+		public void Write<T>(T[] arr, SetDataOptions mapmode = SetDataOptions.Discard) where T : struct
 		{
 			DataStream s;
-			App.Render.DeviceContext.MapSubresource(_buffer, 0, MapMode.WriteDiscard, MapFlags.None, out s);
+			App.Render.DeviceContext.MapSubresource(_buffer, 0, (MapMode)mapmode, MapFlags.None, out s);
 			s.WriteRange(arr);
 			UnmapBuffer();
 		}
 
-		public IntPtr MapBuffer(int offset = 0)
+		public unsafe IntPtr MapBuffer(int offset = 0, SetDataOptions mapmode = SetDataOptions.Discard)
 		{
-			return App.Render.DeviceContext.MapSubresource(_buffer, offset, MapMode.WriteDiscard, MapFlags.None).DataPointer;
+            return (IntPtr)((byte*)App.Render.DeviceContext.MapSubresource(_buffer, 0, (MapMode)mapmode, MapFlags.None).DataPointer + offset);
 		}
 
 		public void UnmapBuffer()

@@ -21,7 +21,7 @@ namespace Lain.GAPI
 
 		private readonly Dictionary<string, Technique> techniques = new Dictionary<string, Technique>();
 		private Buffer ConstantMatrixBuffer;
-		private Texture LastTexture;
+		private static Texture LastTexture;
 		private SamplerState SampleState;
 
 		private Effect()
@@ -110,8 +110,8 @@ namespace Lain.GAPI
 		}
 
 		public void Render(int count, bool draw = true)
-		{
-			var tech = techniques.First().Value;
+        { 
+            var tech = techniques.First().Value;
 			tech.AttribsContainer.Accept();
 			App.Render.DeviceContext.VertexShader.Set(tech.VertexShader);
 			App.Render.DeviceContext.PixelShader.Set(tech.PixelShader);
@@ -139,7 +139,7 @@ namespace Lain.GAPI
 
 		public void SetTexture(Texture tex)
 		{
-			if (tex == LastTexture) return;
+            if (tex == LastTexture) return;
 			App.Render.DeviceContext.PixelShader.SetShaderResource(0, tex);
 			LastTexture = tex;
 		}
@@ -158,7 +158,7 @@ namespace Lain.GAPI
 			public GeometryShader GeometryShader;
 			public PixelShader PixelShader;
 			public VertexShader VertexShader;
-		}
+		} 
 	}
 }
 

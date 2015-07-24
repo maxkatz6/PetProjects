@@ -146,7 +146,7 @@ namespace Lain.GAPI
                 })), w, h);
         }
 
-        public static unsafe Texture Create(Color4[,] array, Format format = Format.R32G32B32A32_Float)
+        public static unsafe Texture Create(Color4[,] array)
 		{
 			var w = array.GetLength(1);
 			var h = array.GetLength(0);
@@ -156,7 +156,7 @@ namespace Lain.GAPI
 				v = new[]
 				{
 					new DataBox(new DataStream(new IntPtr(p), array.Length*16, true, true).DataPointer,
-						w*FormatHelper.SizeOfInBytes(format), 0)
+						w*FormatHelper.SizeOfInBytes(Format.R32G32B32A32_Float), 0)
 				};
 			return
 				new Texture(new ShaderResourceView(App.Render.Device, new Texture2D(App.Render.Device, new Texture2DDescription
@@ -164,7 +164,7 @@ namespace Lain.GAPI
 					ArraySize = 1,
 					BindFlags = BindFlags.ShaderResource,
 					CpuAccessFlags = 0,
-					Format = format,
+					Format = Format.R32G32B32A32_Float,
 					Height = h,
 					MipLevels = 1,
 					OptionFlags = 0,

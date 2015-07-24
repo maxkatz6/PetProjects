@@ -10,38 +10,35 @@ using SharpDX;
 
 namespace Test
 {
-	public class Scene : Disposable
-	{
-		private readonly List<GameObject> _objects = new List<GameObject>
-		{
-			new GameObject
-			{
-				Model = Model.FromFile(@"Stone Bridge\bridge.obj", Effect.FromFile("TexEffect.hlsl"))
-			},
-			new GameObject
-			{
-				Model =
-					Model.Create(new TextureMesh(Effect.FromFile("TexEffect.hlsl"),
-						GeometryGenerator.CreateGrid<TextureVertex>(25000, 25000)))
-			}
-		};
-		public FreeCamera Camera = new FreeCamera(new Transform {Position = new Vector3(0, 50, 0)});
+    public class Scene : Disposable
+    {
+        private readonly List<GameObject> _objects = new List<GameObject>
+        {
+            new GameObject
+            {
+                Model = Model.FromFile(@"Stone Bridge\bridge.obj", Effect.FromFile("TexEffect.hlsl"))
+            },
+            new GameObject
+            {
+                Model =
+                    Model.Create(new TextureMesh(Effect.FromFile("TexEffect.hlsl"),
+                        GeometryGenerator.CreateGrid<TextureVertex>(25000, 25000)))
+            }
+        };
+        public FreeCamera Camera = new FreeCamera(new Transform { Position = new Vector3(0, 50, 0) });
         public Skydome Skydome = new Skydome { Texture = Config.GetDataPath("Sky_68.jpg", "Sky") };
         public SpriteBatch SpriteBatch = new SpriteBatch();
-
-		public void DrawAll()
+        Texture tex = Texture.Create(new[,] { { Color4.Black, Color4.White }, { Color.Green, Color.Lavender } });
+        public void DrawAll()
 		{
             Skydome.Draw(Camera.ViewRotation);
 
             foreach (var m in _objects)
                 m.Model?.Draw(m.Transform != null ? m.Transform.WorldMatrix * Camera.ViewProjection : Camera.ViewProjection);
-
+                
           
             SpriteBatch.Begin();
-            SpriteBatch.Draw(Texture.Null, new RectangleF(50, 0, 200, 200), new RectangleF(0, 0, 5, 5));
-            SpriteBatch.Draw(Texture.Null, new RectangleF(0, 0, 50, 50), new RectangleF(0, 0, 5, 5));
-            SpriteBatch.Draw(Texture.Null, new RectangleF(500, 0, 200, 200), new RectangleF(0, 0, 5, 5));
-            SpriteBatch.Draw(Texture.Null, new RectangleF(500, 500, 50, 50), new RectangleF(0, 0, 5, 5));
+            SpriteBatch.Draw(tex, new RectangleF(100, 0, 200, 200));
             SpriteBatch.End();
         }
 

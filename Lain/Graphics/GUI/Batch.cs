@@ -52,7 +52,7 @@ namespace Lain.Graphics
             _vertexBufferPosition = 0;
         }
 
-        public void Draw(Texture texture, RectangleF destinationRectangle, RectangleF? sourceRectangle/*, Color color*/)
+        public void Draw(Texture texture, RectangleF destinationRectangle, RectangleF? sourceRectangle = null/*, Color color*/)
         {     
             // Resize the buffer of SpriteInfo
             if (_spriteQueueCount >= _spriteQueue.Length)
@@ -64,7 +64,7 @@ namespace Lain.Graphics
             {
                 //Color = color,
                 Texture = texture,
-                CustomSource = sourceRectangle.HasValue,
+                CustomSource = true,// sourceRectangle.HasValue,
                 Source = sourceRectangle ?? new RectangleF(0, 0, texture.Width, texture.Height),
                 Destination = destinationRectangle
             }; 
@@ -111,9 +111,9 @@ namespace Lain.Graphics
 
         private void DrawBatchPerTexture(Texture texture, int offset, int count)
         {
-            Effect.SetTexture(texture);
             Effect.Render(count, false);
-	        DrawBatchPerTextureAndPass(texture, offset, count);
+            Effect.SetTexture(texture);
+            DrawBatchPerTextureAndPass(texture, offset, count);
         }
 
         private unsafe void DrawBatchPerTextureAndPass(Texture texture, int offset, int count)
@@ -142,16 +142,11 @@ namespace Lain.Graphics
                 }
 
                 // Sets the data directly to the buffer in memory
-				var ptr = Vb.MapBuffer(_vertexBufferPosition * VerticesPerSprite * BitmapVertex.SizeInBytes).ToPointer();
+				var ptr = Vb.MapBuffer(_vertexBufferPosition * VerticesPerSprite * BitmapVertex.SizeInBytes, noOverwrite).ToPointer();
                 var p = (BitmapVertex*)ptr;
                 for (int i = 0; i < batchSize; i++)
                 {
                     var sp = _spriteQueue[offset + i];
-
-                    /*int left = (-(Config.Width >> 1)) + (int)sp.Destination.X;
-                    int right = left + (int)sp.Destination.Width;
-                    int top = (Config.Height >> 1) + (int)sp.Destination.Y;
-                    int bottom = top - (int)sp.Destination.Height;*/
 
                     var left = sp.Destination.X / Config.Width * 2 - 1;
                     var right = left + sp.Destination.Width / Config.Width * 2;
@@ -162,7 +157,6 @@ namespace Lain.Graphics
                     p++->Location = new Vector2(right, top);
                     p++->Location = new Vector2(left, bottom);
                     p++->Location = new Vector2(right, bottom);
-                   // p -= 3;
 
                     if (sp.CustomSource) p -= 4;
 					else continue;
@@ -193,7 +187,7 @@ namespace Lain.Graphics
         #region Nested type: SpriteInfo
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct Sprite // TODO данные о вершинах хранить в этой структуре (переименновать в Sprite). При изменении данных, редактировать вершины.
+        public struct Sprite
         {
             public Texture Texture;
             public RectangleF Source;
