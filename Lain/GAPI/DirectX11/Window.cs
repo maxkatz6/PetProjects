@@ -71,9 +71,7 @@ namespace Lain.GAPI
 			window.RenderForm = new RenderForm(Config.Tittle)
 			{
 				Height = Config.Height,
-				Width = Config.Width,
-                WindowState = Config.FullScreen ? FormWindowState.Maximized : FormWindowState.Normal,
-                StartPosition = FormStartPosition.CenterScreen
+				Width = Config.Width
 			};
 			window.RenderForm.KeyPress += (s, e) => Input.CharInput(e.KeyChar);
 			window.RenderForm.KeyDown += (s, e) => Input.KeyDown((Input.Key) e.KeyValue);

@@ -108,8 +108,8 @@ namespace Lain.GAPI
 				effects.Add(s, FromMemory(sr.ReadToEnd()));
 			return effects[s];
 		}
-        
-		public void Render(int count, int startIndex = 0, bool draw = true)
+
+		public void Render(int count, bool draw = true)
         { 
             var tech = techniques.First().Value;
 			tech.AttribsContainer.Accept();
@@ -120,13 +120,13 @@ namespace Lain.GAPI
 			{
 				App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
 				App.Render.DeviceContext.GeometryShader.Set(tech.GeometryShader);
-				App.Render.DeviceContext.Draw(count, startIndex);
+				App.Render.DeviceContext.Draw(count, 0);
 				App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 				App.Render.DeviceContext.GeometryShader.Set(null);
 			}
 			else if (draw)
 			{
-				App.Render.DeviceContext.DrawIndexed(count, startIndex, 0);
+				App.Render.DeviceContext.DrawIndexed(count, 0, 0);
 			}
 		}
 
