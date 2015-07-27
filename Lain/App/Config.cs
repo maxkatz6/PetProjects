@@ -28,7 +28,7 @@ namespace Lain
 			EffectDirectory = Path.Combine(BaseDirectory, "Effects");
 		}
 
-		public static string Tittle { get; set; } = "Engine";
+		public static string Tittle { get; set; } = "Lain";
 		public static int Height { get; set; } = 1000;
 		public static int Width { get; set; } = 1920;
 		public static bool VerticalSyncEnabled { get; set; } = false;

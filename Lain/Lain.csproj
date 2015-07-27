@@ -32,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -141,8 +142,7 @@
     <Compile Include="Graphics\Components\Transform.cs" />
     <Compile Include="Graphics\Components\Vertex.cs" />
     <Compile Include="Graphics\GUI\Batch.cs" />
-    <Compile Include="Graphics\GUI\Bitmap.cs" />
-    <Compile Include="Graphics\GUI\BitmapGS.cs" />
+    <Compile Include="Graphics\GUI\Font.cs" />
     <Compile Include="Graphics\Helper\GeometryGenerator.Box.cs" />
     <Compile Include="Graphics\Helper\GeometryGenerator.GeoSphere.cs" />
     <Compile Include="Graphics\Helper\GeometryGenerator.Grid.cs" />
