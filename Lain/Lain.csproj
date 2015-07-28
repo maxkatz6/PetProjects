@@ -141,8 +141,7 @@
     <Compile Include="Graphics\Components\Transform.cs" />
     <Compile Include="Graphics\Components\Vertex.cs" />
     <Compile Include="Graphics\GUI\Batch.cs" />
-    <Compile Include="Graphics\GUI\Bitmap.cs" />
-    <Compile Include="Graphics\GUI\BitmapGS.cs" />
+    <Compile Include="Graphics\GUI\Font.cs" />
     <Compile Include="Graphics\Helper\GeometryGenerator.Box.cs" />
     <Compile Include="Graphics\Helper\GeometryGenerator.GeoSphere.cs" />
     <Compile Include="Graphics\Helper\GeometryGenerator.Grid.cs" />

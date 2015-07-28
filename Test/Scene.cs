@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Lain;
 using Lain.Core.Patterns;
 using Lain.GAPI;
@@ -7,6 +6,7 @@ using Lain.Graphics;
 using Lain.Graphics.Cameras;
 using Lain.Graphics.Drawable;
 using SharpDX;
+using Lain.Graphics.GUI;
 
 namespace Test
 {
@@ -27,25 +27,26 @@ namespace Test
         };
         public FreeCamera Camera = new FreeCamera(new Transform { Position = new Vector3(0, 50, 0) });
         public Skydome Skydome = new Skydome { Texture = Config.GetDataPath("Sky_68.jpg", "Sky") };
-        public SpriteBatch SpriteBatch = new SpriteBatch();
-        Texture tex = Texture.Create(new[,] { { Color4.Black, Color4.White }, { Color.Green, Color.Lavender } });
+        
+        SpriteBatch sp = new SpriteBatch();
+        Font f = Font.FromFile("Arial");
+
         public void DrawAll()
 		{
             Skydome.Draw(Camera.ViewRotation);
 
             foreach (var m in _objects)
                 m.Model?.Draw(m.Transform != null ? m.Transform.WorldMatrix * Camera.ViewProjection : Camera.ViewProjection);
-                
-          
-            SpriteBatch.Begin();
-            SpriteBatch.Draw(tex, new RectangleF(100, 0, 200, 200));
-            SpriteBatch.End();
+            
+            sp.Begin();
+            sp.Draw(Config.GetDataPath("Sky_68.jpg", "Sky"), new RectangleF(0,0, 300, 300));
+            sp.DrawText(f, "FPS: " + App.Window.FPS);
+            sp.End();
         }
 
 		public void Update()
-		{
-			if (Input.IsKeyDown(Input.Key.Escape)) App.Exit();
-			Console.Title = App.Window.FPS + " " + Input.Mouse;
+        {
+            if (Input.IsKeyDown(Input.Key.Escape)) App.Exit();
 
 			if (Input.IsKeyDown(Input.Key.W))
 				Camera.DirectionMove(Vector3.ForwardRH);
@@ -59,7 +60,7 @@ namespace Test
 			Camera.Update();
 			foreach (var m in _objects)
 				m.Script?.Invoke(m);
-		}
+        }
 
 		static void Main()
 		{
