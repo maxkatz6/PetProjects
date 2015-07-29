@@ -53,6 +53,7 @@ namespace Lain.Graphics.GUI
 
                 arr[i] = new SpriteBatch.Sprite
                 {
+                    Tech = "SDF",
                     Texture = tex,
                     Bitmap = new SpriteBatch.Bitmap
                     {
@@ -73,7 +74,7 @@ namespace Lain.Graphics.GUI
             if (!fonts.ContainsKey(fontFilename))
             {
                 var font = new Font { FontSize = fontSyze };
-                using (var fin = new StreamReader(Config.GetDataPath("inf.fnt", "Fonts", fontFilename)))
+                using (var fin = new StreamReader(Config.GetDataPath("font.fnt", "Fonts", fontFilename)))
                 {
                     while (!fin.EndOfStream)
                     {

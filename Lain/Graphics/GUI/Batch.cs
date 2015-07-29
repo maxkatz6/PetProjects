@@ -21,7 +21,7 @@ namespace Lain.Graphics.GUI
 
         public SpriteBatch()
         {
-            Effect = Effect.FromFile("BitmapEffectGS.hlsl");
+            Effect = Effect.FromFile("SpriteBatchGS.hlsl");
             Vb = Buffer.Create(new Bitmap[MaxBatchSize], BindFlag.VertexBuffer);
             _spriteQueue = new Sprite[MaxBatchSize];
         }
@@ -100,7 +100,7 @@ namespace Lain.Graphics.GUI
 
             App.Render.SetVertexBuffer(Vb, Marshal.SizeOf<Bitmap>());
 
-            Effect.Render(count, _vertexBufferPosition);
+            Effect.Render(_spriteQueue[offset].Tech, count, _vertexBufferPosition);
 
             _vertexBufferPosition += count;
         }
@@ -110,10 +110,12 @@ namespace Lain.Graphics.GUI
         {
             public Texture Texture;
             public Bitmap Bitmap;
-            public Sprite(Texture t, Bitmap b)
+            public string Tech;
+            public Sprite(Texture t, Bitmap b, string tc = "")
             {
                 Texture = t;
                 Bitmap = b;
+                Tech = tc;
             }
         }
         [StructLayout(LayoutKind.Sequential)]

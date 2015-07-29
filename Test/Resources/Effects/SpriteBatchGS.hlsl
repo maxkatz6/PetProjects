@@ -51,11 +51,28 @@ float4 PS(VTextureOutput input) : SV_Target
 	return shaderTexture.Sample(SampleType, input.tex)*input.color;
 }
 
+static const float spread = 4;
+static const float scale = 0.45;
+static const float smoothing = 0.25 / (spread * scale);
+float4 PS_SDF(VTextureOutput input) : SV_Target
+{
+
+	float distance = shaderTexture.Sample(SampleType, input.tex).a;
+	clip(distance - (0.5f - smoothing));
+	return float4(input.color.rgb, smoothstep(0.5 - smoothing, 0.5 + smoothing, distance) * input.color.a);
+}
+
 technique
 {
 	VertexShader = VS;
 	GeometryShader = GS;
 	PixelShader = PS;
+}
+technique SDF
+{
+	VertexShader = VS;
+	GeometryShader = GS;
+	PixelShader = PS_SDF;
 }
 
 /*		v.position = float4(texin[0].dest.x, texin[0].dest.w, 0, 1);

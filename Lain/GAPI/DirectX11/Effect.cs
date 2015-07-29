@@ -109,27 +109,31 @@ namespace Lain.GAPI
 			return effects[s];
 		}
         public void Render(int count, int startIndex = 0, bool draw = true)
-        { 
-            var tech = techniques.First().Value;
-			tech.AttribsContainer.Accept();
-			App.Render.DeviceContext.VertexShader.Set(tech.VertexShader);
-			App.Render.DeviceContext.PixelShader.Set(tech.PixelShader);
-			App.Render.DeviceContext.PixelShader.SetSampler(0, SampleState);
-			if (tech.GeometryShader != null)
-			{
-				App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
-				App.Render.DeviceContext.GeometryShader.Set(tech.GeometryShader);
+        {
+            Render(techniques.First().Key, count, startIndex, draw);
+        }
+        public void Render(string techName, int count, int startIndex = 0, bool draw = true)
+        {
+            var tech = techniques[techName];
+            tech.AttribsContainer.Accept();
+            App.Render.DeviceContext.VertexShader.Set(tech.VertexShader);
+            App.Render.DeviceContext.PixelShader.Set(tech.PixelShader);
+            App.Render.DeviceContext.PixelShader.SetSampler(0, SampleState);
+            if (tech.GeometryShader != null)
+            {
+                App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
+                App.Render.DeviceContext.GeometryShader.Set(tech.GeometryShader);
                 App.Render.DeviceContext.Draw(count, startIndex);
                 App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-				App.Render.DeviceContext.GeometryShader.Set(null);
-			}
-			else if (draw)
-			{
+                App.Render.DeviceContext.GeometryShader.Set(null);
+            }
+            else if (draw)
+            {
                 App.Render.DeviceContext.DrawIndexed(count, startIndex, 0);
             }
-		}
+        }
 
-		public unsafe void SetMatrix(Matrix mt)
+        public unsafe void SetMatrix(Matrix mt)
 		{
 			*(Matrix*)ConstantMatrixBuffer.MapBuffer() = Matrix.Transpose(mt);
 			ConstantMatrixBuffer.UnmapBuffer();
