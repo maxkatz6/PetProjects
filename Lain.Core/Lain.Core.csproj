@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3B0C409D-1DFC-4C48-B734-72EF5A0DEB6F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Lain</RootNamespace>
+    <AssemblyName>Lain.Core</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\Debug\Lain.Core\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DX</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\Release\Lain.Core\</OutputPath>
+    <DefineConstants>TRACE;DX</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+    <!-- A reference to the entire .NET Framework is automatically included -->
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App\App.cs" />
+    <Compile Include="App\Config.cs" />
+    <Compile Include="Core\BinaryOperations.cs" />
+    <Compile Include="Core\ErrorProvider.cs" />
+    <Compile Include="Core\FileSystem.cs" />
+    <Compile Include="Core\FPS.cs" />
+    <Compile Include="Core\Patterns\Builder.cs" />
+    <Compile Include="Core\Patterns\Disposable.cs" />
+    <Compile Include="Core\Reflection.cs" />
+    <Compile Include="Core\Timer.cs" />
+    <Compile Include="GAPI\DirectX11\Attribs.cs" />
+    <Compile Include="GAPI\DirectX11\Buffer.cs" />
+    <Compile Include="GAPI\DirectX11\Effect.cs" />
+    <Compile Include="GAPI\DirectX11\Render.cs" />
+    <Compile Include="GAPI\DirectX11\Render1.cs" />
+    <Compile Include="GAPI\DirectX11\Texture.cs" />
+    <Compile Include="Graphics\Cameras\Camera.cs" />
+    <Compile Include="Graphics\Cameras\FreeCamera.cs" />
+    <Compile Include="Graphics\Cameras\TargetCamera.cs" />
+    <Compile Include="Graphics\Components\Drawable\Mesh.cs" />
+    <Compile Include="Graphics\Components\Drawable\Model.cs" />
+    <Compile Include="Graphics\Components\Drawable\Skydome.cs" />
+    <Compile Include="Graphics\Components\GameObject.cs" />
+    <Compile Include="Graphics\Components\Transform.cs" />
+    <Compile Include="Graphics\Components\Vertex.cs" />
+    <Compile Include="Graphics\GUI\Batch.cs" />
+    <Compile Include="Graphics\GUI\Font.cs" />
+    <Compile Include="Graphics\Helper\GeometryGenerator.Box.cs" />
+    <Compile Include="Graphics\Helper\GeometryGenerator.GeoSphere.cs" />
+    <Compile Include="Graphics\Helper\GeometryGenerator.Grid.cs" />
+    <Compile Include="Graphics\Helper\GeometryGenerator.HemiSphere.cs" />
+    <Compile Include="Graphics\Helper\GeometryGenerator.Sphere.cs" />
+    <Compile Include="Graphics\IRenderSource.cs" />
+    <Compile Include="Input\Input.cs" />
+    <Compile Include="Math\MathHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="SharpDX">
+      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.D3DCompiler">
+      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.D3DCompiler.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11">
+      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI">
+      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.DXGI.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.Mathematics.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
