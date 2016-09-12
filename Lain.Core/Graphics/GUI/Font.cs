@@ -1,152 +1,176 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using SharpDX;
 using System.Linq;
-using Lain.GAPI;
 using Lain.Core;
+using Lain.GAPI;
+using SharpDX;
 
 namespace Lain.Graphics.GUI
 {
     public class Font
     {
-        struct CharDesc
+        private static readonly Dictionary<string, Font> Fonts = new Dictionary<string, Font>();
+        private int _textureFontSize, _lineHeight;
+        private Texture _tex;
+        private readonly Dictionary<int, CharDesc> _mChars = new Dictionary<int, CharDesc>();
+
+        private Font()
         {
-            public short SrcX; //Позиция
-            public short SrcY; //
-            public short SrcW; //Размер
-            public short SrcH; //
-            public short XOff; //Опции
-            public short YOff; //
-            public short XAdv; //
         }
 
-        private static Dictionary<string, Font> fonts = new Dictionary<string, Font>();
-
         public byte FontSize { get; set; }
-        private byte _textureFontSize;
 
-        Texture tex;
-        readonly Dictionary<int, CharDesc> m_Chars = new Dictionary<int, CharDesc>();
+        public Point MeasureString(string sentence)
+        {
+            float x = 0;
+            var numLetters = sentence.Length;
+            var coef = (float) FontSize/_textureFontSize;
+            var _char = new CharDesc();
+            for (var i = 0; i < numLetters; i++)
+            {
+                _char = _mChars.Keys.Contains(sentence[i]) ? _mChars[sentence[i]] : _mChars[32];
 
-        private Font() { }
+                x += _char.XAdv*coef;
+            }
+            return new Point((int)(x /*+ _char.XOff * coef*/), (int)((_lineHeight) * coef));
+        }
 
         public SpriteBatch.Sprite[] BuildSpriteArray(string sentence, Vector2 loc, Color4 color)
         {
-            int numLetters = sentence.Length;
+            var numLetters = sentence.Length;
             var arr = new SpriteBatch.Sprite[numLetters];
 
-            var coef = (float)FontSize / _textureFontSize;
+            var coef = (float) FontSize/_textureFontSize;
 
-            float deltaX = 1f / (tex.Width);
-            float deltaY = 1f / (tex.Height);
-
-
-
-            for (int i = 0; i < numLetters; i++)
+            for (var i = 0; i < numLetters; i++)
             {
-                var _char = m_Chars.Keys.Contains(sentence[i]) ? m_Chars[sentence[i]] : m_Chars[32];
+                var _char = _mChars.Keys.Contains(sentence[i]) ? _mChars[sentence[i]] : _mChars[32];
 
-                var left = (loc.X + _char.XOff * coef) / Config.Width * 2 - 1;
-                var top = -((loc.Y + _char.YOff * coef) / Config.Height * 2 - 1);
-                var w = (_char.SrcW * coef) / Config.Width * 2;
-                var h = -((_char.SrcH * coef) / Config.Height * 2);
+                var left = (loc.X + _char.XOff*coef)/Config.Width*2 - 1;
+                var top = -((loc.Y + _char.YOff*coef)/Config.Height*2 - 1);
+                var w = (_char.SrcW*coef)/Config.Width*2;
+                var h = - ((_char.SrcH*coef)/Config.Height*2);
 
                 arr[i] = new SpriteBatch.Sprite
                 {
                     Tech = "SDF",
-                    Texture = tex,
+                    Texture = _tex,
                     Bitmap = new SpriteBatch.Bitmap
                     {
                         Color = color,
                         Destination = new RectangleF(left, top, w, h),
-                        Source = new RectangleF((float)_char.SrcX / tex.Width, (float)_char.SrcY / tex.Height, (float)_char.SrcW / tex.Width, (float)_char.SrcH / tex.Height)
+                        Source =
+                            new RectangleF((float) _char.SrcX/_tex.Width, (float) _char.SrcY/_tex.Height,
+                                (float) _char.SrcW/_tex.Width, (float) _char.SrcH/_tex.Height)
                     }
                 };
 
-                loc = new Vector2(loc.X + _char.XAdv * coef, loc.Y);
+                loc = new Vector2(loc.X + _char.XAdv*coef, loc.Y);
             }
             return arr;
-
         }
 
-        public static Font FromFile(string fontFilename, byte fontSyze = 32)
+        public static Font FromFile(string fontFilename, byte fontSyze = 16)
         {
-            if (!fonts.ContainsKey(fontFilename))
+            if (Fonts.ContainsKey(fontFilename)) return Fonts[fontFilename];
+            var font = new Font {FontSize = fontSyze};
+            using (
+                var fin = new StreamReader(FileSystem.Load(FileSystem.GetPath("font.fnt", "Fonts", fontFilename))))
             {
-                var font = new Font { FontSize = fontSyze };
-                using (var fin = new StreamReader(FileSystem.Load(FileSystem.GetPath("font.fnt", "Fonts", fontFilename))))
+                while (!fin.EndOfStream)
                 {
-                    while (!fin.EndOfStream)
+                    var line = fin.ReadLine().Split(new[] {' ', '=', '"'}, StringSplitOptions.RemoveEmptyEntries);
+                    switch (line[0])
                     {
-                        var line = fin.ReadLine().Split(new[] { ' ', '=', '"' }, StringSplitOptions.RemoveEmptyEntries);
-                        switch (line[0])
+                        case "info":
+                            for (var index = 1; index < line.Length; index++)
+                            {
+                                switch (line[index])
+                                {
+                                    case "size":
+                                    {
+                                        font._textureFontSize = byte.Parse(line[index + 1]);
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        case "common":
+                            for (var index = 1; index < line.Length; index++)
+                            {
+                                switch (line[index])
+                                {
+                                    case "lineHeight":
+                                    {
+                                        font._lineHeight = byte.Parse(line[index + 1]);
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        case "page":
+                            for (var index = 1; index < line.Length; index++)
+                            {
+                                if (line[index] != "file") continue;
+                                font._tex = FileSystem.GetPath(line[index + 1], "Fonts", fontFilename);
+                                break;
+                            }
+                            break;
+                        case "char":
                         {
-                            case "info":
-                                for (int index = 1; index < line.Length; index++)
-                                {
-                                    switch (line[index])
-                                    {
-                                        case "size":
-                                            {
-                                                font._textureFontSize = byte.Parse(line[index + 1]);
-                                                break;
-                                            }
-                                    }
-                                }
-                                break;
-                            case "page":
-                                for (var index = 1; index < line.Length; index++)
-                                {
-                                    if (line[index] != "file") continue;
-                                    font.tex = FileSystem.GetPath(line[index + 1], "Fonts", fontFilename);
-                                    break;
-                                }
-                                break;
-                            case "char":
-                                {
-                                    ushort CharID = 0;
-                                    var chard = new CharDesc();
+                            ushort charId = 0;
+                            var chard = new CharDesc();
 
-                                    for (var index = 1; index < line.Length; index++)
-                                    {
-                                        switch (line[index])
-                                        {
-                                            case "id":
-                                                ushort.TryParse(line[index + 1], out CharID);
-                                                break;
-                                            case "x":
-                                                chard.SrcX = short.Parse(line[index + 1]);
-                                                break;
-                                            case "y":
-                                                chard.SrcY = short.Parse(line[index + 1]);
-                                                break;
-                                            case "width":
-                                                chard.SrcW = short.Parse(line[index + 1]);
-                                                break;
-                                            case "height":
-                                                chard.SrcH = short.Parse(line[index + 1]);
-                                                break;
-                                            case "xoffset":
-                                                chard.XOff = short.Parse(line[index + 1]);
-                                                break;
-                                            case "yoffset":
-                                                chard.YOff = short.Parse(line[index + 1]);
-                                                break;
-                                            case "xadvance":
-                                                chard.XAdv = short.Parse(line[index + 1]);
-                                                break;
-                                        }
-                                    }
-                                    font.m_Chars.Add(CharID, chard);
+                            for (var index = 1; index < line.Length; index++)
+                            {
+                                switch (line[index])
+                                {
+                                    case "id":
+                                        ushort.TryParse(line[index + 1], out charId);
+                                        break;
+                                    case "x":
+                                        chard.SrcX = short.Parse(line[index + 1]);
+                                        break;
+                                    case "y":
+                                        chard.SrcY = short.Parse(line[index + 1]);
+                                        break;
+                                    case "width":
+                                        chard.SrcW = short.Parse(line[index + 1]);
+                                        break;
+                                    case "height":
+                                        chard.SrcH = short.Parse(line[index + 1]);
+                                        break;
+                                    case "xoffset":
+                                        chard.XOff = short.Parse(line[index + 1]);
+                                        break;
+                                    case "yoffset":
+                                        chard.YOff = short.Parse(line[index + 1]);
+                                        break;
+                                    case "xadvance":
+                                        chard.XAdv = short.Parse(line[index + 1]);
+                                        break;
                                 }
-                                break;
+                            }
+                            font._mChars.Add(charId, chard);
                         }
+                            break;
                     }
                 }
-                fonts.Add(fontFilename, font);
             }
-            return fonts[fontFilename];
+            Fonts.Add(fontFilename, font);
+            return Fonts[fontFilename];
+        }
+
+        private struct CharDesc
+        {
+            public short SrcH; //
+            public short SrcW; //Размер
+            public short SrcX; //Позиция
+            public short SrcY; //
+            public short XAdv; //
+            public short XOff; //Опции
+            public short YOff; //
         }
     }
 }

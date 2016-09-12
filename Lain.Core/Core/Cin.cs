@@ -10,7 +10,7 @@ namespace Ormeli.Core
     {
         static Cin()
         {
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en");
+            //Thread.CurrentThread.CurrentCulture = new CultureInfo("en");
         }
 
         public static readonly Cons Console = new Cons();
@@ -134,7 +134,7 @@ namespace Ormeli.Core
             int nextChar = 0;
             while (nextChar != -1)
             {
-                nextChar = System.Console.Read();
+            //    nextChar = System.Console.Read();
                 var ch = (char) nextChar;
 
                 if (char.IsWhiteSpace(ch))
@@ -146,7 +146,7 @@ namespace Ormeli.Core
                     if (ch == '\r' && (Environment.NewLine == "\r\n"))
                     {
                         // Reached '\r' in Windows --> skip the next '\n'
-                        System.Console.Read();
+                   //     System.Console.Read();
                     }
                     break;
                 }

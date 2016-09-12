@@ -5,7 +5,7 @@
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3B0C409D-1DFC-4C48-B734-72EF5A0DEB6F}</ProjectGuid>
+    <ProjectGuid>{A65A9FD7-255B-4AD4-A1FD-7700E6846B5C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Lain</RootNamespace>
@@ -21,17 +21,16 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\Debug\Lain.Core\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;DX</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\bin\Release\Lain.Core\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;DX</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -44,10 +43,12 @@
   <ItemGroup>
     <Compile Include="App\App.cs" />
     <Compile Include="App\Config.cs" />
+    <Compile Include="Core\AssetsManager.cs" />
     <Compile Include="Core\BinaryOperations.cs" />
-    <Compile Include="Core\ErrorProvider.cs" />
+    <Compile Include="Core\Cin.cs" />
     <Compile Include="Core\FileSystem.cs" />
     <Compile Include="Core\FPS.cs" />
+    <Compile Include="Core\Log.cs" />
     <Compile Include="Core\Patterns\Builder.cs" />
     <Compile Include="Core\Patterns\Disposable.cs" />
     <Compile Include="Core\Reflection.cs" />
@@ -67,8 +68,20 @@
     <Compile Include="Graphics\Components\GameObject.cs" />
     <Compile Include="Graphics\Components\Transform.cs" />
     <Compile Include="Graphics\Components\Vertex.cs" />
+    <Compile Include="Graphics\GUI\Actions.cs" />
     <Compile Include="Graphics\GUI\Batch.cs" />
+    <Compile Include="Graphics\GUI\Controls\ChatBox.cs" />
+    <Compile Include="Graphics\GUI\Controls\MessageBox.cs" />
+    <Compile Include="Graphics\GUI\Controls\MyWindow.cs" />
+    <Compile Include="Graphics\GUI\Controls\Window1.cs" />
+    <Compile Include="Graphics\GUI\Controls\Window2.cs" />
+    <Compile Include="Graphics\GUI\Controls\Window3.cs" />
+    <Compile Include="Graphics\GUI\Controls\Window4.cs" />
+    <Compile Include="Graphics\GUI\Controls\Window5.cs" />
+    <Compile Include="Graphics\GUI\Controls\Window6.cs" />
     <Compile Include="Graphics\GUI\Font.cs" />
+    <Compile Include="Graphics\GUI\GuiRenderer.cs" />
+    <Compile Include="Graphics\GUI\SkinAtlas.cs" />
     <Compile Include="Graphics\Helper\GeometryGenerator.Box.cs" />
     <Compile Include="Graphics\Helper\GeometryGenerator.GeoSphere.cs" />
     <Compile Include="Graphics\Helper\GeometryGenerator.Grid.cs" />
@@ -78,23 +91,60 @@
     <Compile Include="Input\Input.cs" />
     <Compile Include="Math\MathHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="SharpDX">
-      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.D3DCompiler">
-      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.D3DCompiler.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D11">
-      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.Direct3D11.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DXGI">
-      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.DXGI.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Mathematics">
-      <HintPath>..\libs\SharpDX 3.0 StoreApp\SharpDX.Mathematics.dll</HintPath>
-    </Reference>
+    <Compile Include="Squid\Controls\Button.cs" />
+    <Compile Include="Squid\Controls\CheckBox.cs" />
+    <Compile Include="Squid\Controls\Control.cs" />
+    <Compile Include="Squid\Controls\Desktop.cs" />
+    <Compile Include="Squid\Controls\Dialog.cs" />
+    <Compile Include="Squid\Controls\DropDownButton.cs" />
+    <Compile Include="Squid\Controls\DropDownList.cs" />
+    <Compile Include="Squid\Controls\FlowLayoutFrame.cs" />
+    <Compile Include="Squid\Controls\Frame.cs" />
+    <Compile Include="Squid\Controls\ImageControl.cs" />
+    <Compile Include="Squid\Controls\Label.cs" />
+    <Compile Include="Squid\Controls\ListBox.cs" />
+    <Compile Include="Squid\Controls\ListView.cs" />
+    <Compile Include="Squid\Controls\Panel.cs" />
+    <Compile Include="Squid\Controls\RadioButton.cs" />
+    <Compile Include="Squid\Controls\Resizer.cs" />
+    <Compile Include="Squid\Controls\ScrollBar.cs" />
+    <Compile Include="Squid\Controls\SimpleTooltip.cs" />
+    <Compile Include="Squid\Controls\Slider.cs" />
+    <Compile Include="Squid\Controls\SplitContainer.cs" />
+    <Compile Include="Squid\Controls\TabControl.cs" />
+    <Compile Include="Squid\Controls\TextArea.cs" />
+    <Compile Include="Squid\Controls\TextBox.cs" />
+    <Compile Include="Squid\Controls\Tooltip.cs" />
+    <Compile Include="Squid\Controls\TreeView.cs" />
+    <Compile Include="Squid\Controls\Window.cs" />
+    <Compile Include="Squid\Gui.cs" />
+    <Compile Include="Squid\Interfaces\ICheckable.cs" />
+    <Compile Include="Squid\Interfaces\IControlContainer.cs" />
+    <Compile Include="Squid\Interfaces\ISelectable.cs" />
+    <Compile Include="Squid\Interfaces\ISquidRenderer.cs" />
+    <Compile Include="Squid\Interfaces\IText.cs" />
+    <Compile Include="Squid\Skinning\ControlStyle.cs" />
+    <Compile Include="Squid\Skinning\Skin.cs" />
+    <Compile Include="Squid\Skinning\Style.cs" />
+    <Compile Include="Squid\Structs\Enums.cs" />
+    <Compile Include="Squid\Structs\EventArgs.cs" />
+    <Compile Include="Squid\Structs\KeyData.cs" />
+    <Compile Include="Squid\Structs\Keys.cs" />
+    <Compile Include="Squid\Structs\Margin.cs" />
+    <Compile Include="Squid\Structs\Point.cs" />
+    <Compile Include="Squid\Structs\Rectangle.cs" />
+    <Compile Include="Squid\Util\ActionList.cs" />
+    <Compile Include="Squid\Util\ActiveList.cs" />
+    <Compile Include="Squid\Util\Attributes.cs" />
+    <Compile Include="Squid\Util\BBCode.cs" />
+    <Compile Include="Squid\Util\ColorInt.cs" />
+    <Compile Include="Squid\Util\ControlCollection.cs" />
+    <Compile Include="Squid\Util\Cursor.cs" />
+    <Compile Include="Squid\Util\CursorNames.cs" />
+    <Compile Include="Squid\Util\Easing.cs" />
+    <Compile Include="Squid\Util\Flipbook.cs" />
+    <Compile Include="Squid\Util\Font.cs" />
+    <Compile Include="Squid\Util\RectanglePacker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,7 +6,6 @@ namespace Lain.Core
     {
         public static string BaseDirectory { get; set; } = "Assets";
         public static FileSystem Current { private get; set; }
-        
         protected abstract Stream LoadStream(string file);
 
         public static string LoadContent(string file)
@@ -25,5 +24,4 @@ namespace Lain.Core
             return Path.Combine(BaseDirectory, Path.Combine(pathDirs), fileName.Replace('/', '\\').Trim('\\'));
         }
     }
-
 }

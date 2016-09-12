@@ -1,15 +1,14 @@
 ﻿#if DX
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Lain.Core;
 using Lain.Core.Patterns;
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using Lain.Core;
 
 namespace Lain.GAPI
 {
@@ -20,10 +19,10 @@ namespace Lain.GAPI
         private static readonly Regex EffectRegex = new Regex(@"^technique(?:\s([^{]*))?(?:\s)?{([^{]*)}",
             RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
-        private readonly Dictionary<string, Technique> techniques = new Dictionary<string, Technique>();
-        private Buffer ConstantMatrixBuffer;
         private static Texture LastTexture;
+        private Buffer ConstantMatrixBuffer;
         private SamplerState SampleState;
+        private readonly Dictionary<string, Technique> techniques = new Dictionary<string, Technique>();
 
         private Effect()
         {
@@ -31,7 +30,7 @@ namespace Lain.GAPI
 
         public static Effect FromMemory(string file)
         {
-            /*try */
+            try 
             {
                 var e = new Effect();
                 var mc = EffectRegex.Matches(file);
@@ -39,48 +38,50 @@ namespace Lain.GAPI
                 foreach (Match mat in mc)
                 {
                     var tech = new Technique();
-                    var ts = mat.Groups[2].Value.Split(new[] { "=", ";" }, StringSplitOptions.RemoveEmptyEntries);
+                    var ts = mat.Groups[2].Value.Split(new[] {"=", ";"}, StringSplitOptions.RemoveEmptyEntries);
                     for (var i = 0; i < ts.Length; i += 2)
                     {
                         switch (ts[i].Trim())
                         {
                             case "VertexShader":
-                                {
-                                    var en = ts[i + 1].Trim();
-                                    var sh = ShaderBytecode.Compile(file, en, GetShaderProfile("vs"));
-                                    if (sh.HasErrors)
-                                        throw new Exception(sh.Message);
-                                    tech.VertexShader = new VertexShader(App.Render.Device, sh);
-                                    string a;
-                                    var m = new Regex(en + @"[\s]*\((.+:.+)\)").Match(file);
-                                    if (m.Success && m.Groups.Count > 1)
-                                        a = m.Groups[1].Value;
-                                    else
-                                        a =
-                                            new Regex(@"struct " + new Regex(en + @"[\s]*\(([^\s]*)").Match(file).Groups[1].Value + @"[\s]*{([^}]*)}")
-                                                .Match(file).Groups[1].Value;
-                                    tech.AttribsContainer = new AttribsContainer(a, new ShaderSignature(sh));
-                                    sh.Dispose();
-                                    break;
-                                }
+                            {
+                                var en = ts[i + 1].Trim();
+                                var sh = ShaderBytecode.Compile(file, en, GetShaderProfile("vs"), ShaderFlags.Debug);
+                                if (sh.HasErrors)
+                                    throw new Exception(sh.Message);
+                                tech.VertexShader = new VertexShader(App.Render.Device, sh);
+                                string a;
+                                var m = new Regex(en + @"[\s]*\((.+:.+)\)").Match(file);
+                                if (m.Success && m.Groups.Count > 1)
+                                    a = m.Groups[1].Value;
+                                else
+                                    a =
+                                        new Regex(@"struct " +
+                                                  new Regex(en + @"[\s]*\(([^\s]*)").Match(file).Groups[1].Value +
+                                                  @"[\s]*{([^}]*)}")
+                                            .Match(file).Groups[1].Value;
+                                tech.AttribsContainer = new AttribsContainer(a, new ShaderSignature(sh));
+                                sh.Dispose();
+                                break;
+                            }
                             case "PixelShader":
-                                {
-                                    var sh = ShaderBytecode.Compile(file, ts[i + 1].Trim(), GetShaderProfile("ps"));
-                                    if (sh.HasErrors)
-                                        throw new Exception(sh.Message);
-                                    tech.PixelShader = new PixelShader(App.Render.Device, sh);
-                                    sh.Dispose();
-                                    break;
-                                }
+                            {
+                                var sh = ShaderBytecode.Compile(file, ts[i + 1].Trim(), GetShaderProfile("ps"));
+                                if (sh.HasErrors)
+                                    throw new Exception(sh.Message);
+                                tech.PixelShader = new PixelShader(App.Render.Device, sh);
+                                sh.Dispose();
+                                break;
+                            }
                             case "GeometryShader":
-                                {
-                                    var sh = ShaderBytecode.Compile(file, ts[i + 1].Trim(), GetShaderProfile("gs"));
-                                    if (sh.HasErrors)
-                                        throw new Exception(sh.Message);
-                                    tech.GeometryShader = new GeometryShader(App.Render.Device, sh);
-                                    sh.Dispose();
-                                    break;
-                                }
+                            {
+                                var sh = ShaderBytecode.Compile(file, ts[i + 1].Trim(), GetShaderProfile("gs"));
+                                if (sh.HasErrors)
+                                    throw new Exception(sh.Message);
+                                tech.GeometryShader = new GeometryShader(App.Render.Device, sh);
+                                sh.Dispose();
+                                break;
+                            }
                         }
                     }
                     e.techniques.Add(mat.Groups[1].Value.Trim(), tech);
@@ -101,12 +102,13 @@ namespace Lain.GAPI
                     MinimumLod = 0,
                     MaximumLod = float.MaxValue
                 });
-                return e; }
-            /*catch (Exception ex)
+                return e;
+            }
+            catch (Exception ex)
             {
-                ErrorProvider.SendError(ex);
+                Log.SendError(ex);
                 return new Effect();
-            }*/
+            }
         }
 
         public static Effect FromFile(string s)
@@ -115,41 +117,36 @@ namespace Lain.GAPI
             effects.Add(s, FromMemory(FileSystem.LoadContent(FileSystem.GetPath(s, "Effects"))));
             return effects[s];
         }
+
         public void Render(int count, int startIndex = 0, bool draw = true)
         {
             Render(techniques.First().Key, count, startIndex, draw);
         }
+
         public void Render(string techName, int count, int startIndex = 0, bool draw = true)
         {
-            try
+            var tech = techniques[techName];
+            tech.AttribsContainer.Accept();
+            App.Render.DeviceContext.VertexShader.Set(tech.VertexShader);
+            App.Render.DeviceContext.PixelShader.Set(tech.PixelShader);
+            App.Render.DeviceContext.PixelShader.SetSampler(0, SampleState);
+            if (tech.GeometryShader != null)
             {
-                var tech = techniques[techName];
-                tech.AttribsContainer.Accept();
-                App.Render.DeviceContext.VertexShader.Set(tech.VertexShader);
-                App.Render.DeviceContext.PixelShader.Set(tech.PixelShader);
-                App.Render.DeviceContext.PixelShader.SetSampler(0, SampleState);
-                if (tech.GeometryShader != null)
-                {
-                    App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
-                    App.Render.DeviceContext.GeometryShader.Set(tech.GeometryShader);
-                    App.Render.DeviceContext.Draw(count, startIndex);
-                    App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-                    App.Render.DeviceContext.GeometryShader.Set(null);
-                }
-                else if (draw)
-                {
-                    App.Render.DeviceContext.DrawIndexed(count, startIndex, 0);
-                }
+                App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
+                App.Render.DeviceContext.GeometryShader.Set(tech.GeometryShader);
+                App.Render.DeviceContext.Draw(count, startIndex);
+                App.Render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+                App.Render.DeviceContext.GeometryShader.Set(null);
             }
-            catch (Exception ex)
+            else if (draw)
             {
-                ErrorProvider.SendError(ex);
+                App.Render.DeviceContext.DrawIndexed(count, startIndex, 0);
             }
         }
 
         public unsafe void SetMatrix(Matrix mt)
         {
-            *(Matrix*)ConstantMatrixBuffer.MapBuffer() = Matrix.Transpose(mt);
+            *(Matrix*) ConstantMatrixBuffer.MapBuffer() = Matrix.Transpose(mt);
             ConstantMatrixBuffer.UnmapBuffer();
             App.Render.DeviceContext.VertexShader.SetConstantBuffer(0, ConstantMatrixBuffer);
         }
@@ -169,14 +166,6 @@ namespace Lain.GAPI
             App.Render.DeviceContext.PixelShader.SetShaderResources(0, arr);
         }
 
-        private struct Technique
-        {
-            public AttribsContainer AttribsContainer;
-            public GeometryShader GeometryShader;
-            public PixelShader PixelShader;
-            public VertexShader VertexShader;
-        }
-
         private static string GetShaderProfile(string shader)
         {
             switch (App.Render.ShaderModel)
@@ -189,7 +178,15 @@ namespace Lain.GAPI
                     return shader + "_4_0_level_9_3";
             }
         }
-	}
+
+        private struct Technique
+        {
+            public AttribsContainer AttribsContainer;
+            public GeometryShader GeometryShader;
+            public PixelShader PixelShader;
+            public VertexShader VertexShader;
+        }
+    }
 }
 
 #endif

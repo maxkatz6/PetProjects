@@ -1,75 +1,66 @@
 ﻿#if DX
 
 using System;
+using Lain.Core;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
-using Device = SharpDX.Direct3D11.Device;
 using SharpDX.Mathematics.Interop;
-using Lain.Core;
+using Device = SharpDX.Direct3D11.Device;
+using ResultCode = SharpDX.DXGI.ResultCode;
 
 namespace Lain.GAPI
 {
-	public class Render1 : Render
+    public class Render1 : Render
     {
         internal object RenderSource { get; set; }
-        
+
         public void Suspend()
         {
-            using (var dxgiDevice = Device.QueryInterface<Device3>())
+            using (var dxgiDevice = Device.QueryInterface<SharpDX.DXGI.Device3>())
                 dxgiDevice.Trim();
         }
 
-        public static new Render1 Create(object renderSource)
-		{
-            try {
+        public new static Render1 Create(object renderSource)
+        {
+            try
+            {
                 var render = new Render1
                 {
                     Device = new Device(DriverType.Hardware,
-                        (Config.IsDebug ? DeviceCreationFlags.Debug : DeviceCreationFlags.None) | DeviceCreationFlags.BgraSupport, FeatureLevel.Level_11_0,
+                        (Config.IsDebug ? DeviceCreationFlags.Debug : DeviceCreationFlags.None) |
+                        DeviceCreationFlags.BgraSupport, FeatureLevel.Level_11_0,
                         FeatureLevel.Level_10_1,
                         FeatureLevel.Level_10_0, FeatureLevel.Level_9_3),
                     RenderSource = renderSource
                 };
-
-                switch (render.Device.FeatureLevel)
-                {
-                    case FeatureLevel.Level_11_0:
-                    case FeatureLevel.Level_11_1:
-                        render.ShaderModel = 5;
-                        break;
-                    case FeatureLevel.Level_10_0:
-                    case FeatureLevel.Level_10_1:
-                        render.ShaderModel = 4;
-                        break;
-                    default:
-                        render.ShaderModel = 2;
-                        break;
-                }
+                // 1011 0001 0000 0000 -> 1011 0001 -> 11 0001 -> 4 -> 5
+                render.ShaderModel = (((int) render.Device.FeatureLevel >> 8) & 0x33)/10 + 1;
                 render.DeviceContext = render.Device.ImmediateContext;
 
                 // Get the Direct3D 11.1 API device.
                 using (var dxgiDevice = render.Device.QueryInterface<SharpDX.DXGI.Device>())
                 using (var sisNative = ComObject.QueryInterface<ISurfaceImageSourceNative>(render.RenderSource))
                     sisNative.Device = dxgiDevice;
-                
+
                 render.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
                 render.DeviceContext.OutputMerger.SetRenderTargets(render.DepthStencilView, render.RenderTargetView);
-                render.DeviceContext.Rasterizer.State = new RasterizerState(render.Device, new RasterizerStateDescription
-                {
-                    IsAntialiasedLineEnabled = false,
-                    CullMode = CullMode.None,
-                    DepthBias = 0,
-                    DepthBiasClamp = 0,
-                    IsDepthClipEnabled = true,
-                    FillMode = FillMode.Solid,
-                    IsFrontCounterClockwise = false,
-                    IsMultisampleEnabled = false,
-                    IsScissorEnabled = false,
-                    SlopeScaledDepthBias = 0
-                });
+                render.DeviceContext.Rasterizer.State = new RasterizerState(render.Device,
+                    new RasterizerStateDescription
+                    {
+                        IsAntialiasedLineEnabled = false,
+                        CullMode = CullMode.None,
+                        DepthBias = 0,
+                        DepthBiasClamp = 0,
+                        IsDepthClipEnabled = true,
+                        FillMode = FillMode.Solid,
+                        IsFrontCounterClockwise = false,
+                        IsMultisampleEnabled = false,
+                        IsScissorEnabled = true,
+                        SlopeScaledDepthBias = 0
+                    });
                 // Set viewport to the target area in the surface, taking into account the offset returned by BeginDraw.
                 render.DeviceContext.Rasterizer.SetViewport(new ViewportF(0, 0, Config.Width, Config.Height));
 
@@ -123,11 +114,15 @@ namespace Lain.GAPI
                 Config.Render = Config.RenderType.DirectX11;
                 return render;
             }
-            catch (Exception ex){ ErrorProvider.SendError(ex,true); return null; }
-		}
-        
-		public override void BeginDraw()
-		{
+            catch (Exception ex)
+            {
+                Log.SendError(ex, true);
+                return null;
+            }
+        }
+
+        public override void BeginDraw()
+        {
             Utilities.Dispose(ref RenderTargetView);
             Utilities.Dispose(ref DepthStencilView);
 
@@ -161,7 +156,7 @@ namespace Lain.GAPI
                         var surfaceDesc = surface.Description;
 
                         // Create depth/stencil buffer descriptor.
-                        var depthStencilDesc = new Texture2DDescription()
+                        var depthStencilDesc = new Texture2DDescription
                         {
                             Format = Format.D24_UNorm_S8_UInt,
                             Width = surfaceDesc.Width,
@@ -170,42 +165,41 @@ namespace Lain.GAPI
                             MipLevels = 1,
                             BindFlags = BindFlags.DepthStencil,
                             SampleDescription = new SampleDescription(1, 0),
-                            Usage = ResourceUsage.Default,
+                            Usage = ResourceUsage.Default
                         };
 
                         // Allocate a 2-D surface as the depth/stencil buffer.
                         using (var depthStencil = new Texture2D(Device, depthStencilDesc))
                             DepthStencilView = new DepthStencilView(Device, depthStencil);
-                        
+
                         // Set render target.
                         DeviceContext.OutputMerger.SetRenderTargets(DepthStencilView, RenderTargetView);
                     }
                 }
                 catch (SharpDXException ex)
                 {
-                    if (ex.ResultCode == SharpDX.DXGI.ResultCode.DeviceRemoved ||
-                        ex.ResultCode == SharpDX.DXGI.ResultCode.DeviceReset)
+                    if (ex.ResultCode == ResultCode.DeviceRemoved ||
+                        ex.ResultCode == ResultCode.DeviceReset)
                     {
                         // If the device has been removed or reset, attempt to recreate it and continue drawing.
                         App.Render = Create(RenderSource);
                         BeginDraw();
                     }
-                    else ErrorProvider.SendError(ex, true);
+                    else Log.SendError(ex, true);
                 }
             }
 
             DeviceContext.ClearDepthStencilView(DepthStencilView,
-				DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 8);
-			DeviceContext.ClearRenderTargetView(RenderTargetView, BackColor);
-		}
-      
+                DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 8);
+            DeviceContext.ClearRenderTargetView(RenderTargetView, BackColor);
+        }
 
-		public override void EndDraw()
-		{
+        public override void EndDraw()
+        {
             using (var sisNative = ComObject.QueryInterface<ISurfaceImageSourceNative>(RenderSource))
                 sisNative.EndDraw();
         }
-	}
+    }
 }
 
 #endif
