@@ -19,11 +19,11 @@ class Config{
 
     // Database connection values:
     public static  $dbConnection = [
-    /*'host' => 'localhost', 
+    'host' => 'localhost', 
     'user' => 'root',
-    'pass' => '',
+    'pass' => 'pass',
     'name' => 'chat',
-    'link' => null*/];
+    'link' => null];
 
     // Available languages:
     public static  $langAvailable = [
