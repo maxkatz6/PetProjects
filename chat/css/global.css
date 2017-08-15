@@ -63,6 +63,7 @@ div.colorPicker_hexWrap label {font-size: 95%; color: #2F2F2F; margin: 5px 2px; 
 div.colorPicker_hexWrap input {margin:5px 2px;padding:0;font-size:95%;border:1px solid #000;width:65%;}
 div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;float:left;cursor:pointer;line-height:12px;}
 .vkPost{border:1px solid #45688E;border-left:5px solid #45688E;overflow:auto;width:80%;max-height:200px; cursor: pointer;}
+.playGif img{background-color: white;opacity: 0.5;}
 @media (max-width: 700px) {
 	#mainPanelContainer { top:65px; left:5px; right:5px; bottom:75px; }
 	#headline { margin:0; padding:0 0 0 5px; line-height:25px; }
