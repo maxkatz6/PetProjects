@@ -41,7 +41,7 @@ class SChat {
 	    'delete'	    => isset($_REQUEST['delete'])		? (int)$_REQUEST['delete']	: null,
 	    'tmc'	    	=> isset($_REQUEST['tmc'])	    	? (int)$_REQUEST['tmc']		: 10,
         'radio'         => isset($_REQUEST['radio'])        ? $_REQUEST['radio']         : false];
-        
+
         // Remove slashes which have been added to user input strings if magic_quotes_gpc is On:
         if(get_magic_quotes_gpc()) {
             // It is safe to remove the slashes as we escape user data ourself
@@ -51,7 +51,21 @@ class SChat {
 
     function initDataBaseConnection() {
         // Create a new database object:
-        $this->db = new SChatDataBaseMySQLi();
+        switch(Config::$dbConnection['type']) {
+			case 'mysqli':
+				$this->db = new SChatDataBaseMySQLi();
+				break;
+			case 'mysql':
+				$this->db = new SChatDataBaseMySQL();
+				break;
+			default:
+				// Use MySQLi if available, else MySQL (and check the type of a given database connection object):
+				if(function_exists('mysqli_connect') && (!Config::$dbConnection['link'] || is_object(Config::$dbConnection['link']))) {
+					$this->db = new SChatDataBaseMySQLi();
+				} else {
+					$this->db = new SChatDataBaseMySQL();
+				}
+		}
         // Use a new database connection if no existing is given:
         if(!Config::$dbConnection['link']) {
             // Connect to the database server:
@@ -126,7 +140,7 @@ class SChat {
             if($this->getRequestVar('ajax')) {
                 $this->initChannel();
                 $this->updateOnlineStatus();
-                $this->checkAndRemoveInactive(); 
+                $this->checkAndRemoveInactive();
             }
         } else {
             if($this->getRequestVar('ajax')) {
@@ -157,7 +171,7 @@ class SChat {
         } else {
             if ($this->isLoggedIn()){
                 // Display XHTML content for non-ajax requests:
-                $this->sendXHTMLContent(); 
+                $this->sendXHTMLContent();
             }
             else {
                 header('Location: ../');
@@ -295,7 +309,7 @@ class SChat {
         $this->setUserRole($userData['userRole']);
         $this->setUserInfo($userData['userInfo']);
         $this->setSessionVar('mob', $userData['mob']);
-        
+
         $this->setLoggedIn(true);
         $this->setLoginTimeStamp(time());
 
@@ -602,13 +616,13 @@ class SChat {
                 case '/nick':
                     $this->changeNick($textParts);
                     break;
-                case '/opVideo':	
+                case '/opVideo':
                     $this->insertParsedMessageOpenVideo($textParts);
                     break;
-                case '/inviteVideo':		    
+                case '/inviteVideo':
                     $this->insertParsedMessageInviteVideo($textParts);
                     break;
-                case '/setStatus':		    
+                case '/setStatus':
                     $this->setStatus($textParts);
                     break;
                 case '/call':
@@ -711,7 +725,7 @@ class SChat {
                 );
             }
         }
-    }  
+    }
     function insertParsedMessageOpenVideo($textParts)
     {
         if (count($textParts) < 2){
@@ -720,7 +734,7 @@ class SChat {
         else{
             $this->insertChatBotMessage($this->getChannel(),$textParts[0].' '.$this->getUserName().' '.$textParts[1]);
         }
-    }   
+    }
     function insertParsedMessageInviteVideo($textParts) {
         if(count($textParts) < 4) {
             if(count($textParts) == 3) {
@@ -1145,7 +1159,7 @@ class SChat {
 			    $sides = ($sides > 0 && $sides <= 100) ?  $sides : 6;
 
 			    $text = '/roll '.$this->getUserName().' '.$number.'d'.$sides.' ';
-			    for($i=0; $i<$number; $i++) 
+			    for($i=0; $i<$number; $i++)
 				    $text .= ($i != 0 ? ',' : '').mt_rand(1, $sides);
 		    } else {
 			    // if dice syntax is invalid, roll one d6:
@@ -1636,7 +1650,7 @@ class SChat {
     }
 
     function sendMessages() {
-	    $httpHeader = new SChatHTTPHeader('application/json'); //or text/json 
+	    $httpHeader = new SChatHTTPHeader('application/json'); //or text/json
 
 	    // Send HTTP header:
 	    $httpHeader->send();
@@ -1734,7 +1748,7 @@ class SChat {
             $json['msgs'] = $msg;
         }
         $json['users'] = $this->getOnlineUsersData([$this->getChannel()]);
-        
+
         if ($this->getRequestVar('radio') && Config::radioServer){
             $json['radio'] = Config::radioInfo ? json_decode(file_get_contents(Config::radioServer."/info.xsl")) : [['mount' => '/radio']];
         }
@@ -2039,7 +2053,7 @@ class SChat {
 			    die();
 		    }
 
-		    while($row = $result->fetch()) {        
+		    while($row = $result->fetch()) {
                 $user = [
                     'id' => (int)$row['userID'],
                     'role' => (int)$row['userRole'],

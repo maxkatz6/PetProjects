@@ -23,6 +23,7 @@ class Config{
     'user' => 'root',
     'pass' => 'pass',
     'name' => 'chat',
+    'type' => 'mysql',
     'link' => null];
 
     // Available languages:

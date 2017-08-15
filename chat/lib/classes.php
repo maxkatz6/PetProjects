@@ -12,8 +12,10 @@ require_once(SCHAT_PATH.'lib/sJoomla.php');
 
 // Include Class libraries:
 require(SCHAT_PATH.'lib/class/SChat.php');
-require(SCHAT_PATH.'lib/class/SChatMySQLiDataBase.php');
+require(SCHAT_PATH.'lib/class/SChatDataBaseMySQLi.php');
 require(SCHAT_PATH.'lib/class/SChatMySQLiQuery.php');
+require(SCHAT_PATH.'lib/class/SChatDataBaseMySQL.php');
+require(SCHAT_PATH.'lib/class/SChatMySQLQuery.php');
 require(SCHAT_PATH.'lib/class/SChatEncoding.php');
 require(SCHAT_PATH.'lib/class/SChatString.php');
 require(SCHAT_PATH.'lib/class/SChatFileSystem.php');

@@ -18,7 +18,7 @@ class SChatDataBaseMySQLi {
 			Config::$dbConnection['host'],
 			Config::$dbConnection['user'],
 			Config::$dbConnection['pass'],
-                        Config::$dbConnection['name']);
+            Config::$dbConnection['name']);
 		if($this->_connectionID->connect_errno) {
 			$this->_errno = mysqli_connect_errno();
 			$this->_error = mysqli_connect_error();
