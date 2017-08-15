@@ -677,7 +677,7 @@ var sChat={
     onNewMessage:function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip){
         if(this.ignoreMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip)
             || !this.parseCommands(dateObject, userID, userName, userRole, messageID, messageText)) return false;
-        
+
         this.blinkOnNewMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip);
         this.playSoundOnNewMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip);
         return true;
@@ -991,7 +991,7 @@ var sChat={
                 case '/invite':
                 case '/uninvite':
                 case '/roll':
-                    userName=textParts[1]; 
+                    userName=textParts[1];
                     break;
                 }
         }
@@ -1094,7 +1094,7 @@ var sChat={
         this.showHide(idShowHide);
     },
     toggleContainer:function(containerID,hideContainerIDs){
-        if (hideContainerIDs) 
+        if (hideContainerIDs)
             sChat.showHide(hideContainerIDs, 'none');
         sChat.showHide(containerID);
     },
@@ -1167,7 +1167,7 @@ var sChat={
             text=text.replace(/\n/g, '<br/>');
             if(text.charAt(0)==='/'){
                 var t = this.replaceCommands(text);
-                if (!!t) return t; 
+                if (!!t) return t;
             }
             text=this.replaceBBCode(text);
             text=this.replaceHyperLinks(text);
@@ -1356,7 +1356,7 @@ var sChat={
     blinkMessage:function(messageID){
         var messageNode=this.getMessageNode(messageID);
         if(!messageNode) return;
-        if (messageNode.scrollIntoView) 
+        if (messageNode.scrollIntoView)
             messageNode.scrollIntoView({ block: "end", behavior: "smooth" });
         else window.location.hash = messageNode.id;
         var k=0.1, c=0;
@@ -1402,7 +1402,7 @@ var sChat={
                         if(sChat.inArray(hostArr, 'youtu')) return s+'<iframe onload="sChat.updateChatlistView();" style="height:'+height+'px;width:400px;max-width:100%;" src="https://www.youtube.com/embed/'+sa1+t+'" frameborder="0" allowfullscreen="true"></iframe>';
                         else if(sChat.getSetting('vkPosts')&&sChat.inArray(hostArr, 'vk')&&!vk) return s+sChat.replaceVK(a, sa);
                         else if(sChat.inArray(hostArr, 'coub')) return s+'<iframe onload="sChat.updateChatlistView();" style="height:'+height+'px;width:400px;max-width:100%;" src="http://coub.com/embed/'+fe+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
-                        else if(sChat.inArray(hostArr, 'soundcloud')) return s+'<br/><iframe  onload="sChat.updateChatlistView();" style="height:120;width:80%;" scrolling="no" frameborder="0" src="https://w.soundcloud.com/player/?url='+a+'"></iframe>';
+                        else if(sChat.inArray(hostArr, 'soundcloud')) return s+'<br/><iframe  onload="sChat.updateChatlistView();" style="height:120px;width:80%;" scrolling="no" frameborder="0" src="https://w.soundcloud.com/player/?url='+a+'"></iframe>';
                     return s+'<a href="'+a+'" onclick="window.open(this.href); return false;">'+helper.truncate(a, 35)+'</a>';
                 }
                 }
@@ -1457,9 +1457,17 @@ var sChat={
         });
         return '<div id=\''+id+'\' onclick="this.style.maxHeight=\'100%\';this.style.cursor=\'default\';sChat.updateChatlistView();"><a href="'+str+'" onclick="window.open(this.href); return false;">'+helper.truncate(str, 35)+'</a></div>';
     },
-    replaceGif: function(url){ //сделай же что-то с этим
-        var str = '<a href="' + url + '" onclick="window.open(this.href); return false;"><img onload="sChat.updateChatlistView();" class="bbCodeImage" style="max-width:90%; max-height:200px;" src="' + url + '"/></a>';
+    replaceGif: function(url){ 
+        var str = '<a href="' + url + '" class="playGif" onclick="sChat.runGif(this); return false;"><img onload="sChat.updateChatlistView();" class="bbCodeImage" style="max-width:90%; max-height:200px;" src="img/play.png"/></a>';
         return str;
+    },
+    runGif: function(el){
+        if (el.className === 'playGif') {
+            el.className = '';
+            el.firstChild.src=el.href;
+        } else {
+            window.open(el.href);
+        }
     },
     replaceEmoticons:function(text){
         if(!sConfig.settings['emoticons']) return text;
