@@ -1658,16 +1658,21 @@ class SChat {
     }
 
     function getMessages() {
-	    switch($this->getView()) {
-		    case 'chat':
-			    return $this->getChatViewJSONMessages();
-		    case 'teaser':
-			    return $this->getTeaserViewJSONMessages();
-		    case 'logs':
-			    return $this->getLogsViewJSONMessages();
-		    default:
-			    return ["infos" => ["logout" => SChatEncoding::encodeSpecialChars(Config::logoutData)]];
-	    }
+        try {
+            switch($this->getView()) {
+                case 'chat':
+                    return $this->getChatViewJSONMessages();
+                case 'teaser':
+                    return $this->getTeaserViewJSONMessages();
+                case 'logs':
+                    return $this->getLogsViewJSONMessages();
+                default:
+                    return ["infos" => ["logout" => SChatEncoding::encodeSpecialChars(Config::logoutData)]];
+            }
+        }
+        catch (Exception $ex) {
+            return ["error" => $ex->getMessage()];
+        }
     }
 
     function getMessageCondition() {
