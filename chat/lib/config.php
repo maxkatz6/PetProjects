@@ -130,22 +130,22 @@ class Config{
 
     const radioInfo = true;
     const radioServer = false;//'http://109.87.163.34:1256';
-
+    
     const debug = false;
 
     public static $chatClosed = false;
     public static $gzipEnabled = false;
 
     public static  $msgGrad = [
-        'Sagita'   => ['eb8100','d520a0','8d13db'],
+        'NightmareWhitch'   => ['eb8100','d520a0','8d13db'],
         'Экселенс' => ['556B2F','006400','000000'],
         'Niakriss' => ['F0003C','6808EF','000000'],
         //'Эйзенхорн' => ['F70502','990200','000000'],
         'Acedia'   => ['00F5C8','00F586','0B19FE']
     ];
     public static  $nickGrad = [
-        'Тирраон' => ['300082','800090'],
-        'Sagita'  => ['8d13db','ff00b4', 'ff8c00'],
+        'Tirraon' => ['300082','800090'],
+        'NightmareWhitch'  => ['8d13db','ff00b4', 'ff8c00'],
         'Huginn'  => ['1C1C1C','363636', '4F4F4F'],
         'Niakriss'=> ['000000','6808EF', 'F0003C'],
         'Экселенс'=> ['000000','006400', '556B2F'],
