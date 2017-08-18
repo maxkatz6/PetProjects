@@ -19,11 +19,11 @@ class Config{
 
     // Database connection values:
     public static  $dbConnection = [
-    'host' => 'localhost', 
-    'user' => 'root',
-    'pass' => 'pass',
-    'name' => 'chat',
-    'type' => 'mysql',
+    'host' => '',
+    'user' => '',
+    'pass' => '',
+    'name' => '',
+    'type' => '',
     'link' => null];
 
     // Available languages:
@@ -130,7 +130,7 @@ class Config{
 
     const radioInfo = true;
     const radioServer = false;//'http://109.87.163.34:1256';
-    
+
     const debug = false;
 
     public static $chatClosed = false;
