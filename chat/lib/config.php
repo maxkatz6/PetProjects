@@ -121,7 +121,7 @@ class Config{
     const logsRequestMessagesTimeDiff = 1;
 
     // Defines the earliest year used for the logs selection:
-    const logsFirstYear = 2015;
+    const logsFirstYear = 2017;
 
     // Defines if old messages are purged from the database:
     const logsPurgeLogs = false;
@@ -129,7 +129,7 @@ class Config{
     const logsPurgeTimeDiff = 365;
 
     const radioInfo = true;
-    const radioServer = false;//'http://109.87.163.34:1256';
+    const radioServer = false;
     
     const debug = false;
 
