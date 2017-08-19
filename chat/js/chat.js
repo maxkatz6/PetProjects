@@ -480,9 +480,11 @@ var sChat={
             this.removeOld=false;
             this.selAddressee='';
         }
-        if(priv){
-            this.insertMessageWrapper('/msg '+nick+' ');
-            this.selAddressee='/msg '+nick+' ';
+        if (priv) {
+            if (encodedUserName != nick) {
+                this.insertMessageWrapper('/msg ' + nick + ' ');
+                this.selAddressee = '/msg ' + nick + ' ';
+            }
         } else{
             if(!(new RegExp('(?:^|, )'+nick+', ', 'gm').test(this.dom['inputField'].value))){
                 this.dom['inputField'].value=nick+", "+this.dom['inputField'].value;
@@ -496,14 +498,15 @@ var sChat={
     getUserNodeString:function(userID, userName, userRole, userInfo){
         var encodedUserName=this.scriptLinkEncode(userName);
         return '<div id="'+this.getUserDocumentID(userID)+'">'
-            +'<table width="100%" style="table-layout:fixed;"><tr><td width="34"><img src="../'+userInfo.avatar+'" height="30"/></td>'
-            +'<td><a href="javascript:sChat.toUser(\''+encodedUserName+'\',false);">'+userName.replace('_', ' ')+'</a></td>'
+            + '<table width="100%" style="table-layout:fixed;">'
+            + '<tr><td width="34"><a href="javascript:sChat.toUser(\'' + encodedUserName + '\', true);"><img src="../' + userInfo.avatar + '" height="30"/></a></td>'
+            + '<td><a href="javascript:sChat.toUser(\''+encodedUserName+'\',false);">'+userName.replace('_', ' ')+'</a></td>'
             + '<td width="14"><img width="16" id="stat' + userID + '"/></td>'
-            +'<td width="30">'+(userInfo.tim!=='none'?'<img src="img/tim/'+userInfo.tim+'.png" border="0" title="'+helper.getTIM(userInfo.tim)+'"></img></td>':'</td>')
-            +'<td width="10">'+(userInfo.gender&&userInfo.gender!=='n'?'<img height="13" src="img/gender/'+userInfo.gender+'.png" border="0" title="'+(userInfo.gender==='m'?'Мужской':'Женский')+'"></td>':'</td>')
+            + '<td width="30">'+(userInfo.tim!=='none'?'<img src="img/tim/'+userInfo.tim+'.png" border="0" title="'+helper.getTIM(userInfo.tim)+'"></img></td>':'</td>')
+            + '<td width="10">'+(userInfo.gender&&userInfo.gender!=='n'?'<img height="13" src="img/gender/'+userInfo.gender+'.png" border="0" title="'+(userInfo.gender==='m'?'Мужской':'Женский')+'"></td>':'</td>')
             + '<td width="20"><a class="arrowBut" id="showMenu' + userID + '" href="javascript:sChat.toggleUserMenu(\'' + this.getUserMenuDocumentID(userID) + '\', \'' + encodedUserName + '\', ' + userID + ' );"></a></td></tr></table>'
-            +'<ul class="userMenu" style="display:none;" id="'+this.getUserMenuDocumentID(userID)+((userID===this.userID)?'">'+this.getUserNodeStringItems(encodedUserName, userID, false):'">')+'</ul>'
-            +'</div>';
+            + '<ul class="userMenu" style="display:none;" id="'+this.getUserMenuDocumentID(userID)+((userID===this.userID)?'">'+this.getUserNodeStringItems(encodedUserName, userID, false):'">')+'</ul>'
+            + '</div>';
     },
     toggleUserMenu:function(menuID, userName, userID){
         // If the menu is empty, fill it with user node menu items before toggling it.
