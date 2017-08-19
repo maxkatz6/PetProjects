@@ -523,7 +523,7 @@ var sChat={
     getUserNodeStringItems:function(encodedUserName, userID, isInline){
         var menu;
         if(encodedUserName!==this.encodedUserName){
-            menu = '<li><a target="_blank" href="/index.php/component/comprofiler/userprofile/' + userID + '-profile">Профиль</a></li>'
+            menu = '<li><a href="javascript:sChat.openUserProfile(' + userID + ');">Профиль</a></li>'
                 +'<li><a href="javascript:sChat.toUser(\''+encodedUserName+'\',true);">'+sChatLang['userMenuSendPrivateMessage']+'</a></li>'
                 +'<li><a href="javascript:sChat.insertMessageWrapper(\'/describe '+encodedUserName+' \');">'+sChatLang['userMenuDescribe']+'</a></li>'
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/ignore '+encodedUserName+'\');">'+sChatLang['userMenuIgnore']+'</a></li>'
@@ -539,7 +539,7 @@ var sChat={
         } else{
 
             menu='<li style="text-indent:-3px;"><select id="statusSelect" onchange="sChat.setStatus(this.options[this.selectedIndex].value)" style="background: transparent;border:none;outline:none;cursor:pointer;">'+sChat.getStatusUserNodeItem()+'</select></li>'
-                +'<li><a target="_blank" href="/index.php/component/comprofiler/userprofile">Профиль</a></li>'
+                +'<li><a href="javascript:sChat.openUserProfile();">Профиль</a></li>'
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/quit\');">'+sChatLang['userMenuLogout']+'</a></li>'
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/who\');">'+sChatLang['userMenuWho']+'</a></li>'
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/ignore\');">'+sChatLang['userMenuIgnoreList']+'</a></li>'
@@ -569,6 +569,14 @@ var sChat={
         var stat;
         if (id == 18) stat = prompt("Введите статус");
         sChat.sendMessageWrapper('/setStatus '+id + (stat? ' '+stat:''));
+    },
+    openUserProfile: function (id) {
+        if (!!id) {
+            window.open("/index.php/component/comprofiler/userprofile");
+        }
+        else {
+            window.open("/index.php/component/comprofiler/userprofile/" + id + "-profile");
+        }
     },
     openVideoChannel:function(priv){
         var key=sWebCam.createRoom(priv);
