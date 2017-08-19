@@ -32,8 +32,15 @@ var sWebCam={
             localVideoEl:'local',
             remoteVideosEl:'',
             media:{
-                video:(sChat.getSetting('myVideo')?{mandatory:{maxFrameRate:sConfig.vidFPS,maxWidth:sConfig.maxVidW,maxHeight:sConfig.maxVidH}}:false),
-                audio:sChat.getSetting('myAudio')
+                video: sChat.getSetting('myVideo') && {
+                    mandatory:
+                    {
+                        maxFrameRate: sConfig.vidFPS,
+                        maxWidth: sConfig.maxVidW,
+                        maxHeight: sConfig.maxVidH
+                    }
+                },
+                audio:  sChat.getSetting('myAudio')
             },
             autoRequestMedia:true,
             debug:true,
