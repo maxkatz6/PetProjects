@@ -12,7 +12,7 @@ var sWebCam={
     mc:0,
     dcReady:false,
     init:function(){
-        if(!helper.getWebRTCInfo().supportDataChannel) sChat.addChatBotMessageToChatList('Внимание! У вас не поддерживается передача данных по каналам. Некоторые функции не будут работать. Ждите следующей обновы.');
+        if(!helper.getWebRTCInfo().supportDataChannel) sChat.addChatBotMessageToChatList('Внимание! У вас не поддерживается передача данных по каналам. Некоторые функции не будут работать.');
         $.ajax({
             type:"POST",
             url:"https://api.xirsys.com/getIceServers",
@@ -27,8 +27,8 @@ var sWebCam={
             success:function(data){sConfig.iceServers=JSON.parse(data).d.iceServers.concat(sConfig.iceServers);},
             async:false
         });
-        this.webrtc=new SimpleWebRTC({
-            url:"https://signaling.simplewebrtc.com:443/",
+        this.webrtc = new SimpleWebRTC({
+            // url:"http://schatsignal.azurewebsites.net:8888/socket.io/",
             localVideoEl:'local',
             remoteVideosEl:'',
             media:{
