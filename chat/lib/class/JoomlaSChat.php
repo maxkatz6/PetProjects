@@ -35,13 +35,12 @@ class JoomlaSChat extends SChat {
             $userData['userInfo']['gender'] = static::getGender(mb_convert_encoding( $cbUser->getField('cb_2'), 'UTF-8'));
 
             $avatar = $cbUser->getField('avatar', null, 'php');
-            $hasAvatar = $cbUser->getField('avatarapproved', '0')
-                && !is_null($avatar)
+            $hasAvatar = !is_null($avatar)
                 && !is_null($avatar['avatar'])
                 && $avatar['avatar'] != '';
 
             $userData['userInfo']['avatar'] = $hasAvatar
-                ? $avatar['avatar']
+                ? explode("chat", $avatar['avatar'])[1]
                 : static::getAvatarByGender($userData['userInfo']['gender']);
 
             $useragent=$_SERVER['HTTP_USER_AGENT'];
