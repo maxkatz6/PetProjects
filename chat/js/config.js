@@ -168,7 +168,7 @@ var sConfig={
     radioServer: false,
     mobile: false,
     ///videochat
-    videoChat:false,
+    videoChat:true,
     defCamS:0.15,
     maxVidW:320,
     maxVidH:240,
