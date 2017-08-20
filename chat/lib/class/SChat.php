@@ -13,8 +13,12 @@ class SChat {
     var $_onlineUsersData;
     var $_bannedUsersData;
 
-    function __construct() {
+    function __construct($cron = false) {
         $this->initDataBaseConnection();
+        if ($cron){
+            return;
+        }
+
         $this->initRequestVars();
         $this->initSession();
         $this->handleRequest();
@@ -642,12 +646,13 @@ class SChat {
         } else {
             // No command found, just insert the plain message:
             $this->insertCustomMessage(
-            $this->getUserID(),
-            $this->getUserName(),
-            $this->getUserRole(),
-            $this->getChannel(),
-            $text,$msgInfo
-            );
+                $this->getUserID(),
+                $this->getUserName(),
+                $this->getUserRole(),
+                $this->getChannel(),
+                $text,$msgInfo
+                );
+            $this->incrementMessageCount();
         }
     }
     function setStatus($textParts){
@@ -1579,7 +1584,7 @@ class SChat {
 	    $this->resetOnlineUsersData();
     }
 
-    function removeInactive() {
+    function removeInactive($insertMessages = true) {
 	    $sql = 'SELECT
 				    userID,
 				    userName,
@@ -1608,11 +1613,13 @@ class SChat {
 
 			    $this->removeUserFromOnlineUsersData($row['userID']);
 
-			    // Insert logout timeout message:
-			    $this->insertChatBotMessage(
-				    $row['channel'],
-				    '/logout '.$row['userName'].' Timeout'
-			    );
+                // Insert logout timeout message:
+                if ($insertMessages) {
+			        $this->insertChatBotMessage(
+				        $row['channel'],
+				        '/logout '.$row['userName'].' Timeout'
+			        );
+                }
 		    }
 
 		    $result->free();
@@ -2670,7 +2677,7 @@ class SChat {
     // Override:
     // Returns an associative array containing userName, userID and userRole
     // Returns null if login is invalid
-    function getValidLoginUserData() {
+    function &getValidLoginUserData() {
         // Check if we have a valid registered user:
         if(false) {
             // Here is the place to check user authentication
@@ -2697,6 +2704,10 @@ class SChat {
             $this->_allChannels = array_flip(Config::$channels);
         }
         return $this->_allChannels;
+    }
+
+    function incrementMessageCount(){
+
     }
 }
 ?>
