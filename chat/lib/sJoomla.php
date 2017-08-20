@@ -8,10 +8,16 @@ define('JPATH_BASE', dirname(SCHAT_PATH));
 require_once( JPATH_BASE .DS.'includes'.DS.'defines.php' );
 require_once( JPATH_BASE .DS.'includes'.DS.'framework.php' );
 require_once( JPATH_BASE .DS.'libraries'.DS.'joomla'.DS.'factory.php');
-//require_once( JPATH_BASE .DS. 'components' . DS . 'com_community' . DS . 'libraries' . DS . 'core.php');
 
 $mainframe = JFactory::getApplication('site');
 $mainframe->initialise();
+
+if ((!file_exists( JPATH_SITE . '/libraries/CBLib/CBLib/Core/CBLib.php' ) )
+    || (!file_exists( JPATH_ADMINISTRATOR . '/components/com_comprofiler/plugin.foundation.php' ) ) ) {
+	echo 'CB not installed'; return;
+}
+
+include_once( JPATH_ADMINISTRATOR . '/components/com_comprofiler/plugin.foundation.php' );
 
 define('J_PREFIX', $mainframe->getCfg('dbprefix'));
 

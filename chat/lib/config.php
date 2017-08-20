@@ -46,6 +46,10 @@ class Config{
     // Default style:
     const styleDefault = 'prosilver';
 
+    const maleAvatar = 'images/user-Мужской-thumb.png';
+    const femaleAvatar = 'images/user-Женский-thumb.png';
+    const defaultAvatar = 'images/user-Мужской-thumb.png';
+
     // Session name used to identify the session cookie:
     const sessionName = 's_chat';
     // Prefix added to every session key:
@@ -130,7 +134,7 @@ class Config{
 
     const radioInfo = true;
     const radioServer = false;
-    
+
     const debug = false;
 
     public static $chatClosed = false;
