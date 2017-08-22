@@ -1641,10 +1641,11 @@ class SChat {
     }
 
     function updateOnlineStatus() {
-	    // Update online status every 50 seconds (this allows update requests to be in time):
-	    if(!$this->getStatusUpdateTimeStamp() || ((time() - $this->getStatusUpdateTimeStamp()) > 50)) {
+	    // Update online status every 60 seconds (this allows update requests to be in time):
+	    if(!$this->getStatusUpdateTimeStamp() || ((time() - $this->getStatusUpdateTimeStamp()) > 60)) {
 		    $this->updateOnlineList();
 		    $this->setStatusUpdateTimeStamp(time());
+            $this->appendMinutesToUserTimeInChat(1);
 	    }
     }
 
@@ -2707,6 +2708,10 @@ class SChat {
     }
 
     function incrementMessageCount(){
+
+    }
+
+    function appendMinutesToUserTimeInChat($minutes){
 
     }
 }
