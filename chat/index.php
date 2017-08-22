@@ -10,12 +10,11 @@
 ini_set('display_errors',1);
 error_reporting(E_ALL);
 
-
-// Path to the chat directory:
-define('SCHAT_PATH', dirname($_SERVER['SCRIPT_FILENAME']).'/');
+define('DS', DIRECTORY_SEPARATOR );
+define('SCHAT_PATH', __DIR__);
 define('VER', 'v12');
 
-require(SCHAT_PATH.'lib/classes.php');
+require(SCHAT_PATH.DS.'lib'.DS.'classes.php');
 
 if (Config::$gzipEnabled && substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
    ob_start('ob_gzhandler'); //Сжимаем

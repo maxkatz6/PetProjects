@@ -3,8 +3,6 @@
 // Load configuration
 class JoomlaSChat extends SChat {
 
-    private static $comprofilerPathToAvatar = '/images/comprofiler/';
-
     function &getValidLoginUserData() {
         $user = JFactory::getUser();
 

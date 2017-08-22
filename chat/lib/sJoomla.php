@@ -2,7 +2,6 @@
 
 define( '_JEXEC', 1);
 
-define( 'DS', DIRECTORY_SEPARATOR );
 define('JPATH_BASE', dirname(SCHAT_PATH));
 
 require_once( JPATH_BASE .DS.'includes'.DS.'defines.php' );
@@ -12,12 +11,7 @@ require_once( JPATH_BASE .DS.'libraries'.DS.'joomla'.DS.'factory.php');
 $mainframe = JFactory::getApplication('site');
 $mainframe->initialise();
 
-if ((!file_exists( JPATH_SITE . '/libraries/CBLib/CBLib/Core/CBLib.php' ) )
-    || (!file_exists( JPATH_ADMINISTRATOR . '/components/com_comprofiler/plugin.foundation.php' ) ) ) {
-	echo 'CB not installed'; return;
-}
-
-include_once( JPATH_ADMINISTRATOR . '/components/com_comprofiler/plugin.foundation.php' );
+include_once( JPATH_ADMINISTRATOR.DS.'components'.DS.'com_comprofiler'.DS.'plugin.foundation.php');
 
 define('J_PREFIX', $mainframe->getCfg('dbprefix'));
 

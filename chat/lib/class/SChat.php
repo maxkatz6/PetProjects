@@ -237,9 +237,11 @@ class SChat {
     function getTemplateFileName() {
         switch($this->getView()) {
             case 'logs':
-                return SCHAT_PATH.'lib/template/logs.html';
+                return SCHAT_PATH.DS.'lib'.DS.'template'.DS.'logs.html';
             default:
-                return SCHAT_PATH.($this->getSessionVar('mob') ? 'lib/template/mob.html' :'lib/template/chat.html');
+                return SCHAT_PATH.DS.($this->getSessionVar('mob') 
+                    ? 'lib'.DS.'template'.DS.'mob.html' 
+                    : 'lib'.DS.'template'.DS.'chat.html');
         }
     }
 
@@ -1365,7 +1367,7 @@ class SChat {
     }
 
     function insertCustomMessage($userID, $userName, $userRole, $channelID, $text, $msgInfo = null) {
-	    $ip = $_SERVER['REMOTE_ADDR'];
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : "0:0:0:0";
 
 	    $sql = 'INSERT INTO '.$this->getDataBaseTable('messages').'(
 							    userID,
@@ -1584,7 +1586,7 @@ class SChat {
 	    $this->resetOnlineUsersData();
     }
 
-    function removeInactive($insertMessages = true) {
+    function removeInactive() {
 	    $sql = 'SELECT
 				    userID,
 				    userName,
@@ -1614,12 +1616,10 @@ class SChat {
 			    $this->removeUserFromOnlineUsersData($row['userID']);
 
                 // Insert logout timeout message:
-                if ($insertMessages) {
-			        $this->insertChatBotMessage(
-				        $row['channel'],
-				        '/logout '.$row['userName'].' Timeout'
-			        );
-                }
+			    $this->insertChatBotMessage(
+				    $row['channel'],
+				    '/logout '.$row['userName'].' Timeout'
+			    );
 		    }
 
 		    $result->free();
@@ -2500,7 +2500,7 @@ class SChat {
 	    if(!$this->_lang) {
 		    // Include the language file:
 		    $lang = null;
-		    require(SCHAT_PATH.'lib/lang/'.$this->getLangCode().'.php');
+		    require(SCHAT_PATH.DS.'lib'.DS.'lang'.DS.$this->getLangCode().'.php');
 		    $this->_lang = &$lang;
 	    }
 	    if($key === null)
