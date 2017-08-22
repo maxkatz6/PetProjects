@@ -575,10 +575,10 @@ var sChat={
     },
     openUserProfile: function (id) {
         if (!!id) {
-            window.open("/index.php/component/comprofiler/userprofile");
+            window.open("/index.php/component/comprofiler/userprofile/" + id + "-profile");
         }
         else {
-            window.open("/index.php/component/comprofiler/userprofile/" + id + "-profile");
+            window.open("/index.php/component/comprofiler/userprofile");
         }
     },
     openVideoChannel:function(priv){
