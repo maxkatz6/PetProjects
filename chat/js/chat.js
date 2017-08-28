@@ -574,12 +574,10 @@ var sChat={
         sChat.sendMessageWrapper('/setStatus '+id + (stat? ' '+stat:''));
     },
     openUserProfile: function (id) {
-        if (!!id) {
-            window.open("/index.php/component/comprofiler/userprofile/" + id + "-profile");
-        }
-        else {
-            window.open("/index.php/component/comprofiler/userprofile");
-        }
+        window.open(
+            "/index.php/cb-profile/" + (id || this.userID) + "-user?tmpl=component",
+            undefined,
+            "width=600,height=700,directories=no,location=no,status=no,toolbar=no,menubar=no");
     },
     openVideoChannel:function(priv){
         var key=sWebCam.createRoom(priv);
