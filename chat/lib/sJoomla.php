@@ -15,11 +15,11 @@ include_once( JPATH_ADMINISTRATOR.DS.'components'.DS.'com_comprofiler'.DS.'plugi
 
 define('J_PREFIX', $mainframe->getCfg('dbprefix'));
 
-Config::$dbConnection['host']  = $mainframe->getCfg('host');
-Config::$dbConnection['user']  = $mainframe->getCfg('user');
-Config::$dbConnection['pass']  = $mainframe->getCfg('password');
-Config::$dbConnection['name']  = $mainframe->getCfg('db');
-Config::$dbConnection['type']  = $mainframe->getCfg('dbtype');
+Config::$dbConnection['host'] = $mainframe->getCfg('host');
+Config::$dbConnection['user'] = $mainframe->getCfg('user');
+Config::$dbConnection['pass'] = $mainframe->getCfg('password');
+Config::$dbConnection['name'] = $mainframe->getCfg('db');
+Config::$dbConnection['type'] = $mainframe->getCfg('dbtype');
 Config::$dbConnection['link'] = JFactory::getDBO()->getConnection();
 
 Config::$chatClosed  = Config::$chatClosed  || $mainframe->getCfg('offline');
