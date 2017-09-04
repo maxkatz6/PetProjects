@@ -12,7 +12,7 @@ class SChatTemplate {
 	// Constructor:
 	function __construct(&$sChat, $templateFile, $contentType=null) {
 		$this->sChat = $sChat;
-		$this->_regExpTemplateTags = '/\[(\w+?)(?:(?:\/)|(?:\](.+?)\[\/\1))\]/s';		
+		$this->_regExpTemplateTags = '/\[(\w+?)(?:(?:\/)|(?:\](.+?)\[\/\1))\]/s';
 		$this->_templateFile = $templateFile;
 		$this->_contentType = $contentType;
 	}
@@ -33,14 +33,14 @@ class SChatTemplate {
 
 	function parseContent() {
 		$this->_parsedContent = $this->getContent();
-		
-		// Remove the XML declaration if the content-type is not xml:		
+
+		// Remove the XML declaration if the content-type is not xml:
 		if($this->_contentType && (strpos($this->_contentType,'xml') === false)) {
 			$doctypeStart = strpos($this->_parsedContent, '<!DOCTYPE ');
 			if($doctypeStart !== false) {
 				// Removing the XML declaration (in front of the document type) prevents IE<7 to go into "Quirks mode":
-				$this->_parsedContent = substr($this->_parsedContent, $doctypeStart);	
-			}		
+				$this->_parsedContent = substr($this->_parsedContent, $doctypeStart);
+			}
 		}
 
 		// Replace template tags ([TAG/] and [TAG]content[/TAG]) and return parsed template content:
@@ -54,7 +54,7 @@ class SChatTemplate {
 			case 'SCHAT_URL':
 				return SChatEncoding::encodeSpecialChars($this->sChat->getChatURL());
 			case 'LANG':
-				return SChatEncoding::encodeSpecialChars($this->sChat->getLang((isset($tagData[2]) ? $tagData[2] : null)));				
+				return SChatEncoding::encodeSpecialChars($this->sChat->getLang((isset($tagData[2]) ? $tagData[2] : null)));
 			case 'LANG_CODE':
 				return $this->sChat->getLangCode();
 			case 'BASE_DIRECTION':
@@ -119,6 +119,9 @@ class SChatTemplate {
                 return $this->getHelpList();
             case 'IsMobile':
                 return $this->sChat->getSessionVar('mob');
+            case 'USERS_JSON':
+                $users = $this->sChat->getUsersTopJSONTable();
+                return json_encode($users, JSON_UNESCAPED_UNICODE);
 			default:
 				return $tagData[0];
 		}
@@ -126,7 +129,7 @@ class SChatTemplate {
     function getHelpList()
     {
         $ret = '<div id="helpList">';
-        $list = ['Join', 'JoinCreate', 'Invite', 'Uninvite', 'Logout', 'PrivateMessage', 'QueryOpen', 'QueryClose', 'Action', 
+        $list = ['Join', 'JoinCreate', 'Invite', 'Uninvite', 'Logout', 'PrivateMessage', 'QueryOpen', 'QueryClose', 'Action',
             'Describe', 'Ignore', 'IgnoreList', 'Whereis', 'Kick', 'Unban', 'Bans', 'Whois', 'Who', 'List', 'Roll', 'Nick'];
         foreach ($list as $item)
         {
@@ -165,7 +168,7 @@ class SChatTemplate {
 			$alternate = ($style == Config::styleDefault) ? '' : 'alternate ';
 			$styleSheets .= '<link rel="'.$alternate.'stylesheet" type="text/css" href="css/'.rawurlencode($style).'.css?'.VER.'" title="'.SChatEncoding::encodeSpecialChars($style).'"/>';
 		}
-        if (!$this->sChat->getSessionVar('mob')) $styleSheets.= 
+        if (!$this->sChat->getSessionVar('mob')) $styleSheets.=
             '<link href="css/webcam.css?'.VER.'" rel="stylesheet" type="text/css" />
             <link href="css/jplayer.blue.monday.css" rel="stylesheet" type="text/css" />';
 		return $styleSheets;
@@ -258,7 +261,7 @@ class SChatTemplate {
 		}
 		return $yearOptions;
 	}
-	
+
 	function getLogsMonthOptionTags() {
 		$monthOptions = '';
 		$monthOptions .= '<option value="-1">--</option>';
@@ -267,7 +270,7 @@ class SChatTemplate {
 		}
 		return $monthOptions;
 	}
-	
+
 	function getLogsDayOptionTags() {
 		$dayOptions = '';
 		$dayOptions .= '<option value="-1">--</option>';
@@ -276,7 +279,7 @@ class SChatTemplate {
 		}
 		return $dayOptions;
 	}
-	
+
 	function getLogsHourOptionTags() {
 		$hourOptions = '';
 		$hourOptions .= '<option value="-1">-----</option>';

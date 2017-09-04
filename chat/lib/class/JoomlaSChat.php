@@ -3,7 +3,7 @@
 // Load configuration
 class JoomlaSChat extends SChat {
 
-    function &getValidLoginUserData() {
+    function getValidLoginUserData() {
         $user = JFactory::getUser();
 
         if($user->get('id') != 0) {
@@ -92,6 +92,58 @@ class JoomlaSChat extends SChat {
         if (!is_null($id)){
             $this->db->sqlQuery("UPDATE ".J_PREFIX."comprofiler SET cb_timeinchat = cb_timeinchat + ".$minutes." WHERE user_id = ".$id);
         }
+    }
+
+    function getUsersCount() {
+        $sql = "SELECT COUNT(id) as count FROM ".J_PREFIX."users";
+
+        $result = $this->db->sqlQuery($sql);
+
+        if($result->error()) {
+		    echo $result->getError();
+		    die();
+	    }
+
+        return (int)$result->fetch()["count"];
+    }
+
+    function getUsersTopTable($skip, $count, $sortBy, $asc){
+        $allowed = ["id", "username", "registerDate", "lastvisitDate", "tim", "gender", "msgCount", "minutesInChat"];
+
+        if (!in_array($sortBy, $allowed, true))
+            $sortBy = "username";
+
+        $sql = "SELECT J.id, J.username, J.registerDate, J.lastvisitDate, ".
+	           "       CB.cb_1 as tim, CB.cb_2 as gender, CB.cb_3 as msgCount, CB.cb_timeinchat as minutesInChat ".
+               "FROM ".J_PREFIX."users J ".
+               "INNER JOIN (SELECT * FROM ".J_PREFIX."comprofiler) AS CB ON CB.user_id = J.id ".
+               "ORDER BY ".$sortBy." ".$asc." ".
+               "LIMIT ".$skip.", ".$count.";";
+
+        $result = $this->db->sqlQuery($sql);
+
+        if($result->error()) {
+		    echo $result->getError();
+		    die();
+	    }
+
+	    $rows = [];
+	    // Add the messages in reverse order so it is ascending again:
+	    while($row = $result->fetch()) {
+            $rows[] = [
+                'id' => (int)$row['id'],
+                'username' => SChatEncoding::encodeSpecialChars($row['username']),
+                'registerDate' => strtotime($row['registerDate']),
+                'lastvisitDate' => strtotime($row['lastvisitDate']),
+                'gender' => static::getGender($row["gender"]),
+                'tim' => static::getTIM($row["tim"]),
+                'msgCount' => (int)$row["msgCount"],
+                'minutesInChat' => (int)$row["minutesInChat"]
+            ];
+	    }
+	    $result->free();
+
+	    return $rows;
     }
 
     private static function getTIM($t)

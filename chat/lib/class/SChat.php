@@ -26,25 +26,29 @@ class SChat {
 
     function initRequestVars() {
         $this->_requestVars = [
-        'ajax'          => isset($_REQUEST['ajax']),
-	    'logout'	    => isset($_REQUEST['logout']),
-	    'userID'	    => isset($_REQUEST['userID'])		? (int)$_REQUEST['userID']	: null,
-	    'userName'	    => isset($_REQUEST['userName'])		? $_REQUEST['userName']		: null,
-	    'channelID' 	=> isset($_REQUEST['channelID'])	? (int)$_REQUEST['channelID']: null,
-	    'channelName'	=> isset($_REQUEST['channelName'])	? $_REQUEST['channelName']	: null,
-	    'text'	    	=> isset($_POST['text'])		    ? $_POST['text']		    : null,
-	    'lastID'    	=> isset($_REQUEST['lastID'])		? (int)$_REQUEST['lastID']	: 0,
-	    'view'	    	=> isset($_REQUEST['view'])	    	? $_REQUEST['view']	    	: null,
-	    'year'	    	=> isset($_REQUEST['year'])	    	? (int)$_REQUEST['year']	: null,
-	    'month'	    	=> isset($_REQUEST['month'])		? (int)$_REQUEST['month']	: null,
-	    'day'	    	=> isset($_REQUEST['day'])	    	? (int)$_REQUEST['day']		: null,
-	    'hour'	    	=> isset($_REQUEST['hour'])	    	? (int)$_REQUEST['hour']	: null,
-	    'search'	    => isset($_REQUEST['search'])		? $_REQUEST['search']		: null,
-	    'getInfos'	    => isset($_REQUEST['getInfos'])		? $_REQUEST['getInfos']		: null,
-	    'lang'          => isset($_REQUEST['lang'])	    	? $_REQUEST['lang']	    	: null,
-	    'delete'	    => isset($_REQUEST['delete'])		? (int)$_REQUEST['delete']	: null,
-	    'tmc'	    	=> isset($_REQUEST['tmc'])	    	? (int)$_REQUEST['tmc']		: 10,
-        'radio'         => isset($_REQUEST['radio'])        ? $_REQUEST['radio']         : false];
+            'ajax'          => isset($_REQUEST['ajax']),
+	        'logout'	    => isset($_REQUEST['logout']),
+	        'userID'	    => isset($_REQUEST['userID'])		? (int)$_REQUEST['userID']	  : null,
+	        'userName'	    => isset($_REQUEST['userName'])		? $_REQUEST['userName']		  : null,
+	        'channelID' 	=> isset($_REQUEST['channelID'])	? (int)$_REQUEST['channelID'] : null,
+	        'channelName'	=> isset($_REQUEST['channelName'])	? $_REQUEST['channelName']	  : null,
+	        'text'	    	=> isset($_POST   ['text'])		    ? $_POST['text']		      : null,
+	        'lastID'    	=> isset($_REQUEST['lastID'])		? (int)$_REQUEST['lastID']	  : 0,
+	        'view'	    	=> isset($_REQUEST['view'])	    	? $_REQUEST['view']	    	  : null,
+	        'year'	    	=> isset($_REQUEST['year'])	    	? (int)$_REQUEST['year']	  : null,
+	        'month'	    	=> isset($_REQUEST['month'])		? (int)$_REQUEST['month']	  : null,
+	        'day'	    	=> isset($_REQUEST['day'])	    	? (int)$_REQUEST['day']		  : null,
+	        'hour'	    	=> isset($_REQUEST['hour'])	    	? (int)$_REQUEST['hour']	  : null,
+	        'search'	    => isset($_REQUEST['search'])		? $_REQUEST['search']		  : null,
+	        'getInfos'	    => isset($_REQUEST['getInfos'])		? $_REQUEST['getInfos']		  : null,
+	        'lang'          => isset($_REQUEST['lang'])	    	? $_REQUEST['lang']	    	  : null,
+	        'delete'	    => isset($_REQUEST['delete'])		? (int)$_REQUEST['delete']	  : null,
+	        'tmc'	    	=> isset($_REQUEST['tmc'])	    	? (int)$_REQUEST['tmc']		  : 10,
+            'radio'         => isset($_REQUEST['radio'])        ? $_REQUEST['radio']          : false,
+            'sortBy'        => isset($_REQUEST['sortBy'])       ? $_REQUEST['sortBy']         : Config::usersTableSortByDefault,
+            'sortType'      => isset($_REQUEST['asc'])          ? "ASC"                       : "DESC",
+	        'skip'    	    => isset($_REQUEST['skip'])		    ? (int)$_REQUEST['skip']	  : 0,
+	        'count'    	    => isset($_REQUEST['count'])		? (int)$_REQUEST['count']	  : Config::usersTablePageSize];
 
         // Remove slashes which have been added to user input strings if magic_quotes_gpc is On:
         if(get_magic_quotes_gpc()) {
@@ -173,7 +177,8 @@ class SChat {
             // Send chat messages and online user list:
             $this->sendMessages();
         } else {
-            if ($this->isLoggedIn()){
+            if ($this->isLoggedIn()
+                || $this->getRequestVar('view') == 'users'){
                 // Display XHTML content for non-ajax requests:
                 $this->sendXHTMLContent();
             }
@@ -236,11 +241,13 @@ class SChat {
 
     function getTemplateFileName() {
         switch($this->getView()) {
+            case 'users':
+                return SCHAT_PATH.DS.'lib'.DS.'template'.DS.'users.html';
             case 'logs':
                 return SCHAT_PATH.DS.'lib'.DS.'template'.DS.'logs.html';
             default:
-                return SCHAT_PATH.DS.($this->getSessionVar('mob') 
-                    ? 'lib'.DS.'template'.DS.'mob.html' 
+                return SCHAT_PATH.DS.($this->getSessionVar('mob')
+                    ? 'lib'.DS.'template'.DS.'mob.html'
                     : 'lib'.DS.'template'.DS.'chat.html');
         }
     }
@@ -261,6 +268,7 @@ class SChat {
     function hasAccessTo($view) {
         switch($view) {
             case 'teaser':
+            case 'users':
                 return true;
             case 'chat':
                 return $this->isLoggedIn();
@@ -657,6 +665,7 @@ class SChat {
             $this->incrementMessageCount();
         }
     }
+
     function setStatus($textParts){
         $info = $this->getUserInfo();
         $info['s'] = intval($textParts[1]);
@@ -676,6 +685,7 @@ class SChat {
 	    }
 	    $this->insertChatBotMessage($this->getChannel(),'/setStatus '.$this->getUserName().' '.$textParts[1].' '.$key);
     }
+
     function insertParsedMessageJoin($textParts) {
         if(count($textParts) == 1) {
             $this->switchChannel($this->getChannelNameFromChannelID($this->getPrivateChannelID()));
@@ -1227,6 +1237,7 @@ class SChat {
 		    }
 	    }
     }
+
     function insertMessage($txt) {
         if(!$this->floodControl())
             return;
@@ -1668,6 +1679,8 @@ class SChat {
     function getMessages() {
         try {
             switch($this->getView()) {
+                case 'users':
+                    return $this->getUsersTopJSONTable();
                 case 'chat':
                     return $this->getChatViewJSONMessages();
                 case 'teaser':
@@ -2678,7 +2691,7 @@ class SChat {
     // Override:
     // Returns an associative array containing userName, userID and userRole
     // Returns null if login is invalid
-    function &getValidLoginUserData() {
+    function getValidLoginUserData() {
         // Check if we have a valid registered user:
         if(false) {
             // Here is the place to check user authentication
@@ -2713,6 +2726,43 @@ class SChat {
 
     function appendMinutesToUserTimeInChat($minutes){
 
+    }
+
+    function getUsersCount() {
+
+    }
+
+    /*
+     *  must return array of users
+     *  user: {
+     *      "id"            : number,
+     *      "username"      : string,
+     *      "gender"        : "m", "f", "n",
+     *      "tim"           : string,
+     *      "registerDate"  : milliseconds,
+     *      "lastvisitDate" : milliseconds,
+     *      "msgCount"      : number,
+     *      "minutesInChat" : minutes
+     *  }
+     */
+    function getUsersTopTable($skip, $count, $sortBy, $asc){
+        return [];
+    }
+
+    function getUsersTopJSONTable(){
+        $skip = $this->getRequestVar('skip');
+        $count = $this->getRequestVar('count');
+        $sortBy = $this->getRequestVar('sortBy');
+        $sortType = $this->getRequestVar('sortType');
+        $totalCount = $this->getUsersCount();
+        return [
+            "skip" => $skip,
+            "coung" => $count,
+            "sortBy" => $count,
+            "sortType" => $sortType,
+            "totalCount" => $totalCount,
+            "users" => $this->getUsersTopTable($skip, $count, $sortBy, $sortType)
+        ];
     }
 }
 ?>

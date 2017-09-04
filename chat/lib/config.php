@@ -135,6 +135,9 @@ class Config{
     const radioInfo = true;
     const radioServer = false;
 
+    const usersTablePageSize = 20;
+    const usersTableSortByDefault = "lastvisitDate";
+
     const debug = false;
 
     public static $chatClosed = false;
