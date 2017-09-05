@@ -14,18 +14,15 @@ var sWebCam={
     init:function(){
         if(!helper.getWebRTCInfo().supportDataChannel) sChat.addChatBotMessageToChatList('Внимание! У вас не поддерживается передача данных по каналам. Некоторые функции не будут работать.');
         $.ajax({
-            type:"POST",
-            url:"https://api.xirsys.com/getIceServers",
-            data:{
-                ident:"tirraon",
-                secret:"2d07f191-e21b-45d2-b5fc-3bd7ce702714",
-                domain:"www.socio-party.ru",
-                application:"default",
-                room:'default',
-                secure:0
+            type: "PUT",
+            url: "https://global.xirsys.net/_turn/SocioMix/",
+            headers: {
+                "Authorization": "Basic " + btoa("Tirraon:3a98be70-9228-11e7-b20f-3cfe1b0736cc")
             },
-            success:function(data){sConfig.iceServers=JSON.parse(data).d.iceServers.concat(sConfig.iceServers);},
-            async:false
+            success: function (data) {
+                sConfig.iceServers = data.v.iceServers.concat(sConfig.iceServers);
+            },
+            async: false
         });
         this.webrtc = new SimpleWebRTC({
             // url:"http://schatsignal.azurewebsites.net:8888/socket.io/",
