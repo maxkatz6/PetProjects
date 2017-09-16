@@ -1,5 +1,4 @@
 <?php
-// Define Socio!PARTY user roles:
 define('SCHAT_CHATBOT',   4);
 define('SCHAT_ADMIN',     3);
 define('SCHAT_MODERATOR', 2);
@@ -8,37 +7,35 @@ define('SCHAT_BANNED',    0);
 
 class Config{
     public static $channels = [
-    0 => 'Общая',
-    1 => 'Диванная',
-    2 => 'Видеочат',
-    10 => 'Альфа',
-    11 => 'Бета',
-    12 => 'Гамма',
-    13 => 'Дельта',
-    14 => 'Админы'];
-
-    // Database connection values:
-    public static  $dbConnection = [
-    'host' => '',
-    'user' => '',
-    'pass' => '',
-    'name' => '',
-    'type' => '',
-    'link' => null];
-
-    // Available languages:
-    public static  $langAvailable = [
-      'ar','bg','ca','cy','cz','da','de','el','en','es','et','fa','fi','fr','gl','he','hr','hu','in','it','ja','ka','kr','mk','nl','nl-be','no','pl','pt-br','pt-pt','ro','ru','sk','sl','sr','sv','th','tr','uk','zh','zh-tw'
+        0 => 'Общая',
+        1 => 'Диванная',
+        2 => 'Видеочат',
+        10 => 'Альфа',
+        11 => 'Бета',
+        12 => 'Гамма',
+        13 => 'Дельта',
+        14 => 'Админы'
     ];
-    // Default language:
+
+    public static  $dbConnection = [
+        'host' => '',
+        'user' => '',
+        'pass' => '',
+        'name' => '',
+        'type' => '',
+        'link' => null
+    ];
+
+    public static  $langAvailable = [
+      'en', 'ru', 'uk'
+    ];
+
     const langDefault = 'ru';
-    // Language names (each languge code in available languages must have a display name assigned here):
+
     public static $langNames = [
-      'ar'=>'عربي', 'bg'=>'Български', 'ca'=>'Català', 'cy'=>'Cymraeg', 'cz'=>'Česky', 'da'=>'Dansk', 'de'=>'Deutsch', 'el'=>'Ελληνικα', 'en'=>'English',
-      'es'=>'Español', 'et'=>'Eesti', 'fa'=>'فارسی', 'fi'=>'Suomi', 'fr'=>'Français', 'gl'=>'Galego', 'he'=>'עברית', 'hr' => 'Hrvatski', 'hu' => 'Magyar', 'in'=>'Bahasa Indonesia', 'it'=>'Italiano',
-      'ja'=>'日本語','ka'=>'ქართული','kr'=>'한 글','mk'=>'Македонски', 'nl'=>'Nederlands', 'nl-be'=>'Nederlands (België)', 'no'=>'Norsk', 'pl'=> 'Polski', 'pt-br'=>'Português (Brasil)', 'pt-pt'=>'Português (Portugal)',
-      'ro'=>'România', 'ru'=>'Русский', 'sk'=> 'Slovenčina', 'sl'=>'Slovensko', 'sr'=>'Srpski', 'sv'=> 'Svenska', 'th'=>'&#x0e20;&#x0e32;&#x0e29;&#x0e32;&#x0e44;&#x0e17;&#x0e22;',
-      'tr'=>'Türkçe', 'uk'=>'Українська', 'zh'=>'中文 (简体)', 'zh-tw'=>'中文 (繁體)'
+      'en'=>'English',
+      'ru'=>'Русский', 
+      'uk'=>'Українська'
     ];
 
     // Available styles:
