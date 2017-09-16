@@ -12,7 +12,7 @@ error_reporting(E_ALL);
 
 define('DS', DIRECTORY_SEPARATOR );
 define('SCHAT_PATH', __DIR__);
-define('VER', 'v12');
+define('VER', 'v14');
 
 require(SCHAT_PATH.DS.'lib'.DS.'classes.php');
 

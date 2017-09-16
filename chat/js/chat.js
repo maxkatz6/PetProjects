@@ -1198,9 +1198,9 @@ var sChat={
             case '/call':
                 return '<span class="chatBotMessage">' + textParts[1]+ ' вызывает вас в чат.</span>';
             case '/channelEnter':
-                return '<span class="chatBotMessage">'+sChatLang['channelEnter'].replace(/%s/, textParts[1])+'</span>';
+                return '<span class="chatBotMessage">'+sChatLang['channelEnter'].replace(/%s/, textParts[1]).replace(/%channel/, textParts[2]) + '</span>';
             case '/channelLeave':
-                return '<span class="chatBotMessage">'+sChatLang['channelLeave'].replace(/%s/, textParts[1])+'</span>';
+                return '<span class="chatBotMessage">'+sChatLang['channelLeave'].replace(/%s/, textParts[1]).replace(/%channel/, textParts[2]) +'</span>';
             case '/invite':
                 return '<span class="chatBotMessage">'+sChatLang['invite'].replace(/%s/, textParts[1]).replace(/%s/, '<a href="javascript:sChat.sendMessageWrapper(\'/join '+sChat.scriptLinkEncode(textParts[2])+'\');" title="'+sChatLang['joinChannel'].replace(/%s/, textParts[2])+'">'+textParts[2]+'</a>')+'</span>';
             case '/inviteto':

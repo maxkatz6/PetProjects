@@ -423,6 +423,7 @@ class SChat {
 
     function switchChannel($channelName) {
         $channelID = $this->getChannelIDFromChannelName($channelName);
+        $oldChannelName = $this->getChannelName();
 
         if($channelID !== null && $this->getChannel() == $channelID) {
             // User is already in the given channel, return:
@@ -446,14 +447,14 @@ class SChat {
         $this->updateOnlineList();
 
         // Channel leave message
-        $text = '/channelLeave '.$this->getUserName();
+        $text = '/channelLeave '.$this->getUserName().' '.$channelName;
         $this->insertChatBotMessage(
             $oldChannel,
             $text
         );
 
         // Channel enter message
-        $text = '/channelEnter '.$this->getUserName();
+        $text = '/channelEnter '.$this->getUserName().' '.$oldChannelName;
         $this->insertChatBotMessage(
             $this->getChannel(),
             $text
