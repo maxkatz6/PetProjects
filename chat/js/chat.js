@@ -497,9 +497,9 @@ var sChat={
     getUserNodeString:function(userID, userName, userRole, userInfo){
         var encodedUserName=this.scriptLinkEncode(userName);
         return '<div id="'+this.getUserDocumentID(userID)+'">'
-            + '<table width="100%" style="table-layout:fixed;">'
-            + '<tr><td width="34"><a href="javascript:sChat.toUser(\'' + encodedUserName + '\', true);"><img src="../' + userInfo.avatar + '" height="30"/></a></td>'
-            + '<td><a href="javascript:sChat.toUser(\''+encodedUserName+'\',false);">'+userName.replace('_', ' ')+'</a></td>'
+            + '<table class="userRow" width="100%" style="table-layout:fixed;">'
+            + '<tr><td width="40"><a href="javascript:sChat.toUser(\'' + encodedUserName + '\', true);"><img class="userAvatar" src="../' + userInfo.avatar + '"/></a></td>'
+            + '<td><a class="userNickname" href="javascript:sChat.toUser(\''+encodedUserName+'\',false);">'+userName.replace('_', ' ')+'</a></td>'
             + '<td width="14"><img width="16" id="stat' + userID + '"/></td>'
             + '<td width="30">'+(userInfo.tim!=='none'?'<img src="img/tim/'+userInfo.tim+'.png" border="0" title="'+helper.getTIM(userInfo.tim)+'"></img></td>':'</td>')
             + '<td width="10">'+(userInfo.gender&&userInfo.gender!=='n'?'<img height="13" src="img/gender/'+userInfo.gender+'.png" border="0" title="'+(userInfo.gender==='m'?'Мужской':'Женский')+'"></td>':'</td>')

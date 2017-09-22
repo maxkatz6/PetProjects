@@ -54,6 +54,9 @@ input#usersTopButton{background-position:-114px 0;}
 #content img{border:none;}
 #chatList,#onlineListContainer,#helpContainer,#settingsContainer,#content textarea{border-width: 1px;border-style:solid;word-wrap: break-word;}
 #chatList .deleteSelected{border-width:1px;border-style:dotted;}
+/* Users */
+.userRow .userNickname{font-weight:bold}
+.userRow .userAvatar{border-radius:50%;height:36px;width:36px;}
 /* Misc */
 #bbCodeContainer input,#optionsContainer input.button,#settingsList input.button,#logoutButton,#submitButton{cursor:pointer;}
 /*https://github.com/laktek/really-simple-color-picker */
