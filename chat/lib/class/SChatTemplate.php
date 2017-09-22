@@ -78,7 +78,7 @@ class SChatTemplate {
 			case 'COOKIE_DOMAIN':
 				return Config::sessionCookieDomain;
 			case 'COOKIE_SECURE':
-				return Config::sessionCookieSecure;
+				return Config::$sessionCookieSecure;
 			case 'CHAT_BOT_NAME':
 				return rawurlencode(Config::chatBotName);
 			case 'CHAT_BOT_ID':
