@@ -71,8 +71,9 @@
             document.getElementById('myAudioSetting').checked = sChat.getSetting('myAudio');
             document.getElementById('emoticonsSetting').checked = sChat.getSetting('emoticons');
             document.getElementById('radioSetting').checked = sConfig.radioServer && sChat.getSetting('radio');
-            helper.colorPicker(document.getElementById('fontColorSetting'), sChat.getSetting('fontColor'), function (v) { sChat.setFontColor(v); });
-            helper.colorPicker(document.getElementById('nickColorSetting'), sChat.getSetting('nickColor'), function (v) { sChat.setSetting('nickColor', v); });
+            helper.colorPicker(document.getElementById('msgColorSetting'), '[MSG_COLOR/]', function (v) { sChat.setMsgColor(v); });
+            document.getElementById('inputField').style.color = '[MSG_COLOR/]';
+            helper.colorPicker(document.getElementById('nickColorSetting'), '[NICK_COLOR/]', function (v) { sChat.setNickColor(v); });
             for(var i=0; i<document.getElementById('audioVolumeSetting').options.length; i++){
                 if(document.getElementById('audioVolumeSetting').options[i].value===sChat.getSetting('audioVolume')){
                     document.getElementById('audioVolumeSetting').options[i].selected = true;
@@ -194,8 +195,8 @@
                     <dd><input type="checkbox" id="gradiensSetting" onclick="sChat.setSetting('gradiens', this.checked); "/></dd>
                 </dl>
                 <dl>
-                    <dt><label for="fontColorSetting">Цвет сообщений</label></dt>
-                    <dd><div name="fontColorSetting" id="fontColorSetting"></div></dd>
+                    <dt><label for="msgColorSetting">Цвет сообщений</label></dt>
+                    <dd><div name="msgColorSetting" id="msgColorSetting"></div></dd>
                 </dl>
                 <dl>
                     <dt><label for="nickColorSetting">Цвет никнейма</label></dt>

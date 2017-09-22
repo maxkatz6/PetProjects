@@ -48,7 +48,10 @@ class SChat {
             'sortBy'        => isset($_REQUEST['sortBy'])       ? $_REQUEST['sortBy']         : Config::usersTableSortByDefault,
             'sortType'      => isset($_REQUEST['asc'])          ? "ASC"                       : "DESC",
 	        'skip'    	    => isset($_REQUEST['skip'])		    ? (int)$_REQUEST['skip']	  : 0,
-	        'count'    	    => isset($_REQUEST['count'])		? (int)$_REQUEST['count']	  : Config::usersTablePageSize];
+	        'count'    	    => isset($_REQUEST['count'])		? (int)$_REQUEST['count']	  : Config::usersTablePageSize,
+            'msgColor'  	=> isset($_REQUEST['msgColor'])		? $_REQUEST['msgColor']	      : null,
+            'nickColor'    	=> isset($_REQUEST['nickColor'])	? $_REQUEST['nickColor']	  : null
+        ];
 
         // Remove slashes which have been added to user input strings if magic_quotes_gpc is On:
         if(get_magic_quotes_gpc()) {
@@ -192,6 +195,14 @@ class SChat {
     function parseCommandRequests() {
         if($this->getRequestVar('delete') !== null) {
             $this->deleteMessage($this->getRequestVar('delete'));
+        }
+        if($this->getRequestVar('nickColor') !== null) {
+            $color = ['#'.$this->getRequestVar('nickColor')];
+            $this->setUserNickColor($color);
+        }
+        if($this->getRequestVar('msgColor') !== null) {
+            $color = ['#'.$this->getRequestVar('msgColor')];
+            $this->setUserMsgColor($color);
         }
     }
 
@@ -1239,31 +1250,20 @@ class SChat {
 	    }
     }
 
-    function insertMessage($txt) {
+    function insertMessage($text) {
         if(!$this->floodControl())
             return;
 
-        $str = json_decode($txt,true);
+        $text = $this->trimMessageText($text);
 
-        $text = $this->trimMessageText($str['text']);
         if($text == '')
             return;
+
         $msgInfo = [];
-        if (array_key_exists('ncol',$str) && !is_null($str['ncol'])){
-            $msgInfo['ncol'] = $str['ncol'];
-        }
-        if (array_key_exists('mcol',$str) && !is_null($str['mcol'])){
-            $msgInfo['mcol'] = $str['mcol'];
-        }
-        $n = $this->getUserName();
-        if (array_key_exists($n, Config::$msgGrad))
-        {
-            $msgInfo['msgGrad'] = Config::$msgGrad[$n];
-        }
-        if (array_key_exists($n, Config::$nickGrad))
-        {
-            $msgInfo['nickGrad'] = Config::$nickGrad[$n];
-        }
+
+        $msgInfo['ncol'] = $this->getUserNickColor();
+        $msgInfo['mcol'] = $this->getUserMsgColor();
+
         $this->insertParsedMessage($text, $msgInfo);
     }
     function deleteMessage($messageID) {
@@ -2719,6 +2719,58 @@ class SChat {
             $this->_allChannels = array_flip(Config::$channels);
         }
         return $this->_allChannels;
+    }
+
+    function getUserMsgColor(){
+        $color = $this->getSessionVar("msgColor");
+        if ($color == null){
+            $color = $this->loadUserMsgColor();
+            if ($color == null || count($color) == 0)
+                $color = ["#000000"];
+
+            $this->setSessionVar("msgColor", $color);
+        }
+        return $color;
+    }
+
+    function setUserMsgColor($color){
+        $this->saveUserMsgColor($color);
+        $this->setSessionVar('msgColor', $color);
+    }
+
+    function getUserNickColor(){
+        $color = $this->getSessionVar("nickColor");
+        if ($color == null){
+            $color = $this->loadUserNickColor();
+            if ($color == null || count($color) == 0)
+                $color = ["#000000"];
+
+            $this->setSessionVar("nickColor", $color);
+        }
+        if (count($color) == 0)
+            return ["#000000"];
+        return $color;
+    }
+
+    function setUserNickColor($color){
+        $this->saveUserNickColor($color);
+        $this->setSessionVar('nickColor', $color);
+    }
+
+    function loadUserNickColor(){
+        return ["#000000"];
+    }
+
+    function saveUserNickColor($color){
+
+    }
+
+    function loadUserMsgColor(){
+        return ["#000000"];
+    }
+
+    function saveUserMsgColor($color){
+
     }
 
     function incrementMessageCount(){

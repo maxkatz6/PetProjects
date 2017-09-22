@@ -122,6 +122,10 @@ class SChatTemplate {
             case 'USERS_JSON':
                 $users = $this->sChat->getUsersTopJSONTable();
                 return json_encode($users, JSON_UNESCAPED_UNICODE);
+            case 'NICK_COLOR':
+                return $this->sChat->getUserNickColor()[0];
+            case 'MSG_COLOR':
+                return $this->sChat->getUserMsgColor()[0];
 			default:
 				return $tagData[0];
 		}

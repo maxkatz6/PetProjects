@@ -31,8 +31,9 @@
             sChat.setSetting('vkPosts', sChat.getSetting('hyperLinks')&&sChat.getSetting('vkPosts'));
             document.getElementById('vkPostsSetting').checked=sChat.getSetting('vkPosts');
             document.getElementById('emoticonsSetting').checked = sChat.getSetting('emoticons');
-            helper.colorPicker(document.getElementById('fontColorSetting'), sChat.getSetting('fontColor'), function (v) { sChat.setFontColor(v); });
-            helper.colorPicker(document.getElementById('nickColorSetting'), sChat.getSetting('nickColor'), function (v) { sChat.setSetting('nickColor', v); });
+            helper.colorPicker(document.getElementById('msgColorSetting'), '[MSG_COLOR/]', function (v) { sChat.setMsgColor(v); });
+            document.getElementById('inputField').style.color = '[MSG_COLOR/]';
+            helper.colorPicker(document.getElementById('nickColorSetting'), '[NICK_COLOR/]', function (v) { sChat.setNickColor(v); });
         };
         sConfig.settings['audio'] = sConfig.settings['saveAddressee'] = false;
         sConfig.loginChannelID=parseInt('[LOGIN_CHANNEL_ID/]');
@@ -127,8 +128,8 @@
                     <dd><input type="checkbox" id="gradiensSetting" onclick="sChat.setSetting('gradiens', this.checked); "/></dd>
                 </dl>
                 <dl>
-                    <dt><label for="fontColorSetting">Цвет сообщений</label></dt>
-                    <dd><div name="fontColorSetting" id="fontColorSetting"></div></dd>
+                    <dt><label for="msgColorSetting">Цвет сообщений</label></dt>
+                    <dd><div name="msgColorSetting" id="msgColorSetting"></div></dd>
                 </dl>
                 <dl>
                     <dt><label for="nickColorSetting">Цвет никнейма</label></dt>

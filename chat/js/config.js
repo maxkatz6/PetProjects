@@ -29,8 +29,6 @@ var sConfig={
         hyperLinks:true,
         emoticons:true,
         autoScroll:true,
-        fontColor:'#000000',
-        nickColor:'#000000',
         audio:true,
         audioVolume:1.0,
         soundReceive:'sound_1',

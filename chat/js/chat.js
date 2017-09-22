@@ -49,7 +49,6 @@ var sChat={
             for(var key in sConfig.domIDs) sChat.dom[key]=document.getElementById(sConfig.domIDs[key]);
             sChat.setUnloadHandler();
             setTimeout(sChat.initEmoticons,0);
-            if(sConfig.settings['fontColor']) if(sChat.dom['inputField']) sChat.dom['inputField'].style.color=sConfig.settings['fontColor'];
             sChat.setSelectedStyle();
             sChat.initializeFunction();
             sChat.startChat();
@@ -261,7 +260,7 @@ var sChat={
                     try{
                         clearTimeout(sChat.timer);
                     } catch(e){
-                        this.debugMessage('makeRequest::clearTimeout', e);
+                        sChat.debugMessage('makeRequest::clearTimeout', e);
                     }
                     try{
                         if(data){
@@ -269,12 +268,12 @@ var sChat={
                             sChat.updateChatlistView();
                         }
                     } catch(e){
-                        this.debugMessage('makeRequest::logRetry', e);
+                        sChat.debugMessage('makeRequest::logRetry', e);
                     }
                     try{
                         sChat.timer=setTimeout(function(){ sChat.updateChat(); }, sConfig.timerRate);
                     } catch(e){
-                        this.debugMessage('makeRequest::setTimeout', e);
+                        sChat.debugMessage('makeRequest::setTimeout', e);
                     }
                     sChat.debugMessage('makeRequest::catch', __e);
                 }
@@ -639,18 +638,27 @@ var sChat={
         var newDiv=document.createElement('div');
         newDiv.className=rowClass;
         newDiv.id=this.getMessageDocumentID(messageID);
-        newDiv.innerHTML=this.getDeletionLink(messageID, userID, userRole, channelID)
-            +'<a  class="dateTime" href="javascript:sChat.selectQuote('+messageID+');">'+this.formatDate(dateObject)+' </a>'
-            +'<span class="'
-            +userClass+'"'
-            +(sConfig.settings['nickColors']&&msgInfo&&msgInfo.ncol?' style="color:'+msgInfo.ncol+'" ':'')
-            +" onclick=\"sChat.toUser('"+userName+"',"+priv+");\">"
-            +((sConfig.settings['nickColors']&&sConfig.settings['gradiens']&&msgInfo&&msgInfo.nickGrad)?helper.grad(userName, msgInfo.nickGrad):userName)
-            +'</span>'
-            +colon
-            +'<span '+((sConfig.settings['msgColors']&&msgInfo&&msgInfo.mcol)?'style="color:'+msgInfo.mcol+'">':'>')
-            +((sConfig.settings['msgColors']&&sConfig.settings['gradiens']&&msgInfo&&msgInfo.msgGrad)?helper.grad(text, msgInfo.msgGrad):text)+'</span>';
+        newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
+            + '<a class="dateTime" href="javascript:sChat.selectQuote(' + messageID + ');">' + this.formatDate(dateObject) + ' </a>'
+            + this.formatNickname(userName, userClass, priv, msgInfo.ncol)
+            + colon
+            + this.formatMessage(text, msgInfo.mcol);
         return newDiv;
+    },
+    formatNickname(userName, userClass, isPrivate, colors) {
+        var hasColor = sConfig.settings['msgColors'] && colors && colors.length > 0;
+        var hasGradient = hasColor && sConfig.settings['gradiens'] && colors.length > 1;
+
+        return '<span class="' + userClass + '"' + (hasColor ? ' style="color:' + colors[0] + '" ' : '') + " onclick=\"sChat.toUser('" + userName + "'," + isPrivate + ");\">"
+            + ((hasGradient) ? helper.grad(userName, colors) : userName)
+            + '</span>';
+    },
+    formatMessage(message, colors) {
+        var hasColor = sConfig.settings['msgColors'] && colors && colors.length > 0;
+        var hasGradient = hasColor && sConfig.settings['gradiens'] && colors.length > 1;
+        return '<span ' + (hasColor ? 'style="color:' + colors[0] + '">' : '>')
+            + (hasGradient ? helper.grad(message, colors) : message)
+            + '</span>';
     },
     selectQuote:function(messageID){
         var messageNode=this.getMessageNode(messageID);
@@ -896,17 +904,12 @@ var sChat={
         txt=txt?txt:this.dom['inputField'].value;
         if(!txt) return;
         txt=this.parseInputMessage(txt);
-        if(txt){
-            var msg={
-                text:(txt)
-            };
-            if(this.getSetting('nickColor')!=null) msg.ncol=this.getSetting('nickColor');
-            if(this.getSetting('fontColor')!=null) msg.mcol=this.getSetting('fontColor');
+        if (txt) {
             clearTimeout(this.timer);
             var message='lastID='
-                +this.lastID
+                + this.lastID
                 +'&text='
-                +this.encodeText(JSON.stringify(msg));
+                + this.encodeText(txt);
             this.makeRequest(sConfig.ajaxURL, 'POST', message);
         }
         if(this.dom['inputField'].value.indexOf(this.selAddressee)!==0) this.selAddressee='';
@@ -1118,9 +1121,14 @@ var sChat={
             else if(node.style.display===''||node.style.display==='none') node.style.display=(displayInline?'inline':'block');
             else node.style.display='none';
     },
-    setFontColor:function(color){
-        this.setSetting('fontColor', color);
-        if(this.dom['inputField']) this.dom['inputField'].style.color=color;
+    setMsgColor: function (color) {
+        this.setSetting('msgColor', color);
+        if (this.dom['inputField']) this.dom['inputField'].style.color = color;
+        this.updateChat('&msgColor=' + color.replace('#', ''));
+    },
+    setNickColor: function (color) {
+        this.setSetting('nickColor', color);
+        this.updateChat('&nickColor=' + color.replace('#', ''));
     },
     insertText:function(text, clearInputField){
         if(clearInputField) this.dom['inputField'].value='';

@@ -146,6 +146,66 @@ class JoomlaSChat extends SChat {
 	    return $rows;
     }
 
+    function loadUserNickColor(){
+        $cbUser = CBuser::getMyInstance();
+
+        if ($cbUser == null)
+            return ["#000000"];
+
+        $str = SChatEncoding::decodeSpecialChars($cbUser->getField('cb_nickcolor'));
+
+        if ($str == null || $str == '')
+            return ["#000000"];
+
+        return preg_split("/[, \"'\.\[\]]+/", $str, -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    function saveUserNickColor($color){
+        if (count($color) == 0)
+            $color[] = "#000000";
+
+        $str = SChatEncoding::encodeSpecialChars('["'.implode('","', $color).'"]');
+        $id = $this->getUserID();
+        if (!is_null($id)){
+            $result = $this->db->sqlQuery("UPDATE ".J_PREFIX."comprofiler SET cb_nickcolor = ".$str." WHERE user_id = ".$id);
+
+            if($result->error()) {
+                echo $result->getError();
+                die();
+            }
+        }
+    }
+
+    function loadUserMsgColor(){
+        $cbUser = CBuser::getMyInstance();
+
+        if ($cbUser == null)
+            return ["#000000"];
+
+        $str = SChatEncoding::decodeSpecialChars($cbUser->getField('cb_msgcolor'));
+
+        if ($str == null || $str == '')
+            return ["#000000"];
+
+        return preg_split("/[, \"'\.\[\]]+/", $str, -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    function saveUserMsgColor($color){
+        if (count($color) == 0)
+            $color[] = "#000000";
+
+        $str = SChatEncoding::encodeSpecialChars('["'.implode('","', $color).'"]');
+        $id = $this->getUserID();
+        if (!is_null($id)){
+            $result = $this->db->sqlQuery("UPDATE ".J_PREFIX."comprofiler SET cb_msgcolor = ".$str." WHERE user_id = ".$id);
+
+            if($result->error()) {
+                echo $result->getError();
+                die();
+            }
+        }
+    }
+
     private static function getTIM($t)
     {
         switch($t) {

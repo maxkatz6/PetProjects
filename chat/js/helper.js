@@ -31,9 +31,9 @@
         }
     },
     grad:function(Str, arr){ //from mp chat
-        C1=arr[0];
-        C2=arr[1];
-        C3=arr[2];
+        C1=arr[0]&&arr[0].replace('#', '');
+        C2=arr[1]&&arr[1].replace('#', '');
+        C3=arr[2]&&arr[2].replace('#', '');
         function c(R, G, B, Str){ return "<span style=\"color:RGB("+Math.floor(R)+','+Math.floor(G)+','+Math.floor(B)+")\">"+Str+"</span>"; }
         function l(Str){
             while(re=/[^]+/.test(Str)) Str=Str.replace(/[^]+/g, "");
@@ -164,7 +164,7 @@
 
         el.className = 'colorPicker-picker';
         el.innerHTML = '&nbsp;';
-        el.style.backgroundColor=val;
+        el.col=el.style.backgroundColor=val;
         sChat.addEvent(el, 'click', function(){
             var o=el.getBoundingClientRect();
             p.style.left=o.left+'px';
