@@ -34,7 +34,7 @@ class Config{
 
     public static $langNames = [
       'en'=>'English',
-      'ru'=>'Русский', 
+      'ru'=>'Русский',
       'uk'=>'Українська'
     ];
 
@@ -57,8 +57,6 @@ class Config{
     const sessionCookiePath = '/';
     // The domain of the cookies, defaults to the hostname of the server if set to null:
     const sessionCookieDomain = null;
-    // If enabled, cookies must be sent over secure (SSL/TLS encrypted) connections:
-    const sessionCookieSecure = null;
 
     // Default channelName used together with the defaultChannelID if no channel with this ID exists:
     const defaultChannelName = 'Общая';
@@ -137,6 +135,8 @@ class Config{
 
     const debug = false;
 
+    // If enabled, cookies must be sent over secure (SSL/TLS encrypted) connections:
+    public static $sessionCookieSecure = false;
     public static $chatClosed = false;
     public static $gzipEnabled = false;
 }

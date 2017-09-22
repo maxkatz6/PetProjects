@@ -108,7 +108,7 @@ class SChat {
             0, // The session is destroyed on logout anyway, so no use to set this
             Config::sessionCookiePath,
             Config::sessionCookieDomain,
-            Config::sessionCookieSecure
+            Config::$sessionCookieSecure
             );
             session_start();
             $this->_sessionNew = true;
@@ -2168,7 +2168,7 @@ class SChat {
 				    time()-42000,
 				    Config::sessionCookiePath,
 				    Config::sessionCookieDomain,
-				    Config::sessionCookieSecure
+				    Config::$sessionCookieSecure
 			    );
 		    }
 
@@ -2446,7 +2446,7 @@ class SChat {
 		    time()+60*60*24*Config::sessionCookieLifeTime,
 		    Config::sessionCookiePath,
 		    Config::sessionCookieDomain,
-		    Config::sessionCookieSecure
+		    Config::$sessionCookieSecure
 	    );
     }
 

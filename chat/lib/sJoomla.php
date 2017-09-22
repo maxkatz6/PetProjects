@@ -22,5 +22,6 @@ Config::$dbConnection['name'] = $mainframe->getCfg('db');
 Config::$dbConnection['type'] = $mainframe->getCfg('dbtype');
 Config::$dbConnection['link'] = JFactory::getDBO()->getConnection();
 
+Config::$sessionCookieSecure = Config::$sessionCookieSecure || $mainframe->getCfg('force_ssl');
 Config::$chatClosed  = Config::$chatClosed  || $mainframe->getCfg('offline');
 Config::$gzipEnabled = Config::$gzipEnabled || $mainframe->getCfg('qzip');
