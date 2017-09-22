@@ -29,7 +29,7 @@
         // <![CDATA[
         function resize() {
             if (window.innerWidth <= 480) {
-                sChat.showHide(['settingsButton', 'rulesButton', 'onlineListContainer', 'settingsContainer'], 'none');
+                sChat.showHide(['usersTopButton', 'settingsButton', 'rulesButton', 'onlineListContainer', 'settingsContainer'], 'none');
                 document.getElementById('settingsButton').onclick= function () {
                     sChat.showHide("settingsContainer");
                 };
@@ -37,13 +37,13 @@
                 document.getElementById('settingsButton').onclick = function () {
                     sChat.toggleContainer('settingsContainer', ['onlineListContainer', 'helpContainer']);
                 };
-                sChat.showHide(['settingsButton', 'rulesButton'], 'inline');
+                sChat.showHide(['usersTopButton', 'settingsButton', 'rulesButton'], 'inline');
             }
         }
         sChat.initializeFunction = function () {
             resize();
             sChat.addEvent(document.getElementById('showUserListButton'), 'click', function () {
-                sChat.showHide(["settingsButton", "rulesButton"], null, true);
+                sChat.showHide(['usersTopButton', 'settingsButton', 'rulesButton'], null, true);
                 sChat.showHide("settingsContainer", "none");
                 sChat.toggleButton("onlineListContainer", "showUserListButton");
                 return false;

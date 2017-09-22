@@ -19,7 +19,12 @@
                 sChat.showHide('onlineListContainer', 'none');
                 document.getElementById('settingsButton').setAttribute('onclick', 'sChat.showHide("settingsContainer")');
                 document.getElementById('settingsContainer').setAttribute('style', 'right:0;position:absolute;');
-                sChat.addEvent(document.getElementById('showUserListButton'), 'click', function () { sChat.showHide("settingsButton", null, true); sChat.showHide("rulesButton", null, true); sChat.showHide("settingsContainer", "none"); sChat.toggleButton("onlineListContainer", "showUserListButton"); return false; });
+                sChat.addEvent(document.getElementById('showUserListButton'), 'click', function () {
+                    sChat.showHide(["usersTopButton", "settingsButton", "rulesButton"], null, true);
+                    sChat.showHide("settingsContainer", "none");
+                    sChat.toggleButton("onlineListContainer", "showUserListButton");
+                    return false;
+                });
             }
             sChat.addEvent(document.getElementById('bbCodeEmoticon'), 'click', function () { sChat.showHide('emoticonsContainer') });
             document.getElementById('saveAddresseeSetting').checked=sChat.getSetting('saveAddressee');
