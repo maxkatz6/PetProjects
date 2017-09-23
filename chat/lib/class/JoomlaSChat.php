@@ -152,7 +152,7 @@ class JoomlaSChat extends SChat {
         if ($cbUser == null)
             return ["#000000"];
 
-        $str = SChatEncoding::decodeSpecialChars($cbUser->getField('cb_nickcolor'));
+        $str = $cbUser->_cbuser->cb_nickcolor;
 
         if ($str == null || $str == '')
             return ["#000000"];
@@ -164,10 +164,10 @@ class JoomlaSChat extends SChat {
         if (count($color) == 0)
             $color[] = "#000000";
 
-        $str = SChatEncoding::encodeSpecialChars('["'.implode('","', $color).'"]');
+        $str = '["'.implode('","', $color).'"]';
         $id = $this->getUserID();
         if (!is_null($id)){
-            $result = $this->db->sqlQuery("UPDATE ".J_PREFIX."comprofiler SET cb_nickcolor = ".$str." WHERE user_id = ".$id);
+            $result = $this->db->sqlQuery("UPDATE ".J_PREFIX."comprofiler SET cb_nickcolor = '".$str."' WHERE user_id = ".$id);
 
             if($result->error()) {
                 echo $result->getError();
@@ -182,7 +182,7 @@ class JoomlaSChat extends SChat {
         if ($cbUser == null)
             return ["#000000"];
 
-        $str = SChatEncoding::decodeSpecialChars($cbUser->getField('cb_msgcolor'));
+        $str = $cbUser->_cbuser->cb_msgcolor;
 
         if ($str == null || $str == '')
             return ["#000000"];
@@ -194,10 +194,10 @@ class JoomlaSChat extends SChat {
         if (count($color) == 0)
             $color[] = "#000000";
 
-        $str = SChatEncoding::encodeSpecialChars('["'.implode('","', $color).'"]');
+        $str = '["'.implode('","', $color).'"]';
         $id = $this->getUserID();
         if (!is_null($id)){
-            $result = $this->db->sqlQuery("UPDATE ".J_PREFIX."comprofiler SET cb_msgcolor = ".$str." WHERE user_id = ".$id);
+            $result = $this->db->sqlQuery("UPDATE ".J_PREFIX."comprofiler SET cb_msgcolor = '".$str."' WHERE user_id = ".$id);
 
             if($result->error()) {
                 echo $result->getError();
