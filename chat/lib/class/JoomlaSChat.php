@@ -90,7 +90,7 @@ class JoomlaSChat extends SChat {
     function appendMinutesToUserTimeInChat($minutes){
         $id = $this->getUserID();
         if (!is_null($id)){
-            $this->db->sqlQuery("UPDATE ".J_PREFIX."comprofiler SET cb_timeinchat = cb_timeinchat + ".$minutes." WHERE user_id = ".$id);
+            $this->db->sqlQuery("UPDATE ".J_PREFIX."comprofiler SET cb_timeinchat = IFNULL(cb_timeinchat, 0) + ".$minutes." WHERE user_id = ".$id);
         }
     }
 
