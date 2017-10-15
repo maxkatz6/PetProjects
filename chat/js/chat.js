@@ -496,9 +496,10 @@ var sChat={
         }
     },
     getUserNodeString:function(userID, userName, userRole, userInfo){
-        var encodedUserName=this.scriptLinkEncode(userName);
-        return '<div id="'+this.getUserDocumentID(userID)+'">'
-            + '<table class="userRow" width="100%" style="table-layout:fixed;">'
+        var encodedUserName = this.scriptLinkEncode(userName);
+        var isIgnored = this.ignoredUserNames.indexOf(userName) >= 0;
+        return '<div id="' + this.getUserDocumentID(userID) + '">'
+            + '<table class="userRow' + (isIgnored ? " ignored" : "") + '" data-id="' + userID + '" data-name="' + encodedUserName + '" width="100%" style="table-layout:fixed;">'
             + '<tr><td width="40"><a href="javascript:sChat.toUser(\'' + encodedUserName + '\', true);"><img class="userAvatar" src="../' + userInfo.avatar + '"/></a></td>'
             + '<td><a class="userNickname" href="javascript:sChat.toUser(\''+encodedUserName+'\',false);">'+userName.replace('_', ' ')+'</a></td>'
             + '<td width="14"><img width="16" id="stat' + userID + '"/></td>'
@@ -964,7 +965,7 @@ var sChat={
         if(textParts.length>1){
             userName=this.encodeSpecialChars(textParts[1]);
             // Prevent adding the chatBot or current user to the list:
-            if(userName==='Sagita'||userName===this.userName||userName===this.getEncodedChatBotName()) // Display the list of ignored users instead:
+            if(userName===this.userName||userName===this.getEncodedChatBotName()) // Display the list of ignored users instead:
                 return this.parseIgnoreInputCommand(null, new Array('/ignore'));
             if(ignoredUserNames.length>0){
                 i=ignoredUserNames.length;
@@ -974,16 +975,24 @@ var sChat={
                         this.addChatBotMessageToChatList('/ignoreRemoved '+userName);
                         this.setIgnoredUserNames(ignoredUserNames);
                         this.updateChatlistView();
+                        this.updateUserIgnoreClass(userName);
                         return null;
                     }
             }
             ignoredUserNames.push(userName);
             this.addChatBotMessageToChatList('/ignoreAdded '+userName);
             this.setIgnoredUserNames(ignoredUserNames);
+            this.updateUserIgnoreClass(userName);
         } else if(ignoredUserNames.length===0) this.addChatBotMessageToChatList('/ignoreListEmpty -');
         else this.addChatBotMessageToChatList('/ignoreList '+ignoredUserNames.join(' '));
         this.updateChatlistView();
         return null;
+    },
+    updateUserIgnoreClass: function (userName) {
+        var row = document.querySelector(".userRow[data-name='" + userName + "']");
+        row.className = row.className.replace(" ignored", "");
+        if (this.ignoredUserNames.indexOf(userName) >= 0)
+            row.className += " ignored";
     },
     getIgnoredUserNames:function(){
         var ignoredUserNamesString;

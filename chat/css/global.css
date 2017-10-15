@@ -51,12 +51,12 @@ input#usersTopButton{background-position:-114px 0;}
 .arrowBut{background-position: -46px 0;display: block;}
 .arrowBut.off{background-position: -46px -22px;}
 /* Borders */
-#content img{border:none;}
 #chatList,#onlineListContainer,#helpContainer,#settingsContainer,#content textarea{border-width: 1px;border-style:solid;word-wrap: break-word;}
 #chatList .deleteSelected{border-width:1px;border-style:dotted;}
 /* Users */
 .userRow .userNickname{font-weight:bold}
 .userRow .userAvatar{border-radius:50%;height:36px;width:36px;}
+.ignored.userRow .userAvatar{border-color:red;border-width:2px;border-style:solid;}
 /* Misc */
 #bbCodeContainer input,#optionsContainer input.button,#settingsList input.button,#logoutButton,#submitButton{cursor:pointer;}
 /*https://github.com/laktek/really-simple-color-picker */
