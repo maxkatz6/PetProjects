@@ -1667,13 +1667,9 @@ var sChat={
         }
         function friendlyTime(minuts) {
             var hours = Math.floor(minuts / 60);
-            var days = Math.floor(hours / 24);
             var minuts = minuts % 60;
-            hours %= 24;
 
             var str = "";
-            if (days > 0)
-                str += days + " день ";
             if (hours > 0)
                 str += hours + " час ";
             if (minuts > 0)
