@@ -27,7 +27,7 @@
     color: #000;
 }
 
-#chatList, #helpContainer, #onlineListContainer, #settingsContainer {
+#chatList, .panelContainer {
     border-color: #ADADAD;
     background-color: #FFF;
 }
@@ -77,7 +77,7 @@
     border-color: red;
 }
 
-#helpContainer h3, #onlineListContainer h3, #settingsContainer h3 {
+.panelContainer h3 {
     background-color: #88A6C0;
     color: #FFF;
 }

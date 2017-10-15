@@ -7,10 +7,10 @@ body.s_chat{padding:0;margin:0;}
 #chatList{height:100%;overflow:auto;}
 #chatList .toMe{border:1px double #B22222;}
 #mainPanelContainer{position:absolute;left:20px;right:20px;top:85px;bottom: 100px;}
-#onlineListContainer,#helpContainer,#settingsContainer{float:right;height:100%;overflow:auto;margin-left:10px;position:relative;}
+.panelContainer{float:right;width:360px;height:100%;overflow:auto;margin-left:10px;position:relative;}
 #mainPanelContainer h3{line-height:25px;padding: 0 10px;margin:0;text-align:center;}
 #onlineListContainer{width:270px;}
-#helpContainer,#settingsContainer{width:360px;}
+#topContainer{width:auto;}
 #onlineList,#helpList,#settingsList{position:absolute;left:0;right:0;top:25px;bottom:0;overflow:auto;}
 #helpList dl,#settingsList dl{overflow:hidden;padding:5px;margin:0;}
 #helpList dt,#settingsList dt{float:left;width:55%;padding:0 2% 0 0;margin:0;clear:left;}
@@ -51,7 +51,7 @@ input#usersTopButton{background-image: url('../img/usersTop.png');}
 .arrowBut{background-image: url('../img/arrow.png');display: block;}
 .arrowBut.off{background-image: url('../img/arrow-off.png');}
 /* Borders */
-#chatList,#onlineListContainer,#helpContainer,#settingsContainer,#content textarea{border-width: 1px;border-style:solid;word-wrap: break-word;}
+#chatList,.panelContainer,#content textarea{border-width: 1px;border-style:solid;word-wrap: break-word;}
 #chatList .deleteSelected{border-width:1px;border-style:dotted;}
 /* Users */
 .userRow .userNickname{font-weight:bold}
@@ -80,14 +80,15 @@ div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;f
 	#chatList { left:5px; right:150px; bottom:115px; font-size:12px; }
 	#inputField { height:20px; }
 	#inputFieldContainer { left:5px; right:5px; }
-	#onlineListContainer, #helpContainer, #settingsContainer { margin-left:0; border-left-width:0; }
+	.panelContainer { margin-left:0; border-left-width:0; }
+    #topContainer [data-type='registerDate']{display:none;}
 }
 @media (max-width: 480px) {
     #content { position: static; }
     #mainPanelContainer, #bbCodeContainer, #inputFieldContainer, #submitButtonContainer {position: absolute; display: block; bottom: 2px; }
     #mainPanelContainer {height:auto; top:30px; left:0; right:0; }
     #helpButton,#onlineListButton,#audioButton,#usersTopButton,#rulesButton,#settingsButton, #emoticonsContainer,#messageLengthCounter, #bbCodeContainer #commandAction  {display: none;}
-    #onlineListContainer, #settingsContainer {z-index: 1;bottom: 0;right: 0;top: 0;position: absolute;height: auto;width: 100%; display: none;}
+    .panelContainer {z-index: 1;bottom: 0;right: 0;top: 0;position: absolute;height: auto;width: 100%!important; display: none;}
     #helpContainer{ display: none !important;}
     #mainPanelContainer h3 { font-size: 0.9em; text-align: left;}
     #emoticonsContainer {left: 0; bottom:35px; max-height: 300px; width: 270px; }
@@ -99,6 +100,7 @@ div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;f
     #showUserListButton {float: left; height: 20px; width: 20px; display: block;top:3px;position: absolute;}
     #inputField {position: absolute;bottom: 28px;height: 35px; }
     #submitButtonContainer {right:2px;max-height: 30px !important;}
+    #topContainer [data-type='lastvisitDate']{display:none;}
 }
 @media (max-width: 300px) {
     #mainPanelContainer {height:auto; top:20px; left:0; right:0;}
@@ -110,4 +112,5 @@ div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;f
     #inputFieldContainer, #inputField {bottom: 0;height: 20px; left: 0; right: 0;}
     #headline a{ display: none;}
     #showUserListButton {top:0;}
+    #topContainer [data-type='minutesInChat']{display:none;}
 }

@@ -1618,5 +1618,83 @@ var sChat={
             if(key===selectedSound) selection.options[i].selected=true;
             i++;
         }
+    },
+    sortTopClick: function (item) {
+        function updateTable(page, sortBy, isASC) {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function () {
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                    sChat.renderTopTable(JSON.parse(xmlHttp.responseText));
+            }
+            xmlHttp.open(
+                "GET",
+                "/chat/?ajax&view=users&page=" + page + "&sortBy=" + sortBy + (isASC ? "&asc" : ""),
+                true);
+            xmlHttp.send(null);
+        }
+        var type = item.getAttribute("data-type");
+        var lastSort = item.getAttribute("data-sort") || "asc";
+        item.className = item.className.replace(/ asc| desc/g, "");
+
+        if (lastSort == "asc") {
+            lastSort = "desc";
+            item.setAttribute("data-sort", lastSort);
+            item.className += " " + lastSort;
+        }
+        else {
+            lastSort = "asc";
+            item.setAttribute("data-sort", lastSort);
+            item.className += " " + lastSort;
+        }
+
+        var headers = document.getElementsByTagName("th");
+        for (var i = 0; i < headers.length; i++)
+            headers[i].className = headers[i].className.replace(" selected", "");
+
+        item.className += " selected";
+
+        updateTable(0, type, lastSort == "asc");
+    },
+    renderTopTable: function (json) {
+        function getDate(long) {
+            if (long && long > 0) {
+                var date = new Date(long * 1000);
+                return (date.getDate() < 9 ? "0" : "") + date.getDate() + "-" +
+                    (date.getMonth() < 9 ? "0" : "") + (date.getMonth() + 1) + "-" +
+                    date.getFullYear();
+            }
+            return "никогда";
+        }
+        function friendlyTime(minuts) {
+            var hours = Math.floor(minuts / 60);
+            var days = Math.floor(hours / 24);
+            var minuts = minuts % 60;
+            hours %= 24;
+
+            var str = "";
+            if (days > 0)
+                str += days + " день ";
+            if (hours > 0)
+                str += hours + " час ";
+            if (minuts > 0)
+                str += minuts + " минут"
+            if (str == "")
+                str = "-";
+            return str;
+        }
+        var users = json["users"];
+        var table = document.getElementById("users");
+        table.innerHTML = "";
+        for (var i = 0; i < users.length; i++) {
+            var user = users[i];
+            table.innerHTML += "<tr class='" + (i % 2 == 0 ? "rowEven" : "rowOdd") + "'>" +
+                "<td data-type='username'>" + user["username"] + "</td>" +
+                "<td data-type='tim'>" + (user["tim"] != "none" ? ("<img src='img/tim/" + user["tim"] + ".png' border='0' title='" + helper.getTIM(user["tim"]) + "'></img>") : "-") + "</td>" +
+                "<td data-type='registerDate'>" + getDate(user["registerDate"]) + "</td>" +
+                "<td data-type='lastvisitDate'>" + getDate(user["lastvisitDate"]) + "</td>" +
+                "<td data-type='msgCount'>" + user["msgCount"] + "</td>" +
+                "<td data-type='minutesInChat'>" + friendlyTime(user["minutesInChat"]) + "</td>" +
+                "</tr>";
+        }
     }
 };

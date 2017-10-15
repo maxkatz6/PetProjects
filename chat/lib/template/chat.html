@@ -27,24 +27,9 @@
 
     <script type="text/javascript">
         // <![CDATA[
-        function resize() {
-            if (window.innerWidth <= 480) {
-                sChat.showHide(['usersTopButton', 'settingsButton', 'rulesButton', 'onlineListContainer', 'settingsContainer'], 'none');
-                document.getElementById('settingsButton').onclick= function () {
-                    sChat.showHide("settingsContainer");
-                };
-            } else{
-                document.getElementById('settingsButton').onclick = function () {
-                    sChat.toggleContainer('settingsContainer', ['onlineListContainer', 'helpContainer']);
-                };
-                sChat.showHide(['usersTopButton', 'settingsButton', 'rulesButton'], 'inline');
-            }
-        }
         sChat.initializeFunction = function () {
-            resize();
             sChat.addEvent(document.getElementById('showUserListButton'), 'click', function () {
-                sChat.showHide(['usersTopButton', 'settingsButton', 'rulesButton'], null, true);
-                sChat.showHide("settingsContainer", "none");
+                sChat.showHide(["settingsContainer", "topContainer", "rulesContainer"], "none");
                 sChat.toggleButton("onlineListContainer", "showUserListButton");
                 return false;
             });
@@ -108,7 +93,6 @@
         sConfig.radioServer = '[radioServer/]' ? '[radioServer/]' : false;
         sConfig.videoChat = sConfig.videoChat && helper.getWebRTCInfo();
             
-        sChat.addEvent(window, 'resize', function(){if(typeof sizewait!='undefined'){clearTimeout(sizewait);}sizewait=setTimeout('resize()',200); });
         sChat.addEvent(window, 'blur', function () {sChat.infocus = false;});
         sChat.addEvent(window, 'focus', function () {sChat.infocus = true;document.title = 'Socio!PARTY';});
         sChat.addEvent(window, 'click', function (e) {
@@ -136,22 +120,50 @@
         </div>
     </div>
     <div id="optionsContainer">
-        <input type="image" src="img/pixel.gif" class="button" id="usersTopButton" alt="Топ пользователей" title="Топ пользователей" onclick="helper.popupCenter('index.php?view=users', '_blank', '600', '500')" />
-        <input type="image" src="img/pixel.gif" class="button" id="rulesButton" alt="Правила чата" title="Правила чата" onclick="helper.popupCenter('rules.html', '_blank', '400', '500')" />
-        <input type="image" src="img/pixel.gif" class="button" id="helpButton" alt="[LANG]toggleHelp[/LANG]" title="[LANG]toggleHelp[/LANG]" onclick=" sChat.toggleContainer('helpContainer', ['onlineListContainer', 'settingsContainer']); "/>
-        <input type="image" src="img/pixel.gif" class="button" id="settingsButton" alt="[LANG]toggleSettings[/LANG]" title="[LANG]toggleSettings[/LANG]"/>
-        <input type="image" src="img/pixel.gif" class="button" id="onlineListButton" alt="[LANG]toggleOnlineList[/LANG]" title="[LANG]toggleOnlineList[/LANG]" onclick=" sChat.toggleContainer('onlineListContainer', ['settingsContainer', 'helpContainer']); "/>
+        <input type="image" src="img/pixel.gif" class="button" id="usersTopButton" alt="Топ пользователей" title="Топ пользователей" onclick="sChat.toggleContainer('topContainer', ['onlineListContainer', 'settingsContainer', 'rulesContainer', 'helpContainer']);" />
+        <input type="image" src="img/pixel.gif" class="button" id="rulesButton" alt="Правила чата" title="Правила чата" onclick="sChat.toggleContainer('rulesContainer', ['onlineListContainer', 'settingsContainer', 'helpContainer', 'topContainer']);" />
+        <input type="image" src="img/pixel.gif" class="button" id="helpButton" alt="[LANG]toggleHelp[/LANG]" title="[LANG]toggleHelp[/LANG]" onclick="sChat.toggleContainer('helpContainer', ['onlineListContainer', 'settingsContainer', 'rulesContainer', 'topContainer']); "/>
+        <input type="image" src="img/pixel.gif" class="button" id="settingsButton" alt="[LANG]toggleSettings[/LANG]" title="[LANG]toggleSettings[/LANG]" onclick="sChat.toggleContainer('settingsContainer', ['onlineListContainer', 'helpContainer', 'rulesContainer', 'topContainer']);"/>
+        <input type="image" src="img/pixel.gif" class="button" id="onlineListButton" alt="[LANG]toggleOnlineList[/LANG]" title="[LANG]toggleOnlineList[/LANG]" onclick=" sChat.toggleContainer('onlineListContainer', ['settingsContainer', 'helpContainer', 'rulesContainer', 'topContainer']); "/>
         <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="[LANG]toggleAudio[/LANG]" title="[LANG]toggleAudio[/LANG]" onclick=" sChat.toggleSetting('audio', 'audioButton'); "/>
     </div>
     <div id="mainPanelContainer">
-        <div id="onlineListContainer">
+        <div class="panelContainer" id="onlineListContainer">
             <h3>[LANG]onlineUsers[/LANG]</h3>
             <div id="onlineList"></div>
         </div>
-        <div id="helpContainer" style="display: none;">
+        <div class="panelContainer" id="helpContainer" style="display: none;">
             <h3>[LANG]help[/LANG]</h3>[HELPLIST/]
         </div>
-        <div id="settingsContainer" style="display: none;">
+        <div class="panelContainer" id="rulesContainer" style="display: none;">
+            <h3>Правила:</h3>
+            <div class="rowOdd">1. Запрещена намеренная провокация пользователей. Если вас попросили прекратить обсуждать какую-либо тему, сделайте одолжение. Наказание: два предупреждения, затем экспоненциальный бан от одних суток.</div>
+            <div class="rowEven">2. Запрещено распространение информации о других пользователях без их согласия. Наказание: перманентный бан.</div>
+            <div class="rowOdd">3. Запрещена нецензурщина в именах\никнеймах. Пользователи, чьи имена\ники будут расценены как неподобающие - буду удалены без предупреждения.</div>
+            <div class="rowEven">4. Если вы заслужили себе цветной ник, старайтесь выбирать не слишком контрастные или нечитаемые на фоне чата цвета.</div>
+            <div class="rowOdd">5. Старайтесь не злоупотреблять капсом, смайликами и прочими средствами выражения эмоций.</div>
+            <div class="rowEven">6. Запрещено оскорбление пользователей. Исключение составляют шуточные, при условии, что вас не просят прекратить, см. п.1</div>
+        </div>
+        <div class="panelContainer" id="topContainer" style="display: none;">
+            <h3>Топ пользователей:</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th data-type='username' onclick='sChat.sortTopClick(this)'>Ник</th>
+                        <th data-type='tim' onclick='sChat.sortTopClick(this)'>ТИМ</th>
+                        <th data-type='registerDate' onclick='sChat.sortTopClick(this)'>Дата регистрации</th>
+                        <th data-type='lastvisitDate' onclick='sChat.sortTopClick(this)'>Последний вход</th>
+                        <th data-type='msgCount' onclick='sChat.sortTopClick(this)'>Сообщений</th>
+                        <th data-type='minutesInChat' onclick='sChat.sortTopClick(this)'>Время в чате</th>
+                    </tr>
+                </thead>
+                <tbody id="users"></tbody>
+            </table>
+            <script type="text/javascript">
+                sChat.renderTopTable(JSON.parse('[USERS_JSON/]'));
+            </script>
+        </div>
+        <div class="panelContainer" id="settingsContainer" style="display: none;">
             <h3>[LANG]settings[/LANG]</h3>
             <div id="settingsList">
                 <dl>
