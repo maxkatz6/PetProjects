@@ -355,7 +355,7 @@ var sChat={
                     this.userRole=parseInt(infoData);
                     break;
                 case 'userInfo':
-                    if(infoData.s===17) sChat.sendMessageWrapper('/setStatus 0');
+                    if(infoData.s===sConfig.webCamStatId) sChat.sendMessageWrapper('/setStatus 0');
                     break;
                 case 'logout':
                     this.handleLogout(infoData);
@@ -389,15 +389,31 @@ var sChat={
     },
     changeUserStatus:function(userID, userInfo){
         var s=document.getElementById('stat'+userID);
-        if(s){
-            s.src='img/status/'+sConfig.statImg[userInfo.s];
-            s.title = userInfo.s === 18 ? userInfo.vKey : sConfig.statText[userInfo.s];
-            s.style.cursor=userInfo.vKey&&userInfo.s===17?'pointer':'default';
-            s.onclick = sConfig.videoChat && !!sWebCam && userInfo.vKey && userInfo.s === 17 ? function () { sWebCam.joinRoom(sChat.scriptLinkEncode(userInfo.vKey)); } : function () { return false; };
+        if (s) {
+            if (userInfo.s == sConfig.webCamStatId) {
+                s.src = 'img/status/' + sConfig.webCamStatImg;
+                s.title = userInfo.vKey;
+                s.style.cursor = userInfo.vKey ? 'pointer' : 'default';
+                s.onclick = sConfig.videoChat && !!sWebCam && userInfo.vKey
+                    ? function () { sWebCam.joinRoom(sChat.scriptLinkEncode(userInfo.vKey)); }
+                    : function () { return false; };
+            }
+            else if (userInfo.s == sConfig.specialStatId) {
+                s.src = 'img/status/' + sConfig.specialStatImg;
+                s.title = userInfo.vKey;
+                s.style.cursor = 'default';
+                s.onclick = function () { return false; };
+            }
+            else {
+                s.src = 'img/status/' + sConfig.statImg[userInfo.s];
+                s.title = sConfig.statText[userInfo.s];
+                s.style.cursor = 'default';
+                s.onclick = function () { return false; };
+            }
         }
         if(userID===this.userID){
             var selStat = document.getElementById('statusSelect'), userStat = document.getElementById('userStat');
-            if (userInfo.s === 18) {
+            if (userInfo.s === sConfig.specialStatId) {
                 if (!userStat) {
                     userStat = document.createElement('option');
                     userStat.id = 'userStat';
@@ -412,7 +428,7 @@ var sChat={
                 selStat.value = userInfo.s;
             }
         }
-        this.userStatList[this.usersList.indexOf(userID)] = userInfo.s === 18 ? 'userStat' : userInfo.s;
+        this.userStatList[this.usersList.indexOf(userID)] = userInfo.s === sConfig.specialStatId ? 'userStat' : userInfo.s;
     },
     handleChatMessages:function(json){
         var userName, messageText, i;
@@ -565,13 +581,13 @@ var sChat={
     },
     getStatusUserNodeItem: function(){
         var statHTML='';
-        for(var i=0; i<sConfig.statText.length-2; i++) // not include last - webcam
+        for(var i=0; i<sConfig.statText.length; i++)
             statHTML += '<option value="' + i + '"' + (i === this.userStatList[this.usersList.indexOf(this.userID)] ? ' selected="selected">' : '>') + sConfig.statText[i] + '</option>';
-        return statHTML +'<option value="18"'+('userStat'===this.userStatList[this.usersList.indexOf(this.userID)]?' selected="selected">':'>')+'--Свой статус--</option>';
+        return statHTML + '<option value="' + sConfig.specialStatId + '"'+('userStat'===this.userStatList[this.usersList.indexOf(this.userID)]?' selected="selected">':'>')+'--Свой статус--</option>';
     },
     setStatus: function (id){
         var stat;
-        if (id == 18) stat = prompt("Введите статус");
+        if (id == sConfig.specialStatId) stat = prompt("Введите статус");
         sChat.sendMessageWrapper('/setStatus '+id + (stat? ' '+stat:''));
     },
     openUserProfile: function (id) {
@@ -1263,7 +1279,7 @@ var sChat={
             case '/nick':
                 return '<span class="chatBotMessage">'+sChatLang['nick'].replace(/%s/, textParts[1]).replace(/%s/, textParts[2])+'</span>';
             case '/setStatus':
-                return '<span class="chatBotMessage">' + textParts[1] + " сменил статус на \"" + (textParts[2] == 18 ? textParts.slice(3).join(' ') : sConfig.statText[parseInt(textParts[2])]) + "\".</span>";
+                return '<span class="chatBotMessage">' + textParts[1] + " сменил статус на \"" + (textParts[2] == sConfig.specialStatId ? textParts.slice(3).join(' ') : sConfig.statText[parseInt(textParts[2])]) + "\".</span>";
             case '/opVideo':
                 return '<span class="chatBotMessage">Публичный канал был создан пользователем '+textParts[1]+". <a href=\"javascript:!!sWebCam&&sWebCam.joinRoom('"+textParts[2]+"');\">Подключиться</a>.</span>";
             case '/inviteVideo':

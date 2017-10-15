@@ -131,7 +131,7 @@ var sWebCam={
             sWebCam.webrtc.joinRoom(room);
             this.room=room;
             this.mc=this.modal?1:0;
-            sChat.sendMessageWrapper('/setStatus 17'+(this.priv?'':' '+room));
+            sChat.sendMessageWrapper('/setStatus '+sConfig.webCamStatId+(this.priv?'':' '+room));
         } else setTimeout(function(){sWebCam.joinRoom(room,owner,priv);},500);
     },
     createRoom:function(priv){
