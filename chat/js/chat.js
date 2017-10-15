@@ -50,6 +50,7 @@ var sChat={
             sChat.setUnloadHandler();
             setTimeout(sChat.initEmoticons,0);
             sChat.setSelectedStyle();
+            sChat.getIgnoredUserNames();
             sChat.initializeFunction();
             sChat.startChat();
             sChat.dom['chatList'].onscroll=function(){ sChat.needScroll=((sChat.dom['chatList'].scrollTop+sChat.dom['chatList'].offsetHeight)>=sChat.dom['chatList'].scrollHeight); };
@@ -179,7 +180,7 @@ var sChat={
 
     playSoundOnNewMessage:function(dateObject, userID, userName, userRole, messageID, messageText){
         var messageParts;
-        if(sConfig.settings['audio']&&this.lastID&&!this.channelSwitch){
+        if (!!sPlayer&&sConfig.settings['audio']&&this.lastID&&!this.channelSwitch){
             if(new RegExp('(?:^|, |])'+this.userName+',', 'gm').test(messageText)){
                 sPlayer.playSound(sConfig.settings['soundPrivate']);
                 return;
@@ -310,7 +311,7 @@ var sChat={
         this.handleInfoMessages(json.infos);
         this.handleOnlineUsers(json.users);
         this.handleChatMessages(json.msgs);
-        if (sConfig.radioServer) sPlayer.handleRadio(json.radio);
+        if (sConfig.radioServer&&!!sPlayer) sPlayer.handleRadio(json.radio);
         this.channelSwitch=null;
         this.setChatUpdateTimer();
     },
@@ -345,7 +346,7 @@ var sChat={
                     break;
                 case 'userName':
                 {
-                    if(sConfig.videoChat) sWebCam.username=infoData;
+                    if(sConfig.videoChat&&!!sWebCam) sWebCam.username=infoData;
                     this.userName=infoData;
                     this.encodedUserName=this.scriptLinkEncode(infoData);
                     break;
@@ -392,7 +393,7 @@ var sChat={
             s.src='img/status/'+sConfig.statImg[userInfo.s];
             s.title = userInfo.s === 18 ? userInfo.vKey : sConfig.statText[userInfo.s];
             s.style.cursor=userInfo.vKey&&userInfo.s===17?'pointer':'default';
-            s.onclick = sConfig.videoChat && userInfo.vKey && userInfo.s === 17 ? function () { sWebCam.joinRoom(sChat.scriptLinkEncode(userInfo.vKey)); } : function () { return false; };
+            s.onclick = sConfig.videoChat && !!sWebCam && userInfo.vKey && userInfo.s === 17 ? function () { sWebCam.joinRoom(sChat.scriptLinkEncode(userInfo.vKey)); } : function () { return false; };
         }
         if(userID===this.userID){
             var selStat = document.getElementById('statusSelect'), userStat = document.getElementById('userStat');
@@ -529,7 +530,7 @@ var sChat={
                 +'<li><a href="javascript:sChat.toUser(\''+encodedUserName+'\',true);">'+sChatLang['userMenuSendPrivateMessage']+'</a></li>'
                 +'<li><a href="javascript:sChat.insertMessageWrapper(\'/describe '+encodedUserName+' \');">'+sChatLang['userMenuDescribe']+'</a></li>'
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/ignore '+encodedUserName+'\');">'+sChatLang['userMenuIgnore']+'</a></li>'
-                + (sWebCam !== undefined && sWebCam.room != null && (sWebCam.owner || !sWebCam.private) ? '<li><a href="javascript:sChat.inviteVideo(\'' + encodedUserName + '\');">Пригласить в канал</a></li>' : "")
+                + (!!sWebCam && sWebCam.room != null && (sWebCam.owner || !sWebCam.private) ? '<li><a href="javascript:sChat.inviteVideo(\'' + encodedUserName + '\');">Пригласить в канал</a></li>' : "")
                 +'<li><a href="javascript:sChat.sendMessageWrapper(\'/call '+encodedUserName+'\');">Вызвать в чат</a></li>';
             if(isInline)
                 menu+='<li><a href="javascript:sChat.sendMessageWrapper(\'/invite '+encodedUserName+'\');">'+sChatLang['userMenuInvite']+'</a></li>'
@@ -578,7 +579,9 @@ var sChat={
             undefined,
             "width=600,height=700,directories=no,location=no,status=no,toolbar=no,menubar=no");
     },
-    openVideoChannel:function(priv){
+    openVideoChannel: function (priv) {
+        if (!!sWebCam)
+            return;
         var key=sWebCam.createRoom(priv);
         if(!priv) this.sendMessageWrapper('/opVideo '+key);
         else this.addChatBotMessageToChatList('Приватный канал успешно создан.');
@@ -640,9 +643,9 @@ var sChat={
         newDiv.id=this.getMessageDocumentID(messageID);
         newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
             + '<a class="dateTime" href="javascript:sChat.selectQuote(' + messageID + ');">' + this.formatDate(dateObject) + ' </a>'
-            + this.formatNickname(userName, userClass, priv, msgInfo.ncol)
+            + this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol)
             + colon
-            + this.formatMessage(text, msgInfo.mcol);
+            + this.formatMessage(text, msgInfo && msgInfo.mcol);
         return newDiv;
     },
     formatNickname(userName, userClass, isPrivate, colors) {
@@ -930,7 +933,8 @@ var sChat={
                 sChat.clearChatList();
                 return false;
             case '/closeVid':
-                sWebCam.close();
+                if (!!sWebCam)
+                    sWebCam.close();
                 return false;
             case '/setStatus':
                 setTimeout(function(){ sChat.changeUserStatus(sChat.userID, { s:parseInt(textParts[1]), vKey:(textParts[2]?textParts.slice(2).join(' '):false) }); }, 500);
@@ -1252,9 +1256,9 @@ var sChat={
             case '/setStatus':
                 return '<span class="chatBotMessage">' + textParts[1] + " сменил статус на \"" + (textParts[2] == 18 ? textParts.slice(3).join(' ') : sConfig.statText[parseInt(textParts[2])]) + "\".</span>";
             case '/opVideo':
-                return '<span class="chatBotMessage">Публичный канал был создан пользователем '+textParts[1]+". <a href=\"javascript:sWebCam.joinRoom('"+textParts[2]+"');\">Подключиться</a>.</span>";
+                return '<span class="chatBotMessage">Публичный канал был создан пользователем '+textParts[1]+". <a href=\"javascript:!!sWebCam&&sWebCam.joinRoom('"+textParts[2]+"');\">Подключиться</a>.</span>";
             case '/inviteVideo':
-                return '<span class="chatBotMessage">'+textParts[1]+" приглашает вас в канал. <a href=\"javascript:sWebCam.joinRoom('"+textParts[2]+"',false,"+textParts[3]+");\">Подключиться</a>.</span>";
+                return '<span class="chatBotMessage">'+textParts[1]+" приглашает вас в канал. <a href=\"javascript:!!sWebCam&&sWebCam.joinRoom('"+textParts[2]+"',false,"+textParts[3]+");\">Подключиться</a>.</span>";
             case '/privmsg':
                 return '<span class="privmsg">'+sChatLang['privmsg']+'</span> '+sChat.replaceBBCodeHLEmot(textParts.slice(1).join(' '));
             case '/privmsgto':
