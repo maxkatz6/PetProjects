@@ -440,6 +440,7 @@ var sChat={
                     new Date(json[i].time),
                     json[i].uID,
                     userName,
+                    json[i].avatar,
                     json[i].role,
                     json[i].id,
                     messageText,
@@ -630,6 +631,7 @@ var sChat={
             new Date(),
             sConfig.chatBotID,
             this.getEncodedChatBotName(),
+            null,
             4,
             null,
             messageText,
@@ -637,13 +639,19 @@ var sChat={
             null
         );
     },
-    addMessageToChatList:function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo){
+    addMessageToChatList: function (dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo){
         if(this.getMessageNode(messageID)) return; // Prevent adding the same message twice:
         if(!this.onNewMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip)) return;
-        this.DOMbufferRowClass=this.DOMbufferRowClass==='rowEven'?'rowOdd':'rowEven';
-        this.dom['chatList'].appendChild(this.getChatListChild(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo));
+        this.DOMbufferRowClass = this.DOMbufferRowClass === 'rowEven' ? 'rowOdd' : 'rowEven';
+
+        var lastMessage = this.dom['chatList'].lastElementChild;
+        var lastUserID = lastMessage && lastMessage.getAttribute('data-userID');
+        var lastDate = lastMessage && lastMessage.getAttribute('data-msgDate');
+        var isSeparetedMessage = !lastMessage || lastUserID != userID || (dateObject - lastDate) > 1000;
+
+        this.dom['chatList'].appendChild(this.getChatListChild(isSeparetedMessage, dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo));
     },
-    getChatListChild:function(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo){
+    getChatListChild:function(isSeparetedMessage, dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo){
         var rowClass=this.DOMbufferRowClass,
             userClass=this.getRoleClass(userRole),
             colon=': ',
@@ -654,15 +662,26 @@ var sChat={
         }
         if(priv) rowClass+=' private';
         if(new RegExp('(?:^|, |])'+this.userName+',', 'gm').test(messageText)) rowClass+=' toMe';
-        var text=this.replaceText(messageText);
-        var newDiv=document.createElement('div');
+        var newDiv = document.createElement('div');
+
+        avatar = "..//images/comprofiler/200_599842308ff25.jpg";
+
+        var imgHtml = "<img class'userAvatar' src='" + avatar + "' alt='" + userName + "' onclick='sChat.toUser(\'" + userName + "\'," + priv + ");'></img>";
+        var dateHtml = '<a class="dateTime" href="javascript:sChat.selectQuote(' + messageID + ');">' + this.formatDate(dateObject) + ' </a>';
+        var nickHtml = this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol);
+        var messageHtml = isSeparetedMessage; //this.formatMessage(this.replaceText(messageText), msgInfo && msgInfo.mcol);
+        var deleteButtonHtml = this.getDeletionLink(messageID, userID, userRole, channelID);
+
         newDiv.className=rowClass;
-        newDiv.id=this.getMessageDocumentID(messageID);
-        newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
-            + '<a class="dateTime" href="javascript:sChat.selectQuote(' + messageID + ');">' + this.formatDate(dateObject) + ' </a>'
-            + this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol)
+        newDiv.id = this.getMessageDocumentID(messageID);
+        newDiv.setAttribute('data-userID', userID);
+        newDiv.setAttribute('data-msgDate', dateObject);
+        newDiv.innerHTML = deleteButtonHtml
+            + dateHtml
+            + nickHtml
             + colon
-            + this.formatMessage(text, msgInfo && msgInfo.mcol);
+            + messageHtml;
+
         return newDiv;
     },
     formatNickname(userName, userClass, isPrivate, colors) {
@@ -729,7 +748,6 @@ var sChat={
                 var nextSibling=messageNode.nextSibling;
                 try{
                     this.dom['chatList'].removeChild(messageNode);
-                    if(nextSibling) sChat.updateChatListRowClasses(nextSibling);
                 } catch(e){
                 }
             }
@@ -772,7 +790,6 @@ var sChat={
         while(this.dom['chatList'].childNodes.length>500) // 500 - max messages count
             this.dom['chatList'].removeChild(this.dom['chatList'].firstChild);
         if(sConfig.settings['autoScroll']&&this.needScroll) this.dom['chatList'].scrollTop=this.dom['chatList'].scrollHeight;
-        //this.updateChatListRowClasses();
     },
     encodeText:function(text){ return encodeURIComponent(text); },
     decodeText:function(text){ return decodeURIComponent(text); },
@@ -1047,25 +1064,11 @@ var sChat={
                 nextSibling=messageNode.nextSibling;
                 try{
                     this.dom['chatList'].removeChild(messageNode);
-                    if(nextSibling) this.updateChatListRowClasses(nextSibling);
                     this.updateChat('&delete=' + messageID);
                 } catch(e){
                     this.setClass(messageNode, originalClass);
                 }
             } else messageNode.className=originalClass;
-        }
-    },
-    updateChatListRowClasses:function(node){
-        var previousNode, rowEven;
-        if(!node) node=this.dom['chatList'].firstChild;
-        if(node){
-            previousNode=node.previousSibling;
-            rowEven=(previousNode&&previousNode.className==='rowOdd')?true:false;
-            while(node){
-                node.className=(rowEven?'rowEven':'rowOdd');
-                node=node.nextSibling;
-                rowEven=!rowEven;
-            }
         }
     },
     addEvent:function(elem, type, eventHandle){
