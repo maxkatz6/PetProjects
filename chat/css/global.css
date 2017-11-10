@@ -34,12 +34,12 @@ a.sticker img{height:100px;max-width:100%;}
 #chatList cite{margin-right:5px;}
 #chatList .bbCodeImage{vertical-align:top;overflow:auto;margin:5px;}
 #chatList .delete{display:block;position:absolute;top:0;right:0;width:10px;height:10px;margin-top:2px;padding-left:5px;background:url('../img/delete.png') no-repeat right;}
-.userAvatarBlock {float:left;width:36px;min-width:36px;min-height:1px;margin:4px 0 0 0;}
+.userAvatarBlock {float:left;width:48px;min-width:48px;min-height:1px;margin:4px 0 0 0;}
 .userAvatarBlock img {display:none;}
-.firstMessage .userAvatarBlock img {width:36px;height:36px;display:block;}
+.firstMessage .userAvatarBlock img {width:48px;height:48px;display:block;}
 .msgBody {overflow: hidden; position: relative;}
-.msgBody .msgText {margin:0 0 0 8px; font-size: 1.1em; line-height: 20px;}
-.msgBody .msgHeader {display:none;margin:4px 0 4px 4px;}
+.msgBody .msgText {margin:0 0 0 10px; font-size: 1.1em; line-height: 1.5em;}
+.msgBody .msgHeader {display:none;margin:4px 0 4px 6px; line-height: 1.5em;}
 .msgBody .msgHeader .roleSpan {display: none; margin: 0 4px 0 0; border-radius:10%; padding:1px; font-weight:bold; }
 /* .msgBody .msgHeader .roleSpan.admin, .msgBody .msgHeader .roleSpan.moderator {display: inline;} */
 .firstMessage .msgBody .msgHeader {display:block;}
