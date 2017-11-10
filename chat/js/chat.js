@@ -662,14 +662,17 @@ var sChat={
 
         avatar = "..//images/comprofiler/200_599842308ff25.jpg";
 
+        var formatedDate = this.formatDate(dateObject);
+
         var imgHtml = '<a class="userAvatarBlock" href="javascript:sChat.toUser(\'' + userName + '\', true);"><img class="userAvatar" src="' + avatar + '" alt="' + userName + '"></img></a>';
-        var dateHtml = '<a class="dateTime" href="javascript:sChat.selectQuote(' + messageID + ');">' + this.formatDate(dateObject) + ' </a>';
+        var dateHtml = '<a class="dateTime" href="javascript:sChat.selectQuote(' + messageID + ');">' + formatedDate + ' </a>';
         var nickHtml = this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol);
+        var roleHtml = '<span class="roleSpan ' + userClass + '">' + sChatLang[userClass + "Role"] + '</span>';
         var messageHtml = this.formatMessage(this.replaceText(messageText), msgInfo && msgInfo.mcol);
         var deleteButtonHtml = this.getDeletionLink(messageID, userID, userRole, channelID);
 
-        var msgHeaderHtml = '<div class="msgHeader">' + nickHtml + dateHtml + '</div>';
-        var msgTextHtml = '<div class="msgText">' + messageHtml + '</div>';
+        var msgHeaderHtml = '<div class="msgHeader">' + nickHtml + roleHtml + dateHtml + '</div>';
+        var msgTextHtml = '<div class="msgText" title="' + formatedDate + '">' + messageHtml + '</div>';
 
         newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);

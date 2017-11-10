@@ -1,4 +1,9 @@
 var sChatLang = {
+    adminRole: "Админ",
+    guestRole: "Гость",
+    userRole: "Пользователь",
+    moderatorRole: "Модератор",
+    chatBotRole: "Бот",
     login: "%s входит в чат.",
     logout: "%s выходит из чата.",
     logoutTimeout: "%s вышел из чата по таймауту.",

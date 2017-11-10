@@ -8,7 +8,11 @@
 
 // Socio!PARTY language Object:
 var sChatLang = {
-	
+    adminRole: "Admin",
+    guestRole: "Guest",
+    userRole: "User",
+    moderatorRole: "Moderator",
+    chatBotRole: "Bot",
 	login: '%s logs into the Chat.',
 	logout: '%s logs out of the Chat.',
 	logoutTimeout: '%s has been logged out (Timeout).',

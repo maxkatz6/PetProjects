@@ -9,7 +9,11 @@
 
 // Socio!PARTY language Object:
 var sChatLang = {
-	
+    adminRole: "Адмін",
+    guestRole: "Гість",
+    userRole: "Користувач",
+    moderatorRole: "Модератор",
+    chatBotRole: "Бот",
 	login: '%s заходить до Чату.',
 	logout: '%s виходить з Чату.',
 	logoutTimeout: '%s залишає чат (був неактивний).',

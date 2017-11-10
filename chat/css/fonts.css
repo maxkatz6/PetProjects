@@ -15,12 +15,6 @@ a {text-decoration:none;}
 a:hover {text-decoration:underline;}
 #copyright {font-size:0.8em;}
 #chatList a.dateTime {font-size:0.7em;text-decoration:none;color:inherit;}
-#chatList span.guest {	font-weight:bold;}
-#chatList span.user {	font-weight:bold;}
-#chatList span.customUser {font-weight:bold;}
-#chatList span.moderator {font-weight:bold;}
-#chatList span.admin {	font-weight:bold;}
-#chatList span.chatBot {font-weight:bold;font-style:italic;}
 #chatList .chatBotMessage {font-style:italic;}
 #chatList .chatBotErrorMessage {font-style:italic;}
 #chatList .privmsg {font-style:italic;}
