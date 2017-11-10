@@ -665,14 +665,14 @@ var sChat={
         var formatedDate = this.formatDate(dateObject);
 
         var imgHtml = '<a class="userAvatarBlock" href="javascript:sChat.toUser(\'' + userName + '\', true);"><img class="userAvatar" src="' + avatar + '" alt="' + userName + '"></img></a>';
-        var dateHtml = '<a class="dateTime" href="javascript:sChat.selectQuote(' + messageID + ');">' + formatedDate + ' </a>';
+        var dateHtml = '<a class="dateTime" href="javascript:sChat.selectQuote(\'' + formatedDate + '\', ' + messageID + ');">' + formatedDate + ' </a>';
         var nickHtml = this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol);
         var roleHtml = '<span class="roleSpan ' + userClass + '">' + sChatLang[userClass + "Role"] + '</span>';
         var messageHtml = this.formatMessage(this.replaceText(messageText), msgInfo && msgInfo.mcol);
         var deleteButtonHtml = this.getDeletionLink(messageID, userID, userRole, channelID);
 
         var msgHeaderHtml = '<div class="msgHeader">' + nickHtml + roleHtml + dateHtml + '</div>';
-        var msgTextHtml = '<div class="msgText" title="' + formatedDate + '">' + messageHtml + '</div>';
+        var msgTextHtml = '<div class="msgText">' + messageHtml + '</div>';
 
         newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);
@@ -697,10 +697,8 @@ var sChat={
             + (hasGradient ? helper.grad(message, colors) : message)
             + '</span>';
     },
-    selectQuote:function(messageID){
-        var messageNode=this.getMessageNode(messageID);
-        var time=(messageNode.firstChild.className==="dateTime"?messageNode.firstChild:messageNode.childNodes[1]);
-        this.insertText(' см '+time.innerHTML);
+    selectQuote:function(formatedDate, messageID){
+        this.insertText(' см ' + formatedDate);
         this.dom['inputField'].focus();
         this.dom['inputField'].selectionStart=this.dom['inputField'].selectionEnd=this.dom['inputField'].value.length;
         this.selQuo.push(messageID);
@@ -1414,8 +1412,9 @@ var sChat={
                 if(!content||content.length===0) return '';
                 switch(tag){
                 case 'q':
-                    var m = sChat.getMessageNode(content);
-                    return '<a class="dateTime" href="javascript:sChat.blinkMessage(' + content + ');">' + (m ? (m.firstChild.className === "dateTime" ? m.firstChild : m.childNodes[1]).innerHTML : "(00:00:00)") + '</a>';
+                    var node = sChat.getMessageNode(content);
+                    var m = node && (node.querySelector ? node.querySelector(".dateTime") : node.lastElementChild.firstElementChild.lastElementChild);
+                    return '<a class="dateTime" href="javascript:sChat.blinkMessage(' + content + ');">' + (m ? m.innerHTML : "(00:00:00)") + '</a>';
                 case 'quote':
                     return '<span class="quote"><q>'+sChat.replaceBBCode(content)+'</q></span>';
                 case 's':
