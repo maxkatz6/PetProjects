@@ -33,7 +33,14 @@ a.sticker img{height:100px;max-width:100%;}
 #chatList img{vertical-align:middle;margin-bottom:2px;}
 #chatList cite{margin-right:5px;}
 #chatList .bbCodeImage{vertical-align:top;overflow:auto;margin:5px;}
-#chatList .delete{display:block;float:right;width:10px;height:10px;margin-top:2px;padding-left:5px;background:url('../img/delete.png') no-repeat right;}
+#chatList .delete{display:block;position:absolute;top:0;right:0;width:10px;height:10px;margin-top:2px;padding-left:5px;background:url('../img/delete.png') no-repeat right;}
+.userAvatarBlock {float:left;width:36px;min-width:36px;min-height:1px;margin:4px 0 0 0;}
+.userAvatarBlock img {display:none;}
+.firstMessage .userAvatarBlock img {width:36px;height:36px;display:block;}
+.msgBody {overflow: hidden; position: relative;}
+.msgBody .msgText {margin:0 0 0 8px; font-size: 1.1em; line-height: 20px;}
+.msgBody .msgHeader {display:none;margin:4px 0 4px 4px;}
+.firstMessage .msgBody .msgHeader {display:block;}
 #onlineList div{padding: 2px 5px;}
 #onlineList ul{margin: 5px 0;padding-left:20px;}
 #settingsList select.left{text-align:right;}
@@ -54,8 +61,8 @@ input#usersTopButton{background-image: url('../img/usersTop.png');}
 #chatList,.panelContainer,#content textarea{border-width: 1px;border-style:solid;word-wrap: break-word;}
 #chatList .deleteSelected{border-width:1px;border-style:dotted;}
 /* Users */
-.userRow .userNickname{font-weight:bold}
-.userRow .userAvatar{border-radius:50%;height:36px;width:36px;}
+.userNickname{font-weight:bold;margin:0 4px;}
+.userAvatar{border-radius:50%;height:36px;width:36px;}
 .ignored.userRow .userAvatar{border-color:red;border-width:2px;border-style:solid;}
 /* Misc */
 #bbCodeContainer input,#optionsContainer input.button,#settingsList input.button,#logoutButton,#submitButton{cursor:pointer;}
@@ -77,7 +84,7 @@ div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;f
 	#bbCodeContainer { left:5px; padding:0; }
 	#bbCodeEmoticon { display:block; }
 	#optionsContainer { top:30px; right:5px; }
-	#chatList { left:5px; right:150px; bottom:115px; font-size:12px; }
+	#chatList { left:5px; right:150px; bottom:115px; }
 	#inputField { height:20px; }
 	#inputFieldContainer { left:5px; right:5px; }
 	.panelContainer { margin-left:0; border-left-width:0; }
@@ -105,7 +112,7 @@ div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;f
 @media (max-width: 300px) {
     #mainPanelContainer {height:auto; top:20px; left:0; right:0;}
     #bbCodeContainer, #submitButtonContainer {display: none;}
-    #chatList {position: absolute; top: 0; left: 0; right: 0; bottom: 21px ; height: auto; font-size: 0.7em;}
+    #chatList {position: absolute; top: 0; left: 0; right: 0; bottom: 21px ; height: auto;}
     #logoutChannelContainer {top:0;right:0;left:0;}
     #logoutButton {float:right; margin:0; height: 20px!important;}
     #channelSelection {height:20px !important}

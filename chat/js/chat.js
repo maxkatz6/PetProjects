@@ -35,7 +35,6 @@ var sChat={
     httpRequest:{},
     retryTimer: null,
 
-    DOMbufferRowClass:'rowOdd',
     audioHtml5:[],
     selQuo:[], // selected quotes
     needScroll:true,
@@ -642,45 +641,41 @@ var sChat={
     addMessageToChatList: function (dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo){
         if(this.getMessageNode(messageID)) return; // Prevent adding the same message twice:
         if(!this.onNewMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip)) return;
-        this.DOMbufferRowClass = this.DOMbufferRowClass === 'rowEven' ? 'rowOdd' : 'rowEven';
 
-        var lastMessage = this.dom['chatList'].lastElementChild;
-        var lastUserID = lastMessage && lastMessage.getAttribute('data-userID');
-        var lastDate = lastMessage && lastMessage.getAttribute('data-msgDate');
-        var isSeparetedMessage = !lastMessage || lastUserID != userID || (dateObject - lastDate) > 1000;
+        this.dom['chatList'].appendChild(this.getChatListChild(dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo));
 
-        this.dom['chatList'].appendChild(this.getChatListChild(isSeparetedMessage, dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo));
+        this.updateChatListClasses();
     },
-    getChatListChild:function(isSeparetedMessage, dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo){
-        var rowClass=this.DOMbufferRowClass,
-            userClass=this.getRoleClass(userRole),
-            colon=': ',
-            priv=messageText.indexOf('/privmsg')===0||messageText.indexOf('/privmsgto')===0||messageText.indexOf('/privaction')===0;
-        if(messageText.indexOf('/action')===0||messageText.indexOf('/me')===0||messageText.indexOf('/privaction')===0){
-            userClass+=' action';
-            colon=' ';
+    getChatListChild: function (dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo) {
+        var rowClass = "msgRow",
+            userClass = this.getRoleClass(userRole),
+            colon = ': ',
+            priv = messageText.indexOf('/privmsg') === 0 || messageText.indexOf('/privmsgto') === 0 || messageText.indexOf('/privaction') === 0;
+        if (messageText.indexOf('/action') === 0 || messageText.indexOf('/me') === 0 || messageText.indexOf('/privaction') === 0) {
+            userClass += ' action';
+            colon = ' ';
         }
-        if(priv) rowClass+=' private';
-        if(new RegExp('(?:^|, |])'+this.userName+',', 'gm').test(messageText)) rowClass+=' toMe';
+        if (priv)
+            rowClass += ' private';
+        if (new RegExp('(?:^|, |])' + this.userName + ',', 'gm').test(messageText)) rowClass += ' toMe';
         var newDiv = document.createElement('div');
 
         avatar = "..//images/comprofiler/200_599842308ff25.jpg";
 
-        var imgHtml = "<img class'userAvatar' src='" + avatar + "' alt='" + userName + "' onclick='sChat.toUser(\'" + userName + "\'," + priv + ");'></img>";
+        var imgHtml = '<a class="userAvatarBlock" href="javascript:sChat.toUser(\'' + userName + '\', true);"><img class="userAvatar" src="' + avatar + '" alt="' + userName + '"></img></a>';
         var dateHtml = '<a class="dateTime" href="javascript:sChat.selectQuote(' + messageID + ');">' + this.formatDate(dateObject) + ' </a>';
         var nickHtml = this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol);
-        var messageHtml = isSeparetedMessage; //this.formatMessage(this.replaceText(messageText), msgInfo && msgInfo.mcol);
+        var messageHtml = this.formatMessage(this.replaceText(messageText), msgInfo && msgInfo.mcol);
         var deleteButtonHtml = this.getDeletionLink(messageID, userID, userRole, channelID);
 
-        newDiv.className=rowClass;
+        var msgHeaderHtml = '<div class="msgHeader">' + nickHtml + dateHtml + '</div>';
+        var msgTextHtml = '<div class="msgText">' + messageHtml + '</div>';
+
+        newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);
         newDiv.setAttribute('data-userID', userID);
-        newDiv.setAttribute('data-msgDate', dateObject);
-        newDiv.innerHTML = deleteButtonHtml
-            + dateHtml
-            + nickHtml
-            + colon
-            + messageHtml;
+        newDiv.setAttribute('data-msgDate', dateObject.getTime());
+        newDiv.innerHTML = imgHtml + '<div class="msgBody">' + msgHeaderHtml + msgTextHtml + deleteButtonHtml+ '</div>';
 
         return newDiv;
     },
@@ -688,7 +683,7 @@ var sChat={
         var hasColor = sConfig.settings['msgColors'] && colors && colors.length > 0;
         var hasGradient = hasColor && sConfig.settings['gradiens'] && colors.length > 1;
 
-        return '<span class="' + userClass + '"' + (hasColor ? ' style="color:' + colors[0] + '" ' : '') + " onclick=\"sChat.toUser('" + userName + "'," + isPrivate + ");\">"
+        return '<span class="userNickname ' + userClass + '"' + (hasColor ? ' style="color:' + colors[0] + '" ' : '') + " onclick=\"sChat.toUser('" + userName + "'," + isPrivate + ");\">"
             + ((hasGradient) ? helper.grad(userName, colors) : userName)
             + '</span>';
     },
@@ -714,7 +709,7 @@ var sChat={
     getUserMenuDocumentID:function(userID){ return 'sChat_um_'+userID; },
     getInlineUserMenuDocumentID:function(menuID, index){ return 'sChat_ium_'+menuID+'_'+index; },
     getDeletionLink:function(messageID, userID, userRole, channelID){
-        if(messageID!==null&&this.isAllowedToDeleteMessage(messageID, userID, userRole, channelID)){
+        if (messageID!==null&&this.isAllowedToDeleteMessage(messageID, userID, userRole, channelID)){
             if(!arguments.callee.deleteMessage) arguments.callee.deleteMessage=this.encodeSpecialChars(sChatLang['deleteMessage']);
             return '<a class="delete" title="'+arguments.callee.deleteMessage+'" href="javascript:sChat.deleteMessage('+messageID+');"> </a>'; // Adding a space - without any content Opera messes up the chatlist display
         }
@@ -748,6 +743,7 @@ var sChat={
                 var nextSibling=messageNode.nextSibling;
                 try{
                     this.dom['chatList'].removeChild(messageNode);
+                    if (nextSibling) sChat.updateChatListClasses(nextSibling);
                 } catch(e){
                 }
             }
@@ -789,7 +785,7 @@ var sChat={
         if(!this.dom['chatList'].childNodes) return;
         while(this.dom['chatList'].childNodes.length>500) // 500 - max messages count
             this.dom['chatList'].removeChild(this.dom['chatList'].firstChild);
-        if(sConfig.settings['autoScroll']&&this.needScroll) this.dom['chatList'].scrollTop=this.dom['chatList'].scrollHeight;
+        if (sConfig.settings['autoScroll'] && this.needScroll) this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
     },
     encodeText:function(text){ return encodeURIComponent(text); },
     decodeText:function(text){ return decodeURIComponent(text); },
@@ -1064,6 +1060,7 @@ var sChat={
                 nextSibling=messageNode.nextSibling;
                 try{
                     this.dom['chatList'].removeChild(messageNode);
+                    if (nextSibling) this.updateChatListClasses(nextSibling);
                     this.updateChat('&delete=' + messageID);
                 } catch(e){
                     this.setClass(messageNode, originalClass);
@@ -1075,6 +1072,32 @@ var sChat={
         if(elem.addEventListener) elem.addEventListener(type, eventHandle, false);
         else if(elem.attachEvent) elem.attachEvent("on"+type, eventHandle);
         else elem["on"+type]=eventHandle;
+    },
+    updateChatListClasses: function (node) {
+        var previousNode, rowEven;
+        if (!node) node = this.dom['chatList'].firstChild;
+        if (node) {
+            previousNode = node.previousSibling;
+            rowEven = (previousNode && previousNode.className.indexOf('rowOdd') >= 0) ? true : false;
+            while (node) {
+                node.className = node.className.replace(/rowEven|rowOdd|firstMessage|\s\s/g, "");
+
+                node.className += (rowEven ? ' rowEven' : ' rowOdd');
+                rowEven = !rowEven;
+
+                var lastUserID = previousNode && previousNode.getAttribute('data-userID');
+                var lastDate = previousNode && previousNode.getAttribute('data-msgDate');
+                var userID = node.getAttribute('data-userID');
+                var dateObject = node.getAttribute('data-msgDate');
+                var isSeparetedMessage = !previousNode || lastUserID != userID || (dateObject - lastDate) > sConfig.messageUnionTimeLimit;
+                if (isSeparetedMessage)
+                    node.className += " firstMessage";
+
+
+                previousNode = node;
+                node = node.nextSibling;
+            }
+        }
     },
     addClass:function(node, theClass){ if(!this.hasClass(node, theClass)) node.className+=' '+theClass; },
     removeClass:function(node, theClass){ node.className=node.className.replace(new RegExp('(?:^|\\s)'+theClass+'(?!\\S)', 'g'), ''); },
