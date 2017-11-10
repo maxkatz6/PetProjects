@@ -436,7 +436,7 @@ var sChat={
                 userName=json[i].name?json[i].name:'';
                 messageText=json[i].text?json[i].text:'';
                 this.addMessageToChatList(
-                    new Date(json[i].time),
+                    new Date(json[i].time * 1000),
                     json[i].uID,
                     userName,
                     json[i].avatar,
