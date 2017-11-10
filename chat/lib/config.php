@@ -84,6 +84,7 @@ class Config{
     const chatBotID = 2147483647;
     // The userName used for ChatBot messages
     const chatBotName = 'Сервер';
+    const chatBotAvatar = 'img/chatbot.jpg';
 
     // Minutes until a user is declared inactive (last status update) - the minimum is 2 minutes:
     const inactiveTimeout = 2;

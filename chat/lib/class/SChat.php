@@ -1263,6 +1263,7 @@ class SChat {
 
         $msgInfo['ncol'] = $this->getUserNickColor();
         $msgInfo['mcol'] = $this->getUserMsgColor();
+        $msgInfo['avatar'] = $this->getUserInfo()['avatar'];
 
         $this->insertParsedMessage($text, $msgInfo);
     }
@@ -1368,6 +1369,11 @@ class SChat {
     }
 
     function insertChatBotMessage($channelID, $messageText, $msgInfo = null) {
+        if (!$msgInfo)
+            $msgInfo = [];
+        if (!isset($msgInfo['avatar']))
+            $msgInfo['avatar'] = Config::chatBotAvatar;
+
 	    $this->insertCustomMessage(
 		    Config::chatBotID,
 		    Config::chatBotName,

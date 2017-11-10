@@ -660,7 +660,7 @@ var sChat={
         if (new RegExp('(?:^|, |])' + this.userName + ',', 'gm').test(messageText)) rowClass += ' toMe';
         var newDiv = document.createElement('div');
 
-        avatar = "..//images/comprofiler/200_599842308ff25.jpg";
+        avatar = msgInfo['avatar'];
 
         var formatedDate = this.formatDate(dateObject);
 
