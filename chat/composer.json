@@ -1,0 +1,8 @@
+{
+  "require": {
+    "mrclay/minify": "~3.0.0"
+  },
+  "config": {
+    "optimize-autoloader": true
+  }
+}
