@@ -94,7 +94,7 @@
         sConfig.videoChat = sConfig.videoChat && helper.getWebRTCInfo();
             
         sChat.addEvent(window, 'blur', function () {sChat.infocus = false;});
-        sChat.addEvent(window, 'focus', function () {sChat.infocus = true;document.title = 'SocioMAX';});
+        sChat.addEvent(window, 'focus', function () {sChat.infocus = true;document.title = 'SocioMIX';});
         sChat.addEvent(window, 'click', function (e) {
             var t=e.target||e.srcElement, c=document.getElementById('emoticonsContainer');
             if(e!==t&&t.id!=='bbCodeEmoticon') c.style.display='none';
