@@ -1,11 +1,11 @@
 @font-face {
     font-family: 'TengwarAnnatar';
-    src: url('fonts/tngan-webfont.eot');
-    src: url('fonts/tngan-webfont.eot?#iefix') format('embedded-opentype'),
-         url('fonts/tngan-webfont.woff2') format('woff2'),
-         url('fonts/tngan-webfont.woff') format('woff'),
-         url('fonts/tngan-webfont.ttf') format('truetype'),
-         url('fonts/tngan-webfont.svg#tengwar_annatarregular') format('svg');
+    src: url('../fonts/tngan-webfont.eot');
+    src: url('../fonts/tngan-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/tngan-webfont.woff2') format('woff2'),
+         url('../fonts/tngan-webfont.woff') format('woff'),
+         url('../fonts/tngan-webfont.ttf') format('truetype'),
+         url('../fonts/tngan-webfont.svg#tengwar_annatarregular') format('svg');
     font-weight: normal; font-style: normal;
 }
 #content {font-family: Verdana, Arial, Helvetica, sans-serif;font-size:0.9em;}
