@@ -1,6 +1,7 @@
 {
   "require": {
-    "mrclay/minify": "~3.0.0"
+    "leafo/scssphp": "0.7.1",
+    "patchwork/jsqueeze": "~2.0"
   },
   "config": {
     "optimize-autoloader": true
