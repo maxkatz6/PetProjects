@@ -664,33 +664,69 @@ var sChat={
 
         var formatedDate = this.formatDate(dateObject);
 
-        var imgHtml = '<a class="userAvatarBlock" href="javascript:sChat.toUser(\'' + userName + '\', true);"><img class="userAvatar" src="' + avatar + '" alt="' + userName + '"></img></a>';
-        var dateHtml = '<a class="dateTime" href="javascript:sChat.selectQuote(\'' + formatedDate + '\', ' + messageID + ');">' + formatedDate + ' </a>';
+        var imgHtml = '<a class="userAvatarBlock ignoreOnMessageClick" href="javascript:sChat.toUser(\'' + userName + '\', true);"><img class="userAvatar" src="' + avatar + '" alt="' + userName + '"></img></a>';
+        var dateHtml = '<span class="dateTime">' + formatedDate + ' </span>';
         var nickHtml = this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol);
         var roleHtml = '<span class="roleSpan ' + userClass + '">' + sChatLang[userClass + "Role"] + '</span>';
         var messageHtml = this.formatMessage(this.replaceText(messageText), msgInfo && msgInfo.mcol);
-        var deleteButtonHtml = this.getDeletionLink(messageID, userID, userRole, channelID);
-
+        //var moreButtonHtml = '<a class="msgMore" href="javascript:sChat.showMore(' + messageID + ');"> </a>';
+        var quoteHtml = '<a class="quote ignoreOnMessageClick" href="javascript:sChat.selectQuote(\'' + formatedDate + '\', ' + messageID + ');">' + this.encodeSpecialChars(sChatLang['quoteMessage']) + ' </a>';
+        var deleteHtml = this.isAllowedToDeleteMessage(messageID, userID, userRole, channelID)
+            ? '<a class="delete ignoreOnMessageClick" href="javascript:sChat.deleteMessage(' + messageID + ');">' + this.encodeSpecialChars(sChatLang['deleteMessage']) + '</a>'
+            : '';
+        
         var msgHeaderHtml = '<div class="msgHeader">' + nickHtml + roleHtml + dateHtml + '</div>';
         var msgTextHtml = '<div class="msgText">' + messageHtml + '</div>';
+        var msgFooter = '<div class="msgFooter">' + deleteHtml + quoteHtml + '</div>';
 
         newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);
         newDiv.setAttribute('data-userID', userID);
         newDiv.setAttribute('data-msgDate', dateObject.getTime());
-        newDiv.innerHTML = imgHtml + '<div class="msgBody">' + msgHeaderHtml + msgTextHtml + deleteButtonHtml+ '</div>';
+        newDiv.innerHTML = imgHtml + '<div class="msgBody">' + msgHeaderHtml + msgTextHtml + msgFooter /*+ moreButtonHtml*/ + '</div>';
+
+        var timeout;
+        newDiv.onclick = function (e) {
+            if (e.target) {
+                var node = e.target;
+                while (node != null
+                    && node != newDiv) {
+                    if (sChat.hasClass(node, "ignoreOnMessageClick"))
+                        return;
+                    node = node.parentElement;
+                }
+            }
+
+            //clearTimeout(timeout);
+            //sChat.addClass(newDiv, "keepMoreButton");
+            //timeout = setTimeout(function () {
+            //    sChat.removeClass(newDiv, "keepMoreButton");
+            //}, 3000);
+
+            if (sChat.hasClass(newDiv, "showMore"))
+                sChat.removeClass(newDiv, "showMore");
+            else
+                sChat.addClass(newDiv, "showMore");
+        }
 
         return newDiv;
     },
-    formatNickname(userName, userClass, isPrivate, colors) {
+    showMore: function(messageID) {
+        var node = this.getMessageNode(messageID);
+        if (this.hasClass(node, "showMore"))
+            this.removeClass(node, "showMore");
+        else
+            this.addClass(node, "showMore");
+    },
+    formatNickname: function(userName, userClass, isPrivate, colors) {
         var hasColor = sConfig.settings['msgColors'] && colors && colors.length > 0;
         var hasGradient = hasColor && sConfig.settings['gradiens'] && colors.length > 1;
 
-        return '<span class="userNickname ' + userClass + '"' + (hasColor ? ' style="color:' + colors[0] + '" ' : '') + " onclick=\"sChat.toUser('" + userName + "'," + isPrivate + ");\">"
+        return '<span class="userNickname ignoreOnMessageClick ' + userClass + '"' + (hasColor ? ' style="color:' + colors[0] + '" ' : '') + " onclick=\"sChat.toUser('" + userName + "'," + isPrivate + ");\">"
             + ((hasGradient) ? helper.grad(userName, colors) : userName)
             + '</span>';
     },
-    formatMessage(message, colors) {
+    formatMessage: function(message, colors) {
         var hasColor = sConfig.settings['msgColors'] && colors && colors.length > 0;
         var hasGradient = hasColor && sConfig.settings['gradiens'] && colors.length > 1;
         return '<span ' + (hasColor ? 'style="color:' + colors[0] + '">' : '>')
@@ -709,14 +745,10 @@ var sChat={
     getUserNode:function(userID){ return document.getElementById(this.getUserDocumentID(userID)); },
     getUserMenuDocumentID:function(userID){ return 'sChat_um_'+userID; },
     getInlineUserMenuDocumentID:function(menuID, index){ return 'sChat_ium_'+menuID+'_'+index; },
-    getDeletionLink:function(messageID, userID, userRole, channelID){
-        if (messageID!==null&&this.isAllowedToDeleteMessage(messageID, userID, userRole, channelID)){
-            if(!arguments.callee.deleteMessage) arguments.callee.deleteMessage=this.encodeSpecialChars(sChatLang['deleteMessage']);
-            return '<a class="delete" title="'+arguments.callee.deleteMessage+'" href="javascript:sChat.deleteMessage('+messageID+');"> </a>'; // Adding a space - without any content Opera messes up the chatlist display
-        }
-        return '';
-    },
-    isAllowedToDeleteMessage:function(messageID, userID, userRole, channelID){
+    isAllowedToDeleteMessage: function (messageID, userID, userRole, channelID) {
+        if (messageID == null)
+            return false;
+
         if((((this.userRole===1&&sConfig.allowUserMessageDelete&&(userID===this.userID||
                 channelID===this.userID+sConfig.privateMessageDiff||
                 channelID===this.userID+sConfig.privateChannelDiff))||
@@ -1414,7 +1446,7 @@ var sChat={
                 case 'q':
                     var node = sChat.getMessageNode(content);
                     var m = node && (node.querySelector ? node.querySelector(".dateTime") : node.lastElementChild.firstElementChild.lastElementChild);
-                    return '<a class="dateTime" href="javascript:sChat.blinkMessage(' + content + ');">' + (m ? m.innerHTML : "(00:00:00)") + '</a>';
+                    return '<a class="dateTime ignoreOnMessageClick" href="javascript:sChat.blinkMessage(' + content + ');">' + (m ? m.innerHTML : "(00:00:00)") + '</a>';
                 case 'quote':
                     return '<span class="quote"><q>'+sChat.replaceBBCode(content)+'</q></span>';
                 case 's':
@@ -1458,26 +1490,26 @@ var sChat={
                 case "mp3":
                 case "ogg":
                 case "wav":
-                    return s+(sChat.audioHtml5[fe]?'<audio style="height:30px; max-width:100%;" src="'+a+'" controls></audio> ':'<a href="'+a+'" onclick="window.open(this.href); return false;">Скачать '+fe+' </a> ');
+                    return s+(sChat.audioHtml5[fe]?'<audio class="ignoreOnMessageClick" style="height:30px; max-width:100%;" src="'+a+'" controls></audio> ':'<a href="'+a+'" onclick="window.open(this.href); return false;">Скачать '+fe+' </a> ');
                 case"jpg":
                 case"jpeg":
                 case"png":
                 case"bmp":
                 case"ico":
                 case"svg":
-                    return s + '<a href="' + a + '" onclick="window.open(this.href); return false;"><img onload="sChat.updateChatlistView();" class="bbCodeImage" style="max-width:90%; max-height:' + (vk ? 300 : 200) + 'px;" src="' + a + '"/></a>';
+                    return s + '<a class="ignoreOnMessageClick" href="' + a + '" onclick="window.open(this.href); return false;"><img onload="sChat.updateChatlistView();" class="bbCodeImage" style="max-width:90%; max-height:' + (vk ? 300 : 200) + 'px;" src="' + a + '"/></a>';
                 case "gif":
                     return s + sChat.replaceGif(a);
                 default:
                 {
                     var req=sa2&&sa2.split(/&amp;|[=\?&\#]+/), height=400/1.7, t=req&&req.indexOf('t')!==-1?helper.ytSTime(req[req.indexOf('t')+1]):'';
-                    if(sa2&&sChat.inArray(hostArr, 'youtube')) return s+'<iframe onload="sChat.updateChatlistView();" style="height:'+height+'px;width:400px;max-width:100%;" src="https://www.youtube.com/embed/'+req[req.indexOf('v')+1]+t+'" frameborder="0" allowfullscreen="true"></iframe>';
+                    if (sa2 && sChat.inArray(hostArr, 'youtube')) return s +'<iframe class="ignoreOnMessageClick" onload="sChat.updateChatlistView();" style="height:'+height+'px;width:400px;max-width:100%;" src="https://www.youtube.com/embed/'+req[req.indexOf('v')+1]+t+'" frameborder="0" allowfullscreen="true"></iframe>';
                     else if(sa1)
-                        if(sChat.inArray(hostArr, 'youtu')) return s+'<iframe onload="sChat.updateChatlistView();" style="height:'+height+'px;width:400px;max-width:100%;" src="https://www.youtube.com/embed/'+sa1+t+'" frameborder="0" allowfullscreen="true"></iframe>';
+                        if (sChat.inArray(hostArr, 'youtu')) return s +'<iframe class="ignoreOnMessageClick" onload="sChat.updateChatlistView();" style="height:'+height+'px;width:400px;max-width:100%;" src="https://www.youtube.com/embed/'+sa1+t+'" frameborder="0" allowfullscreen="true"></iframe>';
                         else if(sChat.getSetting('vkPosts')&&sChat.inArray(hostArr, 'vk')&&!vk) return s+sChat.replaceVK(a, sa);
-                        else if(sChat.inArray(hostArr, 'coub')) return s+'<iframe onload="sChat.updateChatlistView();" style="height:'+height+'px;width:400px;max-width:100%;" src="http://coub.com/embed/'+fe+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
-                        else if(sChat.inArray(hostArr, 'soundcloud')) return s+'<br/><iframe  onload="sChat.updateChatlistView();" style="height:120px;width:80%;" scrolling="no" frameborder="0" src="https://w.soundcloud.com/player/?url='+a+'"></iframe>';
-                    return s+'<a href="'+a+'" onclick="window.open(this.href); return false;">'+helper.truncate(a, 35)+'</a>';
+                        else if (sChat.inArray(hostArr, 'coub')) return s +'<iframe class="ignoreOnMessageClick" onload="sChat.updateChatlistView();" style="height:'+height+'px;width:400px;max-width:100%;" src="http://coub.com/embed/'+fe+'?muted=false&autostart=false&originalSize=true&hideTopBar=false&startWithHD=false" allowfullscreen="true" frameborder="0"></iframe>';
+                        else if (sChat.inArray(hostArr, 'soundcloud')) return s +'<br/><iframe class="ignoreOnMessageClick" onload="sChat.updateChatlistView();" style="height:120px;width:80%;" scrolling="no" frameborder="0" src="https://w.soundcloud.com/player/?url='+a+'"></iframe>';
+                    return s+'<a class="ignoreOnMessageClick" href="'+a+'" onclick="window.open(this.href); return false;">'+helper.truncate(a, 35)+'</a>';
                 }
                 }
             });
@@ -1529,7 +1561,7 @@ var sChat={
                 sChat.updateChatlistView();
             }
         });
-        return '<div id=\''+id+'\' onclick="this.style.maxHeight=\'100%\';this.style.cursor=\'default\';sChat.updateChatlistView();"><a href="'+str+'" onclick="window.open(this.href); return false;">'+helper.truncate(str, 35)+'</a></div>';
+        return '<div id=\''+id+'\' class=\'ignoreOnMessageClick\' onclick="this.style.maxHeight=\'100%\';this.style.cursor=\'default\';sChat.updateChatlistView();"><a href="'+str+'" onclick="window.open(this.href); return false;">'+helper.truncate(str, 35)+'</a></div>';
     },
     replaceGif: function(url){ 
         var str = '<a href="' + url + '" class="playGif" onclick="sChat.runGif(this); return false;"><img onload="sChat.updateChatlistView();" class="bbCodeImage" style="max-width:90%; max-height:200px;" src="img/play.png"/></a>';
