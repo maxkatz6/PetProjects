@@ -39,7 +39,7 @@ a.sticker img{height:100px;max-width:100%;}
 .msgRow .msgMore{display:none;position:absolute;top:0;right:0;margin-top:2px;padding-left:5px;}
 .msgRow .msgMore:before {content:'\f013'; font-size:1.2em; font-family: FontAwesome;}
 .msgRow:hover .msgMore, .msgRow.keepMoreButton .msgMore {display: block;}
-.msgRow .msgFooter {margin: 4px 0 0 12px; font-size: 0.9em; display: none;}
+.msgRow .msgFooter {margin: 4px 0 4px 12px; font-size: 0.9em; display: none;}
 .msgRow .msgFooter .delete {margin-right:12px;}
 .msgRow .msgFooter .delete:before {content:'\f1f8'; font-family: FontAwesome; margin-right: 4px;}
 .msgRow .msgFooter .quote:before {content: '\f10d'; font-family: FontAwesome; margin-right: 4px;}
