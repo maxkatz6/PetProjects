@@ -697,10 +697,17 @@ var sChat={
                 }
             }
             
-            if (sChat.hasClass(newDiv, "showMore"))
+            if (sChat.hasClass(newDiv, "showMore")) {
                 sChat.removeClass(newDiv, "showMore");
-            else
-                sChat.addClass(newDiv, "showMore");
+            }
+            else {
+                var anotherItems = document.getElementsByClassName("showMore");
+                for (var i = 0; i < anotherItems.length; i++) {
+                    sChat.removeClass(anotherItems[i], "showMore");
+                }
+
+                sChat.addClass(newDiv, "showMore");                
+            }
         }
 
         return newDiv;
