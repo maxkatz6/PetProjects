@@ -39,9 +39,9 @@ class Config{
     ];
 
     // Available styles:
-    public static $styleAvailable = ['beige','grey','Oxygen','Lithium','Sulfur','prosilver','Core','MyBB','vBulletin','XenForo'];
+    public static $styleAvailable = ['XenForo'];// ['beige','grey','Oxygen','Lithium','Sulfur','prosilver','Core','MyBB','vBulletin','XenForo'];
     // Default style:
-    const styleDefault = 'prosilver';
+    const styleDefault = 'XenForo';
 
     const maleAvatar = 'images/user-man-thumb.png';
     const femaleAvatar = 'images/user-woman-thumb.png';
