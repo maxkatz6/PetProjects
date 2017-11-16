@@ -36,10 +36,13 @@ a.sticker img{height:100px;max-width:100%;}
 .userAvatarBlock {float:left;width:48px;min-width:48px;min-height:1px;margin:4px 0 0 0;}
 .userAvatarBlock img {display:none;}
 .msgRow.firstMessage .userAvatarBlock img {width:48px;height:48px;display:block;}
-.msgRow .msgMore{display:none;position:absolute;top:0;right:0;width:10px;height:10px;margin-top:2px;padding-left:5px;background:url('../img/delete.png') no-repeat right;}
+.msgRow .msgMore{display:none;position:absolute;top:0;right:0;margin-top:2px;padding-left:5px;}
+.msgRow .msgMore:before {content:'\f013'; font-size:1.2em; font-family: FontAwesome;}
 .msgRow:hover .msgMore, .msgRow.keepMoreButton .msgMore {display: block;}
-.msgRow .msgFooter {margin:0 0 0 10px; font-size: 1.1em; display: none;}
-.msgRow .msgFooter .delete {margin:0 4px 0 0;}
+.msgRow .msgFooter {margin: 4px 0 0 12px; font-size: 0.9em; display: none;}
+.msgRow .msgFooter .delete {margin-right:12px;}
+.msgRow .msgFooter .delete:before {content:'\f1f8'; font-family: FontAwesome; margin-right: 4px;}
+.msgRow .msgFooter .quote:before {content: '\f10d'; font-family: FontAwesome; margin-right: 4px;}
 .msgHeader .dateTime {font-size:0.8em;}
 .msgRow.showMore .msgFooter {display: block;}
 .msgBody {overflow: hidden; position: relative;}

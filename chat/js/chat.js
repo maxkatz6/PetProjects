@@ -669,7 +669,7 @@ var sChat={
         var nickHtml = this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol);
         var roleHtml = '<span class="roleSpan ' + userClass + '">' + sChatLang[userClass + "Role"] + '</span>';
         var messageHtml = this.formatMessage(this.replaceText(messageText), msgInfo && msgInfo.mcol);
-        //var moreButtonHtml = '<a class="msgMore" href="javascript:sChat.showMore(' + messageID + ');"> </a>';
+        var moreButtonHtml = '<span class="msgMore" />';
         var quoteHtml = '<a class="quote ignoreOnMessageClick" href="javascript:sChat.selectQuote(\'' + formatedDate + '\', ' + messageID + ');">' + this.encodeSpecialChars(sChatLang['quoteMessage']) + ' </a>';
         var deleteHtml = this.isAllowedToDeleteMessage(messageID, userID, userRole, channelID)
             ? '<a class="delete ignoreOnMessageClick" href="javascript:sChat.deleteMessage(' + messageID + ');">' + this.encodeSpecialChars(sChatLang['deleteMessage']) + '</a>'
@@ -683,7 +683,7 @@ var sChat={
         newDiv.id = this.getMessageDocumentID(messageID);
         newDiv.setAttribute('data-userID', userID);
         newDiv.setAttribute('data-msgDate', dateObject.getTime());
-        newDiv.innerHTML = imgHtml + '<div class="msgBody">' + msgHeaderHtml + msgTextHtml + msgFooter /*+ moreButtonHtml*/ + '</div>';
+        newDiv.innerHTML = imgHtml + '<div class="msgBody">' + msgHeaderHtml + msgTextHtml + msgFooter + moreButtonHtml + '</div>';
 
         var timeout;
         newDiv.onclick = function (e) {
@@ -696,13 +696,7 @@ var sChat={
                     node = node.parentElement;
                 }
             }
-
-            //clearTimeout(timeout);
-            //sChat.addClass(newDiv, "keepMoreButton");
-            //timeout = setTimeout(function () {
-            //    sChat.removeClass(newDiv, "keepMoreButton");
-            //}, 3000);
-
+            
             if (sChat.hasClass(newDiv, "showMore"))
                 sChat.removeClass(newDiv, "showMore");
             else
@@ -710,13 +704,6 @@ var sChat={
         }
 
         return newDiv;
-    },
-    showMore: function(messageID) {
-        var node = this.getMessageNode(messageID);
-        if (this.hasClass(node, "showMore"))
-            this.removeClass(node, "showMore");
-        else
-            this.addClass(node, "showMore");
     },
     formatNickname: function(userName, userClass, isPrivate, colors) {
         var hasColor = sConfig.settings['msgColors'] && colors && colors.length > 0;
