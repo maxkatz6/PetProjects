@@ -1,12 +1,16 @@
 @font-face {
     font-family: 'TengwarAnnatar';
-    src: url('../fonts/tngan-webfont.eot');
-    src: url('../fonts/tngan-webfont.eot?#iefix') format('embedded-opentype'),
-         url('../fonts/tngan-webfont.woff2') format('woff2'),
-         url('../fonts/tngan-webfont.woff') format('woff'),
-         url('../fonts/tngan-webfont.ttf') format('truetype'),
-         url('../fonts/tngan-webfont.svg#tengwar_annatarregular') format('svg');
-    font-weight: normal; font-style: normal;
+    src: url('../fonts/tngan/tngan-webfont.eot');
+    src: url('../fonts/tngan/tngan-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/tngan/tngan-webfont.woff2') format('woff2'), url('../fonts/tngan/tngan-webfont.woff') format('woff'), url('../fonts/tngan/tngan-webfont.ttf') format('truetype'), url('../fonts/tngan/tngan-webfont.svg#tengwar_annatarregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('../fonts//fontawesome/fontawesome-webfont.eot?v=4.7.0');
+    src: url('../fonts//fontawesome/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('../fonts//fontawesome/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('../fonts//fontawesome/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('../fonts//fontawesome/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('../fonts//fontawesome/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
 #content {font-family: Verdana, Arial, Helvetica, sans-serif;font-size:0.9em;}
 h1 {font-size:1.3em;font-family:"Trebuchet MS", Verdana, Arial, sans-serif;font-weight:bold;}
