@@ -738,9 +738,7 @@ var sChat={
         newDiv.onclick = function (e) {
             if (e.target) {
                 var cancel = !sChat.forEachParent(e.target, newDiv, function (node) {
-                    if (sChat.hasClass(node, "ignoreOnMessageClick")) {
-                        return false;
-                    }
+                    return !sChat.hasClass(node, "ignoreOnMessageClick");
                 });
                 if (cancel)
                     return;
