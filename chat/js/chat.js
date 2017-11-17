@@ -737,7 +737,7 @@ var sChat={
         var timeout;
         newDiv.onclick = function (e) {
             if (e.target) {
-                var cancel = sChat.forEachParent(e.target, newDiv, function (node) {
+                var cancel = !sChat.forEachParent(e.target, newDiv, function (node) {
                     if (sChat.hasClass(node, "ignoreOnMessageClick")) {
                         return false;
                     }
