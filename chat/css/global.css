@@ -28,9 +28,9 @@ body.s_chat{padding:0;margin:0;}
 #chatList img{vertical-align:middle;margin-bottom:2px;}
 #chatList cite{margin-right:5px;}
 #chatList .bbCodeImage{vertical-align:top;overflow:auto;margin:5px;}
-.userAvatarBlock {float:left;width:48px;min-width:48px;min-height:1px;margin:4px 0 0 0;}
+.userAvatarBlock {float:left;width:3em;min-width:3em;min-height:1px;margin:4px 0 0 0;}
 .userAvatarBlock img {display:none;}
-.msgRow.firstMessage .userAvatarBlock img {width:48px;height:48px;display:block;}
+.msgRow.firstMessage .userAvatarBlock img {width:3em;height:3em;display:block;}
 .msgRow .msgMore{display:none;position:absolute;top:0;right:0;margin-top:2px;padding-left:5px;}
 .msgRow .msgMore:before {content:'\f013'; font-size:1.2em; font-family: FontAwesome;}
 .msgRow:hover .msgMore, .msgRow.keepMoreButton .msgMore {display: block;}
@@ -68,7 +68,7 @@ input#usersTopButton{background-image: url('../img/usersTop.png');}
 #chatList .deleteSelected{border-width:1px;border-style:dotted;}
 /* Users */
 .userNickname{font-weight:bold;margin:0 4px;}
-.userAvatar{border-radius:50%;height:36px;width:36px;}
+.userAvatar{border-radius:50%;height:3em;width:3em;}
 .ignored.userRow .userAvatar{border-color:red;border-width:2px;border-style:solid;}
 /* Misc */
 #bbCodeContainer input,#optionsContainer input.button,#settingsList input.button,#logoutButton,#submitButton{cursor:pointer;}
