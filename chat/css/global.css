@@ -32,17 +32,17 @@ body.s_chat{padding:0;margin:0;}
 .userAvatarBlock img {display:none;}
 .msgRow.firstMessage .userAvatarBlock img {width:48px;height:48px;display:block;}
 .msgRow .msgMore{display:none;position:absolute;top:0;right:0;margin-top:2px;padding-left:5px;}
-.msgRow .msgMore:before {content:'\f013'; font-size:1.2rem; font-family: FontAwesome;}
+.msgRow .msgMore:before {content:'\f013'; font-size:1.2em; font-family: FontAwesome;}
 .msgRow:hover .msgMore, .msgRow.keepMoreButton .msgMore {display: block;}
-.msgRow .msgFooter {margin: 4px 0 4px 12px; font-size: 0.9rem; display: none;}
+.msgRow .msgFooter {margin: 4px 0 4px 12px; font-size: 0.9em; display: none;}
 .msgRow .msgFooter .delete {margin-right:12px;}
 .msgRow .msgFooter .delete:before {content:'\f1f8'; font-family: FontAwesome; margin-right: 4px;}
 .msgRow .msgFooter .quote:before {content: '\f10d'; font-family: FontAwesome; margin-right: 4px;}
-.msgHeader .dateTime {font-size:0.8rem;}
+.msgHeader .dateTime {font-size:0.8em;}
 .msgRow.showMore .msgFooter {display: block;}
 .msgBody {overflow: hidden; position: relative;}
-.msgBody .msgText {margin:0 0 0 10px; font-size: 1.1rem; line-height: 1.5rem;}
-.msgBody .msgHeader {display:none;margin:4px 0 4px 6px; line-height: 1.5rem;}
+.msgBody .msgText {margin:0 0 0 10px; font-size: 1.1em; line-height: 1.5em;}
+.msgBody .msgHeader {display:none;margin:4px 0 4px 6px; line-height: 1.5em;}
 .msgBody .msgHeader .roleSpan {display: none; margin: 0 4px 0 0; border-radius:10%; padding:1px; font-weight:bold; }
 /* .msgBody .msgHeader .roleSpan.admin, .msgBody .msgHeader .roleSpan.moderator {display: inline;} */
 .firstMessage .msgBody .msgHeader {display:block;}
@@ -73,7 +73,7 @@ input#usersTopButton{background-image: url('../img/usersTop.png');}
 /* Misc */
 #bbCodeContainer input,#optionsContainer input.button,#settingsList input.button,#logoutButton,#submitButton{cursor:pointer;}
 /*https://github.com/laktek/really-simple-color-picker */
-div.colorPicker-picker{height:16px;width:16px;padding:0 !important;border: 1px solid #ccc;background: url('../img/colorpicker.gif') no-repeat top right;cursor: pointer;line-height: 16px;font-size:0.75rem;font-weight:bold;text-align:center;}
+div.colorPicker-picker{height:16px;width:16px;padding:0 !important;border: 1px solid #ccc;background: url('../img/colorpicker.gif') no-repeat top right;cursor: pointer;line-height: 16px;font-size:0.75em;font-weight:bold;text-align:center;}
 div.colorPicker-palette{width:110px;position:absolute;border:1px solid #598FEF;background-color:#EFEFEF;padding:2px;z-index:9999;}
 div.colorPicker_hexWrap{width: 100%;float:left}
 div.colorPicker_hexWrap label {font-size: 95%; color: #2F2F2F; margin: 5px 2px; width: 25%}
@@ -117,7 +117,7 @@ div.tab .tablinks.active {background-color: #ccc;}
     #helpButton,#onlineListButton,#audioButton,#usersTopButton,#rulesButton,#settingsButton, #emoticonsContainer,#messageLengthCounter, #bbCodeContainer #commandAction  {display: none;}
     .panelContainer {z-index: 1;bottom: 0;right: 0;top: 0;position: absolute;height: auto;width: 100%!important; display: none;}
     #helpContainer{ display: none !important;}
-    #mainPanelContainer h3 { font-size: 0.9rem; text-align: left;}
+    #mainPanelContainer h3 { font-size: 0.9em; text-align: left;}
     #emoticonsContainer {left: 0; bottom:35px; width: 270px; }
     #chatList {position: absolute; top: 0; left: 0; right: 0; bottom: 67px ; height: auto;}
     #headline { position: absolute; top: 0; text-indent: 25px; line-height: 30px; left:0!important; right:0!important;}
