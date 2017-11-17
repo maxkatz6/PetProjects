@@ -565,9 +565,9 @@ var sChat={
         var isIgnored = this.ignoredUserNames.indexOf(userName) >= 0;
         return '<div id="' + this.getUserDocumentID(userID) + '">'
             + '<table class="userRow' + (isIgnored ? " ignored" : "") + '" data-id="' + userID + '" data-name="' + encodedUserName + '" width="100%" style="table-layout:fixed;">'
-            + '<tr><td width="40"><a href="javascript:sChat.toUser(\'' + encodedUserName + '\', true);"><img class="userAvatar" src="../' + userInfo.avatar + '"/></a></td>'
+            + '<tr><td style="width:3em"><a href="javascript:sChat.toUser(\'' + encodedUserName + '\', true);"><img class="userAvatar" src="../' + userInfo.avatar + '"/></a></td>'
             + '<td><a class="userNickname" href="javascript:sChat.toUser(\''+encodedUserName+'\',false);">'+userName.replace('_', ' ')+'</a></td>'
-            + '<td width="14"><img width="16" id="stat' + userID + '"/></td>'
+            + '<td width="16"><img width="16" id="stat' + userID + '"/></td>'
             + '<td width="30">'+(userInfo.tim!=='none'?'<img src="img/tim/'+userInfo.tim+'.png" border="0" title="'+helper.getTIM(userInfo.tim)+'"></img></td>':'</td>')
             + '<td width="10">'+(userInfo.gender&&userInfo.gender!=='n'?'<img height="13" src="img/gender/'+userInfo.gender+'.png" border="0" title="'+(userInfo.gender==='m'?'Мужской':'Женский')+'"></td>':'</td>')
             + '<td width="20"><a class="arrowBut coverImage" id="showMenu' + userID + '" href="javascript:sChat.toggleUserMenu(\'' + this.getUserMenuDocumentID(userID) + '\', \'' + encodedUserName + '\', ' + userID + ' );"></a></td></tr></table>'

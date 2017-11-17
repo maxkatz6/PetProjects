@@ -38,7 +38,7 @@ body.s_chat{padding:0;margin:0;}
 .msgRow .msgFooter .delete {margin-right:12px;}
 .msgRow .msgFooter .delete:before {content:'\f1f8'; font-family: FontAwesome; margin-right: 4px;}
 .msgRow .msgFooter .quote:before {content: '\f10d'; font-family: FontAwesome; margin-right: 4px;}
-.msgHeader .dateTime {font-size:0.8em;}
+.msgHeader .dateTime {font-size:0.8em; word-wrap:normal;}
 .msgRow.showMore .msgFooter {display: block;}
 .msgBody {overflow: hidden; position: relative;}
 .msgBody .msgText {margin:0 0 0 10px; font-size: 1.1em; line-height: 1.5em;}
