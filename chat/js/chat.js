@@ -546,7 +546,7 @@ var sChat={
             this.selAddressee='';
         }
         if (priv) {
-            if (encodedUserName != nick) {
+            if (this.encodedUserName != nick) {
                 this.insertMessageWrapper('/msg ' + nick + ' ');
                 this.selAddressee = '/msg ' + nick + ' ';
             }
