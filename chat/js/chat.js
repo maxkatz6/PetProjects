@@ -1102,9 +1102,9 @@ var sChat={
     },
     updateUserIgnoreClass: function (userName) {
         var row = document.querySelector(".userRow[data-name='" + userName + "']");
-        row.className = row.className.replace(" ignored", "");
+        this.removeClass(row, "ignored");
         if (this.ignoredUserNames.indexOf(userName) >= 0)
-            row.className += " ignored";
+            this.addClass(row, "ignored");
     },
     getIgnoredUserNames:function(){
         var ignoredUserNamesString;
@@ -1170,11 +1170,8 @@ var sChat={
         if (!node) node = this.dom['chatList'].firstChild;
         if (node) {
             previousNode = node.previousSibling;
-            rowEven = (previousNode && previousNode.className.indexOf('rowOdd') >= 0) ? true : false;
+            rowEven = (previousNode && this.hasClass(previousNode, 'rowOdd')) ? true : false;
             while (node) {
-                node.className = node.className.replace(/rowEven|rowOdd|firstMessage|\s\s/g, "");
-
-                node.className += (rowEven ? ' rowEven' : ' rowOdd');
                 rowEven = !rowEven;
 
                 var lastUserID = previousNode && previousNode.getAttribute('data-userID');
@@ -1182,9 +1179,20 @@ var sChat={
                 var userID = node.getAttribute('data-userID');
                 var dateObject = node.getAttribute('data-msgDate');
                 var isSeparetedMessage = !previousNode || lastUserID != userID || (dateObject - lastDate) > sConfig.messageUnionTimeLimit;
-                if (isSeparetedMessage)
-                    node.className += " firstMessage";
 
+                if (isSeparetedMessage)
+                    this.addClass(node, "firstMessage");
+                else
+                    this.removeClass(node, "firstMessage");
+
+                if (rowEven) {
+                    this.addClass(node, "rowEven");
+                    this.removeClass(node, "rowOdd");
+                }
+                else {
+                    this.addClass(node, "rowOdd");
+                    this.removeClass(node, "rowEven");
+                }
 
                 previousNode = node;
                 node = node.nextSibling;
@@ -1251,9 +1259,10 @@ var sChat={
     toggleButton:function(idShowHide, idBut){
         if (idBut) {
             var button = document.getElementById(idBut);
-            button.className = button.className.indexOf(' off') !== -1 ?
-                button.className = button.className.replace(' off', '') :
-                button.className + ' off';
+            if (this.hasClass(button, "off"))
+                this.removeClass(button, "off");
+            else 
+                this.addClass(button, "off");
         }
         this.showHide(idShowHide);
     },
@@ -1631,9 +1640,9 @@ var sChat={
         var str = '<a href="' + url + '" class="playGif" onclick="sChat.runGif(this); return false;"><img onload="sChat.updateChatlistView();" class="bbCodeImage" style="max-width:90%; max-height:200px;" src="img/play.png"/></a>';
         return str;
     },
-    runGif: function(el){
-        if (el.className === 'playGif') {
-            el.className = '';
+    runGif: function (el) {
+        if (sChat.hasClass(el, 'playGif')) {
+            sChat.removeClass(el, 'playGif');
             el.firstChild.src=el.href;
         } else {
             window.open(el.href);
@@ -1789,24 +1798,25 @@ var sChat={
         }
         var type = item.getAttribute("data-type");
         var lastSort = item.getAttribute("data-sort") || "asc";
-        item.className = item.className.replace(/ asc| desc/g, "");
 
         if (lastSort == "asc") {
             lastSort = "desc";
             item.setAttribute("data-sort", lastSort);
-            item.className += " " + lastSort;
+            sChat.addClass(item, "desc");
+            sChat.removeClass(item, "asc");
         }
         else {
             lastSort = "asc";
             item.setAttribute("data-sort", lastSort);
-            item.className += " " + lastSort;
+            sChat.addClass(item, "asc");
+            sChat.removeClass(item, "desc");
         }
 
         var headers = document.getElementsByTagName("th");
         for (var i = 0; i < headers.length; i++)
-            headers[i].className = headers[i].className.replace(" selected", "");
+            sChat.removeClass(headers[i], "selected");
 
-        item.className += " selected";
+        sChat.addClass(item, "selected");
 
         updateTable(0, type, lastSort == "asc");
     },
