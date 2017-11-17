@@ -1105,9 +1105,15 @@ var sChat={
         }
     },
     addEvent:function(elem, type, eventHandle){
-        if(elem.addEventListener) elem.addEventListener(type, eventHandle, false);
-        else if(elem.attachEvent) elem.attachEvent("on"+type, eventHandle);
-        else elem["on"+type]=eventHandle;
+        if (elem.addEventListener)
+            return elem.addEventListener(type, eventHandle, false);
+
+        var handler = function (event) {
+            event.target = e.target || e.srcElement;
+            eventHandle(event);
+        }
+        if (elem.attachEvent) elem.attachEvent("on" + type, handler);
+        else elem["on" + type] = handler;
     },
     updateChatListClasses: function (node) {
         var previousNode, rowEven;
