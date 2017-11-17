@@ -145,20 +145,69 @@ var sChat={
             this.updateChatlistView();
         }
     },
-    initEmoticons:function(){
-        var buffer = "";
-        for(var i=0; i<sConfig.emoticonCodes.length; i++){
-            // Replace specials characters in emoticon codes:
-            sConfig.emoticonCodes[i] = sChat.encodeSpecialChars(sConfig.emoticonCodes[i]);
-            var cl=sConfig.emoticonFiles[i].indexOf('_')!==1?"smile":"sticker";
-            buffer += '<a class="' + cl + '" href="javascript:sChat.insertText(\''
-                + sChat.scriptLinkEncode(sConfig.emoticonCodes[i])
-                + '\');"><img src="img/emoticons/' + sConfig.emoticonFiles[i]
-                +'" alt="'+sConfig.emoticonCodes[i]
-                +'" title="'+sConfig.emoticonCodes[i]
-                +'"/></a>';
+    openTab: function (tabDiv) {
+        var tabContainerDiv = document.getElementById(tabDiv.getAttribute('data-tabContainerId'));
+        var isInited = tabDiv.getAttribute('data-inited') == true;
+
+        if (!isInited) {
+            var tabId = tabDiv.getAttribute('data-tabId');
+            var emoticons = sConfig.emoticons[tabId];
+            var emoticonClass = emoticons.class;
+            var hasCodes = !!emoticons.codes;
+            var buffer = '';
+            for (var i = 0; i < emoticons.codes.length; i++) {
+                var code = sChat.encodeSpecialChars(hasCodes ? emoticons.codes[i] : ':' + emoticons.files[i] + ':');
+                var div = '<div class="emoticone coverImage"'
+                    + ' style="background-image:url(img/emoticons/' + emoticons.files[i]
+                    + ')" title="' + code
+                    + '"></div>';
+                buffer += '<a class="' + emoticonClass + '" href="javascript:sChat.insertText(\''
+                    + sChat.scriptLinkEncode(code)
+                    + '\');">' + div + '</a>';
+            }
+            tabContainerDiv.innerHTML = buffer;
+            tabDiv.setAttribute('data-inited', true);
         }
-        if (sChat.dom['emoticonsContainer']) sChat.updateDOM('emoticonsContainer', buffer);
+
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            sChat.removeClass(tabcontent[i], "active");
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            sChat.removeClass(tablinks[i], "active");
+        }
+        sChat.addClass(tabDiv, "active");
+        sChat.addClass(tabContainerDiv, "active");
+    },
+    initEmoticons: function () {
+        var container = sChat.dom['emoticonsContainer'];
+
+        var tabsDiv = document.createElement('div');
+        tabsDiv.className = "tab";
+
+        var buffer = '';
+        for (var i = 0; i < sConfig.emoticons.length; i++) {
+            var emotionsTab = sConfig.emoticons[i];
+            var id = "tab-" + emotionsTab.id;
+
+            var tabDiv = document.createElement('div');
+            tabDiv.className = "tablinks";
+            tabDiv.setAttribute('data-tabId', i);
+            tabDiv.setAttribute('data-tabContainerId', id);
+            tabDiv.setAttribute('data-inited', false);
+            tabDiv.setAttribute('onclick', 'sChat.openTab(this)');
+            tabDiv.innerHTML = '<div class="tabIcon coverImage" style="background-image:url(img/emoticons/' + emotionsTab.icon + ')"></div>';
+
+            tabsDiv.appendChild(tabDiv);
+
+            buffer += '<div id="' + id + '" class="tabcontent"></div>';
+        }
+
+        container.innerHTML = buffer + tabsDiv.outerHTML;
+
+        if (tabsDiv.firstElementChild)
+            sChat.openTab(tabsDiv.firstElementChild);
     },
     startChatUpdate:function(){
         // Start the chat update and retrieve current user and channel info and set the login channel:
@@ -521,7 +570,7 @@ var sChat={
             + '<td width="14"><img width="16" id="stat' + userID + '"/></td>'
             + '<td width="30">'+(userInfo.tim!=='none'?'<img src="img/tim/'+userInfo.tim+'.png" border="0" title="'+helper.getTIM(userInfo.tim)+'"></img></td>':'</td>')
             + '<td width="10">'+(userInfo.gender&&userInfo.gender!=='n'?'<img height="13" src="img/gender/'+userInfo.gender+'.png" border="0" title="'+(userInfo.gender==='m'?'Мужской':'Женский')+'"></td>':'</td>')
-            + '<td width="20"><a class="arrowBut" id="showMenu' + userID + '" href="javascript:sChat.toggleUserMenu(\'' + this.getUserMenuDocumentID(userID) + '\', \'' + encodedUserName + '\', ' + userID + ' );"></a></td></tr></table>'
+            + '<td width="20"><a class="arrowBut coverImage" id="showMenu' + userID + '" href="javascript:sChat.toggleUserMenu(\'' + this.getUserMenuDocumentID(userID) + '\', \'' + encodedUserName + '\', ' + userID + ' );"></a></td></tr></table>'
             + '<ul class="userMenu" style="display:none;" id="'+this.getUserMenuDocumentID(userID)+((userID===this.userID)?'">'+this.getUserNodeStringItems(encodedUserName, userID, false):'">')+'</ul>'
             + '</div>';
     },
@@ -1105,11 +1154,14 @@ var sChat={
         }
     },
     addEvent:function(elem, type, eventHandle){
-        if (elem.addEventListener)
-            return elem.addEventListener(type, eventHandle, false);
+        if (elem.addEventListener) {
+            elem.addEventListener(type, eventHandle, false);
+            return;
+        }
 
         var handler = function (event) {
             event.target = e.target || e.srcElement;
+            event.currentTarget = event.currentTarget || event.target;
             eventHandle(event);
         }
         if (elem.attachEvent) elem.attachEvent("on" + type, handler);
@@ -1589,24 +1641,55 @@ var sChat={
             window.open(el.href);
         }
     },
-    replaceEmoticons:function(text){
-        if(!sConfig.settings['emoticons']) return text;
-        if(!arguments.callee.regExp){
-            var regExpStr='^(.*)(';
-            for(var i=0; i<sConfig.emoticonCodes.length; i++){
-                if(i!==0) regExpStr+='|';
-                regExpStr+='(?:'+this.escapeRegExp(sConfig.emoticonCodes[i])+')';
+    replaceEmoticons: function (text) {
+        if (!sConfig.settings['emoticons']) return text;
+
+        if (!arguments.callee.regExp) {
+            var regExpStr = '^(.*)(';
+            for (var i = 0; i < sConfig.emoticons.length; i++) {
+                var hasCodes = !!sConfig.emoticons[i].codes;
+                for (var j = 0; j < sConfig.emoticons[i].codes.length; j++) {
+                    var code = hasCodes
+                        ? sConfig.emoticons[i].codes[j]
+                        : ':' + sConfig.emoticons[i].files[j] + ':';
+
+                    if (!(i == 0 && j == 0))
+                        regExpStr += '|';
+                    regExpStr += '(?:' + this.escapeRegExp(code) + ')';
+                }
             }
-            regExpStr+=')(.*)$';
-            arguments.callee.regExp=new RegExp(regExpStr, 'gm');
+            regExpStr += ')(.*)$';
+            arguments.callee.regExp = new RegExp(regExpStr, 'gm');
         }
-        return text.replace(arguments.callee.regExp, function(str, p1, p2, p3){
-                if(!arguments.callee.regExp) arguments.callee.regExp=new RegExp('(="[^"]*$)|(&[^;]*$)', '');
-                // Avoid replacing emoticons in tag attributes or XHTML entities:
-                if(p1.match(arguments.callee.regExp)) return str;
-                if(p2) return sChat.replaceEmoticons(p1)+'<img src="img/emoticons/'+sConfig.emoticonFiles[sConfig.emoticonCodes.indexOf(p2)]+'" alt="'+p2+'" />'+sChat.replaceEmoticons(p3);
-                return str;
+        return text.replace(arguments.callee.regExp, function (str, p1, p2, p3) {
+            if (!arguments.callee.regExp) arguments.callee.regExp = new RegExp('(="[^"]*$)|(&[^;]*$)', '');
+            // Avoid replacing emoticons in tag attributes or XHTML entities:
+            if (p1.match(arguments.callee.regExp)) return str;
+            if (p2) {
+                var file;
+
+                for (var i = 0; i < sConfig.emoticons.length; i++) {
+                    var hasCodes = !!sConfig.emoticons[i].codes;
+                    for (var j = 0; j < sConfig.emoticons[i].codes.length; j++) {
+                        var code = hasCodes
+                            ? sConfig.emoticons[i].codes[j]
+                            : ':' + sConfig.emoticons[i].files[j] + ':';
+
+                        if (code == p2) {
+                            file = sConfig.emoticons[i].files[j];
+                            break;
+                        }
+                    }
+                    if (file)
+                        break;
+                }
+
+                return sChat.replaceEmoticons(p1)
+                    + '<img src="img/emoticons/' + file + '" alt="' + p2 + '" />'
+                    + sChat.replaceEmoticons(p3);
             }
+            return str;
+        }
         );
     },
     getActiveStyle:function(){

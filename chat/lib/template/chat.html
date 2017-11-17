@@ -91,9 +91,14 @@
         sChat.addEvent(window, 'blur', function () {sChat.infocus = false;});
         sChat.addEvent(window, 'focus', function () {sChat.infocus = true;document.title = 'SocioMIX';});
         sChat.addEvent(window, 'click', function (e) {
-            var t = e.target;
             var c = document.getElementById('emoticonsContainer');
-            if(e!==t&&t.id!=='bbCodeEmoticon') c.style.display='none';
+            var isEmoticoneChild = sChat.forEachParent(e.target, c.parentNode, function (node) {
+                return node != c;
+            });
+            if (sChat.hasClass(e.target, "emoticone")
+                || e.target.id != 'bbCodeEmoticon'
+                && isEmoticoneChild)
+                c.style.display = 'none';
         });
 
         sChat.init();

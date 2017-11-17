@@ -20,11 +20,6 @@ body.s_chat{padding:0;margin:0;}
 #submitButtonContainer{position:absolute;right:20px;bottom: 15px;}
 #bbCodeContainer{position:absolute;left:20px;bottom: 15px;padding:3px;}
 #bbCodeContainer input{display:block;float:left;margin-right:2px;}
-#emoticonsContainer{position:absolute;left:120px;bottom:50px;padding:3px;z-index:3;width:320px;max-height:400px;overflow:auto;}
-#emoticonsContainer a{margin-left:1px;margin-right:1px;text-align: center;display:inline-block;}
-a.sticker{width:32%;}
-a.sticker img{height:100px;max-width:100%;}
-#emoticonsContainer img{vertical-align:middle;margin-bottom:2px;}
 #optionsContainer{position:absolute;right:20px;top:50px;padding:3px 0 3px 3px;z-index:3;}
 #optionsContainer input{vertical-align:middle;}
 #bbCodeContainer input,#logoutButton,#submitButton,#loginButton{padding:4px 10px;}
@@ -86,6 +81,20 @@ div.colorPicker_hexWrap input {margin:5px 2px;padding:0;font-size:95%;border:1px
 div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;float:left;cursor:pointer;line-height:12px;}
 .vkPost{border:1px solid #45688E;border-left:5px solid #45688E;overflow:auto;width:80%;max-height:200px; cursor: pointer;}
 .playGif img{background-color: white;opacity: 0.5;}
+/* Emotions */
+#emoticonsContainer{overflow:hidden; position:absolute;left:120px;bottom:50px;padding:3px;z-index:3;width:320px;overflow:auto;}
+#emoticonsContainer a{text-align: center;display:inline-block;}
+a.sticker{width:33%;}
+#emoticonsContainer img{vertical-align:middle;margin-bottom:2px;}
+div.tab {overflow-y: hidden;overflow-x: auto;border: 1px solid #ccc;background-color: #f1f1f1;white-space: nowrap;}
+div.tab .tablinks {background-color: inherit;display: inline-block;border: none;outline: none;cursor: pointer;width: 25%;padding: 4px 0;}
+div.tab .tabIcon{width: 48px;height: 48px;display: table;margin: 0 auto;}
+div.tab .tablinks:hover {background-color: #ddd;}
+div.tab .tablinks.active {background-color: #ccc;}
+.tabcontent {display: none;padding: 4px;border: 1px solid #ccc;overflow-y: scroll;max-height: 300px;} 
+.tabcontent.active {display: block;}
+.tabcontent .emoticone{padding-top: 100%;}
+.tabcontent .emoticone:hover {background-color: rgba(12,12,12,0.1);}
 @media (max-width: 700px) {
 	#mainPanelContainer { top:65px; left:5px; right:5px; bottom:75px; }
 	#headline { margin:0; padding:0 0 0 5px; line-height:25px; }
@@ -109,7 +118,7 @@ div.colorPicker-swatch{height:12px;width:12px;border:1px solid #000;margin:2px;f
     .panelContainer {z-index: 1;bottom: 0;right: 0;top: 0;position: absolute;height: auto;width: 100%!important; display: none;}
     #helpContainer{ display: none !important;}
     #mainPanelContainer h3 { font-size: 0.9em; text-align: left;}
-    #emoticonsContainer {left: 0; bottom:35px; max-height: 300px; width: 270px; }
+    #emoticonsContainer {left: 0; bottom:35px; width: 270px; }
     #chatList {position: absolute; top: 0; left: 0; right: 0; bottom: 67px ; height: auto;}
     #headline { position: absolute; top: 0; text-indent: 25px; line-height: 30px; left:0!important; right:0!important;}
     #logoutChannelContainer {top:0;right: 3px; position:absolute;left:3px;float: right;}

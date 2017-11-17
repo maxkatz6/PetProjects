@@ -56,8 +56,14 @@
         sConfig.mobile=true;
         sConfig.radioServer = sConfig.videoChat = false;
         sChat.addEvent(window, 'click', function (e) {
-            var t=e.target||e.srcElement, c=document.getElementById('emoticonsContainer');
-            if(e!==t&&t.id!=='bbCodeEmoticon') c.style.display='none';
+            var c = document.getElementById('emoticonsContainer');
+            var isEmoticoneChild = sChat.forEachParent(e.target, c.parentNode, function (node) {
+                return node != c;
+            });
+            if (sChat.hasClass(e.target, "emoticone")
+                || e.target.id != 'bbCodeEmoticon'
+                && isEmoticoneChild)
+                c.style.display = 'none';
         });
         sChat.init();
         // ]]>
