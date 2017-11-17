@@ -1176,7 +1176,12 @@ var sChat={
     },
     updateButton:function(setting, buttonID){
         var node=document.getElementById(buttonID);
-        if(node) node.className=(this.getSetting(setting)?'button':'button off');
+        if (node) {
+            if (this.getSetting(setting))
+                this.removeClass(node, "off");
+            else
+                this.addClass(node, "off");
+        }
     },
     toggleButton:function(idShowHide, idBut){
         if (idBut) {

@@ -55,7 +55,8 @@ a.sticker img{height:100px;max-width:100%;}
 #onlineList ul{margin: 5px 0;padding-left:20px;}
 #settingsList select.left{text-align:right;}
 /* Buttons */
-#optionsContainer input, #settingsList input.button, .arrowBut {background-size:cover;-webkit-background-size: cover;-o-background-size: cover;-moz-background-size: cover;width: 22px;height: 22px;padding: 0;}
+.coverImage {background-size:cover;-webkit-background-size: cover;-o-background-size: cover;-moz-background-size: cover;}
+#optionsContainer input, #settingsList input.button, .arrowBut {width: 22px;height: 22px;padding: 0;}
 input#helpButton{background-image: url('../img/help.png'); }
 input#settingsButton{background-image: url('../img/settings.png');}
 input#onlineListButton{background-image: url('../img/online.png');}

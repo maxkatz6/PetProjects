@@ -115,12 +115,12 @@
         </div>
     </div>
     <div id="optionsContainer">
-        <input type="image" src="img/pixel.gif" class="button" id="usersTopButton" alt="Топ пользователей" title="Топ пользователей" onclick="sChat.toggleContainer('topContainer', ['onlineListContainer', 'settingsContainer', 'rulesContainer', 'helpContainer']);" />
-        <input type="image" src="img/pixel.gif" class="button" id="rulesButton" alt="Правила чата" title="Правила чата" onclick="sChat.toggleContainer('rulesContainer', ['onlineListContainer', 'settingsContainer', 'helpContainer', 'topContainer']);" />
-        <input type="image" src="img/pixel.gif" class="button" id="helpButton" alt="[LANG]toggleHelp[/LANG]" title="[LANG]toggleHelp[/LANG]" onclick="sChat.toggleContainer('helpContainer', ['onlineListContainer', 'settingsContainer', 'rulesContainer', 'topContainer']); "/>
-        <input type="image" src="img/pixel.gif" class="button" id="settingsButton" alt="[LANG]toggleSettings[/LANG]" title="[LANG]toggleSettings[/LANG]" onclick="sChat.toggleContainer('settingsContainer', ['onlineListContainer', 'helpContainer', 'rulesContainer', 'topContainer']);"/>
-        <input type="image" src="img/pixel.gif" class="button" id="onlineListButton" alt="[LANG]toggleOnlineList[/LANG]" title="[LANG]toggleOnlineList[/LANG]" onclick=" sChat.toggleContainer('onlineListContainer', ['settingsContainer', 'helpContainer', 'rulesContainer', 'topContainer']); "/>
-        <input type="image" src="img/pixel.gif" class="button" id="audioButton" alt="[LANG]toggleAudio[/LANG]" title="[LANG]toggleAudio[/LANG]" onclick=" sChat.toggleSetting('audio', 'audioButton'); "/>
+        <input type="image" src="img/pixel.gif" class="button coverImage" id="usersTopButton" alt="Топ пользователей" title="Топ пользователей" onclick="sChat.toggleContainer('topContainer', ['onlineListContainer', 'settingsContainer', 'rulesContainer', 'helpContainer']);" />
+        <input type="image" src="img/pixel.gif" class="button coverImage" id="rulesButton" alt="Правила чата" title="Правила чата" onclick="sChat.toggleContainer('rulesContainer', ['onlineListContainer', 'settingsContainer', 'helpContainer', 'topContainer']);" />
+        <input type="image" src="img/pixel.gif" class="button coverImage" id="helpButton" alt="[LANG]toggleHelp[/LANG]" title="[LANG]toggleHelp[/LANG]" onclick="sChat.toggleContainer('helpContainer', ['onlineListContainer', 'settingsContainer', 'rulesContainer', 'topContainer']); "/>
+        <input type="image" src="img/pixel.gif" class="button coverImage" id="settingsButton" alt="[LANG]toggleSettings[/LANG]" title="[LANG]toggleSettings[/LANG]" onclick="sChat.toggleContainer('settingsContainer', ['onlineListContainer', 'helpContainer', 'rulesContainer', 'topContainer']);"/>
+        <input type="image" src="img/pixel.gif" class="button coverImage" id="onlineListButton" alt="[LANG]toggleOnlineList[/LANG]" title="[LANG]toggleOnlineList[/LANG]" onclick=" sChat.toggleContainer('onlineListContainer', ['settingsContainer', 'helpContainer', 'rulesContainer', 'topContainer']); "/>
+        <input type="image" src="img/pixel.gif" class="button coverImage" id="audioButton" alt="[LANG]toggleAudio[/LANG]" title="[LANG]toggleAudio[/LANG]" onclick=" sChat.toggleSetting('audio', 'audioButton'); "/>
     </div>
     <div id="mainPanelContainer">
         <div class="panelContainer" id="onlineListContainer">
@@ -171,35 +171,35 @@
                 </dl>
                 <dl>
                     <dt><label for="saveAddresseeSetting">Сохранять адресата</label></dt>
-                    <dd><input type="checkbox" id="saveAddresseeSetting" onclick="sChat.setSetting('saveAddressee', this.checked); "/></dd>
+                    <dd><input type="checkbox" id="saveAddresseeSetting" onclick="sChat.setSetting('saveAddressee', this.checked); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="bbCodeSetting">[LANG]settingsBBCode[/LANG]</label></dt>
-                    <dd><input type="checkbox" id="bbCodeSetting" onclick="sChat.setSetting('bbCode', this.checked); "/></dd>
+                    <dd><input type="checkbox" id="bbCodeSetting" onclick="sChat.setSetting('bbCode', this.checked); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="hyperLinksSetting">[LANG]settingsHyperLinks[/LANG]</label></dt>
-                    <dd><input type="checkbox" id="hyperLinksSetting" onclick="sChat.setSetting('hyperLinks', this.checked); sChat.setSetting('vkPosts', this.checked&&sChat.getSetting('vkPosts')); document.getElementById('vkPostsSetting').checked=sChat.getSetting('vkPosts');"/></dd>
+                    <dd><input type="checkbox" id="hyperLinksSetting" onclick="sChat.setSetting('hyperLinks', this.checked); sChat.setSetting('vkPosts', this.checked&&sChat.getSetting('vkPosts')); document.getElementById('vkPostsSetting').checked=sChat.getSetting('vkPosts');" /></dd>
                 </dl>
                 <dl>
                     <dt><label for="hyperLinksSetting">Обработка постов ВК</label></dt>
-                    <dd><input type="checkbox" id="vkPostsSetting" onclick="sChat.setSetting('vkPosts', this.checked); "/></dd>
+                    <dd><input type="checkbox" id="vkPostsSetting" onclick="sChat.setSetting('vkPosts', this.checked); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="emoticonsSetting">[LANG]settingsEmoticons[/LANG]</label></dt>
-                    <dd><input type="checkbox" id="emoticonsSetting" onclick="sChat.setSetting('emoticons', this.checked); "/></dd>
+                    <dd><input type="checkbox" id="emoticonsSetting" onclick="sChat.setSetting('emoticons', this.checked); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="msgColorsSetting">Разрешить цветные сообщения:</label></dt>
-                    <dd><input type="checkbox" id="msgColorsSetting" onclick="sChat.setSetting('msgColors', this.checked); "/></dd>
+                    <dd><input type="checkbox" id="msgColorsSetting" onclick="sChat.setSetting('msgColors', this.checked); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="nickColorsSetting">Разрешить цветные ники:</label></dt>
-                    <dd><input type="checkbox" id="nickColorsSetting" onclick="sChat.setSetting('nickColors', this.checked); "/></dd>
+                    <dd><input type="checkbox" id="nickColorsSetting" onclick="sChat.setSetting('nickColors', this.checked); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="gradiensSetting">Разрешить градиентный текст:</label></dt>
-                    <dd><input type="checkbox" id="gradiensSetting" onclick="sChat.setSetting('gradiens', this.checked); "/></dd>
+                    <dd><input type="checkbox" id="gradiensSetting" onclick="sChat.setSetting('gradiens', this.checked); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="msgColorSetting">Цвет сообщений</label></dt>
@@ -228,43 +228,43 @@
                 </dl>
                 <dl>
                     <dt><label for="soundReceiveSetting">[LANG]settingsSoundReceive[/LANG]</label></dt>
-                    <dd><select id="soundReceiveSetting" onchange="sChat.setSetting('soundReceive', this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundReceiveSetting" onchange="sChat.setSetting('soundReceive', this.options[this.selectedIndex].value); "><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button coverImage playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick=" sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundSendSetting">[LANG]settingsSoundSend[/LANG]</label></dt>
-                    <dd><select id="soundSendSetting" onchange="sChat.setSetting('soundSend', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundSendSetting" onchange="sChat.setSetting('soundSend', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button coverImage playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundEnterSetting">[LANG]settingsSoundEnter[/LANG]</label></dt>
-                    <dd><select id="soundEnterSetting" onchange="sChat.setSetting('soundEnter', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundEnterSetting" onchange="sChat.setSetting('soundEnter', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button coverImage playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundLeaveSetting">[LANG]settingsSoundLeave[/LANG]</label></dt>
-                    <dd><select id="soundLeaveSetting" onchange="sChat.setSetting('soundLeave', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundLeaveSetting" onchange="sChat.setSetting('soundLeave', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button coverImage playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundChatBotSetting">[LANG]settingsSoundChatBot[/LANG]</label></dt>
-                    <dd><select id="soundChatBotSetting" onchange="sChat.setSetting('soundChatBot', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundChatBotSetting" onchange="sChat.setSetting('soundChatBot', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button coverImage playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundErrorSetting">[LANG]settingsSoundError[/LANG]</label></dt>
-                    <dd><select id="soundErrorSetting" onchange="sChat.setSetting('soundError', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundErrorSetting" onchange="sChat.setSetting('soundError', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button coverImage playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="soundPrivateSetting">[LANG]settingsSoundPrivate[/LANG]</label></dt>
-                    <dd><select id="soundPrivateSetting" onchange="sChat.setSetting('soundPrivate', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); "/></dd>
+                    <dd><select id="soundPrivateSetting" onchange="sChat.setSetting('soundPrivate', this.options[this.selectedIndex].value);"><option value="">-</option></select><input type="image" src="img/pixel.gif" class="button coverImage playback" alt="[LANG]playSelectedSound[/LANG]" title="[LANG]playSelectedSound[/LANG]" onclick="    sPlayer.playSound(this.previousSibling.options[this.previousSibling.selectedIndex].value); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="myVideoSetting">Передавать видео в видеочате.</label></dt>
-                    <dd><input type="checkbox" id="myVideoSetting" onchange="sChat.setSetting('myVideo', this.checked); "/></dd>
+                    <dd><input type="checkbox" id="myVideoSetting" onchange="sChat.setSetting('myVideo', this.checked); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="myAudioSetting">Передавать звук в видеочате.</label></dt>
-                    <dd><input type="checkbox" id="myAudioSetting" onchange="sChat.setSetting('myAudio', this.checked); "/></dd>
+                    <dd><input type="checkbox" id="myAudioSetting" onchange="sChat.setSetting('myAudio', this.checked); " /></dd>
                 </dl>
                 <dl>
                     <dt><label for="radioSetting">Радио SocioFM</label></dt>
-                    <dd><input type="checkbox" id="radioSetting" onchange="sChat.setSetting('radio', this.checked);"/></dd>
+                    <dd><input type="checkbox" id="radioSetting" onchange="sChat.setSetting('radio', this.checked);" /></dd>
                 </dl>
             </div>
         </div>
