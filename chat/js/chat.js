@@ -688,15 +688,15 @@ var sChat={
         var timeout;
         newDiv.onclick = function (e) {
             if (e.target) {
-                var node = e.target;
-                while (node != null
-                    && node != newDiv) {
-                    if (sChat.hasClass(node, "ignoreOnMessageClick"))
-                        return;
-                    node = node.parentElement;
-                }
+                var cancel = sChat.forEachParent(e.target, newDiv, function (node) {
+                    if (sChat.hasClass(node, "ignoreOnMessageClick")) {
+                        return false;
+                    }
+                });
+                if (cancel)
+                    return;
             }
-            
+
             if (sChat.hasClass(newDiv, "showMore")) {
                 sChat.removeClass(newDiv, "showMore");
             }
@@ -706,11 +706,20 @@ var sChat={
                     sChat.removeClass(anotherItems[i], "showMore");
                 }
 
-                sChat.addClass(newDiv, "showMore");                
+                sChat.addClass(newDiv, "showMore");
             }
         }
 
         return newDiv;
+    },
+    forEachParent: function (node, stopNode, func) {
+        while (node != null
+            && node != stopNode) {
+            if (!func(node))
+                return false;
+            node = node.parentElement;
+        }
+        return true;
     },
     formatNickname: function(userName, userClass, isPrivate, colors) {
         var hasColor = sConfig.settings['msgColors'] && colors && colors.length > 0;
