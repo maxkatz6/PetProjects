@@ -488,7 +488,6 @@ var sChat={
                     new Date(json[i].time * 1000),
                     json[i].uID,
                     userName,
-                    json[i].avatar,
                     json[i].role,
                     json[i].id,
                     messageText,
@@ -679,7 +678,6 @@ var sChat={
             new Date(),
             sConfig.chatBotID,
             this.getEncodedChatBotName(),
-            null,
             4,
             null,
             messageText,
@@ -687,15 +685,15 @@ var sChat={
             null
         );
     },
-    addMessageToChatList: function (dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo){
+    addMessageToChatList: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo){
         if(this.getMessageNode(messageID)) return; // Prevent adding the same message twice:
         if(!this.onNewMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip)) return;
 
-        this.dom['chatList'].appendChild(this.getChatListChild(dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo));
+        this.dom['chatList'].appendChild(this.getChatListChild(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo));
 
         this.updateChatListClasses();
     },
-    getChatListChild: function (dateObject, userID, userName, avatar, userRole, messageID, messageText, channelID, ip, msgInfo) {
+    getChatListChild: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo) {
         var rowClass = "msgRow",
             userClass = this.getRoleClass(userRole),
             colon = ': ',
@@ -709,7 +707,7 @@ var sChat={
         if (new RegExp('(?:^|, |])' + this.userName + ',', 'gm').test(messageText)) rowClass += ' toMe';
         var newDiv = document.createElement('div');
 
-        avatar = msgInfo['avatar'];
+        var avatar = msgInfo && msgInfo.hasOwnProperty('avatar') && msgInfo['avatar'];
 
         var formatedDate = this.formatDate(dateObject);
 
@@ -1119,17 +1117,19 @@ var sChat={
         this.ignoredUserNames=ignoredUserNames;
         this.setSetting('ignoredUserNames', ignoredUserNames.join(' '));
     },
-    ignoreMessage:function(dateObject, userID, userName, userRole, messageID, messageText){
+    ignoreMessage: function (dateObject, userID, userName, userRole, messageID, messageText) {
         var textParts;
-        if(userID===sConfig.chatBotID&&messageText.charAt(0)==='/'){
-            textParts=messageText.split(' ');
-            if(textParts.length>1)
-                switch(textParts[0]){
-                case '/invite':
-                case '/uninvite':
-                case '/roll':
-                    userName=textParts[1];
-                    break;
+        if (messageText
+            && userID === sConfig.chatBotID
+            && messageText.charAt(0) === '/') {
+            textParts = messageText.split(' ');
+            if (textParts.length > 1)
+                switch (textParts[0]) {
+                    case '/invite':
+                    case '/uninvite':
+                    case '/roll':
+                        userName = textParts[1];
+                        break;
                 }
         }
         return (this.inArray(this.getIgnoredUserNames(), userName));
