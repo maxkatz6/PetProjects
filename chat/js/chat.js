@@ -646,7 +646,7 @@ var sChat={
             "width=600,height=700,directories=no,location=no,status=no,toolbar=no,menubar=no");
     },
     openVideoChannel: function (priv) {
-        if (!!sWebCam)
+        if (!sWebCam)
             return;
         var key=sWebCam.createRoom(priv);
         if(!priv) this.sendMessageWrapper('/opVideo '+key);
