@@ -188,7 +188,7 @@ var sConfig = {
     maxVidW: 320,
     maxVidH: 240,
     vidFPS: 10,
-    webRtcSignalServer: "http://109.87.163.34:8888/socket.io/";
+    webRtcSignalServer: "http://109.87.163.34:8888/socket.io/",
     iceServers: [
         { url: 'stun:stun01.sipphone.com' },
         { url: 'stun:stun.ekiga.net' },
