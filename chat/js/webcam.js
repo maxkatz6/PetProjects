@@ -25,7 +25,7 @@ var sWebCam={
             async: false
         });
         this.webrtc = new SimpleWebRTC({
-            // url:"http://schatsignal.azurewebsites.net:8888/socket.io/",
+            url: sConfig.webRtcSignalServer,
             localVideoEl:'local',
             remoteVideosEl:'',
             media:{
