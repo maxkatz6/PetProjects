@@ -25,10 +25,4 @@ else if (Config::debug) {
 
 $sChat = new JoomlaSChat();
 
-if (Config::debug && function_exists('xhprof_disable')) {
-    $xhprof_data = xhprof_disable();
-    $xhprof_runs = new XHProfRuns_Default();
-    $firephp = FirePHP::getInstance(true);
-    $firephp->info("http://" . $_SERVER['HTTP_HOST'] . "/schat/chat/debug/xhprof-0.9.4/xhprof_html/index.php?run=".$xhprof_runs->save_run($xhprof_data, "xhprof_testing")."&source=xhprof_testing\n");
-}
 ?>
