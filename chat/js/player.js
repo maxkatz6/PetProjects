@@ -52,13 +52,13 @@
         $('#jp_radio_cont .jp-title').text(json[0].title || json[0].name);
     },
     initSounds: function () {
-        $('<div id="jp_sounds" class="jp-jplayer"></div>').appendTo(document.body).jPlayer({
-            ready: function () { sPlayer.soundPlayer = $(this); },
-            errorAlerts: true, swfPath: "flash/", solution: "html, flash", supplied: "mp3"
-        });
+        this.soundPlayer = document.createElement('audio');
     },
     playSound: function (s) {
-        if (this.soundPlayer && sChat.getSetting('audio')) this.soundPlayer.jPlayer("setMedia", { mp3: 'sounds/' + s + '.mp3' }).jPlayer('play');
+        if (this.soundPlayer && sChat.getSetting('audio')) {
+            this.soundPlayer.src = 'sounds/' + s + '.mp3';
+            this.soundPlayer.play();
+        }
     },
     setAudioVolume: function (volume) {
         volume = parseFloat(volume);
@@ -66,7 +66,7 @@
             if (volume < 0) volume = 0.0;
             else if (volume > 1) volume = 1.0;
             sChat.setSetting('audioVolume', volume);
-            this.soundPlayer.jPlayer("volume", volume);
+            this.soundPlayer.volume = volume;
         }
     },
 }
