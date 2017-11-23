@@ -1555,7 +1555,7 @@ var sChat={
     },
     replaceHyperLinks:function(text, vk){
         if(!sConfig.settings['hyperLinks']) return text;
-        return text.replace(/(^|\s|>)(((?:https?|ftp):\/\/)([\w_\.-]{2,256}\.[\w\.]{2,4})(:\d{1,5})?(\/([\w+,\/%$^&\*=;\-_а-яА-Я:\)\(\.]*)?((?:\?|#)[:\w%\/\)\(\-+,а-яА-Я;.?=&#]*)?)?)/gim,
+        return text.replace(/(^|\s|>)(((?:https?|ftp):\/\/)((?:[\w_\.-]{2,256}\.[\w\.]{2,4})|localhost)(:\d{1,5})?(\/([\w+,\/%$^&\*=;\-_а-яА-Я:\)\(\.]*)?((?:\?|#)[:\w%\/\)\(\-+,а-яА-Я;.?=&#]*)?)?)/gim,
             function(str, s, a, prot, host, port, sa, sa1, sa2){
                 var hostArr=host.split('.'),
                     fe=(sa1?sa1.split(/\.|\//g).pop().toLowerCase():'');
