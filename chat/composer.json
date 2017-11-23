@@ -1,7 +1,8 @@
 {
   "require": {
     "leafo/scssphp": "0.7.1",
-    "patchwork/jsqueeze": "~2.0"
+    "patchwork/jsqueeze": "~2.0",
+    "samayo/bulletproof": "3.2.*"
   },
   "config": {
     "optimize-autoloader": true

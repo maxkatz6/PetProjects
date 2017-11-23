@@ -95,6 +95,13 @@ div.tab .tablinks.active {background-color: #ccc;}
 .tabcontent.active {display: block;}
 .tabcontent .emoticone{padding-top: 100%;}
 .tabcontent .emoticone:hover {background-color: rgba(12,12,12,0.1);}
+/* Upload */
+#inputFieldContainer.hover textarea {
+    background: #ddd;
+}
+#uploadFile {
+    font-family: FontAwesome !important;
+}
 @media (max-width: 700px) {
 	#mainPanelContainer { top:65px; left:5px; right:5px; bottom:75px; }
 	#headline { margin:0; padding:0 0 0 5px; line-height:25px; }

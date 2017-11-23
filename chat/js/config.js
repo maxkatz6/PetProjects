@@ -182,6 +182,8 @@ var sConfig = {
     debug: true,
     radioServer: false,
     mobile: false,
+    // file upload in kb
+    maxFileSize: 10*1024*1024,
     ///videochat
     videoChat: true,
     defCamS: 0.15,

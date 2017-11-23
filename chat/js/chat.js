@@ -1857,5 +1857,71 @@ var sChat={
                 "<td data-type='minutesInChat'>" + friendlyTime(user["minutesInChat"]) + "</td>" +
                 "</tr>";
         }
+    },
+    pasteHandler: function (e) {
+        e = (e.originalEvent || e);
+        var clipboardData = e.clipboardData || window.clipboardData;
+
+        var file = clipboardData.files && clipboardData.files.length > 0 && clipboardData.files[0]
+            || clipboardData.items && clipboardData.items.length > 0 && clipboardData.items[0].getAsFile();
+
+        if (file) {
+            e.stopPropagation();
+            e.preventDefault();
+            sChat.uploadFile(file);
+        }
+    },
+    uploadFile: function (file) {
+        if (!file)
+            return false;
+
+        var progress = document.getElementById("statusText");
+        var field = document.getElementById("inputFieldContainer");
+
+        var xhr = new XMLHttpRequest();
+        if (xhr.upload && file.type.indexOf("image") >= 0 && file.size <= sConfig.maxFileSize) {
+
+            xhr.upload.addEventListener("progress", function (e) {
+                if (!sChat.hasClass(field, "loading"))
+                    sChat.addClass(field, "loading");
+
+                if (progress) {
+                    var pc = parseInt(100 - (e.loaded / e.total * 100));
+                    progress.innerHTML = pc + "%";
+                }
+            }, false);
+
+            xhr.onreadystatechange = function (e) {
+                if (xhr.readyState == 4) {
+                    var json = JSON.parse(xhr.responseText);
+                    if (xhr.status == 200
+                        && !json.error) {
+                        sChat.addClass(field, "success");
+                        sChat.removeClass(field, "failure");
+
+                        sChat.insertText(" " + window.location.href + json.path + " ");
+                    }
+                    else {
+                        sChat.addClass(field, "failure");
+                        sChat.removeClass(field, "success");
+                    }
+                    sChat.removeClass(field, "loading");
+
+                    setTimeout(function () {
+                        sChat.removeClass(field, "failure");
+                        sChat.removeClass(field, "success");
+                    }, 1000);
+                }
+            };
+
+            var formData = new FormData();
+            formData.append('file', file); //append file to formData object
+            xhr.open("POST", "upload.php");
+            xhr.setRequestHeader('X-FILE-NAME', file.name);
+
+            xhr.send(formData);
+            return true;
+        }
+        return false;
     }
 };

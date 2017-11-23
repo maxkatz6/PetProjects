@@ -277,15 +277,23 @@
         <div id="chatList"></div>
     </div>
 
-    <div id="inputFieldContainer">
-        <textarea maxlength="1000" style="resize:none;" id="inputField" rows="1" cols="50" title="[LANG]inputLineBreak[/LANG]" onkeydown=" sChat.handleInputFieldKeyDown(event);" onkeyup="sChat.updateMessageLengthCounter();"></textarea>
+    <div id="inputFieldContainer"
+         ondragover="sChat.addClass(this, 'hover'); return false;"
+         ondragleave="sChat.removeClass(document.getElementById('inputFieldContainer'), 'hover'); return false;"
+         ondrop="if(sChat.uploadFile(event.dataTransfer.files[0])) event.preventDefault(); sChat.removeClass(document.getElementById('inputFieldContainer'), 'hover');">
+        <textarea contenteditable maxlength="1000" style="resize:none;" id="inputField" rows="1" cols="50" title="[LANG]inputLineBreak[/LANG]" 
+                  onpaste="sChat.pasteHandler(event)" 
+                  onkeydown="sChat.handleInputFieldKeyDown(event);" 
+                  onkeyup="sChat.updateMessageLengthCounter();" ></textarea>
     </div>
     <div id="submitButtonContainer">
         <span id="messageLengthCounter">0/1000</span>
         <input type="button" id="submitButton" value="[LANG]messageSubmit[/LANG]" onclick=" sChat.sendMessage(); "/>
     </div>
     <div id="bbCodeContainer">
-        <input id="commandAction" type="button" value="Действие" onclick="sChat.insertMessageWrapper('/action ');"/>
+        <input id="uploadFile" type="button" value="&#xf0c6" onclick="document.getElementById('uploadFileDialog').click()" />
+        <input type="file" id="uploadFileDialog" style="display:none" onchange="sChat.uploadFile(this.files[0]);" />
+        <input id="commandAction" type="button" value="Действие" onclick="sChat.insertMessageWrapper('/action ');" />
         <input id="bbCodeBold" type="button" value="b" title="[LANG]bbCodeTitleBold[/LANG]" onclick=" sChat.insertBBCode('b'); " style="font-weight: bold;"/>
         <input id="bbCodeItalic" type="button" value="i" title="[LANG]bbCodeTitleItalic[/LANG]" onclick=" sChat.insertBBCode('i'); " style="font-style: italic;"/>
         <input id="bbCodeStrike" type="button" value="s" onclick=" sChat.insertBBCode('s'); " style="text-decoration: line-through;"/>

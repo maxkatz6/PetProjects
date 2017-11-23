@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e881b9f559bdd60419d64cf73e175653",
+    "content-hash": "429fdd071313ba73fd87aa336f9b8d46",
     "packages": [
         {
             "name": "leafo/scssphp",
@@ -104,6 +104,52 @@
                 "minification"
             ],
             "time": "2016-04-19T09:28:22+00:00"
+        },
+        {
+            "name": "samayo/bulletproof",
+            "version": "3.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/samayo/bulletproof.git",
+                "reference": "31357732a671cff0c9214cc5beff5e0c74a69f9b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/samayo/bulletproof/zipball/31357732a671cff0c9214cc5beff5e0c74a69f9b",
+                "reference": "31357732a671cff0c9214cc5beff5e0c74a69f9b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-exif": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.0|^6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/bulletproof.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "samayo"
+                }
+            ],
+            "description": "A simple and secure PHP image uploader",
+            "homepage": "http://github.com/samayo/bulletproof",
+            "keywords": [
+                "Simple",
+                "image",
+                "security",
+                "upload"
+            ],
+            "time": "2017-10-22T12:50:35+00:00"
         }
     ],
     "packages-dev": [],
