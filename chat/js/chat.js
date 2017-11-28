@@ -1899,7 +1899,9 @@ var sChat={
                         sChat.addClass(field, "success");
                         sChat.removeClass(field, "failure");
 
-                        sChat.insertText(" " + window.location.href + json.path + " ");
+                        var dir = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + "/";
+
+                        sChat.insertText(" " + dir + json.path + " ");
                     }
                     else {
                         sChat.addClass(field, "failure");

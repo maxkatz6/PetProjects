@@ -291,7 +291,7 @@
         <input type="button" id="submitButton" value="[LANG]messageSubmit[/LANG]" onclick=" sChat.sendMessage(); "/>
     </div>
     <div id="bbCodeContainer">
-        <input id="uploadFile" type="button" value="&#xf0c6" onclick="document.getElementById('uploadFileDialog').click()" />
+        <input id="uploadFile" type="button" value="&#xf0c6;" onclick="document.getElementById('uploadFileDialog').click()" />
         <input type="file" id="uploadFileDialog" style="display:none" onchange="sChat.uploadFile(this.files[0]);" />
         <input id="commandAction" type="button" value="Действие" onclick="sChat.insertMessageWrapper('/action ');" />
         <input id="bbCodeBold" type="button" value="b" title="[LANG]bbCodeTitleBold[/LANG]" onclick=" sChat.insertBBCode('b'); " style="font-weight: bold;"/>
