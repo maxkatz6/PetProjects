@@ -1983,7 +1983,7 @@ class SChat {
                 'cID' => (int)$row['channelID'],
                 'name' => SChatEncoding::encodeSpecialChars($row['userName']),
                 'text' => SChatEncoding::encodeSpecialChars($row['text']),
-                'time' => date('r', $row['timeStamp']),
+                'time' => $row['timeStamp'],
                 'info' => json_decode($row['msgInfo'], true),
                 'ip' => $this->ipFromStorageFormat($row['ip'])
             ];

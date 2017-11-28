@@ -9,7 +9,7 @@ sChat.startChatUpdate = function () {
     this.updateChat();
 };
 
-sChat.updateChat = function () {
+sChat.updateChat = function (pS) {
     // Only update if we have parameters, are in monitor mode or the lastID has changed since the last update:
     if (this.logsMonitorMode || !this.logsLastID || this.lastID !== this.logsLastID) {
         // Update the logsLastID for the lastID check:
@@ -20,6 +20,7 @@ sChat.updateChat = function () {
             requestUrl += this.paramString;
             this.paramString = '';
         }
+        if (pS) requestUrl += pS;
         requestUrl += '&' + this.getLogsCommand();
         this.makeRequest(requestUrl, 'GET', null);
     } else {
@@ -102,7 +103,7 @@ sChat.getChatListChild = function (dateObject, userID, userName, userRole, messa
     newDiv.style.minHeight = "20px";
     newDiv.className = rowClass;
     newDiv.id = this.getMessageDocumentID(messageID);
-    newDiv.innerHTML = this.getDeletionLink(messageID, userID, userRole, channelID)
+    newDiv.innerHTML = '<a class="delete ignoreOnMessageClick" href="javascript:sChat.deleteMessage(' + messageID + ');"> </a>'
         + '<a class="dateTime" href="#" onclick="sChat.dom[\'yearSelection\'].value =' + dateObject.getFullYear() + ';sChat.dom[\'monthSelection\'].value =' + (dateObject.getMonth()+1) + ';sChat.dom[\'daySelection\'].value =' + dateObject.getDate() + ';sChat.dom[\'hourSelection\'].value =' + dateObject.getHours() + '">' + this.formatDate(dateObject) + ' </a><span class="' + userClass + '"'
         + (sConfig.settings['nickColors'] && msgInfo && msgInfo.ncol ? ' style="color:' + msgInfo.ncol + '" ' : '') + ">"
         + ((sConfig.settings['nickColors'] && sConfig.settings['gradiens'] && msgInfo && msgInfo.nickGrad) ? helper.grad(userName, msgInfo.nickGrad) : userName)

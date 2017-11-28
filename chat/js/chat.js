@@ -182,6 +182,8 @@ var sChat={
     },
     initEmoticons: function () {
         var container = sChat.dom['emoticonsContainer'];
+        if (!container)
+            return; 
 
         var tabsDiv = document.createElement('div');
         tabsDiv.className = "tab";
@@ -228,7 +230,7 @@ var sChat={
 
     playSoundOnNewMessage:function(dateObject, userID, userName, userRole, messageID, messageText){
         var messageParts;
-        if (!!sPlayer&&sConfig.settings['audio']&&this.lastID&&!this.channelSwitch){
+        if (typeof sPlayer != 'undefined'&&!!sPlayer&&sConfig.settings['audio']&&this.lastID&&!this.channelSwitch){
             if(new RegExp('(?:^|, |])'+this.userName+',', 'gm').test(messageText)){
                 sPlayer.playSound(sConfig.settings['soundPrivate']);
                 return;
