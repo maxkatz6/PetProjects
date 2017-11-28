@@ -1899,9 +1899,11 @@ var sChat={
                         sChat.addClass(field, "success");
                         sChat.removeClass(field, "failure");
 
-                        var dir = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + "/";
+                        var path = typeof URL !== 'undefined'
+                            ? new URL(json.path, window.location.href)
+                            : window.location.href.substring(0, window.location.href.lastIndexOf('/')) + "/" + json.path;
 
-                        sChat.insertText(" " + dir + json.path + " ");
+                        sChat.insertText(" " + path + " ");
                     }
                     else {
                         sChat.addClass(field, "failure");
