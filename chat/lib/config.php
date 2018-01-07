@@ -6,6 +6,16 @@ define('SCHAT_USER',      1);
 define('SCHAT_BANNED',    0);
 
 class Config{
+    public static $reactionTypes = ["like", "dislike", "happy", "sad", "love"];
+
+    public static $conflictedReactions = [
+        "like" => ["dislike"],
+        "dislike" => ["like"],
+        "happy" => ["sad"],
+        "sad" => ["happy"],
+        "love" => []
+    ];
+
     public static $channels = [
         0 => 'Общая',
         1 => 'Диванная',

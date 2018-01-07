@@ -495,7 +495,8 @@ var sChat={
                     messageText,
                     json[i].cID,
                     json[i].ip,
-                    json[i].info
+                    json[i].info,
+                    json[i].reactions
                 );
             }
             this.updateChatlistView();
@@ -684,18 +685,19 @@ var sChat={
             null,
             messageText,
             null,
+            null,
             null
         );
     },
-    addMessageToChatList: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo){
+    addMessageToChatList: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo, reactions){
         if(this.getMessageNode(messageID)) return; // Prevent adding the same message twice:
         if(!this.onNewMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip)) return;
 
-        this.dom['chatList'].appendChild(this.getChatListChild(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo));
+        this.dom['chatList'].appendChild(this.getChatListChild(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo, reactions));
 
         this.updateChatListClasses();
     },
-    getChatListChild: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo) {
+    getChatListChild: function (dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo, reactions) {
         var rowClass = "msgRow",
             userClass = this.getRoleClass(userRole),
             colon = ': ',
@@ -718,7 +720,8 @@ var sChat={
         var nickHtml = this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol);
         var roleHtml = '<span class="roleSpan ' + userClass + '">' + sChatLang[userClass + "Role"] + '</span>';
         var messageHtml = this.formatMessage(this.replaceText(messageText), msgInfo && msgInfo.mcol);
-        var moreButtonHtml = '<span class="msgMore" />';
+        var reactButtonHtml = (userID != sConfig.chatBotID && '<span class="msgReact" ></span>') || "";
+        var moreButtonHtml = '<span class="msgMore" ></span>';
         var quoteHtml = '<a class="quote ignoreOnMessageClick" href="javascript:sChat.selectQuote(\'' + formatedDate + '\', ' + messageID + ');">' + this.encodeSpecialChars(sChatLang['quoteMessage']) + ' </a>';
         var deleteHtml = this.isAllowedToDeleteMessage(messageID, userID, userRole, channelID)
             ? '<a class="delete ignoreOnMessageClick" href="javascript:sChat.deleteMessage(' + messageID + ');">' + this.encodeSpecialChars(sChatLang['deleteMessage']) + '</a>'
@@ -727,12 +730,13 @@ var sChat={
         var msgHeaderHtml = '<div class="msgHeader">' + nickHtml + roleHtml + dateHtml + '</div>';
         var msgTextHtml = '<div class="msgText">' + messageHtml + '</div>';
         var msgFooter = '<div class="msgFooter">' + deleteHtml + quoteHtml + '</div>';
+        var msgReactions = (userID != sConfig.chatBotID && this.createReactionsPanel(messageID, reactions)) || "";
 
         newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);
         newDiv.setAttribute('data-userID', userID);
         newDiv.setAttribute('data-msgDate', dateObject.getTime());
-        newDiv.innerHTML = imgHtml + '<div class="msgBody">' + msgHeaderHtml + msgTextHtml + msgFooter + moreButtonHtml + '</div>';
+        newDiv.innerHTML = imgHtml + '<div class="msgBody">' + msgHeaderHtml + msgTextHtml + msgFooter + msgReactions + reactButtonHtml + moreButtonHtml + '</div>';
 
         var timeout;
         newDiv.onclick = function (e) {
@@ -759,6 +763,81 @@ var sChat={
 
         return newDiv;
     },
+    /*reactions*/
+    createReactionsPanel: function (msgId, reactions) {
+        var html = "<div class='unselectable reactPanel ignoreOnMessageClick' data-msgId='" + msgId + "'>";
+
+        for (var i = 0; i < sConfig.reactionTypes.length; i++) {
+            var reaction = sConfig.reactionTypes[i];
+            var count = (reactions && reaction in reactions && reactions[reaction].count) || 0;
+            var usersReacted = JSON.stringify((reactions && reaction in reactions && reactions[reaction].users) || []);
+            var id = "reaction" + msgId + reaction;
+            var reactionHtml = "<span id='" + id + "' class='reaction' onclick='sChat.toggleReaction(this);' data-count=" + count + " data-reaction='" + reaction + "' data-msgId='" + msgId + "' data-usersReacted='" + usersReacted + "'><span class='unselectable reactionCount'>" + count + "</span></span>";
+            html += reactionHtml;
+        }
+        html += "</div>"
+        return html;
+    },
+    toggleReaction: function (element) {
+        var jsonStr = element.getAttribute("data-usersReacted");
+        var reactedArray = jsonStr && JSON.parse(jsonStr);
+        var isRemoveReaction = reactedArray && reactedArray.indexOf(this.userID) >= 0;
+
+        var reaction = element.getAttribute("data-reaction");
+        var msgId = parseInt(element.getAttribute("data-msgId"));
+
+        this.updateReactionsToMessage(this.userID, isRemoveReaction, msgId, reaction);
+        this.sendMessage("/reaction " + (isRemoveReaction ? "remove" : "add") + " " + msgId + " " + reaction);
+    },
+    updateReactionsToMessage: function (userId, isRemoveReaction, msgId, reaction) {
+        if (!isRemoveReaction
+            && reaction in sConfig.conflictedReactions) {
+            var conflicted = sConfig.conflictedReactions[reaction];
+            for (var i = 0; i < conflicted.length; i++) {
+                var conflictedId = "reaction" + msgId + conflicted[i];
+                var conflictedElement = document.getElementById(conflictedId);
+                var conJsonStr = conflictedElement && conflictedElement.getAttribute("data-usersReacted");
+                var conReactedArray = conJsonStr && JSON.parse(conJsonStr);
+                if (conReactedArray) {
+                    var index = conReactedArray.indexOf(userId);
+                    do {
+                        conReactedArray.splice(index, 1);
+                        index = conReactedArray.indexOf(userId);
+                    }
+                    while (index >= 0);
+                    conflictedElement.setAttribute("data-usersReacted", JSON.stringify(conReactedArray));;
+                    conflictedElement.setAttribute("data-count", conReactedArray.length);
+                    conflictedElement.firstChild.textContent = conReactedArray.length;
+                }
+            }
+        }
+        var id = "reaction" + msgId + reaction;
+        var element = document.getElementById(id);
+        if (!element)
+            return;
+
+        var jsonStr = element.getAttribute("data-usersReacted");
+        var reactedArray = (jsonStr && JSON.parse(jsonStr)) || new Array(userId);
+
+        if (isRemoveReaction) {
+            var index = reactedArray.indexOf(userId);
+            do {
+                reactedArray.splice(index, 1);
+                index = reactedArray.indexOf(userId);
+            }
+            while (index >= 0);
+        }
+        else {
+            if (reactedArray.indexOf(userId) < 0) {
+                reactedArray.push(userId);
+            }
+        }
+
+        element.setAttribute("data-usersReacted", JSON.stringify(reactedArray));
+        element.setAttribute("data-count", reactedArray.length);
+        element.firstChild.textContent = reactedArray.length;
+    },
+    /*other*/
     forEachParent: function (node, stopNode, func) {
         while (node != null
             && node != stopNode) {
@@ -779,7 +858,7 @@ var sChat={
     formatMessage: function(message, colors) {
         var hasColor = sConfig.settings['msgColors'] && colors && colors.length > 0;
         var hasGradient = hasColor && sConfig.settings['gradiens'] && colors.length > 1;
-        return '<span ' + (hasColor ? 'style="color:' + colors[0] + '">' : '>')
+        return '<span class="ignoreOnMessageClick" ' + (hasColor ? 'style="color:' + colors[0] + '">' : '>')
             + (hasGradient ? helper.grad(message, colors) : message)
             + '</span>';
     },
@@ -816,30 +895,38 @@ var sChat={
         this.playSoundOnNewMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip);
         return true;
     },
-    parseCommands:function(dateObject, userID, userName, userRole, messageID, messageText){
-        var messageParts=messageText.split(' ');
-        switch(messageParts[0]){
-        case '/delete':
-        {
-            var messageNode=sChat.getMessageNode(messageParts[1]);
-            if(messageNode){
-                var nextSibling=messageNode.nextSibling;
-                try{
-                    this.dom['chatList'].removeChild(messageNode);
-                    if (nextSibling) sChat.updateChatListClasses(nextSibling);
-                } catch(e){
+    parseCommands: function (dateObject, userID, userName, userRole, messageID, messageText) {
+        var messageParts = messageText.split(' ');
+        switch (messageParts[0]) {
+            case '/reaction':
+                {
+                    var isRemove = messageParts[1] == "remove";
+                    var msgId = parseInt(messageParts[2]);
+                    var reaction = messageParts[3];
+                    this.updateReactionsToMessage(userID, isRemove, msgId, reaction);
+                    return false;
                 }
-            }
-            return false;
-        }
-        case '/call':
-        {
-            if(sChat.infocus) return true;
-            alert(messageParts[1]+' вызывает вас в чат!');
-            return true;
-        }
-        default:
-            return true;
+            case '/delete':
+                {
+                    var messageNode = sChat.getMessageNode(messageParts[1]);
+                    if (messageNode) {
+                        var nextSibling = messageNode.nextSibling;
+                        try {
+                            this.dom['chatList'].removeChild(messageNode);
+                            if (nextSibling) sChat.updateChatListClasses(nextSibling);
+                        } catch (e) {
+                        }
+                    }
+                    return false;
+                }
+            case '/call':
+                {
+                    if (sChat.infocus) return true;
+                    alert(messageParts[1] + ' вызывает вас в чат!');
+                    return true;
+                }
+            default:
+                return true;
         }
     },
 

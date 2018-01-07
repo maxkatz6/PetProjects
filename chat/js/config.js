@@ -1,4 +1,12 @@
 var sConfig = {
+    reactionTypes: ["like", "dislike", "happy", "sad", "love"],
+    conflictedReactions: {
+        "like": ["dislike"],
+        "dislike": ["like"],
+        "happy": ["sad"],
+        "sad": ["happy"],
+        "love": []
+    },
     // The channelID of the channel to enter on login (the loginChannelName is used if set to null):
     loginChannelID: null,
     // The channelName of the channel to enter on login (the default channel is used if set to null):

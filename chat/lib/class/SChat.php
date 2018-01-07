@@ -569,6 +569,19 @@ class SChat {
 	    }
     }
 
+    function parseReactionMessage($textParts){
+        if (count($textParts) <= 3)
+            return;
+        $action = $textParts[1];
+        $msgId = $textParts[2];
+        $reactionType = $textParts[3];
+
+        if ($action == "add")
+            $this->addReaction($msgId , $reactionType);
+        else if ($action == "remove")
+            $this->removeReaction($msgId , $reactionType);
+    }
+
     function insertParsedMessage($text, $msgInfo) {
         // If a queryUserName is set, sent all messages as private messages to this userName:
         if($this->getQueryUserName() !== null && strpos($text, '/') !== 0) {
@@ -582,6 +595,10 @@ class SChat {
                 // Channel switch:
                 case '/join':
                     $this->insertParsedMessageJoin($textParts);
+                    break;
+                case '/reaction':
+                    $this->parseReactionMessage($textParts);
+                    $this->insertCustomMessage($this->getUserID(),$this->getUserName(),$this->getUserRole(),$this->getChannel(),$text, $msgInfo);
                     break;
                 // Logout:
                 case '/quit':
@@ -1704,11 +1721,16 @@ class SChat {
     }
 
     function getMessageCondition() {
-	    $condition = 	'id > '.$this->db->makeSafe($this->getRequestVar('lastID')).'
+        $lastID = $this->db->makeSafe($this->getRequestVar('lastID'));
+	    $condition = 	'msgs.id > '.$lastID.'
+                        AND ('.$lastID.' > 0
+                            OR
+                            NOT (msgs.text like \'/reaction%\')
+                        )
 					    AND (
-						    channel = '.$this->db->makeSafe($this->getChannel()).'
+						    msgs.channel = '.$this->db->makeSafe($this->getChannel()).'
 						    OR
-						    channel = '.$this->db->makeSafe($this->getPrivateMessageID()).'
+						    msgs.channel = '.$this->db->makeSafe($this->getPrivateMessageID()).'
 					    )
 					    AND
 					    ';
@@ -1722,23 +1744,23 @@ class SChat {
     }
 
     function getChatViewMessages() {
+
 	    // Get the last messages in descending order (this optimises the LIMIT usage):
 	    $sql = 'SELECT
-				    id,
-				    userID,
-				    userName,
-				    userRole,
-				    channel AS channelID,
-				    UNIX_TIMESTAMP(dateTime) AS timeStamp,
-				    text,
-				    msgInfo
+				    msgs.id,
+				    msgs.userID,
+				    msgs.userName,
+				    msgs.userRole,
+				    msgs.channel AS channelID,
+				    UNIX_TIMESTAMP(msgs.dateTime) AS timeStamp,
+				    msgs.text,
+				    msgs.msgInfo
 			    FROM
-				    '.$this->getDataBaseTable('messages').'
+				    '.$this->getDataBaseTable('messages').' msgs
 			    WHERE
 				    '.$this->getMessageCondition().'
-			    ORDER BY
-				    id
-				    DESC
+                GROUP BY msgs.id
+                ORDER BY msgs.id DESC
 			    LIMIT '.($this->getRequestVar('lastID') == 0?Config::requestMessagesLimit:100).';';
 
 	    // Create a new SQL query:
@@ -1761,7 +1783,8 @@ class SChat {
                 'name' => SChatEncoding::encodeSpecialChars($row['userName']),
                 'text' => SChatEncoding::encodeSpecialChars($row['text']),
                 'time' => $row['timeStamp'],
-                'info' => json_decode($row['msgInfo'], true)
+                'info' => json_decode($row['msgInfo'], true),
+                'reactions' => $this->getReactions($row['id'])
             ];
 	    }
 	    $result->free();
@@ -2323,6 +2346,101 @@ class SChat {
 		    echo $result->getError();
 		    die();
 	    }
+    }
+
+    function getReactions($msgId){
+        $userId = $this->getUserID();
+        $reactions = [];
+
+        foreach (Config::$reactionTypes as $reactionType)
+        {
+            $reactions[$reactionType] = ["count" => 0, "users" => []];
+        }
+
+        if (!is_null($userId)){
+            $sql = 'SELECT * FROM '.$this->getDataBaseTable('reactions').'
+                    WHERE msgId = '.$msgId;
+
+            $result = $this->db->sqlQuery($sql);
+
+		    if($result->error()) {
+                continue;
+		    }
+
+		    while($row = $result->fetch()) {
+                $reaction = $reactions[$row["reactionType"]];
+                $reaction["count"] = $reaction["count"] + 1;
+                $reaction["users"][] = (int)$row["userId"];
+                $reactions[$row["reactionType"]] = $reaction;
+		    }
+
+		    $result->free();
+        }
+        return $reactions;
+    }
+
+    function addReaction($msgId, $reactionType){
+        if (!in_array($reactionType, Config::$reactionTypes))
+            return;
+
+        $this->removeReactions($msgId, Config::$conflictedReactions[$reactionType]);
+
+        $userId = $this->getUserID();
+        if (!is_null($reactionType)
+            && !is_null($userId)){
+            $sql = 'INSERT IGNORE INTO '.$this->getDataBaseTable('reactions').'(
+				    msgId,
+				    userId,
+				    reactionType
+			    )
+			    VALUES (
+				    '.$this->db->makeSafe($msgId).',
+				    '.$this->db->makeSafe($userId).',
+				    '.$this->db->makeSafe($reactionType).'
+			    );';
+
+            $result = $this->db->sqlQuery($sql);
+
+            if($result->error()) {
+                echo $result->getError();
+                die();
+            }
+        }
+    }
+
+    function removeReaction($msgId, $reactionType){
+        $this->removeReactions($msgId, [$reactionType]);
+    }
+
+    function removeReactions($msgId, $reactionTypes){
+        if (count($reactionTypes) == 0)
+            return;
+
+        $reactionCond = "(";
+        foreach ($reactionTypes as $reactionType){
+            if (in_array($reactionType, Config::$reactionTypes))
+            {
+                if ($reactionCond != "(")
+                    $reactionCond .= " OR ";
+                $reactionCond .= "reactionType=".$this->db->makeSafe($reactionType);
+            }
+        }
+        $reactionCond .= ")";
+
+        $userId = $this->getUserID();
+        if (!is_null($userId)){
+            $sql = 'DELETE IGNORE FROM '.$this->getDataBaseTable('reactions').'
+			        WHERE msgId='.$this->db->makeSafe($msgId).'
+				        AND userId='.$this->db->makeSafe($userId).'
+				        AND '.$reactionCond.';';
+
+            $result = $this->db->sqlQuery($sql);
+
+            if($result->error()) {
+                echo $result->getError();
+                die();
+            }
+        }
     }
 
     function getUserID() {
