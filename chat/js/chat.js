@@ -797,9 +797,6 @@ var sChat = {
                 }
                 
                 sChat.removeClass(newDiv, "showActions");
-                if (!hasTouch) {
-                    showMoreFunc();
-                }
             }
         }
 
