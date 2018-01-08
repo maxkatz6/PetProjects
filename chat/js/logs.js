@@ -104,7 +104,7 @@ sChat.getChatListChild = function (dateObject, userID, userName, userRole, messa
     newDiv.className = rowClass;
     newDiv.id = this.getMessageDocumentID(messageID);
     newDiv.innerHTML = '<a class="delete ignoreOnMessageClick" href="javascript:sChat.deleteMessage(' + messageID + ');"> </a>'
-        + '<a class="dateTime" href="#" onclick="document.getElementById('\'yearSelection\'').value =' + dateObject.getFullYear() + ';document.getElementById('\'monthSelection\'').value =' + (dateObject.getMonth()+1) + ';document.getElementById('\'daySelection\'').value =' + dateObject.getDate() + ';document.getElementById('\'hourSelection\'').value =' + dateObject.getHours() + '">' + this.formatDate(dateObject) + ' </a><span class="' + userClass + '"'
+        + '<a class="dateTime" href="#" onclick="document.getElementById(\'yearSelection\').value =' + dateObject.getFullYear() + ';document.getElementById(\'monthSelection\').value =' + (dateObject.getMonth()+1) + ';document.getElementById(\'daySelection\').value =' + dateObject.getDate() + ';document.getElementById(\'hourSelection\').value =' + dateObject.getHours() + '">' + this.formatDate(dateObject) + ' </a><span class="' + userClass + '"'
         + (sConfig.settings['nickColors'] && msgInfo && msgInfo.ncol ? ' style="color:' + msgInfo.ncol + '" ' : '') + ">"
         + ((sConfig.settings['nickColors'] && sConfig.settings['gradiens'] && msgInfo && msgInfo.nickGrad) ? helper.grad(userName, msgInfo.nickGrad) : userName)
         + '</span>' + colon + '<span ' + ((sConfig.settings['msgColors'] && msgInfo && msgInfo.mcol) ? 'style="color:' + msgInfo.mcol + '">' : '>')
