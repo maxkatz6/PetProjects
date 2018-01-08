@@ -1,1 +1,229 @@
-#onlineList select{font-size:1em!important}#content #logoutButton,#content #submitButton,#loginForm #loginButton{font:12pt Calibri,'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;color:#fff;font-weight:700;background:repeat-x #e68c17;border:3px solid #fff;border-radius:8px;-webkit-border-radius:8px;-moz-border-radius:8px;-khtml-border-radius:8px;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.2);-webkit-box-shadow:0 2px 5px rgba(0,0,0,.2);-moz-box-shadow:0 2px 5px rgba(0,0,0,.2);-khtml-box-shadow:0 2px 5px rgba(0,0,0,.2);display:inline-block;cursor:pointer;height:33px;padding:0 10px}#content #bbCodeContainer input,#content textarea{font-family:Calibri,'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;color:#000;outline:0}#content #logoutButton:hover,#content #submitButton:hover,#loginForm #loginButton:hover{box-shadow:0 0 3px rgba(0,0,0,.2);-webkit-box-shadow:0 0 3px rgba(0,0,0,.2);-moz-box-shadow:0 0 3px rgba(0,0,0,.2);-khtml-box-shadow:0 0 3px rgba(0,0,0,.2);position:relative;top:2px}#content #bbCodeContainer input{font-style:normal;background:#dcdceb;padding:0 6px;border:1px solid #ddddeb;border-top-color:#fff;border-bottom-color:#b3b3bd;border-radius:7px;-webkit-border-radius:7px;-moz-border-radius:7px;-khtml-border-radius:7px;text-align:center;box-shadow:0 1px 4px 0 #c8c8d2;-webkit-box-shadow:0 1px 4px 0 #c8c8d2;-moz-box-shadow:0 1px 4px 0 #c8c8d2;-khtml-box-shadow:0 1px 4px 0 #c8c8d2;text-shadow:0 0 0 transparent,0 -1px 2px #fff;display:inline-block;cursor:pointer;box-sizing:border-box;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;height:23px}#content #bbCodeContainer input:hover{color:#000;text-decoration:none;background-color:#ffffc8;border-color:#fff #ffffc8 #bebeaa}#content textarea{font-size:0.9em;background-color:#f0f7fc;border-width:1px;border-style:solid;border-color:silver #e9e9e9 #e9e9e9 silver;border-radius:4px;-webkit-border-radius:4px;-moz-border-radius:4px;-khtml-border-radius:4px}#content select:focus,#content textarea:focus,#loginForm input:focus,#loginForm select:focus{background:ivory;border-top-color:#969696;border-bottom-color:#e6e6e6}#content select,#loginForm input,#loginForm select{background-color:#F7F7FF;color:#60A0DC;border:1px solid #a5cae4}#content #statusIconContainer{background:url(../img/loading-sprite.png) no-repeat}#content #statusIconContainer.waiting{background-position:0 -22px}#content #statusIconContainer.retrying{background-position:0 -44px}.s_chat{background-color:#176093;color:#F7F7FF}.s_chat a,.s_chat h1{color:#60A0DC}#loginContent #errorContainer{color:red}#content{background-color:#F7F7FF;color:#176093;}#content #headline{color:#F7F7FF;background:#176093}#content #copyright{color:#F7F7FF;font-style:italic;font-size:.8em}#content #chatList,#content #colorCodesContainer,#content #reportContainer,.panelContainer{background-color:#f0f7fc;border:1px solid #a5cae4;border-radius:10px;-webkit-border-radius:10px;-moz-border-radius:10px;-khtml-border-radius:10px}.s_chat .popup{background-color:#FFF;border:1px solid #ababab;box-shadow:2px 2px 2px #777}#content #chatList .rowOdd.private{background-color:#F8D0D0}#content #chatList .rowEven.private{background-color:#F8D9D0}#content #helpContainer #helpList,#content #onlineListContainer #onlineList,#content #reportContainer #reportList,#content #settingsContainer #settingsList{padding-top:5px}#content #bbCodeContainer,#content #colorCodesContainer a{border-color:#a5cae4}#content #optionsContainer input{background-color:transparent}#content .rowEven{background:#d7edfc}#content .rowOdd{background-color:#F7F7FF}#content .guest{color:gray}#content .user{color:#176093}#content .customUser{color:#e68c17}#content .moderator{color:#0A0}#content .admin,#content .chatBotErrorMessage{color:red}#content #chatList a,#content .chatBot{color:#60A0DC}#content #chatList .deleteSelected{border-color:red}#content #reportContainer h3,.panelContainer h3{font-size:0.9em;background:#f9d9b0;color:#6d3f03;border-bottom:1px solid #f9bc6d}#content #chatList .report{display:block;float:right;width:10px;height:10px;margin-top:2px;margin-left:5px;background:url(../img/report.gif) no-repeat}#content #chatList .report:hover{background-position:0 -10px}
+#onlineList select {
+    font-size: 1em !important
+}
+
+#content #logoutButton, #content #submitButton, #loginForm #loginButton {
+    font: 12pt Calibri,'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;
+    color: #fff;
+    font-weight: 700;
+    background: repeat-x #e68c17;
+    border: 3px solid #fff;
+    border-radius: 8px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    -khtml-border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,.2);
+    -webkit-box-shadow: 0 2px 5px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 2px 5px rgba(0,0,0,.2);
+    -khtml-box-shadow: 0 2px 5px rgba(0,0,0,.2);
+    display: inline-block;
+    cursor: pointer;
+    height: 33px;
+    padding: 0 10px
+}
+
+#content #bbCodeContainer input, #content textarea {
+    font-family: Calibri,'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;
+    color: #000;
+    outline: 0
+}
+
+#content #logoutButton:hover, #content #submitButton:hover, #loginForm #loginButton:hover {
+    box-shadow: 0 0 3px rgba(0,0,0,.2);
+    -webkit-box-shadow: 0 0 3px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 0 3px rgba(0,0,0,.2);
+    -khtml-box-shadow: 0 0 3px rgba(0,0,0,.2);
+    position: relative;
+    top: 2px
+}
+
+#content #bbCodeContainer input {
+    font-style: normal;
+    background: #dcdceb;
+    padding: 0 6px;
+    border: 1px solid #ddddeb;
+    border-top-color: #fff;
+    border-bottom-color: #b3b3bd;
+    border-radius: 7px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -khtml-border-radius: 7px;
+    text-align: center;
+    box-shadow: 0 1px 4px 0 #c8c8d2;
+    -webkit-box-shadow: 0 1px 4px 0 #c8c8d2;
+    -moz-box-shadow: 0 1px 4px 0 #c8c8d2;
+    -khtml-box-shadow: 0 1px 4px 0 #c8c8d2;
+    text-shadow: 0 0 0 transparent,0 -1px 2px #fff;
+    display: inline-block;
+    cursor: pointer;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    height: 23px
+}
+
+    #content #bbCodeContainer input:hover {
+        color: #000;
+        text-decoration: none;
+        background-color: #ffffc8;
+        border-color: #fff #ffffc8 #bebeaa
+    }
+
+#content textarea {
+    font-size: 0.9em;
+    background-color: #f0f7fc;
+    border-width: 1px;
+    border-style: solid;
+    border-color: silver #e9e9e9 #e9e9e9 silver;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -khtml-border-radius: 4px
+}
+
+    #content select:focus, #content textarea:focus, #loginForm input:focus, #loginForm select:focus {
+        background: ivory;
+        border-top-color: #969696;
+        border-bottom-color: #e6e6e6
+    }
+
+#content select, #loginForm input, #loginForm select {
+    background-color: #F7F7FF;
+    color: #60A0DC;
+    border: 1px solid #a5cae4
+}
+
+#content #statusIconContainer {
+    background: url(../img/loading-sprite.png) no-repeat
+}
+
+    #content #statusIconContainer.waiting {
+        background-position: 0 -22px
+    }
+
+    #content #statusIconContainer.retrying {
+        background-position: 0 -44px
+    }
+
+.s_chat {
+    background-color: #176093;
+    color: #F7F7FF
+}
+
+    .s_chat a, .s_chat h1 {
+        color: #60A0DC
+    }
+
+#loginContent #errorContainer {
+    color: red
+}
+
+#content {
+    background-color: #F7F7FF;
+    color: #176093;
+}
+
+#content #headline {
+    color: #F7F7FF;
+    background: #176093
+}
+
+#content #copyright {
+    color: #F7F7FF;
+    font-style: italic;
+    font-size: .8em
+}
+
+#content #chatList, #content #colorCodesContainer, #content #reportContainer, .panelContainer {
+    background-color: #f0f7fc;
+    border: 1px solid #a5cae4;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -khtml-border-radius: 10px
+}
+
+.s_chat .popup {
+    background-color: #FFF;
+    border: 1px solid #ababab;
+    box-shadow: 2px 2px 2px #777
+}
+
+#content #chatList .rowOdd.private, .rowOdd.private .msgButtons, .rowOdd.private .msgActions {
+    background: #F8D0D0
+}
+
+#content #chatList .rowEven.private, .rowEven.private .msgButtons, .rowEven.private .msgActions {
+    background: #F8D9D0
+}
+
+#content #helpContainer #helpList, #content #onlineListContainer #onlineList, #content #reportContainer #reportList, #content #settingsContainer #settingsList {
+    padding-top: 5px
+}
+
+#content #bbCodeContainer, #content #colorCodesContainer a {
+    border-color: #a5cae4
+}
+
+#content #optionsContainer input {
+    background-color: transparent
+}
+
+#content .rowEven, .rowEven .msgButtons, .rowEven .msgActions {
+    background: #d7edfc
+}
+
+#content .rowOdd, .rowOdd .msgButtons, .rowOdd .msgActions {
+    background: #F7F7FF
+}
+
+#content .guest {
+    color: gray
+}
+
+#content .user {
+    color: #176093
+}
+
+#content .customUser {
+    color: #e68c17
+}
+
+#content .moderator {
+    color: #0A0
+}
+
+#content .admin, #content .chatBotErrorMessage {
+    color: red
+}
+
+#content #chatList a, #content .chatBot {
+    color: #60A0DC
+}
+
+#content #chatList .deleteSelected {
+    border-color: red
+}
+
+#content #reportContainer h3, .panelContainer h3 {
+    font-size: 0.9em;
+    background: #f9d9b0;
+    color: #6d3f03;
+    border-bottom: 1px solid #f9bc6d
+}
+
+#content #chatList .report {
+    display: block;
+    float: right;
+    width: 10px;
+    height: 10px;
+    margin-top: 2px;
+    margin-left: 5px;
+    background: url(../img/report.gif) no-repeat
+}
+
+    #content #chatList .report:hover {
+        background-position: 0 -10px
+    }
