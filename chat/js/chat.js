@@ -745,7 +745,9 @@ var sChat = {
         newDiv.setAttribute('data-userID', userID);
         newDiv.setAttribute('data-msgDate', dateObject.getTime());
         newDiv.innerHTML = imgHtml + '<div class="msgBody">' + msgHeaderHtml + msgTextHtml + msgReactions + msgOnTopButtonsHtml + '</div>' + msgActionsHtml;
-        newDiv.onmouseleave = function () { sChat.removeClass(this, 'showActions'); };
+        newDiv.onmouseleave = function () {
+            sChat.removeClass(this, 'showActions');
+        };
 
         for (var reaction in reactions) {
             if (reactions[reaction].count > 0) {
@@ -765,9 +767,18 @@ var sChat = {
 
         if (hasTouch) {
             var timer;
-            var touchduration = 250;
+            var longTapDuration = 500;
             newDiv.ontouchstart = function (e) {
-                timer = setTimeout(showMoreFunc, touchduration);
+                if (e.target) {
+                    var cancel = !sChat.forEachParent(e.target, newDiv, function (node) {
+                        return !sChat.hasClass(node, "ignoreOnMessageClick");
+                    });
+                    if (cancel)
+                        return;
+                }
+
+                sChat.removeClass(newDiv, "showActions");
+                timer = setTimeout(showMoreFunc, longTapDuration);
             }
 
             newDiv.ontouchmove = newDiv.ontouchend = newDiv.ontouchcancel = function (e) {
@@ -775,25 +786,20 @@ var sChat = {
                     clearTimeout(timer);
             }
         }
-
-        newDiv.onclick = function (e) {
-            if (e.target) {
-                var cancel = !sChat.forEachParent(e.target, newDiv, function (node) {
-                    return !sChat.hasClass(node, "ignoreOnMessageClick");
-                });
-                if (cancel)
-                    return;
-            }
-
-            if (sChat.hasClass(newDiv, "showActions")) {
+        else {
+            newDiv.onclick = function (e) {
+                if (e.target) {
+                    var cancel = !sChat.forEachParent(e.target, newDiv, function (node) {
+                        return !sChat.hasClass(node, "ignoreOnMessageClick");
+                    });
+                    if (cancel)
+                        return;
+                }
+                
                 sChat.removeClass(newDiv, "showActions");
-                return;
-            }
-            if (sChat.hasClass(newDiv, "showActions")) {
-                sChat.removeClass(newDiv, "showActions");
-            }
-            else if (!hasTouch) {
-                showMoreFunc();
+                if (!hasTouch) {
+                    showMoreFunc();
+                }
             }
         }
 
