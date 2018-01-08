@@ -3,7 +3,6 @@ var sChat={
     styleInitiated:null,
     timer:null,
     chatStarted:null,
-    dom: {},
 
     userID:null,
     userName: null,
@@ -45,14 +44,13 @@ var sChat={
         this.initSettings();
         this.initStyle();
         this.addEvent(window, 'load', function(){
-            for(var key in sConfig.domIDs) sChat.dom[key]=document.getElementById(sConfig.domIDs[key]);
             sChat.setUnloadHandler();
             setTimeout(sChat.initEmoticons,0);
             sChat.setSelectedStyle();
             sChat.getIgnoredUserNames();
             sChat.initializeFunction();
             sChat.startChat();
-            sChat.dom['chatList'].onscroll=function(){ sChat.needScroll=((sChat.dom['chatList'].scrollTop+sChat.dom['chatList'].offsetHeight)>=sChat.dom['chatList'].scrollHeight); };
+            document.getElementById('chatList').onscroll = function () { sChat.needScroll = ((document.getElementById('chatList').scrollTop + document.getElementById('chatList').offsetHeight) >= document.getElementById('chatList').scrollHeight); };
         });
     },
     initializeFunction:function(){},
@@ -108,7 +106,7 @@ var sChat={
     setSetting:function(key, value){ sConfig.settings[key]=value; },
     startChat:function(){
         this.chatStarted=true;
-        if(!(sChat.isMenuOpened()&&helper.isMobile())&&this.dom['inputField']) this.dom['inputField'].focus();
+        if(!(sChat.isMenuOpened()&&helper.isMobile())&&document.getElementById('inputField')) document.getElementById('inputField').focus();
         var a = document.createElement('audio');
         if (a && !!a.canPlayType) {
             this.audioHtml5['mp3']=!!(a.canPlayType('audio/mpeg;').replace(/no/, ''));
@@ -130,20 +128,6 @@ var sChat={
                 sChat.persistStyle();
                 onunload();
             };
-    },
-    updateDOM:function(id, str, prepend, overwrite){
-        var domNode=this.dom[id]?this.dom[id]:document.getElementById(id);
-        if(!domNode) return;
-        try{
-            // Test for validity before adding the string to the DOM:
-            domNode.cloneNode(false).innerHTML=str;
-            if(overwrite) domNode.innerHTML=str;
-            else if(prepend) domNode.innerHTML=str+domNode.innerHTML;
-            else domNode.innerHTML+=str;
-        } catch(e){
-            this.addChatBotMessageToChatList('/error DOMSyntax '+id);
-            this.updateChatlistView();
-        }
     },
     openTab: function (tabDiv) {
         var tabContainerDiv = document.getElementById(tabDiv.getAttribute('data-tabContainerId'));
@@ -181,7 +165,7 @@ var sChat={
         sChat.addClass(tabContainerDiv, "active");
     },
     initEmoticons: function () {
-        var container = sChat.dom['emoticonsContainer'];
+        var container = document.getElementById('emoticonsContainer');
         if (!container)
             return; 
 
@@ -508,12 +492,12 @@ var sChat={
             i,
             option,
             text;
-        if(this.dom['channelSelection']){
+        if(document.getElementById('channelSelection')){
             // Replace the entities in the channel name with their character equivalent:
             channel=this.decodeSpecialChars(channel);
-            for(i=0; i<this.dom['channelSelection'].options.length; i++)
-                if(this.dom['channelSelection'].options[i].value===channel){
-                    this.dom['channelSelection'].options[i].selected=true;
+            for(i=0; i<document.getElementById('channelSelection').options.length; i++)
+                if(document.getElementById('channelSelection').options[i].value===channel){
+                    document.getElementById('channelSelection').options[i].selected=true;
                     channelSelected=true;
                     break;
                 }
@@ -524,7 +508,7 @@ var sChat={
                 option.appendChild(text);
                 option.setAttribute('value', channel);
                 option.setAttribute('selected', 'selected');
-                this.dom['channelSelection'].appendChild(option);
+                document.getElementById('channelSelection').appendChild(option);
             }
         }
     },
@@ -532,18 +516,32 @@ var sChat={
         this.usersList.splice(index, 1);
         this.userNamesList.splice(index, 1);
         this.userStatList.splice(index, 1);
-        if(this.dom['onlineList']) this.dom['onlineList'].removeChild(this.getUserNode(userID));
+        var onlineList = document.getElementById('onlineList');
+        if (onlineList)
+            onlineList.removeChild(this.getUserNode(userID));
     },
     addUserToOnlineList:function(userID, userName, userRole, userInfo){
         this.usersList.push(userID);
         this.userNamesList.push(userName);
         this.userStatList.push(userInfo.s);
-        if (this.dom['onlineList']) this.updateDOM('onlineList', this.getUserNodeString(userID, userName, userRole, userInfo), (this.userID === userID));
+        var onlineList = document.getElementById('onlineList');
+        if (onlineList) {
+            var div = document.createElement('div');
+            div.innerHTML = this.getUserNodeString(userID, userName, userRole, userInfo);
+            if (userID == this.userID
+                && onlineList.firstChild) {
+                onlineList.insertBefore(div.firstChild, onlineList.firstChild);
+            }
+            else {
+                onlineList.appendChild(div.firstChild);
+            }
+        }
         this.changeUserStatus(userID, userInfo);
     },
     toUser:function(nick, priv){
+        var inputField = document.getElementById('inputField');
         if(this.removeOld){
-            this.dom['inputField'].value=this.dom['inputField'].value.substr(this.selAddressee.length);
+            inputField.value = inputField.value.substr(this.selAddressee.length);
             this.removeOld=false;
             this.selAddressee='';
         }
@@ -553,13 +551,13 @@ var sChat={
                 this.selAddressee = '/msg ' + nick + ' ';
             }
         } else{
-            if(!(new RegExp('(?:^|, )'+nick+', ', 'gm').test(this.dom['inputField'].value))){
-                this.dom['inputField'].value=nick+", "+this.dom['inputField'].value;
+            if (!(new RegExp('(?:^|, )' + nick + ', ', 'gm').test(inputField.value))) {
+                inputField.value = nick + ", " + inputField.value;
                 this.selAddressee=nick+", "+this.selAddressee;
             }
             if(sChat.isMenuOpened()&&helper.isMobile()) return;
-            this.dom['inputField'].focus();
-            this.dom['inputField'].selectionStart=this.dom['inputField'].selectionEnd=this.dom['inputField'].value.length;
+            inputField.focus();
+            inputField.selectionStart = inputField.selectionEnd = inputField.value.length;
         }
     },
     getUserNodeString:function(userID, userName, userRole, userInfo){
@@ -580,15 +578,13 @@ var sChat={
         // If the menu is empty, fill it with user node menu items before toggling it.
         var isInline=false;
         if(menuID.indexOf('ium')>=0) isInline=true;
-        this.updateDOM(
-            menuID,
-            this.getUserNodeStringItems(this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))),userID,isInline),
-            false,
-            true
-        );
+        document.getElementById(menuID).innerHTML = this.getUserNodeStringItems(this.encodeText(this.addSlashes(this.getScriptLinkValue(userName))), userID, isInline);
         if (isInline) this.showHide(menuID);
         else this.toggleButton(menuID, 'showMenu' + userID);
-        if(isInline&&this.needScroll) this.dom['chatList'].scrollTop=this.dom['chatList'].scrollHeight;
+        if (isInline && this.needScroll) {
+            var chatList = document.getElementById('chatList');
+            chatList.scrollTop = chatList.scrollHeight;
+        }
     },
     inviteVideo:function(encodedUserName){ this.sendMessageWrapper('/inviteVideo '+encodedUserName+' '+this.userName+' '+sWebCam.room+' '+sWebCam.priv); },
     getUserNodeStringItems:function(encodedUserName, userID, isInline){
@@ -655,8 +651,8 @@ var sChat={
         else this.addChatBotMessageToChatList('Приватный канал успешно создан.');
     },
     setOnlineListRowClasses:function(){
-        if(this.dom['onlineList']){
-            var node=this.dom['onlineList'].firstChild;
+        if(document.getElementById('onlineList')){
+            var node=document.getElementById('onlineList').firstChild;
             var rowEven=false;
             while(node){
                 node.className=(rowEven?'rowEven':'rowOdd');
@@ -665,12 +661,20 @@ var sChat={
             }
         }
     },
-    clearChatList:function(){ while(this.dom['chatList'].hasChildNodes()) this.dom['chatList'].removeChild(this.dom['chatList'].firstChild); },
+    clearChatList: function () {
+        var chatList = document.getElementById('chatList');
+        while (chatList.hasChildNodes())
+            chatList.removeChild(chatList.firstChild);
+    },
     clearOnlineUsersList:function(){
         this.usersList=[];
         this.userNamesList=[];
         this.userStatList=[];
-        if(this.dom['onlineList']) while(this.dom['onlineList'].hasChildNodes()) this.dom['onlineList'].removeChild(this.dom['onlineList'].firstChild);
+        var onlineList = document.getElementById('onlineList');
+        if (onlineList) {
+            while (onlineList.hasChildNodes())
+                onlineList.removeChild(onlineList.firstChild);
+        }
     },
     getEncodedChatBotName:function(){
         if(typeof arguments.callee.encodedChatBotName==='undefined') arguments.callee.encodedChatBotName=this.encodeSpecialChars(sConfig.chatBotName);
@@ -693,7 +697,7 @@ var sChat={
         if(this.getMessageNode(messageID)) return; // Prevent adding the same message twice:
         if(!this.onNewMessage(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip)) return;
 
-        this.dom['chatList'].appendChild(this.getChatListChild(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo, reactions));
+        document.getElementById('chatList').appendChild(this.getChatListChild(dateObject, userID, userName, userRole, messageID, messageText, channelID, ip, msgInfo, reactions));
 
         this.updateChatListClasses();
     },
@@ -864,8 +868,9 @@ var sChat={
     },
     selectQuote:function(formatedDate, messageID){
         this.insertText(' см ' + formatedDate);
-        this.dom['inputField'].focus();
-        this.dom['inputField'].selectionStart=this.dom['inputField'].selectionEnd=this.dom['inputField'].value.length;
+        var inputField = document.getElementById('inputField');
+        inputField.focus();
+        inputField.selectionStart = inputField.selectionEnd = inputField.value.length;
         this.selQuo.push(messageID);
     },
     getMessageDocumentID:function(messageID){ return ((messageID===null)?'sChat_lm_'+(this.localID++):'sChat_m_'+messageID); },
@@ -912,7 +917,7 @@ var sChat={
                     if (messageNode) {
                         var nextSibling = messageNode.nextSibling;
                         try {
-                            this.dom['chatList'].removeChild(messageNode);
+                            document.getElementById('chatList').removeChild(messageNode);
                             if (nextSibling) sChat.updateChatListClasses(nextSibling);
                         } catch (e) {
                         }
@@ -952,10 +957,11 @@ var sChat={
         }
     },
     updateChatlistView:function(){
-        if(!this.dom['chatList'].childNodes) return;
-        while(this.dom['chatList'].childNodes.length>500) // 500 - max messages count
-            this.dom['chatList'].removeChild(this.dom['chatList'].firstChild);
-        if (sConfig.settings['autoScroll'] && this.needScroll) this.dom['chatList'].scrollTop = this.dom['chatList'].scrollHeight;
+        var chatList = document.getElementById('chatList');
+        if (!chatList.childNodes) return;
+        while (chatList.childNodes.length>500) // 500 - max messages count
+            chatList.removeChild(chatList.firstChild);
+        if (sConfig.settings['autoScroll'] && this.needScroll) chatList.scrollTop = chatList.scrollHeight;
     },
     encodeText:function(text){ return encodeURIComponent(text); },
     decodeText:function(text){ return decodeURIComponent(text); },
@@ -1102,9 +1108,12 @@ var sChat={
         }
         return true;
     },
-    updateMessageLengthCounter:function(){ if(this.dom['messageLengthCounter']) this.updateDOM('messageLengthCounter', this.dom['inputField'].value.length+'/1000', false, true); },
+    updateMessageLengthCounter: function () {
+        document.getElementById('messageLengthCounter').innerHTML = document.getElementById('inputField').value.length + '/1000';
+    },
     sendMessage:function(txt){
-        txt=txt?txt:this.dom['inputField'].value;
+        var inputField = document.getElementById('inputField');
+        txt = txt ? txt : inputField.value;
         if(!txt) return;
         txt=this.parseInputMessage(txt);
         if (txt) {
@@ -1115,10 +1124,10 @@ var sChat={
                 + this.encodeText(txt);
             this.makeRequest(sConfig.ajaxURL, 'POST', message);
         }
-        if(this.dom['inputField'].value.indexOf(this.selAddressee)!==0) this.selAddressee='';
+        if (inputField.value.indexOf(this.selAddressee) !== 0) this.selAddressee = '';
         this.removeOld=true;
-        this.dom['inputField'].value=this.getSetting('saveAddressee')?this.selAddressee:'';
-        if(!(sChat.isMenuOpened()&&helper.isMobile())) this.dom['inputField'].focus();
+        inputField.value = this.getSetting('saveAddressee') ? this.selAddressee : '';
+        if (!(sChat.isMenuOpened() && helper.isMobile())) inputField.focus();
         this.updateMessageLengthCounter();
     },
     parseInputMessage:function(text){
@@ -1231,7 +1240,7 @@ var sChat={
             if(confirm(sChatLang['deleteMessageConfirm'])){
                 nextSibling=messageNode.nextSibling;
                 try{
-                    this.dom['chatList'].removeChild(messageNode);
+                    document.getElementById('chatList').removeChild(messageNode);
                     if (nextSibling) this.updateChatListClasses(nextSibling);
                     this.updateChat('&delete=' + messageID);
                 } catch(e){
@@ -1256,7 +1265,7 @@ var sChat={
     },
     updateChatListClasses: function (node) {
         var previousNode, rowEven;
-        if (!node) node = this.dom['chatList'].firstChild;
+        if (!node) node = document.getElementById('chatList').firstChild;
         if (node) {
             previousNode = node.previousSibling;
             rowEven = (previousNode && this.hasClass(previousNode, 'rowOdd')) ? true : false;
@@ -1325,7 +1334,7 @@ var sChat={
         var message='lastID='+this.lastID+'&channelName='+this.encodeText(channel);
         this.makeRequest(sConfig.ajaxURL, 'POST', message);
         // this.clearOnlineUsersList();
-        if(this.dom['inputField']) this.dom['inputField'].focus();
+        if (document.getElementById('inputField')) document.getElementById('inputField').focus();
     },
     logout:function(){
         clearTimeout(this.timer);
@@ -1373,7 +1382,7 @@ var sChat={
     },
     setMsgColor: function (color) {
         this.setSetting('msgColor', color);
-        if (this.dom['inputField']) this.dom['inputField'].style.color = color;
+        if (document.getElementById('inputField')) document.getElementById('inputField').style.color = color;
         this.updateChat('&msgColor=' + color.replace('#', ''));
     },
     setNickColor: function (color) {
@@ -1381,12 +1390,14 @@ var sChat={
         this.updateChat('&nickColor=' + color.replace('#', ''));
     },
     insertText:function(text, clearInputField){
-        if(clearInputField) this.dom['inputField'].value='';
+        if (clearInputField) document.getElementById('inputField').value = '';
         this.insert(text, '');
     },
     insertBBCode:function(bbCode){ this.insert('['+bbCode+']', '[/'+bbCode+']'); },
     insert:function(startTag, endTag){
-        if(!(sChat.isMenuOpened()&&helper.isMobile())) this.dom['inputField'].focus();
+        var inputField = document.getElementById('inputField');
+
+        if (!(sChat.isMenuOpened() && helper.isMobile())) inputField.focus();
         var insText;
         // Internet Explorer:
         if(typeof document.selection!=='undefined'){
@@ -1402,29 +1413,29 @@ var sChat={
         } else{
             var pos;
             // Firefox, etc. (Gecko based browsers):
-            if(typeof this.dom['inputField'].selectionStart!=='undefined'){
+            if (typeof inputField.selectionStart !== 'undefined') {
                 // Insert the tags:
-                var start=this.dom['inputField'].selectionStart;
-                var end=this.dom['inputField'].selectionEnd;
-                insText=this.dom['inputField'].value.substring(start, end);
-                this.dom['inputField'].value=this.dom['inputField'].value.substr(0, start)
+                var start = inputField.selectionStart;
+                var end = inputField.selectionEnd;
+                insText = inputField.value.substring(start, end);
+                inputField.value = inputField.value.substr(0, start)
                     +startTag
                     +insText
                     +endTag
-                    +this.dom['inputField'].value.substr(end);
+                    + inputField.value.substr(end);
                 // Adjust the cursor position:
                 if(insText.length===0) pos=start+startTag.length;
                 else pos=start+startTag.length+insText.length+endTag.length;
-                this.dom['inputField'].selectionStart=pos;
-                this.dom['inputField'].selectionEnd=pos;
+                inputField.selectionStart = pos;
+                inputField.selectionEnd = pos;
             }
             // Other browsers:
             else{
-                pos=this.dom['inputField'].value.length;
-                this.dom['inputField'].value=this.dom['inputField'].value.substr(0, pos)
+                pos = inputField.value.length;
+                inputField.value = inputField.value.substr(0, pos)
                     +startTag
                     +endTag
-                    +this.dom['inputField'].value.substr(pos);
+                    + inputField.value.substr(pos);
             }
         }
     },
@@ -1794,14 +1805,17 @@ var sChat={
         return style;
     },
     initStyle:function(){
+        var touch = "ontouchstart" in document.documentElement;
+        this.addClass(document.documentElement, sConfig.touch ? 'touch' : 'no-touch');
+        
         this.styleInitiated=true;
         this.setActiveStyleSheet(this.getActiveStyle());
     },
     persistStyle:function(){ if(this.styleInitiated) this.createCookie(sConfig.sessionName+'_style', this.getActiveStyleSheet(), sConfig.cookieExpiration); },
     setSelectedStyle:function(){
-        if(this.dom['styleSelection']){
+        if(document.getElementById('styleSelection')){
             var style=this.getActiveStyle();
-            var styleOptions=this.dom['styleSelection'].getElementsByTagName('option');
+            var styleOptions=document.getElementById('styleSelection').getElementsByTagName('option');
             for(var i=0; i<styleOptions.length; i++)
                 if(styleOptions[i].value===style){
                     styleOptions[i].selected=true;
@@ -1810,9 +1824,9 @@ var sChat={
         }
     },
     getSelectedStyle:function(){
-        var styleOptions=this.dom['styleSelection'].getElementsByTagName('option');
-        if(this.dom['styleSelection'].selectedIndex===-1) return styleOptions[0].value;
-        else return styleOptions[this.dom['styleSelection'].selectedIndex].value;
+        var styleOptions=document.getElementById('styleSelection').getElementsByTagName('option');
+        if(document.getElementById('styleSelection').selectedIndex===-1) return styleOptions[0].value;
+        else return styleOptions[document.getElementById('styleSelection').selectedIndex].value;
     },
     setActiveStyleSheet:function(title){
         var i, a, titleFound=false;

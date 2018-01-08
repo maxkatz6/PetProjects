@@ -17,18 +17,6 @@ var sConfig = {
     messageUnionTimeLimit: 1 * 60 * 1000,
     // The URL to retrieve the XML chat messages (must at least contain one parameter):
     ajaxURL: './?ajax=true',
-    // Defines the IDs of DOM nodes accessed by the chat:
-    domIDs: {
-        chatList: 'chatList',
-        onlineList: 'onlineList',
-        inputField: 'inputField',
-        messageLengthCounter: 'messageLengthCounter',
-        channelSelection: 'channelSelection',
-        styleSelection: 'styleSelection',
-        emoticonsContainer: 'emoticonsContainer',
-        flashInterfaceContainer: 'flashInterfaceContainer',
-        statusIcon: 'statusIconContainer'
-    },
     // Defines the settings which can be modified by users:
     settings: {
         saveAddressee: true,

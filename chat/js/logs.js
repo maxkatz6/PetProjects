@@ -37,21 +37,21 @@ sChat.getLogs = function () {
 };
 sChat.getLogsCommand = function () {
     if (!this.logsCommand) {
-        if (!this.dom['inputField'].value &&
-            parseInt(this.dom['yearSelection'].value) <= 0 &&
-            parseInt(this.dom['hourSelection'].value) <= 0) {
+        if (!document.getElementById('inputField').value &&
+            parseInt(document.getElementById('yearSelection').value) <= 0 &&
+            parseInt(document.getElementById('hourSelection').value) <= 0) {
             this.logsMonitorMode = true;
         } else {
             this.logsMonitorMode = false;
         }
         this.logsCommand = 'command=getLogs'
-            + '&channelID=' + this.dom['channelSelection'].value
-            + '&year=' + this.dom['yearSelection'].value
-            + '&month=' + this.dom['monthSelection'].value
-            + '&day=' + this.dom['daySelection'].value
-            + '&hour=' + this.dom['hourSelection'].value
-            + '&tmc=' + this.dom['tmcCount'].value
-            + '&search=' + this.encodeText(this.dom['inputField'].value);
+            + '&channelID=' + document.getElementById('channelSelection').value
+            + '&year=' + document.getElementById('yearSelection').value
+            + '&month=' + document.getElementById('monthSelection').value
+            + '&day=' + document.getElementById('daySelection').value
+            + '&hour=' + document.getElementById('hourSelection').value
+            + '&tmc=' + document.getElementById('tmcCount').value
+            + '&search=' + this.encodeText(document.getElementById('inputField').value);
     }
     return this.logsCommand;
 };
@@ -104,7 +104,7 @@ sChat.getChatListChild = function (dateObject, userID, userName, userRole, messa
     newDiv.className = rowClass;
     newDiv.id = this.getMessageDocumentID(messageID);
     newDiv.innerHTML = '<a class="delete ignoreOnMessageClick" href="javascript:sChat.deleteMessage(' + messageID + ');"> </a>'
-        + '<a class="dateTime" href="#" onclick="sChat.dom[\'yearSelection\'].value =' + dateObject.getFullYear() + ';sChat.dom[\'monthSelection\'].value =' + (dateObject.getMonth()+1) + ';sChat.dom[\'daySelection\'].value =' + dateObject.getDate() + ';sChat.dom[\'hourSelection\'].value =' + dateObject.getHours() + '">' + this.formatDate(dateObject) + ' </a><span class="' + userClass + '"'
+        + '<a class="dateTime" href="#" onclick="document.getElementById('\'yearSelection\'').value =' + dateObject.getFullYear() + ';document.getElementById('\'monthSelection\'').value =' + (dateObject.getMonth()+1) + ';document.getElementById('\'daySelection\'').value =' + dateObject.getDate() + ';document.getElementById('\'hourSelection\'').value =' + dateObject.getHours() + '">' + this.formatDate(dateObject) + ' </a><span class="' + userClass + '"'
         + (sConfig.settings['nickColors'] && msgInfo && msgInfo.ncol ? ' style="color:' + msgInfo.ncol + '" ' : '') + ">"
         + ((sConfig.settings['nickColors'] && sConfig.settings['gradiens'] && msgInfo && msgInfo.nickGrad) ? helper.grad(userName, msgInfo.nickGrad) : userName)
         + '</span>' + colon + '<span ' + ((sConfig.settings['msgColors'] && msgInfo && msgInfo.mcol) ? 'style="color:' + msgInfo.mcol + '">' : '>')
