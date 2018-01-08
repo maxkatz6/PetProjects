@@ -30,20 +30,24 @@ body.s_chat{padding:0;margin:0;}
 #chatList .bbCodeImage{vertical-align:top;overflow:auto;margin:5px;}
 .userAvatarBlock {float:left;width:3em;min-width:3em;min-height:1px;margin:4px 0 0 0;}
 .userAvatarBlock img {display:none;}
+.msgRow{z-index:1;position: relative;}
+.msgRow .msgAction {display: block; padding: 4px 8px;}
+.msgRow .msgActions {font-size: 0.9em;display: none;position: absolute;right: 0;top: 4px;border: 1px solid;padding: 2px;border-radius: 5px;}
+.msgRow .msgAction.delete:before {content:'\f1f8'; font-family: FontAwesome; margin-right: 4px;}
+.msgRow .msgAction.quote:before {content: '\f10d'; font-family: FontAwesome; margin-right: 4px;}
+.msgRow.showActions{z-index:2;}
+.msgRow.showActions .msgActions, .msgActions:hover{display:block;}
 .msgRow.firstMessage .userAvatarBlock img {width:3em;height:3em;display:block;}
-.msgRow .msgMore{display:none;position:absolute;top:0;right:0;margin-top:2px;padding-left:5px;}
-.msgRow .msgMore:before {content:'\f142'; font-size:1.2em; font-family: FontAwesome;}
-.msgRow .msgReact{display:none;position:absolute;top:0;right:0;margin-top:2px;padding-left:5px;}
+.msgRow .msgButtons {display:none;position:absolute;top:0;right:0;margin-top:2px;line-height: 1.4em;}
+.msgRow .msgButtons span{padding: 0 5px;cursor:pointer;}
+.msgRow .msgMore:before {content:'\f142'; font-size:1.2em; font-family: FontAwesome;padding:2px;}
 .msgRow .msgReact:before {content:'\f118'; font-size:1.2em; font-family: FontAwesome;}
-.msgRow:hover .msgMore, .msgRow.keepMoreButton .msgMore, .msgRow:hover .msgReact {display: block;}
-.msgRow .msgFooter {margin: 4px 0 4px 12px; font-size: 0.9em; display: none;}
-.msgRow .msgFooter .delete {margin-right:12px;}
-.msgRow .msgFooter .delete:before {content:'\f1f8'; font-family: FontAwesome; margin-right: 4px;}
-.msgRow .msgFooter .quote:before {content: '\f10d'; font-family: FontAwesome; margin-right: 4px;}
+.msgRow .msgReact:hover::before {content:'\f119';}
+.msgRow .msgButtons span:hover {font-size:1.1em;color: #101050;}
+.msgRow:hover .msgButtons {display: block;}
 .msgHeader .dateTime {font-size:0.8em; word-wrap:normal;}
-.msgRow.showMore .msgFooter {display: block;}
-.msgBody {overflow: hidden; position: relative;}
-.msgBody .msgText {margin:0 0 0 10px; font-size: 1.1em; line-height: 1.5em;}
+.msgBody {overflow: hidden;position: relative;}
+.msgBody .msgText {margin:0 0 0 10px;font-size: 1.1em;line-height: 1.5em;}
 .msgBody .msgHeader {display:none;margin:4px 0 4px 6px; line-height: 1.5em;}
 .msgBody .msgHeader .roleSpan {display: none; margin: 0 4px 0 0; border-radius:10%; padding:1px; font-weight:bold; }
 /* .msgBody .msgHeader .roleSpan.admin, .msgBody .msgHeader .roleSpan.moderator {display: inline;} */
