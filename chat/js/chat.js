@@ -804,11 +804,10 @@ var sChat={
                 var conReactedArray = conJsonStr && JSON.parse(conJsonStr);
                 if (conReactedArray) {
                     var index = conReactedArray.indexOf(userId);
-                    do {
+                    while (index >= 0) {
                         conReactedArray.splice(index, 1);
                         index = conReactedArray.indexOf(userId);
                     }
-                    while (index >= 0);
                     conflictedElement.setAttribute("data-usersReacted", JSON.stringify(conReactedArray));;
                     conflictedElement.setAttribute("data-count", conReactedArray.length);
                     conflictedElement.firstChild.textContent = conReactedArray.length;
@@ -825,11 +824,10 @@ var sChat={
 
         if (isRemoveReaction) {
             var index = reactedArray.indexOf(userId);
-            do {
+            while (index >= 0) {
                 reactedArray.splice(index, 1);
                 index = reactedArray.indexOf(userId);
             }
-            while (index >= 0);
         }
         else {
             if (reactedArray.indexOf(userId) < 0) {
