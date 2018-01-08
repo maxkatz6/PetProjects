@@ -726,20 +726,20 @@ var sChat = {
         var nickHtml = this.formatNickname(userName, userClass, priv, msgInfo && msgInfo.ncol);
         var roleHtml = '<span class="roleSpan ' + userClass + '">' + sChatLang[userClass + "Role"] + '</span>';
         var messageHtml = this.formatMessage(this.replaceText(messageText), msgInfo && msgInfo.mcol);
-        var reactButtonHtml = (userID != sConfig.chatBotID && '<span class="msgReact" ></span>') || "";
         var moreButtonHtml = '<span class="msgMore ignoreOnMessageClick" onclick="sChat.showActions(' + messageID + ')" ></span>';
         var quoteHtml = '<a class="msgAction quote ignoreOnMessageClick" href="javascript:sChat.selectQuote(\'' + formatedDate + '\', ' + messageID + ');">' + this.encodeSpecialChars(sChatLang['quoteMessage']) + ' </a>';
         var deleteHtml = this.isAllowedToDeleteMessage(messageID, userID, userRole, channelID)
             ? '<a class="msgAction delete ignoreOnMessageClick" href="javascript:sChat.deleteMessage(' + messageID + ');">' + this.encodeSpecialChars(sChatLang['deleteMessage']) + '</a>'
             : '';
 
-        var msgOnTopButtonsHtml = (!hasTouch && ('<div class="msgButtons">' + reactButtonHtml + moreButtonHtml + '</div>')) || '';
+        var msgOnTopButtonsHtml = (!hasTouch && ('<div class="msgButtons">' + moreButtonHtml + '</div>')) || '';
 
         var msgHeaderHtml = '<div class="msgHeader">' + nickHtml + roleHtml + dateHtml + '</div>';
         var msgTextHtml = '<div class="msgText">' + messageHtml + '</div>';
-        var msgActionsHtml = '<div class="msgActionsParent"><div class="msgActions">' + deleteHtml + quoteHtml + '</div></div>';
-        var msgReactions = (userID != sConfig.chatBotID && this.createReactionsPanel(messageID, reactions)) || "";
-
+        var msgReactions = (userID != sConfig.chatBotID && this.createReactionsPanel(messageID, reactions, false)) || "";
+        var msgActionsReactionsHtml = (userID != sConfig.chatBotID && this.createReactionsPanel(messageID, reactions, true)) || "";
+        var msgActionsHtml = '<div class="msgActions">' + deleteHtml + quoteHtml + msgActionsReactionsHtml + '</div>';
+                        
         newDiv.className = rowClass;
         newDiv.id = this.getMessageDocumentID(messageID);
         newDiv.setAttribute('data-userID', userID);
@@ -747,13 +747,20 @@ var sChat = {
         newDiv.innerHTML = imgHtml + '<div class="msgBody">' + msgHeaderHtml + msgTextHtml + msgReactions + msgOnTopButtonsHtml + '</div>' + msgActionsHtml;
         newDiv.onmouseleave = function () { sChat.removeClass(this, 'showActions'); };
 
+        for (var reaction in reactions) {
+            if (reactions[reaction].count > 0) {
+                this.addClass(newDiv, "hasReactions");
+                break;
+            }
+        }
+
         var showMoreFunc = function () {
-            var anotherItems = document.getElementsByClassName("showMore");
+            var anotherItems = document.getElementsByClassName("showActions");
             for (var i = 0; i < anotherItems.length; i++) {
-                sChat.removeClass(anotherItems[i], "showMore");
+                sChat.removeClass(anotherItems[i], "showActions");
             }
 
-            sChat.addClass(newDiv, "showMore");
+            sChat.addClass(newDiv, "showActions");
         }
 
         if (hasTouch) {
@@ -782,8 +789,8 @@ var sChat = {
                 sChat.removeClass(newDiv, "showActions");
                 return;
             }
-            if (sChat.hasClass(newDiv, "showMore")) {
-                sChat.removeClass(newDiv, "showMore");
+            if (sChat.hasClass(newDiv, "showActions")) {
+                sChat.removeClass(newDiv, "showActions");
             }
             else if (!hasTouch) {
                 showMoreFunc();
@@ -799,21 +806,28 @@ var sChat = {
             this.addClass(actionsPanel, "showActions");
     },
     /*reactions*/
-    createReactionsPanel: function (msgId, reactions) {
+    createReactionsPanel: function (msgId, reactions, inFlyout) {
         var html = "<div class='unselectable reactPanel ignoreOnMessageClick' data-msgId='" + msgId + "'>";
 
         for (var i = 0; i < sConfig.reactionTypes.length; i++) {
             var reaction = sConfig.reactionTypes[i];
-            var count = (reactions && reaction in reactions && reactions[reaction].count) || 0;
-            var usersReacted = JSON.stringify((reactions && reaction in reactions && reactions[reaction].users) || []);
-            var id = "reaction" + msgId + reaction;
-            var reactionHtml = "<span id='" + id + "' class='reaction' onclick='sChat.toggleReaction(this);' data-count=" + count + " data-reaction='" + reaction + "' data-msgId='" + msgId + "' data-usersReacted='" + usersReacted + "'><span class='unselectable reactionCount'>" + count + "</span></span>";
+            var count = (!inFlyout && reactions && reaction in reactions && reactions[reaction].count) || 0;
+            var usersReacted = (!inFlyout && JSON.stringify((reactions && reaction in reactions && reactions[reaction].users) || [])) || "";
+            var id = "reaction_" + msgId + "_" + reaction + (inFlyout ? "_flyout" : "");
+            var countSpan = (!inFlyout && "<span class='unselectable reactionCount'>" + count + "</span>") || "";
+            var reactionHtml = "<span id='" + id + "' class='reaction' onclick='sChat.toggleReaction(this);' data-count=" + count + " data-reaction='" + reaction + "' data-msgId='" + msgId + "' data-usersReacted='" + usersReacted + "'>" + countSpan + "</span>";
             html += reactionHtml;
         }
         html += "</div>"
         return html;
     },
     toggleReaction: function (element) {
+        if (element.id.indexOf("_flyout") >= 0) {
+            element = document.getElementById(element.id.replace("_flyout", ""));
+        }
+        if (!element)
+            return;
+
         var jsonStr = element.getAttribute("data-usersReacted");
         var reactedArray = jsonStr && JSON.parse(jsonStr);
         var isRemoveReaction = reactedArray && reactedArray.indexOf(this.userID) >= 0;
@@ -829,7 +843,7 @@ var sChat = {
             && reaction in sConfig.conflictedReactions) {
             var conflicted = sConfig.conflictedReactions[reaction];
             for (var i = 0; i < conflicted.length; i++) {
-                var conflictedId = "reaction" + msgId + conflicted[i];
+                var conflictedId = "reaction_" + msgId + "_" + conflicted[i];
                 var conflictedElement = document.getElementById(conflictedId);
                 var conJsonStr = conflictedElement && conflictedElement.getAttribute("data-usersReacted");
                 var conReactedArray = conJsonStr && JSON.parse(conJsonStr);
@@ -841,11 +855,12 @@ var sChat = {
                     }
                     conflictedElement.setAttribute("data-usersReacted", JSON.stringify(conReactedArray));;
                     conflictedElement.setAttribute("data-count", conReactedArray.length);
-                    conflictedElement.firstChild.textContent = conReactedArray.length;
+                    if (conflictedElement.firstChild)
+                        conflictedElement.firstChild.textContent = conReactedArray.length;
                 }
             }
         }
-        var id = "reaction" + msgId + reaction;
+        var id = "reaction_" + msgId + "_" + reaction;
         var element = document.getElementById(id);
         if (!element)
             return;
@@ -868,7 +883,31 @@ var sChat = {
 
         element.setAttribute("data-usersReacted", JSON.stringify(reactedArray));
         element.setAttribute("data-count", reactedArray.length);
-        element.firstChild.textContent = reactedArray.length;
+        if (element.firstChild)
+            element.firstChild.textContent = reactedArray.length;
+
+        var messageElement = document.getElementById(this.getMessageDocumentID(msgId));
+        if (isRemoveReaction) {
+            this.removeClass(messageElement, "hasReactions");
+            if (reactedArray.length > 0) {
+                this.addClass(messageElement, "hasReactions");
+            }
+            else {
+                var reactions = sConfig.reactionTypes;
+                for (var i = 0; i < reactions.length; i++) {
+                    var reactionId = "reaction_" + msgId + "_" + reactions[i];
+                    var reactionElement = document.getElementById(reactionId);
+                    var count = (reactionElement && parseInt(reactionElement.getAttribute("data-count"))) || 0;
+                    if (count > 0) {
+                        this.addClass(messageElement, "hasReactions");
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            this.addClass(messageElement, "hasReactions");
+        }
     },
     /*other*/
     forEachParent: function (node, stopNode, func) {
