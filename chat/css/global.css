@@ -58,7 +58,7 @@ body.s_chat{padding:0;margin:0;}
 /* Reactions */
 .reactPanel{margin:0 10px;font-size:1.1em;line-height:1.3em;display:none;}
 .showReactions .reactPanel,.hasReactions .reactPanel,.msgActions .reactPanel{display:block;}
-.reaction{padding:0px 5px;}
+.reaction{padding:0px 5px;cursor:pointer;}
 .msgActions .reactPanel{margin:0 4px;border-top:1px solid;padding:4px 0 0 0;text-align:center;}
 .msgActions .reaction{padding:0px 2px;}
 .reaction[data-count='0'] .reactionCount{display:none;}
