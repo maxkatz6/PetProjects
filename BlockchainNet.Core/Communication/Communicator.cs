@@ -41,8 +41,11 @@
             if (Blockchain == null)
                 throw new InvalidOperationException("Blockchain must be setted");
 
+            // Пустой массив не будет опознан как какое-либо сообщение, 
+            // которое можно прочитать. Но безопасно отправить общий начальный блок,
+            // который опознается как неполный блокчейн, и в ответ получим остальные блоки
             var sendedList = onlyGet
-                ? new List<Block>()
+                ? new List<Block> { Blockchain.Chain.First() }
                 : Blockchain.Chain.ToList();
             return Task
                 .WhenAll(nodes
