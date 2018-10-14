@@ -16,7 +16,7 @@
         private readonly NamedPipeServerStream _pipeServer;
         private bool _isStopping;
 
-        class Package
+        private class Package
         {
             public byte[] Buffer = new byte[PipeServer<T>.BufferSize];
             public List<byte> Result = new List<byte>();
@@ -25,10 +25,10 @@
         public InternalPipeServer(string pipeName, int maxNumberOfServerInstances)
         {
             _pipeServer = new NamedPipeServerStream(
-                pipeName, 
-                PipeDirection.In, 
+                pipeName,
+                PipeDirection.In,
                 maxNumberOfServerInstances,
-                PipeTransmissionMode.Message, 
+                PipeTransmissionMode.Message,
                 PipeOptions.Asynchronous);
 
             ServerId = pipeName;
@@ -44,7 +44,7 @@
 
         public void Start()
         {
-            _pipeServer.WaitForConnectionAsync().ContinueWith(t =>
+            _pipeServer.WaitForConnectionAsync().ContinueWith(_ =>
             {
                 if (!_isStopping)
                 {
@@ -55,7 +55,9 @@
                     responceClientId = Encoding.UTF8.GetString(buffer, 0, length);
 
                     if (responceClientId == "\0")
+                    {
                         responceClientId = null;
+                    }
 
                     ClientConnectedEvent?.Invoke(
                         this,
@@ -135,7 +137,7 @@
                 {
                     Stop();
                     ClientDisconnectedEvent?.Invoke(
-                        this, 
+                        this,
                         new ClientDisconnectedEventArgs { ClientId = responceClientId });
                 }
             }

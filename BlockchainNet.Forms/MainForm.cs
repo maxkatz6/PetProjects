@@ -1,6 +1,5 @@
 ﻿namespace BlockchainNet.Forms
 {
-    using BlockchainNet.Core;
     using BlockchainNet.Core.Models;
     using BlockchainNet.Wallet;
     using BlockchainNet.Wallet.Models;
@@ -67,7 +66,9 @@
         {
             var account = AskForAccount(false, userAccount);
             if (account == null)
+            {
                 return;
+            }
 
             var amount = blockchain.GetAccountAmount(account);
             MessageBox.Show(amount + " монет на счету аккаунта \"" + account + "\"", "Вывод счета");
@@ -80,7 +81,10 @@
             {
                 MessageBox.Show("Аккаунт не может быть пустым");
                 if (requied)
+                {
                     return AskForAccount(requied, def);
+                }
+
                 return null;
             }
             return account;
@@ -108,7 +112,7 @@
             {
                 try
                 {
-                    communicator.Blockchain = blockchain 
+                    communicator.Blockchain = blockchain
                         = WalletBlockchain.FromFile(openFileDialog.FileName);
 
                     UpdateBlocksList();
@@ -132,7 +136,9 @@
         {
             var newAccount = AskForAccount(false, userAccount);
             if (!string.IsNullOrEmpty(newAccount))
+            {
                 senderTextBox.Text = userAccount = newAccount;
+            }
         }
 
         private void ExitClick(object sender, EventArgs e)
@@ -149,7 +155,7 @@
         {
             await communicator.SyncAsync();
         }
-        
+
         private void SendTransactionClick(object sender, EventArgs e)
         {
             var recipient = recipTextBox.Text;
@@ -167,7 +173,9 @@
             }
 
             if (MessageBox.Show("Отправить " + amount + " монет на аккаунт \"" + recipient + "\"", "Подтверждение", MessageBoxButtons.OKCancel) != DialogResult.OK)
+            {
                 return;
+            }
 
             blockchain.NewTransaction(userAccount, recipient, amount);
 
@@ -219,7 +227,10 @@
         private void BlocksDataGridViewSelectionChanged(object sender, EventArgs e)
         {
             if (blocksDataGridView.SelectedCells.Count == 0)
+            {
                 return;
+            }
+
             var index = blocksDataGridView.Rows[blocksDataGridView.SelectedCells[0].RowIndex].Cells["Index"].Value as int?;
 
             UpdateTransactionsList(index ?? -1);

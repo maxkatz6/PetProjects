@@ -36,17 +36,19 @@
             server.ClientDisconnectedEvent += Server_ClientDisconnectedEvent;
             server.Start();
         }
-        
+
         public Task SyncAsync(bool onlyGet = false)
         {
             if (Blockchain == null)
+            {
                 throw new InvalidOperationException("Blockchain must be setted");
+            }
 
             // Пустой массив не будет опознан как какое-либо сообщение, 
             // которое можно прочитать. Но безопасно отправить общий начальный блок,
             // который опознается как неполный блокчейн, и в ответ получим остальные блоки
             var sendedList = onlyGet
-                ? new List<Block<TContent>> { Blockchain.Chain.First() }
+                ? new List<Block<TContent>> { Blockchain.Chain[0] }
                 : Blockchain.Chain.ToList();
             return Task
                 .WhenAll(nodes
@@ -69,7 +71,9 @@
             server.Stop();
 
             foreach (var nodeClient in nodes)
+            {
                 nodeClient.Stop();
+            }
         }
 
         private void Server_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
@@ -85,7 +89,7 @@
 
         private void Server_ClientDisconnectedEvent(object sender, ClientDisconnectedEventArgs e)
         {
-            var node = nodes.FirstOrDefault(n => n.ServerId == e.ClientId);
+            var node = nodes.Find(n => n.ServerId == e.ClientId);
             if (node != null)
             {
                 node.Stop();
@@ -96,14 +100,16 @@
         private async void Server_MessageReceivedEvent(object sender, MessageReceivedEventArgs<List<Block<TContent>>> e)
         {
             if (Blockchain == null)
+            {
                 throw new InvalidOperationException("Blockchain must be setted");
+            }
 
             var replaced = Blockchain.TrySetChainIfValid(e.Message);
             // Если не заменено, то входящяя цепочка или невалидна, или меньше существующей
             // Есть смысл отправить отправителю свою цепочку для замены
             if (!replaced)
             {
-                var nodeClient = nodes.FirstOrDefault(c => c.ServerId == e.ClientId);
+                var nodeClient = nodes.Find(c => c.ServerId == e.ClientId);
                 await nodeClient.SendMessageAsync(Blockchain.Chain.ToList());
             }
         }

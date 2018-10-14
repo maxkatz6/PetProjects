@@ -162,10 +162,7 @@ namespace BlockchainNet.Test.Pipe
             var server = new PipeServer<string>();
             var client = new PipeClient<string>(server.ServerId);
 
-            server.MessageReceivedEvent += (sender, args) =>
-            {
-                tcs.SetResult(args.Message);
-            };
+            server.MessageReceivedEvent += (sender, args) => tcs.SetResult(args.Message);
 
             server.Start();
             client.Start();
@@ -181,7 +178,7 @@ namespace BlockchainNet.Test.Pipe
 
             Assert.AreEqual(longString, message, "Messages are not equal");
         }
-        
+
         [TestMethod, Timeout(5000)]
         public async Task Pipe_Client_SendMessage_MultiMessageTest()
         {
@@ -215,7 +212,7 @@ namespace BlockchainNet.Test.Pipe
             autoEvent.WaitOne();
             Assert.AreEqual(SecondTestMessage, message, "#2 messages are not equal");
         }
-        
+
         [TestMethod, Timeout(10000)]
         public async Task Pipe_Client_SendMessage_MessageSpamTest()
         {
@@ -235,7 +232,9 @@ namespace BlockchainNet.Test.Pipe
                 recievedMessages.Add(args.Message);
 
                 if (recievedMessages.Count >= MessageCount)
+                {
                     autoEvent.Set();
+                }
             };
 
             server.Start();
@@ -246,14 +245,14 @@ namespace BlockchainNet.Test.Pipe
                 var success = await client.SendMessageAsync(i);
                 Assert.IsTrue(success, $"Send #{i} message failed");
             }));
-            
+
             autoEvent.WaitOne();
 
             Assert.AreEqual(MessageCount, recievedMessages.Count, "Not all messages recieved");
 
             CollectionAssert.AreEquivalent(sendMessages, recievedMessages, "Send and recieved messages are not equal");
         }
-        
+
         [TestMethod, Timeout(10000)]
         public async Task Pipe_Client_SendMessage_MultiClientSpamTest()
         {
@@ -271,7 +270,9 @@ namespace BlockchainNet.Test.Pipe
                 recievedMessages.Add(args.Message);
 
                 if (recievedMessages.Count >= MessageCount)
+                {
                     autoEvent.Set();
+                }
             };
 
             server.Start();

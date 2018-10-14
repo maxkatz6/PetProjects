@@ -1,6 +1,5 @@
 ﻿namespace BlockchainNet.Console
 {
-    using BlockchainNet.Core;
     using BlockchainNet.Core.Communication;
     using BlockchainNet.Core.Models;
     using BlockchainNet.Pipe;
@@ -15,11 +14,11 @@
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
 
-    static class Program
+    internal static class Program
     {
         private static Communicator<WalletBlockchain, Transaction> communicator;
         private static WalletBlockchain blockchain => communicator.Blockchain;
-        
+
         private static string account;
 
         private delegate bool ConsoleEventDelegate(int eventType);
@@ -31,10 +30,13 @@
             SetConsoleCtrlHandler(arg =>
                 {
                     if (arg == 2)
+                    {
                         communicator.Close();
+                    }
+
                     return false;
                 }, true);
-            
+
             var currentPipeId = ProcessPipeHelper.GetCurrentPipeId();
             Console.Title = currentPipeId;
 
@@ -44,9 +46,9 @@
             {
                 Blockchain = WalletBlockchain.CreateNew()
             };
-            
+
             communicator.ConnectTo(ProcessPipeHelper.GetNeighborPipesIds());
-            
+
             AskAndSetAccount();
 
             var active = true;
@@ -54,7 +56,9 @@
             {
                 var parts = Console.ReadLine().Split(' ');
                 if (parts.Length == 0)
+                {
                     continue;
+                }
 
                 switch (parts[0])
                 {
@@ -107,7 +111,7 @@
 
             communicator.Close();
         }
-        
+
         private static void AskAndSetAccount(string newAccount = null)
         {
             if (string.IsNullOrWhiteSpace(newAccount))
@@ -152,13 +156,13 @@
                 recipient = Console.ReadLine();
             }
             var amount = double.TryParse(parts.Skip(1).FirstOrDefault(), out double temp) ? temp : 0;
-            
+
             while (amount <= 0)
             {
                 Console.Write("Amount: ");
                 amount = double.TryParse(Console.ReadLine(), out temp) ? temp : 0;
             }
-            
+
             if (blockchain.GetAccountAmount(account) < amount)
             {
                 Console.WriteLine("Account amount is not enough");
@@ -185,7 +189,9 @@
             {
                 Console.WriteLine(block.ToString());
                 if (block.Content.Count > 0)
+                {
                     Console.WriteLine(string.Join("\r\n", block.Content));
+                }
             }
             Console.WriteLine();
         }
@@ -205,7 +211,9 @@
         private static void SaveBlockChain(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
+            {
                 fileName = "chain.protobuf";
+            }
 
             try
             {
@@ -218,11 +226,13 @@
 
             Console.WriteLine("Blockchain saved to " + fileName);
         }
-        
+
         private static void LoadBlockChain(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
+            {
                 fileName = "chain.protobuf";
+            }
 
             if (!File.Exists(fileName))
             {
@@ -241,7 +251,7 @@
                 Console.WriteLine(ex.Message);
             }
         }
-        
+
         private static string GetPipeIdFromProcessId(int processId)
         {
             return $"Pipe-{processId}";

@@ -11,10 +11,10 @@
     {
         public const int BufferSize = 2048;
         public const int MaxNumberOfServerInstances = 100;
-        
+
         private readonly SynchronizationContext _synchronizationContext;
         private readonly ConcurrentDictionary<string, ICommunicationServer<T>> _servers;
-        
+
         public PipeServer(string id)
         {
             ServerId = id;
@@ -25,11 +25,11 @@
         public PipeServer() : this(Guid.NewGuid().ToString())
         {
         }
-        
+
         public event EventHandler<MessageReceivedEventArgs<T>> MessageReceivedEvent;
         public event EventHandler<ClientConnectedEventArgs> ClientConnectedEvent;
         public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnectedEvent;
-        
+
         public string ServerId { get; }
 
         public void Start()
@@ -53,7 +53,7 @@
 
             _servers.Clear();
         }
-        
+
         private void StartNamedPipeServer()
         {
             // Есть смысл создавать свой InternalPipeServer для каждого клиента, но при этом основываясь на одном его имени
@@ -68,7 +68,7 @@
 
             server.Start();
         }
-        
+
         private void StopNamedPipeServer(string id)
         {
             if (_servers.TryRemove(id, out ICommunicationServer<T> removed))
@@ -77,14 +77,14 @@
                 removed.Stop();
             }
         }
-        
+
         private void UnregisterFromServerEvents(ICommunicationServer<T> server)
         {
             server.ClientConnectedEvent -= ClientConnectedHandler;
             server.ClientDisconnectedEvent -= ClientDisconnectedHandler;
             server.MessageReceivedEvent -= MessageReceivedHandler;
         }
-        
+
         private void ClientConnectedHandler(object sender, ClientConnectedEventArgs eventArgs)
         {
             _synchronizationContext.Post(
@@ -93,20 +93,20 @@
 
             StartNamedPipeServer();
         }
-        
+
         private void ClientDisconnectedHandler(object sender, ClientDisconnectedEventArgs eventArgs)
         {
             _synchronizationContext.Post(
-                e => ClientDisconnectedEvent?.Invoke(this, (ClientDisconnectedEventArgs)e), 
+                e => ClientDisconnectedEvent?.Invoke(this, (ClientDisconnectedEventArgs)e),
                 eventArgs);
 
             StopNamedPipeServer(eventArgs.ClientId);
         }
-        
+
         private void MessageReceivedHandler(object sender, MessageReceivedEventArgs<T> eventArgs)
         {
             _synchronizationContext.Post(
-                e => MessageReceivedEvent?.Invoke(this, (MessageReceivedEventArgs<T>)e), 
+                e => MessageReceivedEvent?.Invoke(this, (MessageReceivedEventArgs<T>)e),
                 eventArgs);
         }
     }
