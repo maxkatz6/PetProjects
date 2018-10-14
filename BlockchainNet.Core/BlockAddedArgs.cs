@@ -6,15 +6,17 @@
 
     using BlockchainNet.Core.Models;
 
-    public class BlockAddedEventArgs : EventArgs
+    public class BlockAddedEventArgs<TContent> : EventArgs
     {
-        public Block AddedBlock { get; }
-        public IReadOnlyList<Block> Chain { get; }
+        public Block<TContent> AddedBlock { get; }
+        public IReadOnlyList<Block<TContent>> Chain { get; }
 
-        public BlockAddedEventArgs(Block addedBlock, IEnumerable<Block> chain = null)
+        public BlockAddedEventArgs(
+            Block<TContent> addedBlock,
+            IEnumerable<Block<TContent>> chain = null)
         {
             AddedBlock = addedBlock;
-            Chain = (chain?.ToList() ?? new List<Block> { addedBlock }).AsReadOnly();
+            Chain = chain?.ToList() ?? new List<Block<TContent>> { addedBlock };
         }
     }
 }

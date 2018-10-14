@@ -2,6 +2,8 @@
 {
     using BlockchainNet.Core;
     using BlockchainNet.Core.Models;
+    using BlockchainNet.Wallet;
+    using BlockchainNet.Wallet.Models;
     using BlockchainNet.Core.Communication;
     using BlockchainNet.Pipe;
     using BlockchainNet.Pipe.Client;
@@ -18,8 +20,8 @@
 
     public partial class MainForm : Form
     {
-        private Communicator communicator;
-        private Blockchain blockchain;
+        private static Communicator<WalletBlockchain, Transaction> communicator;
+        private static WalletBlockchain blockchain;
         private string userAccount;
 
         public MainForm()
@@ -28,11 +30,11 @@
 
             var pipeId = ProcessPipeHelper.GetCurrentPipeId();
 
-            blockchain = Blockchain.CreateNew();
+            blockchain = WalletBlockchain.CreateNew();
 
-            communicator = new Communicator(
-                new PipeServer<List<Block>>(pipeId),
-                new PipeClientFactory<List<Block>>())
+            communicator = new Communicator<WalletBlockchain, Transaction>(
+                new PipeServer<List<Block<Transaction>>>(pipeId),
+                new PipeClientFactory<List<Block<Transaction>>>())
             {
                 Blockchain = blockchain
             };
@@ -107,7 +109,7 @@
                 try
                 {
                     communicator.Blockchain = blockchain 
-                        = Blockchain.FromFile(openFileDialog.FileName);
+                        = WalletBlockchain.FromFile(openFileDialog.FileName);
 
                     UpdateBlocksList();
                     UpdateTransactionsList();
@@ -194,8 +196,8 @@
             var transactions = blockIndex >= 0
                 ? blockchain.Chain
                     .FirstOrDefault(b => b.Index == blockIndex)?
-                    .Transactions ?? new List<Transaction>()
-                : blockchain.CurrentTransactions;
+                    .Content ?? new List<Transaction>()
+                : blockchain.CurrentContent;
 
             foreach (var transaction in transactions)
             {

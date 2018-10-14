@@ -5,7 +5,7 @@
 
     using ProtoBuf;
 
-    using BlockchainNet.Core.Models;
+    using BlockchainNet.Wallet.Models;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -25,7 +25,7 @@
                 stream.Position = 0;
 
                 var newTransaction = Serializer.Deserialize<Transaction>(stream);
-                
+
                 Assert.IsTrue(transaction.Sender == newTransaction.Sender, "Transactions sender is not equal");
                 Assert.IsTrue(transaction.Recipient == newTransaction.Recipient, "Transactions recipient is not equal");
                 Assert.IsTrue(transaction.Amount == newTransaction.Amount, "Transactions amount is not equal");

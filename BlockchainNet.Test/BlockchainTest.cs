@@ -1,6 +1,6 @@
 ﻿namespace BlockchainNet.Test
 {
-    using BlockchainNet.Core;
+    using BlockchainNet.Wallet;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,7 +10,7 @@
         [TestMethod]
         public void Blockchain_MineTest()
         {
-            var blockchain = Blockchain.CreateNew();
+            var blockchain = WalletBlockchain.CreateNew();
             blockchain.NewTransaction("Alice", "Bob", 0);
             var block = blockchain.Mine("Alice");
             var isValid = blockchain.IsValidChain(blockchain.Chain);

@@ -28,7 +28,7 @@
         /// </summary>
         /// <param name="block">Входящий блок</param>
         /// <returns>Блок захешированный в строку</returns>
-        public static string HashBlockInBase64(Block block)
+        public static string HashBlockInBase64<TContent>(Block<TContent> block)
         {
             using (var stream = new MemoryStream())
             {

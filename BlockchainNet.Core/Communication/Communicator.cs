@@ -1,20 +1,21 @@
 ﻿namespace BlockchainNet.Core.Communication
 {
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
     using BlockchainNet.Core.Models;
-    using System;
 
-    public class Communicator
+    public class Communicator<TBlockchain, TContent>
+        where TBlockchain : Blockchain<TContent>
     {
-        private readonly ICommunicationServer<List<Block>> server;
-        private readonly ICommunicationClientFactory<List<Block>> clientFactory;
+        private readonly ICommunicationServer<List<Block<TContent>>> server;
+        private readonly ICommunicationClientFactory<List<Block<TContent>>> clientFactory;
 
-        private readonly List<ICommunicationClient<List<Block>>> nodes;
+        private readonly List<ICommunicationClient<List<Block<TContent>>>> nodes;
 
-        public Blockchain Blockchain { get; set; }
+        public TBlockchain Blockchain { get; set; }
 
         /// <summary>
         /// Конструктор коммуникатора
@@ -22,13 +23,13 @@
         /// <param name="server">Сервер</param>
         /// <param name="clientFactory">Фаблика клиентов</param>
         public Communicator(
-            ICommunicationServer<List<Block>> server,
-            ICommunicationClientFactory<List<Block>> clientFactory)
+            ICommunicationServer<List<Block<TContent>>> server,
+            ICommunicationClientFactory<List<Block<TContent>>> clientFactory)
         {
             this.server = server;
             this.clientFactory = clientFactory;
 
-            nodes = new List<ICommunicationClient<List<Block>>>();
+            nodes = new List<ICommunicationClient<List<Block<TContent>>>>();
 
             server.MessageReceivedEvent += Server_MessageReceivedEvent;
             server.ClientConnectedEvent += Server_ClientConnectedEvent;
@@ -45,7 +46,7 @@
             // которое можно прочитать. Но безопасно отправить общий начальный блок,
             // который опознается как неполный блокчейн, и в ответ получим остальные блоки
             var sendedList = onlyGet
-                ? new List<Block> { Blockchain.Chain.First() }
+                ? new List<Block<TContent>> { Blockchain.Chain.First() }
                 : Blockchain.Chain.ToList();
             return Task
                 .WhenAll(nodes
@@ -92,7 +93,7 @@
             }
         }
 
-        private async void Server_MessageReceivedEvent(object sender, MessageReceivedEventArgs<List<Block>> e)
+        private async void Server_MessageReceivedEvent(object sender, MessageReceivedEventArgs<List<Block<TContent>>> e)
         {
             if (Blockchain == null)
                 throw new InvalidOperationException("Blockchain must be setted");

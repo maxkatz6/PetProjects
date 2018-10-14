@@ -7,7 +7,7 @@
     using ProtoBuf;
 
     [ProtoContract]
-    public class Block
+    public class Block<TContent>
     {
         [ProtoMember(1)]
         public int Index { get; }
@@ -16,10 +16,10 @@
         public DateTime Date { get; }
 
         [ProtoMember(3)]
-        private List<Transaction> transaction;
+        private readonly List<TContent> content;
 
         [ProtoIgnore]
-        public IReadOnlyList<Transaction> Transactions => (transaction ?? new List<Transaction>()).AsReadOnly();
+        public IReadOnlyList<TContent> Content => content ?? new List<TContent>();
 
         [ProtoMember(4)]
         public long Proof { get; }
@@ -43,11 +43,11 @@
         /// <param name="transactions">Транзакции</param>
         /// <param name="proof">Доказательство доберия блоку</param>
         /// <param name="previousHash">Хэш предыдущего блока</param>
-        public Block(int index, DateTime date, IEnumerable<Transaction> transactions, long proof, string previousHash)
+        public Block(int index, DateTime date, IEnumerable<TContent> transactions, long proof, string previousHash)
         {
             Index = index;
             Date = date;
-            transaction = transactions?.ToList() ?? new List<Transaction>();
+            content = transactions?.ToList() ?? new List<TContent>();
             Proof = proof;
             PreviousHash = previousHash;
         }

@@ -92,6 +92,10 @@
       <Project>{9c6841d3-4af4-4c90-a31e-77e02e9eb205}</Project>
       <Name>BlockchainNet.Pipe</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BlockchainNet.Wallet\BlockchainNet.Wallet.csproj">
+      <Project>{E7BFE33A-E345-419A-AC1B-A82E4100754F}</Project>
+      <Name>BlockchainNet.Wallet</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

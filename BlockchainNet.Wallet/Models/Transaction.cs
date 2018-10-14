@@ -1,4 +1,4 @@
-﻿namespace BlockchainNet.Core.Models
+﻿namespace BlockchainNet.Wallet.Models
 {
     using System;
 
