@@ -1,14 +1,10 @@
-﻿namespace BlockchainNet.Forms
+﻿namespace BlockchainNet.View.Forms
 {
     using BlockchainNet.Core.Models;
     using BlockchainNet.Wallet;
-    using BlockchainNet.Core.Communication;
-    using BlockchainNet.Pipe;
-    using BlockchainNet.Pipe.Client;
-    using BlockchainNet.Pipe.Server;
-
-    using Microsoft.VisualBasic;
-
+    using BlockchainNet.Core;
+    using BlockchainNet.IO.Pipe;
+    
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -75,7 +71,7 @@
 
         private string AskForAccount(bool requied, string def = "")
         {
-            var account = Interaction.InputBox("Введите аккаунт", "Ввод аккаунта", def);
+            InputBox.Show("Введите аккаунт", "Ввод аккаунта", def, out var account);
             if (string.IsNullOrWhiteSpace(account))
             {
                 MessageBox.Show("Аккаунт не может быть пустым");

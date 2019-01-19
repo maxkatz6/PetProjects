@@ -1,10 +1,8 @@
 ﻿namespace BlockchainNet.Console
 {
-    using BlockchainNet.Core.Communication;
+    using BlockchainNet.IO.Pipe;
+    using BlockchainNet.Core;
     using BlockchainNet.Core.Models;
-    using BlockchainNet.Pipe;
-    using BlockchainNet.Pipe.Client;
-    using BlockchainNet.Pipe.Server;
     using BlockchainNet.Wallet;
 
     using System;

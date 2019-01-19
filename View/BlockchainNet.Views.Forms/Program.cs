@@ -1,4 +1,4 @@
-﻿namespace BlockchainNet.Forms
+﻿namespace BlockchainNet.View.Forms
 {
     using System;
     using System.Windows.Forms;
