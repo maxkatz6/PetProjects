@@ -1,7 +1,7 @@
-﻿namespace BlockchainNet.Core.Communication
+﻿namespace BlockchainNet.IO
 {
     using System;
-    
+
     public interface ICommunicationServer<T> : ICommunication
     {
         /// <summary>

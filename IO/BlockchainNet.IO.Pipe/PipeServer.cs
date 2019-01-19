@@ -1,11 +1,11 @@
-﻿namespace BlockchainNet.Pipe.Server
+﻿namespace BlockchainNet.IO.Pipe
 {
     using System;
     using System.Threading;
     using System.ComponentModel;
     using System.Collections.Concurrent;
 
-    using BlockchainNet.Core.Communication;
+    using BlockchainNet.IO;
 
     public class PipeServer<T> : ICommunicationServer<T>
     {

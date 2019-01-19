@@ -1,4 +1,4 @@
-﻿namespace BlockchainNet.Pipe.Server
+﻿namespace BlockchainNet.IO.Pipe
 {
     using System;
     using System.Text;
@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
-    using BlockchainNet.Core.Communication;
+    using BlockchainNet.IO;
 
     using ProtoBuf;
 

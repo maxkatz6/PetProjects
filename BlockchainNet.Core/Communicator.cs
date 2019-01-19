@@ -1,10 +1,11 @@
-﻿namespace BlockchainNet.Core.Communication
+﻿namespace BlockchainNet.Core
 {
     using System;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
+    using BlockchainNet.IO;
     using BlockchainNet.Core.Models;
 
     public class Communicator<TBlockchain, TContent>

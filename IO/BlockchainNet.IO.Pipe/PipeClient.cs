@@ -1,11 +1,11 @@
-﻿namespace BlockchainNet.Pipe.Client
+﻿namespace BlockchainNet.IO.Pipe
 {
     using System.IO;
     using System.IO.Pipes;
     using System.Text;
     using System.Threading.Tasks;
 
-    using BlockchainNet.Core.Communication;
+    using BlockchainNet.IO;
 
     using ProtoBuf;
 

@@ -6,8 +6,7 @@
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
-    using BlockchainNet.Pipe.Client;
-    using BlockchainNet.Pipe.Server;
+    using BlockchainNet.IO.Pipe;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

@@ -1,4 +1,4 @@
-﻿namespace BlockchainNet.Core.Communication
+﻿namespace BlockchainNet.IO
 {
     using System.Threading.Tasks;
 

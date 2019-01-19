@@ -7,16 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
-    <PackageReference Include="protobuf-net" Version="2.3.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+    <PackageReference Include="protobuf-net" Version="2.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BlockchainNet.Core\BlockchainNet.Core.csproj" />
-    <ProjectReference Include="..\BlockchainNet.Pipe\BlockchainNet.Pipe.csproj" />
     <ProjectReference Include="..\BlockchainNet.Wallet\BlockchainNet.Wallet.csproj" />
+    <ProjectReference Include="..\IO\BlockchainNet.IO.Pipe\BlockchainNet.IO.Pipe.csproj" />
+    <ProjectReference Include="..\IO\BlockchainNet.IO\BlockchainNet.IO.csproj" />
   </ItemGroup>
 
 </Project>

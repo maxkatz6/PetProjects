@@ -1,6 +1,6 @@
-﻿namespace BlockchainNet.Pipe.Client
+﻿namespace BlockchainNet.IO.Pipe
 {
-    using BlockchainNet.Core.Communication;
+    using BlockchainNet.IO;
 
     public class PipeClientFactory<T> : ICommunicationClientFactory<T>
     {

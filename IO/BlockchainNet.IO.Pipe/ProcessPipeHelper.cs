@@ -1,4 +1,4 @@
-﻿namespace BlockchainNet.Pipe
+﻿namespace BlockchainNet.IO.Pipe
 {
     using System.Linq;
     using System.Diagnostics;
