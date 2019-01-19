@@ -16,10 +16,10 @@
         public DateTime Date { get; }
 
         [ProtoMember(3)]
-        private readonly List<TContent> content;
+        private readonly List<Transaction<TContent>> content;
 
         [ProtoIgnore]
-        public IReadOnlyList<TContent> Content => content ?? new List<TContent>();
+        public IReadOnlyList<Transaction<TContent>> Content => content ?? new List<Transaction<TContent>>();
 
         [ProtoMember(4)]
         public long Proof { get; }
@@ -43,11 +43,11 @@
         /// <param name="transactions">Транзакции</param>
         /// <param name="proof">Доказательство доберия блоку</param>
         /// <param name="previousHash">Хэш предыдущего блока</param>
-        public Block(int index, DateTime date, IEnumerable<TContent> transactions, long proof, string previousHash)
+        public Block(int index, DateTime date, IEnumerable<Transaction<TContent>> transactions, long proof, string previousHash)
         {
             Index = index;
             Date = date;
-            content = transactions?.ToList() ?? new List<TContent>();
+            content = transactions?.ToList() ?? new List<Transaction<TContent>>();
             Proof = proof;
             PreviousHash = previousHash;
         }

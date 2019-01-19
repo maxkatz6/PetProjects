@@ -1,11 +1,11 @@
-﻿namespace BlockchainNet.Wallet.Models
+﻿namespace BlockchainNet.Core.Models
 {
     using System;
 
     using ProtoBuf;
 
     [ProtoContract]
-    public class Transaction
+    public class Transaction<TContent>
     {
         [ProtoMember(1)]
         public string Sender { get; }
@@ -14,7 +14,7 @@
         public string Recipient { get; }
 
         [ProtoMember(3)]
-        public double Amount { get; }
+        public TContent Content { get; }
 
         [ProtoMember(4)]
         public DateTime Date { get; }
@@ -34,17 +34,17 @@
         /// <param name="recipient">Получатель</param>
         /// <param name="amout">Сумма</param>
         /// <param name="date">Дата создания</param>
-        public Transaction(string sender, string recipient, double amout, DateTime date)
+        public Transaction(string sender, string recipient, TContent content, DateTime date)
         {
             Sender = sender;
             Recipient = recipient;
-            Amount = amout;
+            Content = content;
             Date = date;
         }
 
         public override string ToString()
         {
-            return $"Transaction: {Amount} from {(string.IsNullOrEmpty(Sender) ? "mining" : Sender)} to {Recipient}";
+            return $"Transaction from {(string.IsNullOrEmpty(Sender) ? "mining" : Sender)} to {Recipient}:{Environment.NewLine}{Content}";
         }
     }
 }

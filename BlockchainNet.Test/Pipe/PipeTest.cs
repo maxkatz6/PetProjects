@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using BlockchainNet.Pipe.Client;
-using BlockchainNet.Pipe.Server;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace BlockchainNet.Test.Pipe
+﻿namespace BlockchainNet.Test.Pipe
 {
+    using System.Linq;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+
+    using BlockchainNet.Pipe.Client;
+    using BlockchainNet.Pipe.Server;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     [TestClass]
     public class PipeTest
     {

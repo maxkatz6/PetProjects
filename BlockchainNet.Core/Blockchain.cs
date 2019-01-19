@@ -16,7 +16,7 @@
         protected List<Block<TContent>> chain;
 
         [ProtoMember(2)]
-        protected List<TContent> currentContent;
+        protected List<Transaction<TContent>> currentTransactions;
 
         /// <summary>
         /// Цепочка блоков, блокчейн
@@ -26,7 +26,7 @@
         /// <summary>
         /// Текущие транзакции
         /// </summary>
-        public IReadOnlyList<TContent> CurrentContent => currentContent ?? new List<TContent>();
+        public IReadOnlyList<Transaction<TContent>> CurrentTransactions => currentTransactions ?? new List<Transaction<TContent>>();
 
         public event EventHandler<BlockAddedEventArgs<TContent>> BlockAdded;
 
@@ -35,7 +35,7 @@
         protected Blockchain()
         {
             chain = new List<Block<TContent>>();
-            currentContent = new List<TContent>();
+            currentTransactions = new List<Transaction<TContent>>();
         }
 
         /// <summary>
@@ -78,10 +78,7 @@
             return NewBlock(proof, lastHash);
         }
 
-        protected virtual void OnMined(string minerAccount, long proof)
-        {
-
-        }
+        protected abstract void OnMined(string minerAccount, long proof);
 
         /// <summary>
         /// Пытается заменить блокчейн
@@ -107,12 +104,12 @@
             var block = new Block<TContent>(
                 chain.Count,
                 DateTime.Now,
-                currentContent,
+                currentTransactions,
                 proof,
                 previousHash);
             chain.Add(block);
 
-            currentContent.Clear();
+            currentTransactions.Clear();
 
             BlockAdded?.Invoke(this, new BlockAddedEventArgs<TContent>(block, chain));
 

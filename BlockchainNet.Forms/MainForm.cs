@@ -2,7 +2,6 @@
 {
     using BlockchainNet.Core.Models;
     using BlockchainNet.Wallet;
-    using BlockchainNet.Wallet.Models;
     using BlockchainNet.Core.Communication;
     using BlockchainNet.Pipe;
     using BlockchainNet.Pipe.Client;
@@ -19,7 +18,7 @@
 
     public partial class MainForm : Form
     {
-        private static Communicator<WalletBlockchain, Transaction> communicator;
+        private static Communicator<WalletBlockchain, decimal> communicator;
         private static WalletBlockchain blockchain;
         private string userAccount;
 
@@ -31,9 +30,9 @@
 
             blockchain = WalletBlockchain.CreateNew();
 
-            communicator = new Communicator<WalletBlockchain, Transaction>(
-                new PipeServer<List<Block<Transaction>>>(pipeId),
-                new PipeClientFactory<List<Block<Transaction>>>())
+            communicator = new Communicator<WalletBlockchain, decimal>(
+                new PipeServer<List<Block<decimal>>>(pipeId),
+                new PipeClientFactory<List<Block<decimal>>>())
             {
                 Blockchain = blockchain
             };
@@ -164,7 +163,7 @@
                 MessageBox.Show("Аккаунт получателя не может быть пустым");
                 return;
             }
-            var amount = (double)amountDropDown.Value;
+            var amount = amountDropDown.Value;
 
             if (blockchain.GetAccountAmount(userAccount) < amount)
             {
@@ -204,15 +203,15 @@
             var transactions = blockIndex >= 0
                 ? blockchain.Chain
                     .FirstOrDefault(b => b.Index == blockIndex)?
-                    .Content ?? new List<Transaction>()
-                : blockchain.CurrentContent;
+                    .Content ?? new List<Transaction<decimal>>()
+                : blockchain.CurrentTransactions;
 
             foreach (var transaction in transactions)
             {
                 transactionsDataGridView.Rows.Add(new object[]
                     {
                         transaction.Date,
-                        transaction.Amount,
+                        transaction.Content,
                         transaction.Sender,
                         transaction.Recipient
                     });
@@ -221,7 +220,7 @@
 
         private void UpdateUserAmount()
         {
-            amountDropDown.Maximum = (decimal)blockchain.GetAccountAmount(userAccount);
+            amountDropDown.Maximum = blockchain.GetAccountAmount(userAccount);
         }
 
         private void BlocksDataGridViewSelectionChanged(object sender, EventArgs e)

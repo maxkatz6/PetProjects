@@ -6,7 +6,7 @@
     using BlockchainNet.Pipe.Client;
     using BlockchainNet.Pipe.Server;
     using BlockchainNet.Wallet;
-    using BlockchainNet.Wallet.Models;
+
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -16,7 +16,7 @@
 
     internal static class Program
     {
-        private static Communicator<WalletBlockchain, Transaction> communicator;
+        private static Communicator<WalletBlockchain, decimal> communicator;
         private static WalletBlockchain blockchain => communicator.Blockchain;
 
         private static string account;
@@ -40,9 +40,9 @@
             var currentPipeId = ProcessPipeHelper.GetCurrentPipeId();
             Console.Title = currentPipeId;
 
-            communicator = new Communicator<WalletBlockchain, Transaction>(
-                new PipeServer<List<Block<Transaction>>>(currentPipeId),
-                new PipeClientFactory<List<Block<Transaction>>>())
+            communicator = new Communicator<WalletBlockchain, decimal>(
+                new PipeServer<List<Block<decimal>>>(currentPipeId),
+                new PipeClientFactory<List<Block<decimal>>>())
             {
                 Blockchain = WalletBlockchain.CreateNew()
             };
@@ -155,12 +155,12 @@
                 Console.Write("Recipient: ");
                 recipient = Console.ReadLine();
             }
-            var amount = double.TryParse(parts.Skip(1).FirstOrDefault(), out double temp) ? temp : 0;
+            var amount = decimal.TryParse(parts.Skip(1).FirstOrDefault(), out decimal temp) ? temp : 0;
 
             while (amount <= 0)
             {
                 Console.Write("Amount: ");
-                amount = double.TryParse(Console.ReadLine(), out temp) ? temp : 0;
+                amount = decimal.TryParse(Console.ReadLine(), out temp) ? temp : 0;
             }
 
             if (blockchain.GetAccountAmount(account) < amount)
@@ -198,8 +198,8 @@
 
         private static void PrintCurrentTransactions()
         {
-            Console.WriteLine($"Current transactions {blockchain.CurrentContent.Count}:");
-            Console.WriteLine(string.Join("\r\n", blockchain.CurrentContent));
+            Console.WriteLine($"Current transactions {blockchain.CurrentTransactions.Count}:");
+            Console.WriteLine(string.Join("\r\n", blockchain.CurrentTransactions));
         }
 
         private static async void SyncBlockchain()

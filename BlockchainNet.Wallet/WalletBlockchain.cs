@@ -7,10 +7,10 @@
 
     using BlockchainNet.Core;
     using BlockchainNet.Core.Models;
-    using BlockchainNet.Wallet.Models;
+
     using ProtoBuf;
 
-    public class WalletBlockchain : Blockchain<Transaction>
+    public class WalletBlockchain : Blockchain<decimal>
     {
         /// <summary>
         /// Создает блокчейн с одним генезис блоком
@@ -46,7 +46,7 @@
         /// </summary>
         /// <param name="chain">Блокчейн</param>
         /// <returns>True если прошел проверку, иначе False</returns>
-        public override bool IsValidChain(IReadOnlyCollection<Block<Transaction>> recievedChain)
+        public override bool IsValidChain(IReadOnlyCollection<Block<decimal>> recievedChain)
         {
             var prevBlock = chain.FirstOrDefault();
             if (prevBlock == null)
@@ -54,7 +54,7 @@
                 throw new ArgumentException("Blocks chain cannot be empty", nameof(chain));
             }
 
-            var amountDictionary = new Dictionary<string, double>();
+            var amountDictionary = new Dictionary<string, decimal>();
 
             foreach (var block in chain.Skip(1))
             {
@@ -70,24 +70,24 @@
                     {
                         if (amountDictionary.ContainsKey(content.Sender))
                         {
-                            amountDictionary[content.Sender] -= content.Amount;
+                            amountDictionary[content.Sender] -= content.Content;
                             if (amountDictionary[content.Sender] < 0)
                             {
                                 return false;
                             }
                         }
-                        else if (content.Amount > 0)
+                        else if (content.Content > 0)
                         {
                             return false;
                         }
                     }
                     if (amountDictionary.ContainsKey(content.Recipient))
                     {
-                        amountDictionary[content.Recipient] += content.Amount;
+                        amountDictionary[content.Recipient] += content.Content;
                     }
                     else
                     {
-                        amountDictionary.Add(content.Recipient, content.Amount);
+                        amountDictionary.Add(content.Recipient, content.Content);
                     }
                 }
 
@@ -103,7 +103,7 @@
         /// <param name="recipient">Адресс получателя</param>
         /// <param name="amount">Сумма</param>
         /// <returns>Индекс блока, хранящего добаленную транзакцию</returns>
-        public int NewTransaction(string sender, string recipient, double amount)
+        public int NewTransaction(string sender, string recipient, decimal amount)
         {
             if (GetAccountAmount(sender) < amount)
             {
@@ -111,8 +111,8 @@
             }
 
             var date = DateTime.Now;
-            var transaction = new Transaction(sender, recipient, amount, date);
-            currentContent.Add(transaction);
+            var transaction = new Transaction<decimal>(sender, recipient, amount, date);
+            currentTransactions.Add(transaction);
             return LastBlock().Index + 1;
         }
 
@@ -121,26 +121,26 @@
         /// </summary>
         /// <param name="account">Аккаунт</param>
         /// <returns>Сумма на счету</returns>
-        public double GetAccountAmount(string account)
+        public decimal GetAccountAmount(string account)
         {
             if (string.IsNullOrEmpty(account))
             {
                 throw new ArgumentException("Account cannot be null or empty", nameof(account));
             }
 
-            var amount = 0d;
+            var amount = 0m;
             foreach (var block in chain)
             {
                 foreach (var transaction in block.Content)
                 {
                     if (transaction.Recipient == account)
                     {
-                        amount += transaction.Amount;
+                        amount += transaction.Content;
                     }
 
                     if (transaction.Sender == account)
                     {
-                        amount -= transaction.Amount;
+                        amount -= transaction.Content;
                     }
                 }
             }
@@ -155,8 +155,8 @@
         protected override void OnMined(string minerAccount, long proof)
         {
             // Оплата за майнинг
-            var transaction = new Transaction(null, minerAccount, 1, DateTime.Now);
-            currentContent.Add(transaction);
+            var transaction = new Transaction<decimal>(null, minerAccount, 1m, DateTime.Now);
+            currentTransactions.Add(transaction);
         }
     }
 }

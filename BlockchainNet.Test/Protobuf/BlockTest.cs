@@ -6,7 +6,6 @@
     using ProtoBuf;
 
     using BlockchainNet.Core.Models;
-    using BlockchainNet.Wallet.Models;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,8 +15,8 @@
         [TestMethod]
         public void Block_SerializeDeserializeTest()
         {
-            var transactions = new[] { new Transaction("UserA", "UserB", 999, DateTime.Now) };
-            var block = new Block<Transaction>(0, DateTime.Now, transactions, 123, "h34j34h634g5i4h536oi==");
+            var transactions = new[] { new Transaction<decimal>("UserA", "UserB", 999, DateTime.Now) };
+            var block = new Block<decimal>(0, DateTime.Now, transactions, 123, "h34j34h634g5i4h536oi==");
 
             using (var stream = new MemoryStream())
             {
@@ -26,7 +25,7 @@
                 stream.Flush();
                 stream.Position = 0;
 
-                var newBlock = Serializer.Deserialize<Block<Transaction>>(stream);
+                var newBlock = Serializer.Deserialize<Block<decimal>>(stream);
 
                 Assert.IsTrue(newBlock.Index == block.Index, "Blocks indexes is not equal");
                 Assert.IsTrue(newBlock.Date == block.Date, "Blocks date is not equal");
@@ -40,7 +39,7 @@
 
                     Assert.IsTrue(transaction.Sender == newTransaction.Sender, $"#{index + 1} transactions sender is not equal");
                     Assert.IsTrue(transaction.Recipient == newTransaction.Recipient, $"#{index + 1} transactions recipient is not equal");
-                    Assert.IsTrue(transaction.Amount == newTransaction.Amount, $"#{index + 1} transactions amount is not equal");
+                    Assert.IsTrue(transaction.Content == newTransaction.Content, $"#{index + 1} transactions amount is not equal");
                 }
             }
         }
