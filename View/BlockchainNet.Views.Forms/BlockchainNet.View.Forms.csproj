@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\BlockchainNet.Core\BlockchainNet.Core.csproj" />
     <ProjectReference Include="..\..\BlockchainNet.Wallet\BlockchainNet.Wallet.csproj" />
     <ProjectReference Include="..\..\IO\BlockchainNet.IO.Pipe\BlockchainNet.IO.Pipe.csproj" />
