@@ -8,7 +8,7 @@
     public class Transaction<TContent>
     {
         [ProtoMember(1)]
-        public string Sender { get; }
+        public string? Sender { get; }
 
         [ProtoMember(2)]
         public string Recipient { get; }
@@ -34,7 +34,7 @@
         /// <param name="recipient">Получатель</param>
         /// <param name="amout">Сумма</param>
         /// <param name="date">Дата создания</param>
-        public Transaction(string sender, string recipient, TContent content, DateTime date)
+        public Transaction(string? sender, string recipient, TContent content, DateTime date)
         {
             Sender = sender;
             Recipient = recipient;

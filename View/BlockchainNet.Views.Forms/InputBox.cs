@@ -31,12 +31,11 @@
             this.ActiveControl = textInput;
         }
 
-        public static DialogResult Show(String title, String message, String inputTitle, out String inputValue)
+        public static DialogResult Show(String? title, String? message, String? inputTitle, out String inputValue)
         {
-            InputBox inputBox = null;
             DialogResult results = DialogResult.None;
 
-            using (inputBox = new InputBox() { Text = title })
+            using (var inputBox = new InputBox() { Text = title })
             {
                 inputBox.labelMessage.Text = message;
                 inputBox.splitContainer2.SplitterDistance = inputBox.labelMessage.Width;

@@ -99,7 +99,7 @@
 
         public abstract bool IsValidChain(IReadOnlyCollection<Block<TContent>> recievedChain);
 
-        protected Block<TContent> NewBlock(long proof, string previousHash = null)
+        protected Block<TContent> NewBlock(long proof, string? previousHash = null)
         {
             var block = new Block<TContent>(
                 chain.Count,

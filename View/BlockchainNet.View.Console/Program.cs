@@ -15,7 +15,7 @@
     internal static class Program
     {
         private static Communicator<WalletBlockchain, decimal> communicator;
-        private static WalletBlockchain blockchain => communicator.Blockchain;
+        private static WalletBlockchain blockchain => communicator.Blockchain!;
 
         private static string account;
 
@@ -110,7 +110,7 @@
             communicator.Close();
         }
 
-        private static void AskAndSetAccount(string newAccount = null)
+        private static void AskAndSetAccount(string? newAccount = null)
         {
             if (string.IsNullOrWhiteSpace(newAccount))
             {
@@ -120,7 +120,7 @@
             account = newAccount;
         }
 
-        private static void PrintAccountAmount(string account)
+        private static void PrintAccountAmount(string? account)
         {
             while (string.IsNullOrWhiteSpace(account))
             {
@@ -206,7 +206,7 @@
             Console.WriteLine("Sync messages sended");
         }
 
-        private static void SaveBlockChain(string fileName)
+        private static void SaveBlockChain(string? fileName = null)
         {
             if (string.IsNullOrWhiteSpace(fileName))
             {
@@ -225,7 +225,7 @@
             Console.WriteLine("Blockchain saved to " + fileName);
         }
 
-        private static void LoadBlockChain(string fileName)
+        private static void LoadBlockChain(string? fileName = null)
         {
             if (string.IsNullOrWhiteSpace(fileName))
             {
@@ -248,11 +248,6 @@
             {
                 Console.WriteLine(ex.Message);
             }
-        }
-
-        private static string GetPipeIdFromProcessId(int processId)
-        {
-            return $"Pipe-{processId}";
         }
     }
 }

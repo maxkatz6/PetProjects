@@ -37,7 +37,7 @@
                 .ConnectTo(ProcessPipeHelper
                 .GetNeighborPipesIds());
 
-            senderTextBox.Text = userAccount = AskForAccount(true);
+            senderTextBox.Text = userAccount = AskForAccount(true)!;
 
             UpdateBlocksList();
             UpdateTransactionsList();
@@ -69,7 +69,7 @@
             MessageBox.Show(amount + " монет на счету аккаунта \"" + account + "\"", "Вывод счета");
         }
 
-        private string AskForAccount(bool requied, string def = "")
+        private string? AskForAccount(bool requied, string? def = null)
         {
             InputBox.Show("Введите аккаунт", "Ввод аккаунта", def, out var account);
             if (string.IsNullOrWhiteSpace(account))
@@ -183,7 +183,7 @@
             blocksDataGridView.Rows.Clear();
             foreach (var block in blockchain.Chain)
             {
-                blocksDataGridView.Rows.Add(new object[]
+                blocksDataGridView.Rows.Add(new object?[]
                     {
                         block.Index,
                         block.Date,
@@ -204,7 +204,7 @@
 
             foreach (var transaction in transactions)
             {
-                transactionsDataGridView.Rows.Add(new object[]
+                transactionsDataGridView.Rows.Add(new object?[]
                     {
                         transaction.Date,
                         transaction.Content,

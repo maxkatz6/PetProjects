@@ -76,7 +76,7 @@
         [TestMethod, Timeout(5000)]
         public async Task Pipe_Client_Connect_ResponceServerId_EmptyTest()
         {
-            const string ResponceServerId = null;
+            const string? ResponceServerId = null;
 
             var tcs = new TaskCompletionSource<bool>();
             var id = string.Empty;
@@ -120,7 +120,6 @@
             Assert.IsFalse(isDisconnected, "Client is disconected");
 
             client.Stop();
-            client = null;
 
             await tcs.Task;
 

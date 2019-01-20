@@ -25,7 +25,7 @@
         public long Proof { get; }
 
         [ProtoMember(5)]
-        public string PreviousHash { get; }
+        public string? PreviousHash { get; }
 
         /// <summary>
         /// Приватные конструктор для сериализации
@@ -43,7 +43,7 @@
         /// <param name="transactions">Транзакции</param>
         /// <param name="proof">Доказательство доберия блоку</param>
         /// <param name="previousHash">Хэш предыдущего блока</param>
-        public Block(int index, DateTime date, IEnumerable<Transaction<TContent>> transactions, long proof, string previousHash)
+        public Block(int index, DateTime date, IEnumerable<Transaction<TContent>> transactions, long proof, string? previousHash)
         {
             Index = index;
             Date = date;

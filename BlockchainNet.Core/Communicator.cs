@@ -16,7 +16,7 @@
 
         private readonly List<ICommunicationClient<List<Block<TContent>>>> nodes;
 
-        public TBlockchain Blockchain { get; set; }
+        public TBlockchain? Blockchain { get; set; }
 
         /// <summary>
         /// Конструктор коммуникатора
