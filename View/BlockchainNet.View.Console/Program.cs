@@ -1,9 +1,9 @@
 ﻿namespace BlockchainNet.Console
 {
-    using BlockchainNet.IO.Pipe;
+    using BlockchainNet.IO.TCP;
     using BlockchainNet.Core;
     using BlockchainNet.Core.Models;
-    using BlockchainNet.Wallet;
+    using BlockchainNet.Messenger;
 
     using System;
     using System.Collections.Generic;
@@ -14,8 +14,8 @@
 
     internal static class Program
     {
-        private static Communicator<WalletBlockchain, decimal> communicator;
-        private static WalletBlockchain blockchain => communicator.Blockchain!;
+        private static Communicator<MessengerBlockchain, string> communicator;
+        private static MessengerBlockchain blockchain => communicator.Blockchain!;
 
         private static string account;
 
@@ -23,7 +23,7 @@
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
 
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             SetConsoleCtrlHandler(arg =>
                 {
@@ -35,17 +35,20 @@
                     return false;
                 }, true);
 
-            var currentPipeId = ProcessPipeHelper.GetCurrentPipeId();
-            Console.Title = currentPipeId;
+            var currentPort = TcpHelper.GetAvailablePort();
 
-            communicator = new Communicator<WalletBlockchain, decimal>(
-                new PipeServer<List<Block<decimal>>>(currentPipeId),
-                new PipeClientFactory<List<Block<decimal>>>())
+            communicator = new Communicator<MessengerBlockchain, string>(
+                new TcpServer<List<Block<string>>>(currentPort),
+                new TcpClientFactory<List<Block<string>>>())
             {
-                Blockchain = WalletBlockchain.CreateNew()
+                Blockchain = MessengerBlockchain.CreateNew()
             };
 
-            communicator.ConnectTo(ProcessPipeHelper.GetNeighborPipesIds());
+            await communicator.StartAsync().ConfigureAwait(false);
+
+            Console.Title = communicator.ServerId;
+
+            // communicator.ConnectTo(ProcessPipeHelper.GetNeighborPipesIds());
 
             AskAndSetAccount();
 
@@ -60,6 +63,10 @@
 
                 switch (parts[0])
                 {
+                    case "connect":
+                    case "c":
+                        communicator.ConnectTo(parts.Skip(1));
+                        break;
                     case "exit":
                     case "e":
                         active = false;
@@ -87,10 +94,6 @@
                     case "help":
                     case "h":
                         PrintHelp();
-                        break;
-                    case "amount":
-                    case "am":
-                        PrintAccountAmount(parts.Skip(1).FirstOrDefault());
                         break;
                     case "save":
                     case "sv":
@@ -120,17 +123,6 @@
             account = newAccount;
         }
 
-        private static void PrintAccountAmount(string? account)
-        {
-            while (string.IsNullOrWhiteSpace(account))
-            {
-                Console.Write("Account: ");
-                account = Console.ReadLine();
-            }
-            var amount = blockchain.GetAccountAmount(account);
-            Console.WriteLine($"{account} has: {amount}");
-        }
-
         private static void PrintHelp()
         {
             Console.WriteLine("e, exit - close the node");
@@ -141,7 +133,6 @@
             Console.WriteLine("s, sync - sync blockchain with neighbor");
             Console.WriteLine("sv, save [filename] - save blockchain");
             Console.WriteLine("ld, load [filename] - load blockchain");
-            Console.WriteLine("am, amount [account] - print account amount");
             Console.WriteLine("sw, switch [account] - change account");
         }
 
@@ -153,21 +144,9 @@
                 Console.Write("Recipient: ");
                 recipient = Console.ReadLine();
             }
-            var amount = decimal.TryParse(parts.Skip(1).FirstOrDefault(), out decimal temp) ? temp : 0;
+            var message = parts.Skip(1).FirstOrDefault();
 
-            while (amount <= 0)
-            {
-                Console.Write("Amount: ");
-                amount = decimal.TryParse(Console.ReadLine(), out temp) ? temp : 0;
-            }
-
-            if (blockchain.GetAccountAmount(account) < amount)
-            {
-                Console.WriteLine("Account amount is not enough");
-                return;
-            }
-
-            var index = blockchain.NewTransaction(account, recipient, amount);
+            var index = blockchain.NewTransaction(account, recipient, message);
             Console.WriteLine($"Transaction added to block #{index}");
         }
 
@@ -240,7 +219,7 @@
 
             try
             {
-                communicator.Blockchain = WalletBlockchain.FromFile(fileName);
+                communicator.Blockchain = MessengerBlockchain.FromFile(fileName);
                 Console.WriteLine("Blockchain loaded from " + fileName);
                 PrintBlockchain();
             }
