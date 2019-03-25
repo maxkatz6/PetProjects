@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BlockchainNet.Core\BlockchainNet.Core.csproj" />
+    <ProjectReference Include="..\BlockchainNet.IO.TCP\BlockchainNet.IO.TCP.csproj" />
     <ProjectReference Include="..\BlockchainNet.Wallet\BlockchainNet.Wallet.csproj" />
     <ProjectReference Include="..\IO\BlockchainNet.IO.Pipe\BlockchainNet.IO.Pipe.csproj" />
     <ProjectReference Include="..\IO\BlockchainNet.IO\BlockchainNet.IO.csproj" />

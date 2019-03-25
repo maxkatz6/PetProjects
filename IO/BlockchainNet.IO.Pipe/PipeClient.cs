@@ -20,9 +20,9 @@
 
         public string ServerId { get; }
 
-        public string ResponceServerId { get; set; }
+        public string ResponseServerId { get; set; }
 
-        public void Start()
+        public async Task StartAsync()
         {
             if (_pipeClient == null)
             {
@@ -33,18 +33,18 @@
                     PipeOptions.Asynchronous);
             }
 
-            _pipeClient.Connect();
+            await _pipeClient.ConnectAsync().ConfigureAwait(false);
 
             // Сразу отправляем Id сервера для обратной связи
-            var buffer = Encoding.UTF8.GetBytes(string.IsNullOrEmpty(ResponceServerId) ? "\0" : ResponceServerId);
-            _pipeClient.Write(buffer, 0, buffer.Length);
+            var buffer = Encoding.UTF8.GetBytes(string.IsNullOrEmpty(ResponseServerId) ? "\0" : ResponseServerId);
+            await _pipeClient.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
         }
 
-        public void Stop()
+        public Task StopAsync()
         {
             if (_pipeClient == null)
             {
-                return;
+            return Task.CompletedTask;
             }
 
             try
@@ -57,6 +57,7 @@
                 _pipeClient.Dispose();
                 _pipeClient = null;
             }
+            return Task.CompletedTask;
         }
 
         public async Task<bool> SendMessageAsync(T message)

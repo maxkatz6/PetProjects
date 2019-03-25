@@ -6,6 +6,7 @@
     using System.Collections.Concurrent;
 
     using BlockchainNet.IO;
+    using System.Threading.Tasks;
 
     public class PipeServer<T> : ICommunicationServer<T>
     {
@@ -32,19 +33,19 @@
 
         public string ServerId { get; }
 
-        public void Start()
+        public Task StartAsync()
         {
-            StartNamedPipeServer();
+            return StartNamedPipeServer();
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
             foreach (var server in _servers.Values)
             {
                 try
                 {
                     UnregisterFromServerEvents(server);
-                    server.Stop();
+                    await server.StopAsync();
                 }
                 catch (Exception)
                 {
@@ -54,7 +55,7 @@
             _servers.Clear();
         }
 
-        private void StartNamedPipeServer()
+        private Task StartNamedPipeServer()
         {
             // Есть смысл создавать свой InternalPipeServer для каждого клиента, но при этом основываясь на одном его имени
             // Это позволяет независимо читать данные с множества клиентов
@@ -66,16 +67,17 @@
 
             _servers[server.ServerId] = server;
 
-            server.Start();
+            return server.StartAsync();
         }
 
-        private void StopNamedPipeServer(string id)
+        private Task StopNamedPipeServer(string id)
         {
-            if (_servers.TryRemove(id, out ICommunicationServer<T> removed))
+            if (id != null && _servers.TryRemove(id, out ICommunicationServer<T> removed))
             {
                 UnregisterFromServerEvents(removed);
-                removed.Stop();
+                return removed.StopAsync();
             }
+            return Task.CompletedTask;
         }
 
         private void UnregisterFromServerEvents(ICommunicationServer<T> server)
@@ -85,22 +87,22 @@
             server.MessageReceivedEvent -= MessageReceivedHandler;
         }
 
-        private void ClientConnectedHandler(object sender, ClientConnectedEventArgs eventArgs)
+        private async void ClientConnectedHandler(object sender, ClientConnectedEventArgs eventArgs)
         {
             _synchronizationContext.Post(
                 e => ClientConnectedEvent?.Invoke(this, (ClientConnectedEventArgs)e),
                 eventArgs);
 
-            StartNamedPipeServer();
+            await StartNamedPipeServer().ConfigureAwait(false);
         }
 
-        private void ClientDisconnectedHandler(object sender, ClientDisconnectedEventArgs eventArgs)
+        private async void ClientDisconnectedHandler(object sender, ClientDisconnectedEventArgs eventArgs)
         {
             _synchronizationContext.Post(
                 e => ClientDisconnectedEvent?.Invoke(this, (ClientDisconnectedEventArgs)e),
                 eventArgs);
 
-            StopNamedPipeServer(eventArgs.ClientId);
+            await StopNamedPipeServer(eventArgs.ClientId).ConfigureAwait(false);
         }
 
         private void MessageReceivedHandler(object sender, MessageReceivedEventArgs<T> eventArgs)

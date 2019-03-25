@@ -16,8 +16,6 @@
 
         private readonly List<ICommunicationClient<List<Block<TContent>>>> nodes;
 
-        public TBlockchain? Blockchain { get; set; }
-
         /// <summary>
         /// Конструктор коммуникатора
         /// </summary>
@@ -35,7 +33,15 @@
             server.MessageReceivedEvent += Server_MessageReceivedEvent;
             server.ClientConnectedEvent += Server_ClientConnectedEvent;
             server.ClientDisconnectedEvent += Server_ClientDisconnectedEvent;
-            server.Start();
+        }
+
+        public string ServerId => server.ServerId;
+
+        public TBlockchain Blockchain { get; set; }
+
+        public Task StartAsync()
+        {
+            return server.StartAsync();
         }
 
         public Task SyncAsync(bool onlyGet = false)
@@ -61,19 +67,19 @@
             foreach (var serverId in serversId)
             {
                 var nodeClient = clientFactory.CreateNew(serverId);
-                nodeClient.ResponceServerId = server.ServerId;
-                nodeClient.Start();
+                nodeClient.ResponseServerId = server.ServerId;
+                nodeClient.StartAsync();
                 nodes.Add(nodeClient);
             }
         }
 
         public void Close()
         {
-            server.Stop();
+            server.StopAsync();
 
             foreach (var nodeClient in nodes)
             {
-                nodeClient.Stop();
+                nodeClient.StopAsync();
             }
         }
 
@@ -82,8 +88,8 @@
             if (nodes.All(c => c.ServerId != e.ClientId))
             {
                 var nodeClient = clientFactory.CreateNew(e.ClientId);
-                nodeClient.ResponceServerId = server.ServerId;
-                nodeClient.Start();
+                nodeClient.ResponseServerId = server.ServerId;
+                nodeClient.StartAsync();
                 nodes.Add(nodeClient);
             }
         }
@@ -93,7 +99,7 @@
             var node = nodes.Find(n => n.ServerId == e.ClientId);
             if (node != null)
             {
-                node.Stop();
+                node.StopAsync();
                 nodes.Remove(node);
             }
         }

@@ -1,4 +1,4 @@
-﻿namespace BlockchainNet.Test.Pipe
+﻿namespace BlockchainNet.Test.IO
 {
     using System.Linq;
     using System.Text;
@@ -37,8 +37,8 @@
                 tcs.SetResult(true);
             };
 
-            server.Start();
-            client.Start();
+            await server.StartAsync();
+            await client.StartAsync();
 
             await tcs.Task;
 
@@ -56,7 +56,7 @@
             var server = new PipeServer<string>();
             var client = new PipeClient<string>(server.ServerId)
             {
-                ResponceServerId = ResponceServerId
+                ResponseServerId = ResponceServerId
             };
 
             server.ClientConnectedEvent += (sender, args) =>
@@ -65,8 +65,8 @@
                 tcs.SetResult(true);
             };
 
-            server.Start();
-            client.Start();
+            await server.StartAsync();
+            await client.StartAsync();
 
             await tcs.Task;
 
@@ -90,8 +90,8 @@
                 tcs.SetResult(true);
             };
 
-            server.Start();
-            client.Start();
+            await server.StartAsync();
+            await client.StartAsync();
 
             await tcs.Task;
 
@@ -114,12 +114,12 @@
                 tcs.SetResult(true);
             };
 
-            server.Start();
-            client.Start();
+            await server.StartAsync();
+            await client.StartAsync();
 
             Assert.IsFalse(isDisconnected, "Client is disconected");
 
-            client.Stop();
+            await client.StopAsync();
 
             await tcs.Task;
 
@@ -141,8 +141,8 @@
                 tcs.SetResult(args.Message);
             };
 
-            server.Start();
-            client.Start();
+            await server.StartAsync();
+            await client.StartAsync();
 
             var success = await client.SendMessageAsync(Message);
             Assert.IsTrue(success, "Send message failed");
@@ -164,8 +164,8 @@
 
             server.MessageReceivedEvent += (sender, args) => tcs.SetResult(args.Message);
 
-            server.Start();
-            client.Start();
+            await server.StartAsync();
+            await client.StartAsync();
 
             var longString = $"[{new string('*', 10 * 2048)}]";
 
@@ -197,8 +197,8 @@
                 autoEvent.Set();
             };
 
-            server.Start();
-            client.Start();
+            await server.StartAsync();
+            await client.StartAsync();
 
             var success = await client.SendMessageAsync(FirstTestMessage);
             Assert.IsTrue(success, "Send #1 message failed");
@@ -237,8 +237,8 @@
                 }
             };
 
-            server.Start();
-            client.Start();
+            await server.StartAsync();
+            await client.StartAsync();
 
             await Task.WhenAll(sendMessages.Select(async i =>
             {
@@ -275,17 +275,17 @@
                 }
             };
 
-            server.Start();
+            await server.StartAsync();
 
             await Task.WhenAll(sendMessages.Select(async i =>
             {
                 var client = new PipeClient<string>(server.ServerId);
-                client.Start();
+                await client.StartAsync();
 
                 var success = await client.SendMessageAsync(i);
                 Assert.IsTrue(success, $"Send #{i} message failed");
 
-                client.Stop();
+                await client.StopAsync();
             }));
 
             autoEvent.WaitOne();
@@ -312,17 +312,17 @@
                 autoEvent.Set();
             };
 
-            server.Start();
+            await server.StartAsync();
 
             var client = new PipeClient<string>(server.ServerId);
-            client.Start();
+            await client.StartAsync();
 
             await client.SendMessageAsync(FirstMessage);
             autoEvent.WaitOne();
             Assert.AreEqual(FirstMessage, message, "Message are not equal");
 
-            client.Stop();
-            client.Start();
+            await client.StopAsync();
+            await client.StartAsync();
 
             await client.SendMessageAsync(SecondMessage);
             autoEvent.WaitOne();

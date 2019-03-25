@@ -7,7 +7,7 @@
         /// <summary>
         /// Id сервера для обратной связи
         /// </summary>
-        string ResponceServerId { get; set; }
+        string ResponseServerId { get; set; }
 
         /// <summary>
         /// Асинхронный метод для отправки сообщения

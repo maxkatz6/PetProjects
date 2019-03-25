@@ -1,57 +1,68 @@
-﻿namespace BlockchainNet.IO.Pipe
+﻿namespace BlockchainNet.IO.TCP
 {
     using System;
     using System.Text;
     using System.IO;
-    using System.IO.Pipes;
+    using System.Net;
+    using System.Net.Sockets;
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
     using BlockchainNet.IO;
 
     using ProtoBuf;
+    using System.Linq;
 
-    internal class InternalPipeServer<T> : ICommunicationServer<T>
+    public class TcpServer<T> : ICommunicationServer<T>
     {
-        private readonly NamedPipeServerStream _pipeServer;
+        private readonly Socket _socket;
         private bool _isStopping;
+        private int _port;
 
         private class Package
         {
-            public byte[] Buffer = new byte[PipeServer<T>.BufferSize];
+            public byte[] Buffer = new byte[2048];
             public List<byte> Result = new List<byte>();
         }
 
-        public InternalPipeServer(string pipeName, int maxNumberOfServerInstances)
+        public TcpServer()
+            : this(TcpHelper.GetAvailablePort())
         {
-            _pipeServer = new NamedPipeServerStream(
-                pipeName,
-                PipeDirection.In,
-                maxNumberOfServerInstances,
-                PipeTransmissionMode.Message,
-                PipeOptions.Asynchronous);
 
-            ServerId = pipeName;
+        }
+
+        public TcpServer(int port)
+        {
+            _port = port;
+            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
         public event EventHandler<ClientConnectedEventArgs> ClientConnectedEvent;
         public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnectedEvent;
         public event EventHandler<MessageReceivedEventArgs<T>> MessageReceivedEvent;
 
-        public string ServerId { get; }
+        public string ServerId { get; private set; }
 
         private string responceClientId;
 
-        public Task StartAsync()
+        public async Task StartAsync()
         {
-            _pipeServer.WaitForConnectionAsync().ContinueWith(async _ =>
+            var ipHost = await Dns.GetHostEntryAsync("localhost").ConfigureAwait(false);
+            var address = ipHost.AddressList.FirstOrDefault(adr => adr.AddressFamily == AddressFamily.InterNetwork);
+
+            _socket.Bind(new IPEndPoint(address, _port));
+            ServerId = _socket.LocalEndPoint.ToString();
+
+            _socket.Listen(20);
+
+            _ = Task.Run(async () =>
             {
-                if (!_isStopping)
+                while (true)
                 {
-                    // сразу читаем id сервера для обратной связи
-                    // он пригодится для передачи в обработчики событий
+                    var client = await _socket.AcceptAsync().ConfigureAwait(false);
+
                     var buffer = new byte[2048];
-                    var length = await _pipeServer.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+                    var length = client.Receive(buffer);
                     responceClientId = Encoding.UTF8.GetString(buffer, 0, length);
 
                     if (responceClientId == "\0")
@@ -63,57 +74,46 @@
                         this,
                         new ClientConnectedEventArgs { ClientId = responceClientId });
 
-                    await ReadAsync(new Package()).ConfigureAwait(false);
+                    _ = Task.Run(() => ReadAsync(client, new Package()));
                 }
             });
-            return Task.CompletedTask;
         }
 
         public Task StopAsync()
         {
             _isStopping = true;
 
-            try
-            {
-                if (_pipeServer.IsConnected)
-                {
-                    _pipeServer.Disconnect();
-                }
-            }
-            finally
-            {
-                _pipeServer.Close();
-                _pipeServer.Dispose();
-            }
+            _socket.Dispose();
+
             return Task.CompletedTask;
         }
 
-        private async Task ReadAsync(Package package)
+        private async Task ReadAsync(Socket client, Package package)
         {
             // побуферно читаем сообщения, что позволяет не ограничиваться его размером
-
-            var readBytes = await _pipeServer.ReadAsync(package.Buffer, 0, package.Buffer.Length);
+            var arraySegment = new ArraySegment<byte>(package.Buffer);
+            var readBytes = await client.ReceiveAsync(arraySegment, SocketFlags.None).ConfigureAwait(false);
 
             if (readBytes > 0)
             {
                 byte[] result;
-                if (_pipeServer.IsMessageComplete)
+                if (readBytes == package.Buffer.Length)
                 {
-                    result = new byte[readBytes];
-                    Array.Copy(package.Buffer, 0, result, 0, readBytes);
+                    result = package.Buffer;
                 }
                 else
                 {
-                    result = package.Buffer;
+                    result = new byte[readBytes];
+                    Array.Copy(package.Buffer, 0, result, 0, readBytes);
                 }
 
                 package.Result.AddRange(result);
 
                 // если не дочитали...
-                if (!_pipeServer.IsMessageComplete)
+                if (readBytes == package.Buffer.Length)
                 {
                     // ...то читаем следующий буфер
-                    await ReadAsync(package);
+                    await ReadAsync(client, package);
                 }
                 else
                 {
@@ -128,7 +128,7 @@
                                 Message = message
                             });
                     }
-                    await ReadAsync(new Package());
+                    await ReadAsync(client, new Package());
                 }
             }
             // Если прочитано 0 байт, то клиент вероятно отключился
@@ -136,7 +136,6 @@
             {
                 if (!_isStopping)
                 {
-                    await StopAsync().ConfigureAwait(false);
                     ClientDisconnectedEvent?.Invoke(
                         this,
                         new ClientDisconnectedEventArgs { ClientId = responceClientId });

@@ -1,5 +1,7 @@
 ﻿namespace BlockchainNet.IO
 {
+    using System.Threading.Tasks;
+
     public interface ICommunication
     {
         /// <summary>
@@ -10,11 +12,11 @@
         /// <summary>
         /// Запускает коммуникацию
         /// </summary>
-        void Start();
+        Task StartAsync();
 
         /// <summary>
         /// Остагавливает коммуникацию
         /// </summary>
-        void Stop();
+        Task StopAsync();
     }
 }
