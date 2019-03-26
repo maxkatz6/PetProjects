@@ -37,18 +37,18 @@
 
             var currentPort = TcpHelper.GetAvailablePort();
 
+            var blockchain = LoadBlockChain();
+            blockchain.BlockAdded += Blockchain_BlockAdded;
+            blockchain.BlockchainReplaced += Blockchain_BlockchainReplaced;
+
             communicator = new Communicator<MessengerBlockchain, string>(
+                blockchain,
                 new TcpServer<List<Block<string>>>(currentPort),
-                new TcpClientFactory<List<Block<string>>>())
-            {
-                Blockchain = MessengerBlockchain.CreateNew()
-            };
+                new TcpClientFactory<List<Block<string>>>());
 
             await communicator.StartAsync().ConfigureAwait(false);
 
             Console.Title = communicator.ServerId;
-
-            // communicator.ConnectTo(ProcessPipeHelper.GetNeighborPipesIds());
 
             AskAndSetAccount();
 
@@ -99,10 +99,6 @@
                     case "sv":
                         SaveBlockChain(parts.Skip(1).FirstOrDefault());
                         break;
-                    case "load":
-                    case "ld":
-                        LoadBlockChain(parts.Skip(1).FirstOrDefault());
-                        break;
                     case "switch":
                     case "sw":
                         AskAndSetAccount(parts.Skip(1).FirstOrDefault());
@@ -111,6 +107,16 @@
             }
 
             communicator.Close();
+        }
+
+        private static void Blockchain_BlockchainReplaced(object sender, EventArgs e)
+        {
+            Console.WriteLine("Blockchain replaced");
+        }
+
+        private static void Blockchain_BlockAdded(object sender, BlockAddedEventArgs<string> e)
+        {
+            Console.WriteLine("Message: " + e.AddedBlock);
         }
 
         private static void AskAndSetAccount(string? newAccount = null)
@@ -204,28 +210,16 @@
             Console.WriteLine("Blockchain saved to " + fileName);
         }
 
-        private static void LoadBlockChain(string? fileName = null)
+        private static MessengerBlockchain LoadBlockChain(string? fileName = "chain.protobuf")
         {
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                fileName = "chain.protobuf";
-            }
-
-            if (!File.Exists(fileName))
-            {
-                Console.WriteLine("No file");
-                return;
-            }
-
             try
             {
-                communicator.Blockchain = MessengerBlockchain.FromFile(fileName);
-                Console.WriteLine("Blockchain loaded from " + fileName);
-                PrintBlockchain();
+                return MessengerBlockchain.FromFile(fileName);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                return MessengerBlockchain.CreateNew();
             }
         }
     }

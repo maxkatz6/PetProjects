@@ -4,7 +4,7 @@
     using BlockchainNet.Wallet;
     using BlockchainNet.Core;
     using BlockchainNet.IO.Pipe;
-    
+
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -24,14 +24,12 @@
 
             var pipeId = ProcessPipeHelper.GetCurrentPipeId();
 
-            blockchain = WalletBlockchain.CreateNew();
+            blockchain = LoadBlockchain() ?? WalletBlockchain.CreateNew();
 
             communicator = new Communicator<WalletBlockchain, decimal>(
+                blockchain,
                 new PipeServer<List<Block<decimal>>>(pipeId),
-                new PipeClientFactory<List<Block<decimal>>>())
-            {
-                Blockchain = blockchain
-            };
+                new PipeClientFactory<List<Block<decimal>>>());
 
             communicator
                 .ConnectTo(ProcessPipeHelper
@@ -101,14 +99,13 @@
             }
         }
 
-        private void LoadBlockchainClick(object sender, EventArgs e)
+        private WalletBlockchain LoadBlockchain()
         {
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    communicator.Blockchain = blockchain
-                        = WalletBlockchain.FromFile(openFileDialog.FileName);
+                    var blockchain = WalletBlockchain.FromFile(openFileDialog.FileName);
 
                     UpdateBlocksList();
                     UpdateTransactionsList();
@@ -119,12 +116,18 @@
                         UpdateTransactionsList();
                         UpdateUserAmount();
                     };
+                    return blockchain;
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
             }
+            return null;
+        }
+
+        private void LoadBlockchainClick(object sender, EventArgs e)
+        {
         }
 
         private void SwithAccountClick(object sender, EventArgs e)

@@ -22,9 +22,11 @@
         /// <param name="server">Сервер</param>
         /// <param name="clientFactory">Фаблика клиентов</param>
         public Communicator(
+            TBlockchain blockchain,
             ICommunicationServer<List<Block<TContent>>> server,
             ICommunicationClientFactory<List<Block<TContent>>> clientFactory)
         {
+            Blockchain = blockchain;
             this.server = server;
             this.clientFactory = clientFactory;
 
@@ -37,7 +39,7 @@
 
         public string ServerId => server.ServerId;
 
-        public TBlockchain Blockchain { get; set; }
+        public TBlockchain Blockchain { get; }
 
         public Task StartAsync()
         {

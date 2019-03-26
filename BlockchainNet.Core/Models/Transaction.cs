@@ -32,7 +32,7 @@
         /// </summary>
         /// <param name="sender">Отправитель</param>
         /// <param name="recipient">Получатель</param>
-        /// <param name="amout">Сумма</param>
+        /// <param name="content">Содержимое</param>
         /// <param name="date">Дата создания</param>
         public Transaction(string? sender, string recipient, TContent content, DateTime date)
         {
