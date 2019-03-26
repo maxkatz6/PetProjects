@@ -1,5 +1,7 @@
 ﻿namespace BlockchainNet.IO.TCP
 {
+    using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -34,15 +36,13 @@
 
             var ipHost = await Dns.GetHostEntryAsync(IPAddress.Parse(parts.First())).ConfigureAwait(false);
             var address = ipHost.AddressList.FirstOrDefault(adr => adr.AddressFamily == AddressFamily.InterNetwork);
-            
+
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             await _socket
                 .ConnectAsync(address, port)
                 .ConfigureAwait(false);
 
-            // Сразу отправляем Id сервера для обратной связи
-            var buffer = Encoding.UTF8.GetBytes(string.IsNullOrEmpty(ResponseServerId) ? "\0" : ResponseServerId);
-            _socket.Send(buffer);
+            await SendMessageInternalAsync(string.IsNullOrEmpty(ResponseServerId) ? "\0" : ResponseServerId);
         }
 
         public Task StopAsync()
@@ -53,12 +53,19 @@
 
         public Task<bool> SendMessageAsync(T message)
         {
+            return SendMessageInternalAsync(message);
+        }
+
+        private async Task<bool> SendMessageInternalAsync<TMsg>(TMsg message)
+        {
             using (var stream = new MemoryStream())
             {
                 Serializer.Serialize(stream, message);
-                _socket.Send(stream.ToArray());
+                var firstSegment = new ArraySegment<byte>(BitConverter.GetBytes(stream.Length), 0, sizeof(long));
+                var secondSegment = new ArraySegment<byte>(stream.ToArray());
+                var length = await _socket.SendAsync(new List<ArraySegment<byte>> { firstSegment, secondSegment }, SocketFlags.None);
+                return length > 0;
             }
-            return Task.FromResult(true);
         }
     }
 }

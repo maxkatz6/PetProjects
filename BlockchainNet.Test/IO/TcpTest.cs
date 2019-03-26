@@ -9,6 +9,7 @@
     using BlockchainNet.IO.TCP;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Net.Sockets;
 
     [TestClass]
     public class TcpTest
@@ -148,11 +149,9 @@
             Assert.AreEqual(Message, message, "Message are not equal");
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(500000)]
         public async Task Tcp_Client_SendMessage_LongMessageTest()
         {
-            const int BufferSize = 2048;
-
             var tcs = new TaskCompletionSource<string>();
 
             var server = new TcpServer<string>();
@@ -162,9 +161,7 @@
             server.MessageReceivedEvent += (sender, args) => tcs.SetResult(args.Message);
             await client.StartAsync();
 
-            var longString = $"[{new string('*', 10 * 2048)}]";
-
-            Assert.IsTrue(Encoding.UTF8.GetByteCount(longString) > BufferSize, "Test string is smaller than needed buffer length");
+            var longString = $"[{new string('*', new Socket(SocketType.Stream, ProtocolType.Tcp).ReceiveBufferSize * 2)}]";
 
             var success = await client.SendMessageAsync(longString);
             Assert.IsTrue(success, "Send message failed");
@@ -172,6 +169,87 @@
             var message = await tcs.Task;
 
             Assert.AreEqual(longString, message, "Messages are not equal");
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Tcp_Client_SendMessage_MultiClientSpamTest()
+        {
+            const int MessageCount = 200;
+
+            var sendMessages = Enumerable.Range(0, MessageCount).Select(i => i.ToString()).ToList();
+            var recievedMessages = new List<string>();
+
+            var autoEvent = new AutoResetEvent(false);
+            var messages = new List<string>();
+
+            var server = new TcpServer<string>();
+            server.MessageReceivedEvent += (sender, args) =>
+            {
+                recievedMessages.Add(args.Message);
+
+                if (recievedMessages.Count >= MessageCount)
+                {
+                    autoEvent.Set();
+                }
+            };
+
+            await server.StartAsync();
+
+            await Task.WhenAll(sendMessages.Select(async i =>
+            {
+                var client = new TcpClient<string>(server.ServerId);
+                await client.StartAsync();
+
+                var success = await client.SendMessageAsync(i);
+                Assert.IsTrue(success, $"Send #{i} message failed");
+
+                await client.StopAsync();
+            }));
+
+            autoEvent.WaitOne();
+
+            Assert.AreEqual(MessageCount, recievedMessages.Count, "Not all messages recieved");
+
+            CollectionAssert.AreEquivalent(sendMessages, recievedMessages, "Send and recieved messages are not equal");
+        }
+
+        [TestMethod, Timeout(10000)]
+        public async Task Tcp_Client_SendMessage_MessageSpamTest()
+        {
+            const int MessageCount = 200;
+
+            var sendMessages = Enumerable.Range(0, MessageCount).Select(i => i.ToString()).ToList();
+            var recievedMessages = new List<string>();
+
+            var autoEvent = new AutoResetEvent(false);
+            var message = string.Empty;
+
+            var server = new TcpServer<string>();
+            await server.StartAsync();
+
+            server.MessageReceivedEvent += (sender, args) =>
+            {
+                recievedMessages.Add(args.Message);
+
+                if (recievedMessages.Count >= MessageCount)
+                {
+                    autoEvent.Set();
+                }
+            };
+
+            var client = new TcpClient<string>(server.ServerId);
+            await client.StartAsync();
+            await Task.WhenAll(sendMessages.Select(async i =>
+            {
+                var success = await client.SendMessageAsync(i);
+                Assert.IsTrue(success, $"Send #{i} message failed");
+            }));
+
+            autoEvent.WaitOne();
+
+            Assert.AreEqual(MessageCount, recievedMessages.Count, "Not all messages recieved");
+
+            CollectionAssert.AreEquivalent(sendMessages, recievedMessages, "Send and recieved messages are not equal");
         }
 
         [TestMethod, Timeout(5000)]
