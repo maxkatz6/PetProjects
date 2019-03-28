@@ -1,21 +1,30 @@
 ﻿namespace BlockchainNet.Core
 {
     using System;
-    using System.IO;
+    using System.Text;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using System.Collections.Generic;
+    using System.Security.Cryptography;
 
-    using ProtoBuf;
-
+    using BlockchainNet.Core.Enum;
     using BlockchainNet.Core.Models;
+    using BlockchainNet.Core.Interfaces;
 
-    [ProtoContract]
     public abstract class Blockchain<TContent>
     {
-        [ProtoMember(1)]
-        protected List<Block<TContent>> chain;
+        protected readonly IConsensusMethod<TContent> consensusMethod;
 
-        [ProtoMember(2)]
+        protected Blockchain(IConsensusMethod<TContent> consensusMethod)
+        {
+            this.consensusMethod = consensusMethod;
+
+            chain = new List<Block<TContent>>();
+            currentTransactions = new List<Transaction<TContent>>();
+        }
+
+        protected List<Block<TContent>> chain;
         protected List<Transaction<TContent>> currentTransactions;
 
         /// <summary>
@@ -32,29 +41,6 @@
 
         public event EventHandler BlockchainReplaced;
 
-        protected Blockchain()
-        {
-            chain = new List<Block<TContent>>();
-            currentTransactions = new List<Transaction<TContent>>();
-        }
-
-        /// <summary>
-        /// Сохраняет текущий блокчейн в файл
-        /// </summary>
-        /// <param name="fileName">Имя файла</param>
-        public void SaveFile(string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
-            }
-
-            using (var file = new FileStream(fileName, FileMode.OpenOrCreate))
-            {
-                Serializer.Serialize(file, this);
-            }
-        }
-
         /// <returns>Последний блок в цепочке</returns>
         public Block<TContent> LastBlock()
         {
@@ -65,20 +51,29 @@
         /// Запускает процесс майнинга нового блока
         /// </summary>
         /// <returns>Новый блок</returns>
-        public Block<TContent> Mine(string minerAccount)
+        public async Task<Block<TContent>> MineAsync(string minerAccount, CancellationToken cancellationToken)
         {
             var lastBlock = LastBlock();
             var lastProof = lastBlock.Proof;
-            var lastHash = Crypto.HashBlockInBase64(lastBlock);
 
-            var proof = ProofOfWork(lastProof);
+            var block = new Block<TContent>(
+                currentTransactions,
+                lastBlock.PreviousBlockId);
 
-            OnMined(minerAccount, proof);
+            await consensusMethod.BuildConsensus(block, cancellationToken).ConfigureAwait(false);
 
-            return NewBlock(proof, lastHash);
+            if (block.Status == BlockStatus.Confirmed)
+            {
+                chain.Add(block);
+
+                currentTransactions.Clear();
+
+                OnMined(minerAccount, block);
+                BlockAdded?.Invoke(this, new BlockAddedEventArgs<TContent>(block, chain));
+            }
+
+            return block;
         }
-
-        protected abstract void OnMined(string minerAccount, long proof);
 
         /// <summary>
         /// Пытается заменить блокчейн
@@ -99,38 +94,24 @@
 
         public abstract bool IsValidChain(IReadOnlyCollection<Block<TContent>> recievedChain);
 
-        protected Block<TContent> NewBlock(long proof, string? previousHash = null)
+        protected abstract void OnMined(string minerAccount, Block<TContent> block);
+
+        protected void GenerateGenesis()
         {
-            var block = new Block<TContent>(
-                chain.Count,
-                DateTime.Now,
-                currentTransactions,
-                proof,
-                previousHash);
-            chain.Add(block);
-
-            currentTransactions.Clear();
-
-            BlockAdded?.Invoke(this, new BlockAddedEventArgs<TContent>(block, chain));
-
-            return block;
-        }
-
-        private long ProofOfWork(long lastProof)
-        {
-            var proof = 0L;
-
-            while (!IsValidProof(lastProof, proof))
+            if (chain.Count > 0)
             {
-                proof++;
+                throw new InvalidOperationException();
             }
+            var block = new Block<TContent>(currentTransactions, null);
+            using (var h = SHA256.Create())
+            {
+                var hash = h.ComputeHash(block.GetHash(0));
+                block.ConfirmBlock(Convert.ToBase64String(hash), 0);
+                chain.Add(block);
 
-            return proof;
-        }
-
-        protected static bool IsValidProof(long lastProof, long proof)
-        {
-            return Crypto.HashString($"{lastProof}{proof}").EndsWith("00");
+                currentTransactions.Clear();
+                BlockAdded?.Invoke(this, new BlockAddedEventArgs<TContent>(block, chain));
+            }
         }
     }
 }

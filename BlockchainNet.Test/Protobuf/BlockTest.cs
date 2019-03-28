@@ -16,7 +16,8 @@
         public void Block_SerializeDeserializeTest()
         {
             var transactions = new[] { new Transaction<decimal>("UserA", "UserB", 999, DateTime.Now) };
-            var block = new Block<decimal>(0, DateTime.Now, transactions, 123, "h34j34h634g5i4h536oi==");
+            var block = new Block<decimal>(transactions, "h34j34h634g5i4h536oi==");
+            block.ConfirmBlock("hash", 123);
 
             using (var stream = new MemoryStream())
             {
@@ -27,10 +28,10 @@
 
                 var newBlock = Serializer.Deserialize<Block<decimal>>(stream);
 
-                Assert.IsTrue(newBlock.Index == block.Index, "Blocks indexes is not equal");
+                Assert.IsTrue(newBlock.Id == block.Id, "Blocks indexes is not equal");
                 Assert.IsTrue(newBlock.Date == block.Date, "Blocks date is not equal");
                 Assert.IsTrue(newBlock.Proof == block.Proof, "Blocks proof is not equal");
-                Assert.IsTrue(newBlock.PreviousHash == block.PreviousHash, "Blocks previous hash is not equal");
+                Assert.IsTrue(newBlock.PreviousBlockId == block.PreviousBlockId, "Blocks previous hash is not equal");
 
                 for (int index = 0; index < transactions.Length; index++)
                 {

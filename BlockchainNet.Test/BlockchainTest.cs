@@ -1,6 +1,9 @@
 ﻿namespace BlockchainNet.Test
 {
+    using System.Threading.Tasks;
+
     using BlockchainNet.Wallet;
+    using BlockchainNet.Core.Consensus;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -8,11 +11,11 @@
     public class BlockchainTest
     {
         [TestMethod]
-        public void Blockchain_MineTest()
+        public async Task Blockchain_MineTest()
         {
-            var blockchain = WalletBlockchain.CreateNew();
-            blockchain.NewTransaction("Alice", "Bob", 0);
-            var block = blockchain.Mine("Alice");
+            var blockchain = new WalletBlockchain(new ProofOfWorkConsensus<decimal>());
+            blockchain.NewTransaction("Alice", "Bob", 0M);
+            await blockchain.MineAsync("Alice", default).ConfigureAwait(false);
             var isValid = blockchain.IsValidChain(blockchain.Chain);
 
             Assert.IsTrue(isValid, "Blockchain is invalid");

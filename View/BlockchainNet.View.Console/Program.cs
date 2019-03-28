@@ -1,16 +1,16 @@
 ﻿namespace BlockchainNet.Console
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Runtime.InteropServices;
+
     using BlockchainNet.IO.TCP;
     using BlockchainNet.Core;
     using BlockchainNet.Core.Models;
     using BlockchainNet.Messenger;
-
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.InteropServices;
-    using System.Threading.Tasks;
+    using BlockchainNet.Core.Consensus;
 
     internal static class Program
     {
@@ -21,23 +21,23 @@
 
         private delegate bool ConsoleEventDelegate(int eventType);
         [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
+        private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add = true);
 
         private static async Task Main(string[] args)
         {
             SetConsoleCtrlHandler(arg =>
+            {
+                if (arg == 2)
                 {
-                    if (arg == 2)
-                    {
-                        communicator.Close();
-                    }
+                    communicator.Close();
+                }
 
-                    return false;
-                }, true);
+                return false;
+            });
 
             var currentPort = TcpHelper.GetAvailablePort();
 
-            var blockchain = LoadBlockChain();
+            var blockchain = new MessengerBlockchain(new ProofOfWorkConsensus<string>());
             blockchain.BlockAdded += Blockchain_BlockAdded;
             blockchain.BlockchainReplaced += Blockchain_BlockchainReplaced;
 
@@ -81,7 +81,7 @@
                         break;
                     case "mine":
                     case "m":
-                        _ = MineAndPrintNewBlock();
+                        await blockchain.MineAsync(account, default).ConfigureAwait(false);
                         break;
                     case "add":
                     case "a":
@@ -94,10 +94,6 @@
                     case "help":
                     case "h":
                         PrintHelp();
-                        break;
-                    case "save":
-                    case "sv":
-                        SaveBlockChain(parts.Skip(1).FirstOrDefault());
                         break;
                     case "switch":
                     case "sw":
@@ -152,17 +148,8 @@
             }
             var message = parts.Skip(1).FirstOrDefault();
 
-            var index = blockchain.NewTransaction(account, recipient, message);
-            Console.WriteLine($"Transaction added to block #{index}");
-        }
-
-        private static Task MineAndPrintNewBlock()
-        {
-            return Task.Run(() =>
-            {
-                var block = blockchain.Mine(account);
-                Console.WriteLine(block.ToString());
-            });
+            blockchain.NewTransaction(account, recipient, message);
+            Console.WriteLine($"Transaction added current list");
         }
 
         private static void PrintBlockchain()
@@ -189,38 +176,6 @@
         {
             await communicator.SyncAsync();
             Console.WriteLine("Sync messages sended");
-        }
-
-        private static void SaveBlockChain(string? fileName = null)
-        {
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                fileName = "chain.protobuf";
-            }
-
-            try
-            {
-                blockchain.SaveFile(fileName);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            Console.WriteLine("Blockchain saved to " + fileName);
-        }
-
-        private static MessengerBlockchain LoadBlockChain(string? fileName = "chain.protobuf")
-        {
-            try
-            {
-                return MessengerBlockchain.FromFile(fileName);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return MessengerBlockchain.CreateNew();
-            }
         }
     }
 }

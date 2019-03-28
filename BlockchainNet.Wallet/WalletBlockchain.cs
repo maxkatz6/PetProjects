@@ -7,38 +7,14 @@
 
     using BlockchainNet.Core;
     using BlockchainNet.Core.Models;
-
-    using ProtoBuf;
+    using BlockchainNet.Core.Interfaces;
 
     public class WalletBlockchain : Blockchain<decimal>
     {
-        /// <summary>
-        /// Создает блокчейн с одним генезис блоком
-        /// </summary>
-        /// <returns>Созданный блокчейн</returns>
-        public static WalletBlockchain CreateNew()
+        public WalletBlockchain(IConsensusMethod<decimal> consensusMethod)
+            : base(consensusMethod)
         {
-            var blockchain = new WalletBlockchain();
-            blockchain.NewBlock(100, "1");
-            return blockchain;
-        }
-
-        /// <summary>
-        /// Читает и создает блокчейн из файла
-        /// </summary>
-        /// <param name="fileName">Имя файла</param>
-        /// <returns>Прочитанный блокчейн</returns>
-        public static WalletBlockchain FromFile(string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
-            }
-
-            using (var file = new FileStream(fileName, FileMode.OpenOrCreate))
-            {
-                return Serializer.Deserialize<WalletBlockchain>(file);
-            }
+            GenerateGenesis();
         }
 
         /// <summary>
@@ -58,8 +34,7 @@
 
             foreach (var block in chain.Skip(1))
             {
-                if (block.PreviousHash != Crypto.HashBlockInBase64(prevBlock)
-                    || !IsValidProof(prevBlock.Proof, block.Proof))
+                if (!consensusMethod.VerifyConsensus(block))
                 {
                     return false;
                 }
@@ -103,7 +78,7 @@
         /// <param name="recipient">Адресс получателя</param>
         /// <param name="amount">Сумма</param>
         /// <returns>Индекс блока, хранящего добаленную транзакцию</returns>
-        public int NewTransaction(string sender, string recipient, decimal amount)
+        public void NewTransaction(string sender, string recipient, decimal amount)
         {
             if (GetAccountAmount(sender) < amount)
             {
@@ -113,7 +88,6 @@
             var date = DateTime.Now;
             var transaction = new Transaction<decimal>(sender, recipient, amount, date);
             currentTransactions.Add(transaction);
-            return LastBlock().Index + 1;
         }
 
         /// <summary>
@@ -152,7 +126,7 @@
             return amount;
         }
 
-        protected override void OnMined(string minerAccount, long proof)
+        protected override void OnMined(string minerAccount, Block<decimal> block)
         {
             // Оплата за майнинг
             var transaction = new Transaction<decimal>(null, minerAccount, 1m, DateTime.Now);
