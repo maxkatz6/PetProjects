@@ -36,8 +36,6 @@
 
         public string ServerId { get; private set; }
 
-        private string responceClientId;
-
         public async Task StartAsync()
         {
             var ipHost = await Dns.GetHostEntryAsync("localhost").ConfigureAwait(false);
@@ -54,7 +52,7 @@
                 {
                     var client = await _socket.AcceptAsync().ConfigureAwait(false);
 
-                    var responceClientId = await ReadInternalAsync<string>(client).ConfigureAwait(false);
+                    var responceClientId = await ReadInternalAsync<string>(client, null).ConfigureAwait(false);
                     if (responceClientId == "\0")
                     {
                         responceClientId = null;
@@ -64,7 +62,7 @@
                         this,
                         new ClientConnectedEventArgs { ClientId = responceClientId });
 
-                    _ = Task.Run(() => ReadLoopAsync(client));
+                    _ = Task.Run(() => ReadLoopAsync(client, responceClientId));
                 }
             });
         }
@@ -78,11 +76,11 @@
             return Task.CompletedTask;
         }
 
-        private async Task ReadLoopAsync(Socket client)
+        private async Task ReadLoopAsync(Socket client, string responceClientId)
         {
             while (true)
             {
-                var message = await ReadInternalAsync<T>(client).ConfigureAwait(false);
+                var message = await ReadInternalAsync<T>(client, responceClientId).ConfigureAwait(false);
                 if (message == null)
                 {
                     return;
@@ -97,7 +95,7 @@
             }
         }
 
-        private async Task<TMsg> ReadInternalAsync<TMsg>(Socket client)
+        private async Task<TMsg> ReadInternalAsync<TMsg>(Socket client, string responceClientId)
         {
             if (!client.Connected)
             {
