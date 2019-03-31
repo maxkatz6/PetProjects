@@ -15,7 +15,7 @@
         [TestMethod]
         public void Block_SerializeDeserializeTest()
         {
-            var transactions = new[] { new Transaction<decimal>("UserA", "UserB", 999, DateTime.Now) };
+            var transactions = new[] { new Transaction<decimal>("UserA", "UserB", new byte[] { 42 }, 999, DateTime.Now) };
             var block = new Block<decimal>(transactions, "h34j34h634g5i4h536oi==");
             block.ConfirmBlock("hash", 123);
 

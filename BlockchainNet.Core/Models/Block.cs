@@ -23,13 +23,14 @@
 
         [ProtoIgnore]
         public IReadOnlyList<Transaction<TContent>> Content => content ?? new List<Transaction<TContent>>();
-
+        
+        [ProtoMember(4)]
         public BlockStatus Status { get; private set; }
 
-        [ProtoMember(4)]
+        [ProtoMember(5)]
         public long Proof { get; private set; }
 
-        [ProtoMember(5)]
+        [ProtoMember(6)]
         public string? PreviousBlockId { get; private set; }
 
         /// <summary>

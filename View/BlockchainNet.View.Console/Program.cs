@@ -4,42 +4,32 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Collections.Generic;
-    using System.Runtime.InteropServices;
 
     using BlockchainNet.IO.TCP;
     using BlockchainNet.Core;
     using BlockchainNet.Core.Models;
     using BlockchainNet.Messenger;
     using BlockchainNet.Core.Consensus;
+    using BlockchainNet.Core.Interfaces;
+    using BlockchainNet.Core.Services;
 
     internal static class Program
     {
         private static Communicator<MessengerBlockchain, string> communicator;
+        private static ISignatureService signatureService;
         private static MessengerBlockchain blockchain => communicator.Blockchain!;
 
         private static string account;
+        private static (byte[] publicKey, byte[] privateKey) keys;
 
-        private delegate bool ConsoleEventDelegate(int eventType);
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add = true);
-
-        private static async Task Main(string[] args)
+        private static async Task Main()
         {
-            SetConsoleCtrlHandler(arg =>
-            {
-                if (arg == 2)
-                {
-                    communicator.Close();
-                }
-
-                return false;
-            });
-
             var currentPort = TcpHelper.GetAvailablePort();
 
-            var blockchain = new MessengerBlockchain(new ProofOfWorkConsensus<string>());
+            signatureService = new SignatureService();
+
+            var blockchain = new MessengerBlockchain(new ProofOfWorkConsensus<string>(), signatureService);
             blockchain.BlockAdded += Blockchain_BlockAdded;
-            blockchain.BlockchainReplaced += Blockchain_BlockchainReplaced;
 
             communicator = new Communicator<MessengerBlockchain, string>(
                 blockchain,
@@ -85,7 +75,7 @@
                         break;
                     case "add":
                     case "a":
-                        ReadAndAddNewTransaction(parts.Skip(1).ToArray());
+                        await SendMessageAsync(parts.Skip(1).FirstOrDefault(), string.Join(" ", parts.Skip(2).ToArray()));
                         break;
                     case "sync":
                     case "s":
@@ -97,7 +87,7 @@
                         break;
                     case "switch":
                     case "sw":
-                        AskAndSetAccount(parts.Skip(1).FirstOrDefault());
+                        AskAndSetAccount(parts.Skip(1).FirstOrDefault(), parts.Skip(2).FirstOrDefault());
                         break;
                 }
             }
@@ -112,17 +102,38 @@
 
         private static void Blockchain_BlockAdded(object sender, BlockAddedEventArgs<string> e)
         {
-            Console.WriteLine("Message: " + e.AddedBlock);
+            Console.ForegroundColor = ConsoleColor.Green;
+            foreach (var transaction in e.AddedBlock.Content)
+            {
+                if (transaction.Recipient == account)
+                {
+                    Console.WriteLine($"({transaction.Date}) {transaction.Sender}: {transaction.Content}");
+                    Console.Beep();
+                }
+                else if (transaction.Sender == account)
+                {
+                    Console.WriteLine($"({transaction.Date}) You: {transaction.Content}");
+                }
+            }
+            Console.ResetColor();
         }
 
-        private static void AskAndSetAccount(string? newAccount = null)
+        private static void AskAndSetAccount(string? username = null, string? password = null)
         {
-            if (string.IsNullOrWhiteSpace(newAccount))
+            if (string.IsNullOrWhiteSpace(username))
             {
                 Console.Write("Input account: ");
-                newAccount = Console.ReadLine();
+                username = Console.ReadLine();
             }
-            account = newAccount;
+            account = username;
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                Console.Write("Input password: ");
+                password = Console.ReadLine();
+            }
+            keys = signatureService.GetKeysFromPassword(password);
+            Console.Clear();
         }
 
         private static void PrintHelp()
@@ -138,18 +149,23 @@
             Console.WriteLine("sw, switch [account] - change account");
         }
 
-        private static void ReadAndAddNewTransaction(string[] parts)
+        private static async Task SendMessageAsync(string? recipient, string? message)
         {
-            var recipient = parts.FirstOrDefault();
             while (string.IsNullOrEmpty(recipient))
             {
                 Console.Write("Recipient: ");
                 recipient = Console.ReadLine();
             }
-            var message = parts.Skip(1).FirstOrDefault();
+            while (string.IsNullOrEmpty(message))
+            {
+                Console.Write("Message: ");
+                message = Console.ReadLine();
+            }
 
-            blockchain.NewTransaction(account, recipient, message);
-            Console.WriteLine($"Transaction added current list");
+            blockchain.NewTransaction(account, recipient, message, keys);
+
+            await blockchain.MineAsync(account, default).ConfigureAwait(false);
+            await communicator.SyncAsync();
         }
 
         private static void PrintBlockchain()

@@ -15,10 +15,12 @@
     public abstract class Blockchain<TContent>
     {
         protected readonly IConsensusMethod<TContent> consensusMethod;
+        protected readonly ISignatureService signatureService;
 
-        protected Blockchain(IConsensusMethod<TContent> consensusMethod)
+        protected Blockchain(IConsensusMethod<TContent> consensusMethod, ISignatureService signatureService)
         {
             this.consensusMethod = consensusMethod;
+            this.signatureService = signatureService;
 
             chain = new List<Block<TContent>>();
             currentTransactions = new List<Transaction<TContent>>();
@@ -39,7 +41,7 @@
 
         public event EventHandler<BlockAddedEventArgs<TContent>> BlockAdded;
 
-        public event EventHandler BlockchainReplaced;
+        // public event EventHandler BlockchainReplaced;
 
         /// <returns>Последний блок в цепочке</returns>
         public Block<TContent> LastBlock()
@@ -58,7 +60,7 @@
 
             var block = new Block<TContent>(
                 currentTransactions,
-                lastBlock.PreviousBlockId);
+                lastBlock.Id);
 
             await consensusMethod.BuildConsensus(block, cancellationToken).ConfigureAwait(false);
 
@@ -82,19 +84,36 @@
         /// <returns>True, если новый блок валидный и замена успешна, иначе - False</returns>
         public bool TrySetChainIfValid(IReadOnlyCollection<Block<TContent>> recievedChain)
         {
-            if (recievedChain.Count >= chain.Count
-                && IsValidChain(recievedChain))
+            if (IsValidChain(recievedChain))
             {
+                var oldChain = chain;
                 chain = recievedChain.ToList();
-                BlockchainReplaced?.Invoke(this, EventArgs.Empty);
+                var newBlocks = recievedChain.SkipWhile(block => oldChain.Any(b => b.Id == block.Id));
+                foreach (var newBlock in newBlocks)
+                {
+                    BlockAdded?.Invoke(this, new BlockAddedEventArgs<TContent>(newBlock, newBlocks));
+                }
+                // BlockchainReplaced?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             return false;
         }
 
-        public abstract bool IsValidChain(IReadOnlyCollection<Block<TContent>> recievedChain);
+        public virtual bool IsValidChain(IReadOnlyCollection<Block<TContent>> recievedChain)
+        {
+            if (recievedChain.Count < chain.Count)
+            {
+                return false;
+            }
 
-        protected abstract void OnMined(string minerAccount, Block<TContent> block);
+            return recievedChain.SelectMany(block => block.Content)
+                .All(transaction => signatureService.VerifyTransaction(transaction));
+        }
+
+        protected virtual void OnMined(string minerAccount, Block<TContent> block)
+        {
+
+        }
 
         protected void GenerateGenesis()
         {

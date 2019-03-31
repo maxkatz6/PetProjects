@@ -15,7 +15,7 @@
         [TestMethod]
         public void Transaction_SerializeDeserializeTest()
         {
-            var transaction = new Transaction<decimal>("UserA", "UserB", 999, DateTime.Now);
+            var transaction = new Transaction<decimal>("UserA", "UserB", new byte[] { 42 }, 999, DateTime.Now);
 
             using (var stream = new MemoryStream())
             {
@@ -28,6 +28,7 @@
 
                 Assert.IsTrue(transaction.Sender == newTransaction.Sender, "Transactions sender is not equal");
                 Assert.IsTrue(transaction.Recipient == newTransaction.Recipient, "Transactions recipient is not equal");
+                CollectionAssert.AreEquivalent(transaction.PublicKey, newTransaction.PublicKey, "Transactions public keys is not equal");
                 Assert.IsTrue(transaction.Content == newTransaction.Content, "Transactions amount is not equal");
                 Assert.IsTrue(transaction.Date == newTransaction.Date, "Transactions date is not equal");
             }

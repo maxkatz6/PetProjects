@@ -11,8 +11,8 @@
 
     public class WalletBlockchain : Blockchain<decimal>
     {
-        public WalletBlockchain(IConsensusMethod<decimal> consensusMethod)
-            : base(consensusMethod)
+        public WalletBlockchain(IConsensusMethod<decimal> consensusMethod, ISignatureService signatureService)
+            : base(consensusMethod, signatureService)
         {
             GenerateGenesis();
         }
@@ -78,7 +78,7 @@
         /// <param name="recipient">Адресс получателя</param>
         /// <param name="amount">Сумма</param>
         /// <returns>Индекс блока, хранящего добаленную транзакцию</returns>
-        public void NewTransaction(string sender, string recipient, decimal amount)
+        public void NewTransaction(string sender, string recipient, decimal amount, (byte[] publicKey, byte[] privateKey) keys)
         {
             if (GetAccountAmount(sender) < amount)
             {
@@ -86,7 +86,9 @@
             }
 
             var date = DateTime.Now;
-            var transaction = new Transaction<decimal>(sender, recipient, amount, date);
+            var transaction = new Transaction<decimal>(sender, recipient, keys.publicKey, amount, date);
+            signatureService.SignTransaction(transaction, keys.privateKey);
+
             currentTransactions.Add(transaction);
         }
 
@@ -129,8 +131,8 @@
         protected override void OnMined(string minerAccount, Block<decimal> block)
         {
             // Оплата за майнинг
-            var transaction = new Transaction<decimal>(null, minerAccount, 1m, DateTime.Now);
-            currentTransactions.Add(transaction);
+            //var transaction = new Transaction<decimal>(null, minerAccount, 1m, DateTime.Now);
+            //currentTransactions.Add(transaction);
         }
     }
 }

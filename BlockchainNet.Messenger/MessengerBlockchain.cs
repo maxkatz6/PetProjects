@@ -10,8 +10,8 @@
 
     public class MessengerBlockchain : Blockchain<string>
     {
-        public MessengerBlockchain(IConsensusMethod<string> consensusMethod)
-            : base(consensusMethod)
+        public MessengerBlockchain(IConsensusMethod<string> consensusMethod, ISignatureService signatureService)
+            : base(consensusMethod, signatureService)
         {
             GenerateGenesis();
         }
@@ -23,6 +23,11 @@
         /// <returns>True если прошел проверку, иначе False</returns>
         public override bool IsValidChain(IReadOnlyCollection<Block<string>> recievedChain)
         {
+            if (!base.IsValidChain(recievedChain))
+            {
+                return false;
+            }
+
             var prevBlock = chain.FirstOrDefault();
             if (prevBlock == null)
             {
@@ -48,18 +53,13 @@
         /// <param name="recipient">Адресс получателя</param>
         /// <param name="amount">Сумма</param>
         /// <returns>Индекс блока, хранящего добаленную транзакцию</returns>
-        public void NewTransaction(string sender, string recipient, string message)
+        public void NewTransaction(string sender, string recipient, string message, (byte[] publicKey, byte[] privateKey) keys)
         {
             var date = DateTime.Now;
-            var transaction = new Transaction<string>(sender, recipient, message, date);
-            currentTransactions.Add(transaction);
-        }
+            var transaction = new Transaction<string>(sender, recipient, keys.publicKey, message, date);
+            signatureService.SignTransaction(transaction, keys.privateKey);
 
-        protected override void OnMined(string minerAccount, Block<string> block)
-        {
-            // Оплата за майнинг
-            //var transaction = new Transaction<decimal>(null, minerAccount, 1m, DateTime.Now);
-            //currentTransactions.Add(transaction);
+            currentTransactions.Add(transaction);
         }
     }
 }

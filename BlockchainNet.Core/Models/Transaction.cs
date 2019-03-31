@@ -1,22 +1,33 @@
 ﻿namespace BlockchainNet.Core.Models
 {
     using System;
-
+    using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Text;
     using ProtoBuf;
 
     [ProtoContract]
     public class Transaction<TContent>
     {
         [ProtoMember(1)]
-        public string? Sender { get; }
+        public string Id { get; set; }
 
         [ProtoMember(2)]
-        public string Recipient { get; }
+        public byte[] PublicKey { get; }
 
         [ProtoMember(3)]
-        public TContent Content { get; }
+        public byte[] Signature { get; set; }
 
         [ProtoMember(4)]
+        public string? Sender { get; }
+
+        [ProtoMember(5)]
+        public string Recipient { get; }
+
+        [ProtoMember(6)]
+        public TContent Content { get; }
+
+        [ProtoMember(7)]
         public DateTime Date { get; }
 
         /// <summary>
@@ -34,12 +45,23 @@
         /// <param name="recipient">Получатель</param>
         /// <param name="content">Содержимое</param>
         /// <param name="date">Дата создания</param>
-        public Transaction(string? sender, string recipient, TContent content, DateTime date)
+        public Transaction(string? sender, string recipient, byte[] publicKey, TContent content, DateTime date)
         {
             Sender = sender;
             Recipient = recipient;
+            PublicKey = publicKey;
             Content = content;
             Date = date;
+        }
+
+        public byte[] GetHash()
+        {
+            var bf = new BinaryFormatter();
+            using (var ms = new MemoryStream())
+            {
+                bf.Serialize(ms, (Sender, Recipient, Content));
+                return ms.ToArray();
+            }
         }
 
         public override string ToString()
