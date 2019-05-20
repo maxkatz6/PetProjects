@@ -1,7 +1,7 @@
-﻿using ReactiveUI;
-
-namespace BlockchainNet.View.Avalonia.ViewModels
+﻿namespace BlockchainNet.View.Avalonia.ViewModels
 {
+    using ReactiveUI;
+
     public class MainWindowViewModel : ReactiveObject
     {
         public string Greeting => "Hello World!";

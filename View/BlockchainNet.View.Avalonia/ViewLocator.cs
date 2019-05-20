@@ -1,10 +1,10 @@
-﻿using Avalonia.Controls;
-using Avalonia.Controls.Templates;
-using ReactiveUI;
-using System;
-
-namespace BlockchainNet.View.Avalonia
+﻿namespace BlockchainNet.View.Avalonia
 {
+    using global::Avalonia.Controls;
+    using global::Avalonia.Controls.Templates;
+    using ReactiveUI;
+    using System;
+
     public class ViewLocator : IDataTemplate
     {
         public bool SupportsRecycling => false;
