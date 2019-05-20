@@ -19,33 +19,4 @@
         /// </summary>
         event EventHandler<ClientDisconnectedEventArgs> ClientDisconnectedEvent;
     }
-
-    public class ClientConnectedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// Id клиента
-        /// </summary>
-        public string ClientId { get; set; }
-    }
-
-    public class ClientDisconnectedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// Id клиента
-        /// </summary>
-        public string ClientId { get; set; }
-    }
-
-    public class MessageReceivedEventArgs<T> : EventArgs
-    {
-        /// <summary>
-        /// Id клиента
-        /// </summary>
-        public string ClientId { get; set; }
-
-        /// <summary>
-        /// Полученое сообщение
-        /// </summary>
-        public T Message { get; set; }
-    }
 }

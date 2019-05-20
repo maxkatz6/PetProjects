@@ -7,8 +7,9 @@
     using System.Threading.Tasks;
 
     using BlockchainNet.IO;
+    using BlockchainNet.Shared.EventArgs;
 
-    using ProtoBuf;
+    using Newtonsoft.Json;
 
     public class TcpServer<T> : ICommunicationServer<T>
     {
@@ -16,7 +17,7 @@
 
         private readonly Socket _socket;
         private bool _isStopping;
-        private int _port;
+        private readonly int _port;
 
         public TcpServer()
             : this(TcpHelper.GetAvailablePort())
@@ -34,35 +35,50 @@
         public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnectedEvent;
         public event EventHandler<MessageReceivedEventArgs<T>> MessageReceivedEvent;
 
-        public string ServerId { get; private set; }
+        public string ServerId => _socket?.LocalEndPoint.ToString()
+            ?? throw new InvalidOperationException("TcpServer is not started");
 
         public async Task StartAsync()
         {
+            _isStopping = false;
+
             var ipHost = await Dns.GetHostEntryAsync("localhost").ConfigureAwait(false);
             var address = Array.Find(ipHost.AddressList, adr => adr.AddressFamily == AddressFamily.InterNetwork);
 
             _socket.Bind(new IPEndPoint(address, _port));
-            ServerId = _socket.LocalEndPoint.ToString();
 
             _socket.Listen(20);
 
             _ = Task.Run(async () =>
             {
-                while (true)
+                while (!_isStopping)
                 {
-                    var client = await _socket.AcceptAsync().ConfigureAwait(false);
-
-                    var responceClientId = await ReadInternalAsync<string>(client, null).ConfigureAwait(false);
-                    if (responceClientId == "\0")
+                    Socket client;
+                    try
                     {
-                        responceClientId = null;
+                        client = await _socket.AcceptAsync().ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        await StopAsync();
+                        throw;
                     }
 
-                    ClientConnectedEvent?.Invoke(
-                        this,
-                        new ClientConnectedEventArgs { ClientId = responceClientId });
+                    var responseClientId = await ReadInternalAsync<string?>(client, null).ConfigureAwait(false);
+                    if (string.IsNullOrEmpty(responseClientId))
+                    {
+                        throw new InvalidOperationException("Client returned invalid response id");
+                    }
+                    if (responseClientId == "\0")
+                    {
+                        responseClientId = null;
+                    }
 
-                    _ = Task.Run(() => ReadLoopAsync(client, responceClientId));
+                    await ClientConnectedEvent
+                        .InvokeAsync(this, new ClientConnectedEventArgs(responseClientId))
+                        .ConfigureAwait(false);
+
+                    _ = Task.Run(() => ReadLoopAsync(client, responseClientId));
                 }
             });
         }
@@ -76,7 +92,7 @@
             return Task.CompletedTask;
         }
 
-        private async Task ReadLoopAsync(Socket client, string responceClientId)
+        private async Task ReadLoopAsync(Socket client, string? responceClientId)
         {
             while (true)
             {
@@ -86,20 +102,17 @@
                     return;
                 }
 
-                MessageReceivedEvent?.Invoke(this,
-                    new MessageReceivedEventArgs<T>
-                    {
-                        ClientId = responceClientId,
-                        Message = message
-                    });
+                await MessageReceivedEvent
+                    .InvokeAsync(this, new MessageReceivedEventArgs<T>(responceClientId, message))
+                    .ConfigureAwait(false);
             }
         }
 
-        private async Task<TMsg> ReadInternalAsync<TMsg>(Socket client, string responceClientId)
+        private async Task<TMsg> ReadInternalAsync<TMsg>(Socket client, string? responceClientId)
         {
             if (!client.Connected)
             {
-                return default;
+                return default!;
             }
             var headerSegment = new ArraySegment<byte>(new byte[HeaderSize], 0, HeaderSize);
             var headerLength = await client.ReceiveAsync(headerSegment, SocketFlags.None).ConfigureAwait(false);
@@ -107,11 +120,11 @@
             {
                 if (!_isStopping)
                 {
-                    ClientDisconnectedEvent?.Invoke(
-                        this,
-                        new ClientDisconnectedEventArgs { ClientId = responceClientId });
+                    await ClientDisconnectedEvent
+                        .InvokeAsync(this, new ClientDisconnectedEventArgs(responceClientId))
+                        .ConfigureAwait(false);
                 }
-                return default;
+                return default!;
             }
 
             if (headerLength != HeaderSize)
@@ -126,7 +139,7 @@
             {
                 if (!client.Connected)
                 {
-                    return default;
+                    return default!;
                 }
                 var dataSegment = new ArraySegment<byte>(dataArray, offset, length - offset);
                 var dataLength = await client.ReceiveAsync(dataSegment, SocketFlags.None).ConfigureAwait(false);
@@ -134,20 +147,23 @@
                 {
                     if (!_isStopping)
                     {
-                        ClientDisconnectedEvent?.Invoke(
-                            this,
-                            new ClientDisconnectedEventArgs { ClientId = responceClientId });
+                        await ClientDisconnectedEvent
+                            .InvokeAsync(this, new ClientDisconnectedEventArgs(responceClientId))
+                            .ConfigureAwait(false);
                     }
-                    return default;
+                    return default!;
                 }
                 offset += dataLength;
             }
             while (offset < length);
 
-            using (var stream = new MemoryStream(dataArray, 0, dataArray.Length))
-            {
-                return Serializer.Deserialize<TMsg>(stream);
-            }
+            using var stream = new MemoryStream(dataArray, 0, dataArray.Length);
+            using var reader = new StreamReader(stream);
+            using var jsonReader = new JsonTextReader(reader);
+            
+            var serializer = JsonSerializer.CreateDefault();
+
+            return serializer.Deserialize<TMsg>(jsonReader);
         }
     }
 }

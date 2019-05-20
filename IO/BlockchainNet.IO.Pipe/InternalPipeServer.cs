@@ -10,6 +10,7 @@
     using BlockchainNet.IO;
 
     using ProtoBuf;
+    using BlockchainNet.Shared.EventArgs;
 
     internal class InternalPipeServer<T> : ICommunicationServer<T>
     {
@@ -44,7 +45,7 @@
 
         public Task StartAsync()
         {
-            _pipeServer.WaitForConnectionAsync().ContinueWith(async _ =>
+            _ = _pipeServer.WaitForConnectionAsync().ContinueWith(async _ =>
             {
                 if (!_isStopping)
                 {
@@ -59,9 +60,9 @@
                         responceClientId = null;
                     }
 
-                    ClientConnectedEvent?.Invoke(
-                        this,
-                        new ClientConnectedEventArgs { ClientId = responceClientId });
+                    await ClientConnectedEvent
+                        .InvokeAsync(this, new ClientConnectedEventArgs(responceClientId))
+                        .ConfigureAwait(false);
 
                     await ReadAsync(new Package()).ConfigureAwait(false);
                 }
@@ -121,12 +122,9 @@
                     {
                         var message = Serializer.Deserialize<T>(stream);
 
-                        MessageReceivedEvent?.Invoke(this,
-                            new MessageReceivedEventArgs<T>
-                            {
-                                ClientId = responceClientId,
-                                Message = message
-                            });
+                        await MessageReceivedEvent
+                            .InvokeAsync(this, new MessageReceivedEventArgs<T>(responceClientId, message))
+                            .ConfigureAwait(false);
                     }
                     await ReadAsync(new Package());
                 }
@@ -137,9 +135,9 @@
                 if (!_isStopping)
                 {
                     await StopAsync().ConfigureAwait(false);
-                    ClientDisconnectedEvent?.Invoke(
-                        this,
-                        new ClientDisconnectedEventArgs { ClientId = responceClientId });
+                    await ClientDisconnectedEvent
+                        .InvokeAsync(this, new ClientDisconnectedEventArgs(responceClientId))
+                        .ConfigureAwait(false);
                 }
             }
         }

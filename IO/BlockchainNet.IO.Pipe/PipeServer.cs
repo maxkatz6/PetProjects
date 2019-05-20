@@ -2,11 +2,12 @@
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.ComponentModel;
     using System.Collections.Concurrent;
 
     using BlockchainNet.IO;
-    using System.Threading.Tasks;
+    using BlockchainNet.Shared.EventArgs;
 
     public class PipeServer<T> : ICommunicationServer<T>
     {
@@ -72,7 +73,7 @@
 
         private Task StopNamedPipeServer(string id)
         {
-            if (id != null && _servers.TryRemove(id, out ICommunicationServer<T> removed))
+            if (id != null && _servers.TryRemove(id, out var removed))
             {
                 UnregisterFromServerEvents(removed);
                 return removed.StopAsync();
@@ -89,27 +90,35 @@
 
         private async void ClientConnectedHandler(object sender, ClientConnectedEventArgs eventArgs)
         {
-            _synchronizationContext.Post(
-                e => ClientConnectedEvent?.Invoke(this, (ClientConnectedEventArgs)e),
-                eventArgs);
+            using (eventArgs.GetDeferral())
+            {
+                SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
+                await ClientConnectedEvent.InvokeAsync(this, eventArgs).ConfigureAwait(false);
 
-            await StartNamedPipeServer().ConfigureAwait(false);
+                await StartNamedPipeServer().ConfigureAwait(false);
+            }
         }
 
         private async void ClientDisconnectedHandler(object sender, ClientDisconnectedEventArgs eventArgs)
         {
-            _synchronizationContext.Post(
-                e => ClientDisconnectedEvent?.Invoke(this, (ClientDisconnectedEventArgs)e),
-                eventArgs);
+            using (eventArgs.GetDeferral())
+            {
+                SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
+                await ClientDisconnectedEvent.InvokeAsync(this, eventArgs).ConfigureAwait(false);
 
-            await StopNamedPipeServer(eventArgs.ClientId).ConfigureAwait(false);
+                await StopNamedPipeServer(eventArgs.ClientId).ConfigureAwait(false);
+            }
         }
 
-        private void MessageReceivedHandler(object sender, MessageReceivedEventArgs<T> eventArgs)
+        private async void MessageReceivedHandler(object sender, MessageReceivedEventArgs<T> eventArgs)
         {
-            _synchronizationContext.Post(
-                e => MessageReceivedEvent?.Invoke(this, (MessageReceivedEventArgs<T>)e),
-                eventArgs);
+            using (eventArgs.GetDeferral())
+            {
+                SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
+                await MessageReceivedEvent.InvokeAsync(this, eventArgs).ConfigureAwait(false);
+
+                await StopNamedPipeServer(eventArgs.ClientId).ConfigureAwait(false);
+            }
         }
     }
 }
