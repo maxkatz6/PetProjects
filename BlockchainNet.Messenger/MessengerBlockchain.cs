@@ -10,10 +10,13 @@
 
     public class MessengerBlockchain : Blockchain<string>
     {
-        public MessengerBlockchain(IConsensusMethod<string> consensusMethod, ISignatureService signatureService)
-            : base(consensusMethod, signatureService)
+        public MessengerBlockchain(
+            Communicator<string> communicator,
+            IBlockRepository<string> blockRepository,
+            IConsensusMethod<string> consensusMethod,
+            ISignatureService signatureService)
+            : base(communicator, blockRepository, consensusMethod, signatureService)
         {
-            GenerateGenesis();
         }
 
         /// <summary>
@@ -21,20 +24,20 @@
         /// </summary>
         /// <param name="chain">Блокчейн</param>
         /// <returns>True если прошел проверку, иначе False</returns>
-        public override bool IsValidChain(IReadOnlyCollection<Block<string>> recievedChain)
+        public override bool IsValidChain(IEnumerable<Block<string>> recievedChain)
         {
             if (!base.IsValidChain(recievedChain))
             {
                 return false;
             }
 
-            var prevBlock = chain.FirstOrDefault();
+            var prevBlock = recievedChain.FirstOrDefault();
             if (prevBlock == null)
             {
-                throw new ArgumentException("Blocks chain cannot be empty", nameof(chain));
+                throw new ArgumentException("Blocks chain cannot be empty", nameof(recievedChain));
             }
 
-            foreach (var block in chain.Skip(1))
+            foreach (var block in recievedChain.Skip(1))
             {
                 if (!consensusMethod.VerifyConsensus(block))
                 {
@@ -59,7 +62,7 @@
             var transaction = new Transaction<string>(sender, recipient, keys.publicKey, message, date);
             signatureService.SignTransaction(transaction, keys.privateKey);
 
-            currentTransactions.Add(transaction);
+            uncommitedTransactions.Add(transaction);
         }
     }
 }

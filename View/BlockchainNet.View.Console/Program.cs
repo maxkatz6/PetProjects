@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Collections.Generic;
 
     using BlockchainNet.IO.TCP;
     using BlockchainNet.Core;
@@ -12,12 +11,14 @@
     using BlockchainNet.Core.Consensus;
     using BlockchainNet.Core.Interfaces;
     using BlockchainNet.Core.Services;
+    using BlockchainNet.Core.EventArgs;
 
     internal static class Program
     {
-        private static Communicator<MessengerBlockchain, string> communicator;
+        private static Communicator<string> communicator;
         private static ISignatureService signatureService;
-        private static MessengerBlockchain blockchain => communicator.Blockchain!;
+        private static IBlockRepository<string> blockRepository;
+        private static MessengerBlockchain blockchain;
 
         private static string account;
         private static (byte[] publicKey, byte[] privateKey) keys;
@@ -25,16 +26,21 @@
         private static async Task Main()
         {
             var currentPort = TcpHelper.GetAvailablePort();
+            System.IO.File.Delete($"database_{currentPort}.litedb");
+            blockRepository = new DefaultBlockRepository<string>($"database_{currentPort}.litedb");
 
             signatureService = new SignatureService();
+            communicator = new Communicator<string>(
+                blockRepository,
+                new TcpServer<BlockchainPayload<string>>(currentPort),
+                new TcpClientFactory<BlockchainPayload<string>>());
 
-            var blockchain = new MessengerBlockchain(new ProofOfWorkConsensus<string>(), signatureService);
+            blockchain = new MessengerBlockchain(
+                communicator,
+                blockRepository,
+                new ProofOfWorkConsensus<string>(),
+                signatureService);
             blockchain.BlockAdded += Blockchain_BlockAdded;
-
-            communicator = new Communicator<MessengerBlockchain, string>(
-                blockchain,
-                new TcpServer<List<Block<string>>>(currentPort),
-                new TcpClientFactory<List<Block<string>>>());
 
             await communicator.StartAsync().ConfigureAwait(false);
 
@@ -55,7 +61,7 @@
                 {
                     case "connect":
                     case "c":
-                        communicator.ConnectTo(parts.Skip(1));
+                        await communicator.ConnectToAsync(parts.Skip(1)).ConfigureAwait(false);
                         break;
                     case "exit":
                     case "e":
@@ -63,7 +69,7 @@
                         break;
                     case "blocks":
                     case "b":
-                        PrintBlockchain();
+                        await PrintBlockchainAsync().ConfigureAwait(false);
                         break;
                     case "transactions":
                     case "t":
@@ -71,15 +77,11 @@
                         break;
                     case "mine":
                     case "m":
-                        await blockchain.MineAsync(account, default).ConfigureAwait(false);
+                        _ = await blockchain.MineAsync(account, default).ConfigureAwait(false);
                         break;
                     case "add":
                     case "a":
                         await SendMessageAsync(parts.Skip(1).FirstOrDefault(), string.Join(" ", parts.Skip(2).ToArray()));
-                        break;
-                    case "sync":
-                    case "s":
-                        SyncBlockchain();
                         break;
                     case "help":
                     case "h":
@@ -92,7 +94,7 @@
                 }
             }
 
-            communicator.Close();
+            await communicator.CloseAsync().ConfigureAwait(false);
         }
 
         private static void Blockchain_BlockchainReplaced(object sender, EventArgs e)
@@ -103,7 +105,7 @@
         private static void Blockchain_BlockAdded(object sender, BlockAddedEventArgs<string> e)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            foreach (var transaction in e.AddedBlock.Content)
+            foreach (var transaction in e.AddedBlocks.SelectMany(b => b.Transactions))
             {
                 if (transaction.Recipient == account)
                 {
@@ -164,19 +166,19 @@
 
             blockchain.NewTransaction(account, recipient, message, keys);
 
-            await blockchain.MineAsync(account, default).ConfigureAwait(false);
-            await communicator.SyncAsync();
+            _ = await blockchain.MineAsync(account, default).ConfigureAwait(false);
         }
 
-        private static void PrintBlockchain()
+        private static async Task PrintBlockchainAsync()
         {
-            Console.WriteLine($"Blocks count = {blockchain.Chain.Count}");
-            foreach (var block in blockchain.Chain)
+            var blocks = await blockRepository.GetFork(MessengerBlockchain.RootId).ToListAsync();
+            Console.WriteLine($"Blocks count = {blocks.Count}");
+            foreach (var block in blocks)
             {
                 Console.WriteLine(block.ToString());
-                if (block.Content.Count > 0)
+                if (block.Transactions.Count > 0)
                 {
-                    Console.WriteLine(string.Join("\r\n", block.Content));
+                    Console.WriteLine(string.Join("\r\n", block.Transactions));
                 }
             }
             Console.WriteLine();
@@ -186,12 +188,6 @@
         {
             Console.WriteLine($"Current transactions {blockchain.CurrentTransactions.Count}:");
             Console.WriteLine(string.Join("\r\n", blockchain.CurrentTransactions));
-        }
-
-        private static async void SyncBlockchain()
-        {
-            await communicator.SyncAsync();
-            Console.WriteLine("Sync messages sended");
         }
     }
 }

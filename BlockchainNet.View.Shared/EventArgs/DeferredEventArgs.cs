@@ -6,11 +6,18 @@
 
     public class DeferredEventArgs : EventArgs
     {
-        internal IDeferralSource DeferralSource { get; set; }
+        internal IDeferralSource? DeferralSource { get; set; }
 
         public IDisposable GetDeferral()
         {
-            return DeferralSource.GetDeferral();
+            return DeferralSource?.GetDeferral() ?? default(EmptyDisposable);
+        }
+
+        private struct EmptyDisposable : IDisposable
+        {
+            public void Dispose()
+            {
+            }
         }
     }
 }
