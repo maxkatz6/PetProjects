@@ -35,7 +35,7 @@
             }
         }
 
-        public void SignTransaction<TContent>(Transaction<TContent> transaction, byte[] privateKey)
+        public void SignTransaction<TInstruction>(Transaction<TInstruction> transaction, byte[] privateKey)
         {
             var bytesId = ResolveTransactionId(transaction);
             transaction.Id = Convert.ToBase64String(bytesId);
@@ -50,7 +50,7 @@
             transaction.Signature = signer.GenerateSignature();
         }
 
-        public bool VerifyTransaction<TContent>(Transaction<TContent> transaction)
+        public bool VerifyTransaction<TInstruction>(Transaction<TInstruction> transaction)
         {
             if (transaction.Signature == null)
             {
@@ -73,13 +73,11 @@
             return signer.VerifySignature(transaction.Signature);
         }
 
-        private static byte[] ResolveTransactionId<TContent>(Transaction<TContent> transaction)
+        private static byte[] ResolveTransactionId<TInstruction>(Transaction<TInstruction> transaction)
         {
-            using (var h = SHA256.Create())
-            {
-                var data = transaction.GetHash().Concat(transaction.PublicKey).ToArray();
-                return h.ComputeHash(data);
-            }
-        }
+			using var h = SHA256.Create();
+			var data = transaction.GetHash().Concat(transaction.PublicKey).ToArray();
+			return h.ComputeHash(data);
+		}
     }
 }

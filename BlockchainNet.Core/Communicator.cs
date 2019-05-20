@@ -7,14 +7,18 @@
 
     using BlockchainNet.IO;
     using BlockchainNet.Core.Models;
+    using BlockchainNet.Core.Interfaces;
+    using BlockchainNet.Shared.EventArgs;
+    using BlockchainNet.Core.EventArgs;
 
-    public class Communicator<TBlockchain, TContent>
-        where TBlockchain : Blockchain<TContent>
+    public class Communicator<TInstruction>
     {
-        private readonly ICommunicationServer<List<Block<TContent>>> server;
-        private readonly ICommunicationClientFactory<List<Block<TContent>>> clientFactory;
+        private readonly ICommunicationServer<BlockchainPayload<TInstruction>> server;
+        private readonly ICommunicationClientFactory<BlockchainPayload<TInstruction>> clientFactory;
 
-        private readonly List<ICommunicationClient<List<Block<TContent>>>> nodes;
+        private readonly List<ICommunicationClient<BlockchainPayload<TInstruction>>> nodes;
+
+        private readonly IBlockRepository<TInstruction> blockRepository;
 
         /// <summary>
         /// Конструктор коммуникатора
@@ -22,104 +26,134 @@
         /// <param name="server">Сервер</param>
         /// <param name="clientFactory">Фаблика клиентов</param>
         public Communicator(
-            TBlockchain blockchain,
-            ICommunicationServer<List<Block<TContent>>> server,
-            ICommunicationClientFactory<List<Block<TContent>>> clientFactory)
+            IBlockRepository<TInstruction> blockRepository,
+            ICommunicationServer<BlockchainPayload<TInstruction>> server,
+            ICommunicationClientFactory<BlockchainPayload<TInstruction>> clientFactory)
         {
-            Blockchain = blockchain;
-            this.server = server;
-            this.clientFactory = clientFactory;
+            this.blockRepository = blockRepository;
+            this.server = server ?? throw new ArgumentNullException(nameof(server), "Server must be setted");
+            this.clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory), "Client factory must be setted");
 
-            nodes = new List<ICommunicationClient<List<Block<TContent>>>>();
+            nodes = new List<ICommunicationClient<BlockchainPayload<TInstruction>>>();
 
             server.MessageReceivedEvent += Server_MessageReceivedEvent;
             server.ClientConnectedEvent += Server_ClientConnectedEvent;
             server.ClientDisconnectedEvent += Server_ClientDisconnectedEvent;
         }
 
-        public string ServerId => server.ServerId;
+        public EventHandler<BlockReceivedEventArgs<TInstruction>>? BlockReceived;
 
-        public TBlockchain Blockchain { get; }
+        public string ServerId => server.ServerId;
 
         public Task StartAsync()
         {
             return server.StartAsync();
         }
 
-        public Task SyncAsync(bool onlyGet = false)
-        {
-            if (Blockchain == null)
-            {
-                throw new InvalidOperationException("Blockchain must be setted");
-            }
-
-            // Пустой массив не будет опознан как какое-либо сообщение, 
-            // которое можно прочитать. Но безопасно отправить общий начальный блок,
-            // который опознается как неполный блокчейн, и в ответ получим остальные блоки
-            var sendedList = onlyGet
-                ? new List<Block<TContent>> { Blockchain.Chain[0] }
-                : Blockchain.Chain.ToList();
-            return Task
-                .WhenAll(nodes
-                .Select(node => node.SendMessageAsync(sendedList)));
-        }
-
-        public void ConnectTo(IEnumerable<string> serversId)
+        public async Task ConnectToAsync(IEnumerable<string> serversId)
         {
             foreach (var serverId in serversId)
             {
                 var nodeClient = clientFactory.CreateNew(serverId);
                 nodeClient.ResponseServerId = server.ServerId;
-                nodeClient.StartAsync();
+                await nodeClient.StartAsync().ConfigureAwait(false);
                 nodes.Add(nodeClient);
             }
         }
 
-        public void Close()
+        public Task CloseAsync()
         {
-            server.StopAsync();
+            return Task.WhenAll(
+                new[] { server.StopAsync() }
+                .Concat(nodes
+                .Select(n => n
+                .StopAsync())));
+        }
 
-            foreach (var nodeClient in nodes)
+        public Task BroadcastBlocksAsync(
+            IEnumerable<Block<TInstruction>> blocks, 
+            Func<ICommunicationClient<BlockchainPayload<TInstruction>>, bool> filter = null)
+        {
+            return Task.WhenAll(nodes
+                .Where(filter ?? (peer => true))
+                .Select(n => n
+                .SendMessageAsync(new BlockchainPayload<TInstruction>
+                {
+                    Action = Enum.BlockchainPayloadAction.BroadcastBlocks,
+                    Blocks = blocks
+                })));
+        }
+
+        public Task BroadcastRequestAsync(string blockId)
+        {
+            if (blockId == null)
             {
-                nodeClient.StopAsync();
+                throw new ArgumentNullException(nameof(blockId));
+            }
+
+            return Task.WhenAll(nodes
+                .Select(n => n
+                .SendMessageAsync(new BlockchainPayload<TInstruction>
+                {
+                    Action = Enum.BlockchainPayloadAction.RequestBlocks,
+                    BlockId = blockId
+                })));
+        }
+
+        private async void Server_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
+        {
+            using (e.GetDeferral())
+            {
+                if (nodes.All(c => c.ServerId != e.ClientId)
+                    && e.ClientId != null)
+                {
+                    var nodeClient = clientFactory.CreateNew(e.ClientId);
+                    nodeClient.ResponseServerId = server.ServerId;
+                    await nodeClient.StartAsync().ConfigureAwait(false);
+                    nodes.Add(nodeClient);
+                }
             }
         }
 
-        private void Server_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
+        private async void Server_ClientDisconnectedEvent(object sender, ClientDisconnectedEventArgs e)
         {
-            if (nodes.All(c => c.ServerId != e.ClientId))
+            using (e.GetDeferral())
             {
-                var nodeClient = clientFactory.CreateNew(e.ClientId);
-                nodeClient.ResponseServerId = server.ServerId;
-                nodeClient.StartAsync();
-                nodes.Add(nodeClient);
+                var node = nodes.Find(n => n.ServerId == e.ClientId);
+                if (node != null)
+                {
+                    _ = nodes.Remove(node);
+                    await node.StopAsync().ConfigureAwait(false);
+                }
             }
         }
 
-        private void Server_ClientDisconnectedEvent(object sender, ClientDisconnectedEventArgs e)
+        private async void Server_MessageReceivedEvent(object sender, MessageReceivedEventArgs<BlockchainPayload<TInstruction>> e)
         {
-            var node = nodes.Find(n => n.ServerId == e.ClientId);
-            if (node != null)
+            using (e.GetDeferral())
             {
-                node.StopAsync();
-                nodes.Remove(node);
-            }
-        }
+                if (e.Message.Action == Enum.BlockchainPayloadAction.RequestBlocks)
+                {
+                    if (e.Message.BlockId == null)
+                    {
+                        throw new ArgumentNullException(nameof(e.Message.BlockId));
+                    }
 
-        private async void Server_MessageReceivedEvent(object sender, MessageReceivedEventArgs<List<Block<TContent>>> e)
-        {
-            if (Blockchain == null)
-            {
-                throw new InvalidOperationException("Blockchain must be setted");
-            }
-
-            var replaced = Blockchain.TrySetChainIfValid(e.Message);
-            // Если не заменено, то входящяя цепочка или невалидна, или меньше существующей
-            // Есть смысл отправить отправителю свою цепочку для замены
-            if (!replaced)
-            {
-                var nodeClient = nodes.Find(c => c.ServerId == e.ClientId);
-                await nodeClient.SendMessageAsync(Blockchain.Chain.ToList());
+                    var fork = await blockRepository.GetFork(e.Message.BlockId).ToListAsync().ConfigureAwait(false);
+                    var nodeClient = nodes.Find(c => c.ServerId == e.ClientId);
+                    _ = await nodeClient
+                        .SendMessageAsync(new BlockchainPayload<TInstruction>
+                        {
+                            Action = Enum.BlockchainPayloadAction.ResponseBlocks,
+                            BlockId = fork.FirstOrDefault()?.Id,
+                            Blocks = fork
+                        })
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    await BlockReceived.InvokeAsync(this, new BlockReceivedEventArgs<TInstruction>(e.Message.Blocks, e.ClientId));
+                }
             }
         }
     }

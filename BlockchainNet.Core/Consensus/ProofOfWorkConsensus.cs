@@ -9,16 +9,16 @@
     using BlockchainNet.Core.Models;
     using BlockchainNet.Core.Interfaces;
 
-    public class ProofOfWorkConsensus<TContent> : IConsensusMethod<TContent>
+    public class ProofOfWorkConsensus<TInstruction> : IConsensusMethod<TInstruction>
     {
         private const int Difficulty = 700;
 
-        public bool VerifyConsensus(Block<TContent> block)
+        public bool VerifyConsensus(Block<TInstruction> block)
         {
             return TestHash(Convert.FromBase64String(block.Id), Difficulty);
         }
 
-        public Task BuildConsensus(Block<TContent> block, CancellationToken cancellationToken)
+        public Task BuildConsensus(Block<TInstruction> block, CancellationToken cancellationToken)
         {
             return Task.Run(() =>
             {
@@ -31,7 +31,7 @@
             });
         }
 
-        private bool VerifyForNonce(Block<TContent> block, long proof)
+        private bool VerifyForNonce(Block<TInstruction> block, long proof)
         {
             var hash = ComputeHash(block.GetHash(proof));
 

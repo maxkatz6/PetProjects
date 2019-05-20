@@ -3,37 +3,12 @@
     using System;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
-    using System.Text;
-    using ProtoBuf;
 
-    [ProtoContract]
-    public class Transaction<TContent>
+    public class Transaction<TInstruction>
     {
-        [ProtoMember(1)]
-        public string Id { get; set; }
-
-        [ProtoMember(2)]
-        public byte[] PublicKey { get; }
-
-        [ProtoMember(3)]
-        public byte[] Signature { get; set; }
-
-        [ProtoMember(4)]
-        public string? Sender { get; }
-
-        [ProtoMember(5)]
-        public string Recipient { get; }
-
-        [ProtoMember(6)]
-        public TContent Content { get; }
-
-        [ProtoMember(7)]
-        public DateTime Date { get; }
-
-        /// <summary>
-        /// Приватный конструктор для сериализации
-        /// </summary>
-        private Transaction()
+#pragma warning disable CS8618 // Non-nullable field is uninitialized.
+        public Transaction()
+#pragma warning restore CS8618 // Non-nullable field is uninitialized.
         {
 
         }
@@ -45,7 +20,7 @@
         /// <param name="recipient">Получатель</param>
         /// <param name="content">Содержимое</param>
         /// <param name="date">Дата создания</param>
-        public Transaction(string? sender, string recipient, byte[] publicKey, TContent content, DateTime date)
+        public Transaction(string? sender, string recipient, byte[] publicKey, TInstruction content, DateTime date)
         {
             Sender = sender;
             Recipient = recipient;
@@ -53,6 +28,20 @@
             Content = content;
             Date = date;
         }
+
+        public string? Id { get; set; }
+
+        public byte[] PublicKey { get; set; }
+
+        public byte[]? Signature { get; set; }
+
+        public string? Sender { get; set; }
+
+        public string Recipient { get; set; }
+
+        public TInstruction Content { get; set; }
+
+        public DateTimeOffset Date { get; set; }
 
         public byte[] GetHash()
         {

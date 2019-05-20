@@ -5,9 +5,9 @@
 
     using BlockchainNet.Core.Models;
 
-    public interface IConsensusMethod<TContent>
+    public interface IConsensusMethod<TInstruction>
     {
-        Task BuildConsensus(Block<TContent> block, CancellationToken cancellationToken);
-        bool VerifyConsensus(Block<TContent> block);
+        Task BuildConsensus(Block<TInstruction> block, CancellationToken cancellationToken);
+        bool VerifyConsensus(Block<TInstruction> block);
     }
 }

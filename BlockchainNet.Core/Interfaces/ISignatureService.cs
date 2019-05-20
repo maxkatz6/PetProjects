@@ -5,7 +5,7 @@
     public interface ISignatureService
     {
         (byte[] publicKey, byte[] privateKey) GetKeysFromPassword(string phrase);
-        void SignTransaction<TContent>(Transaction<TContent> instruction, byte[] privateKey);
-        bool VerifyTransaction<TContent>(Transaction<TContent> instruction);
+        void SignTransaction<TInstruction>(Transaction<TInstruction> instruction, byte[] privateKey);
+        bool VerifyTransaction<TInstruction>(Transaction<TInstruction> instruction);
     }
 }
