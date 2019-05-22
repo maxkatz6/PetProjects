@@ -35,7 +35,7 @@
         public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnectedEvent;
         public event EventHandler<MessageReceivedEventArgs<T>> MessageReceivedEvent;
 
-        public string ServerId => _socket?.LocalEndPoint.ToString()
+        public string ServerId => _socket?.LocalEndPoint?.ToString()
             ?? throw new InvalidOperationException("TcpServer is not started");
 
         public async Task StartAsync()

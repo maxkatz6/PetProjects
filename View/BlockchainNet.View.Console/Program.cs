@@ -5,48 +5,24 @@
     using System.Drawing;
     using System.Threading.Tasks;
 
-    using BlockchainNet.IO.TCP;
-    using BlockchainNet.Core;
-    using BlockchainNet.Core.Models;
     using BlockchainNet.Messenger;
-    using BlockchainNet.Core.Consensus;
-    using BlockchainNet.Core.Interfaces;
-    using BlockchainNet.Core.Services;
     using BlockchainNet.Core.EventArgs;
     using BlockchainNet.Messenger.Models;
 
     internal static class Program
     {
-        private static Communicator<MessageInstruction> communicator;
-        private static ISignatureService signatureService;
-        private static IBlockRepository<MessageInstruction> blockRepository;
-        private static MessengerBlockchain blockchain;
+        private static MessengerServiceLocator messengerServiceLocator;
 
         private static string account;
         private static (byte[] publicKey, byte[] privateKey) keys;
 
         private static async Task Main()
         {
-            var currentPort = TcpHelper.GetAvailablePort();
-            System.IO.File.Delete($"database_{currentPort}.litedb");
-            blockRepository = new DefaultBlockRepository<MessageInstruction>($"database_{currentPort}.litedb");
+            messengerServiceLocator = new MessengerServiceLocator();
+            
+            await messengerServiceLocator.Communicator.StartAsync().ConfigureAwait(false);
 
-            signatureService = new SignatureService();
-            communicator = new Communicator<MessageInstruction>(
-                blockRepository,
-                new TcpServer<BlockchainPayload<MessageInstruction>>(currentPort),
-                new TcpClientFactory<BlockchainPayload<MessageInstruction>>());
-
-            blockchain = new MessengerBlockchain(
-                communicator,
-                blockRepository,
-                new ProofOfWorkConsensus<MessageInstruction>(),
-                signatureService);
-            blockchain.BlockAdded += Blockchain_BlockAdded;
-
-            await communicator.StartAsync().ConfigureAwait(false);
-
-            Console.Title = communicator.ServerId;
+            Console.Title = messengerServiceLocator.Communicator.ServerId;
 
             AskAndSetAccount();
 
@@ -63,7 +39,7 @@
                 {
                     case "connect":
                     case "c":
-                        await communicator.ConnectToAsync(parts.Skip(1)).ConfigureAwait(false);
+                        await messengerServiceLocator.Communicator.ConnectToAsync(parts.Skip(1)).ConfigureAwait(false);
                         break;
                     case "exit":
                     case "e":
@@ -79,7 +55,7 @@
                         break;
                     case "mine":
                     case "m":
-                        _ = await blockchain.MineAsync(account, default).ConfigureAwait(false);
+                        _ = await messengerServiceLocator.Blockchain.MineAsync(account, default).ConfigureAwait(false);
                         break;
                     case "add":
                     case "a":
@@ -96,7 +72,7 @@
                 }
             }
 
-            await communicator.CloseAsync().ConfigureAwait(false);
+            await messengerServiceLocator.Communicator.CloseAsync().ConfigureAwait(false);
         }
 
         private static void Blockchain_BlockchainReplaced(object sender, EventArgs e)
@@ -144,7 +120,7 @@
                 Console.Write("Input password: ");
                 password = Console.ReadLine();
             }
-            keys = signatureService.GetKeysFromPassword(password);
+            keys = messengerServiceLocator.SignatureService.GetKeysFromPassword(password);
             Console.Clear();
         }
 
@@ -182,14 +158,14 @@
                 ))
             };
 
-            blockchain.NewTransaction(account, recipient, instruction, keys);
+            messengerServiceLocator.Blockchain.NewTransaction(account, recipient, instruction, keys);
 
-            _ = await blockchain.MineAsync(account, default).ConfigureAwait(false);
+            _ = await messengerServiceLocator.Blockchain.MineAsync(account, default).ConfigureAwait(false);
         }
 
         private static async Task PrintBlockchainAsync()
         {
-            var blocks = await blockRepository.GetFork(MessengerBlockchain.RootId).ToListAsync();
+            var blocks = await messengerServiceLocator.BlockRepository.GetFork(MessengerBlockchain.RootId).ToListAsync();
             Console.WriteLine($"Blocks count = {blocks.Count}");
             foreach (var block in blocks)
             {
@@ -204,8 +180,8 @@
 
         private static void PrintCurrentTransactions()
         {
-            Console.WriteLine($"Current transactions {blockchain.CurrentTransactions.Count}:");
-            Console.WriteLine(string.Join("\r\n", blockchain.CurrentTransactions));
+            Console.WriteLine($"Current transactions {messengerServiceLocator.Blockchain.CurrentTransactions.Count}:");
+            Console.WriteLine(string.Join("\r\n", messengerServiceLocator.Blockchain.CurrentTransactions));
         }
     }
 }
