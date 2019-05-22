@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Drawing;
     using System.Threading.Tasks;
 
     using BlockchainNet.IO.TCP;
@@ -12,12 +13,13 @@
     using BlockchainNet.Core.Interfaces;
     using BlockchainNet.Core.Services;
     using BlockchainNet.Core.EventArgs;
+    using BlockchainNet.Messenger.Models;
 
     internal static class Program
     {
-        private static Communicator<string> communicator;
+        private static Communicator<MessageInstruction> communicator;
         private static ISignatureService signatureService;
-        private static IBlockRepository<string> blockRepository;
+        private static IBlockRepository<MessageInstruction> blockRepository;
         private static MessengerBlockchain blockchain;
 
         private static string account;
@@ -27,18 +29,18 @@
         {
             var currentPort = TcpHelper.GetAvailablePort();
             System.IO.File.Delete($"database_{currentPort}.litedb");
-            blockRepository = new DefaultBlockRepository<string>($"database_{currentPort}.litedb");
+            blockRepository = new DefaultBlockRepository<MessageInstruction>($"database_{currentPort}.litedb");
 
             signatureService = new SignatureService();
-            communicator = new Communicator<string>(
+            communicator = new Communicator<MessageInstruction>(
                 blockRepository,
-                new TcpServer<BlockchainPayload<string>>(currentPort),
-                new TcpClientFactory<BlockchainPayload<string>>());
+                new TcpServer<BlockchainPayload<MessageInstruction>>(currentPort),
+                new TcpClientFactory<BlockchainPayload<MessageInstruction>>());
 
             blockchain = new MessengerBlockchain(
                 communicator,
                 blockRepository,
-                new ProofOfWorkConsensus<string>(),
+                new ProofOfWorkConsensus<MessageInstruction>(),
                 signatureService);
             blockchain.BlockAdded += Blockchain_BlockAdded;
 
@@ -102,22 +104,30 @@
             Console.WriteLine("Blockchain replaced");
         }
 
-        private static void Blockchain_BlockAdded(object sender, BlockAddedEventArgs<string> e)
+        private static void Blockchain_BlockAdded(object sender, BlockAddedEventArgs<MessageInstruction> e)
         {
-            Console.ForegroundColor = ConsoleColor.Green;
+            var savedColor = Console.ForegroundColor;
             foreach (var transaction in e.AddedBlocks.SelectMany(b => b.Transactions))
             {
+                if (transaction.Content.HexColor is string color)
+                {
+                    _ = SetScreenColorsApp.SetScreenColors(ColorTranslator.FromHtml(color), Color.Black);
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                }
                 if (transaction.Recipient == account)
                 {
-                    Console.WriteLine($"({transaction.Date}) {transaction.Sender}: {transaction.Content}");
+                    Console.WriteLine($"({transaction.Date}) {transaction.Sender}: {transaction.Content.Message}");
                     Console.Beep();
                 }
                 else if (transaction.Sender == account)
                 {
-                    Console.WriteLine($"({transaction.Date}) You: {transaction.Content}");
+                    Console.WriteLine($"({transaction.Date}) You: {transaction.Content.Message}");
                 }
             }
-            Console.ResetColor();
+            Console.ForegroundColor = savedColor;
         }
 
         private static void AskAndSetAccount(string? username = null, string? password = null)
@@ -163,8 +173,16 @@
                 Console.Write("Message: ");
                 message = Console.ReadLine();
             }
+            var instruction = new MessageInstruction(message)
+            {
+                HexColor = ColorTranslator.ToHtml(Color.FromArgb(
+                    new Random().Next(0, 255),
+                    new Random().Next(0, 255),
+                    new Random().Next(0, 255)
+                ))
+            };
 
-            blockchain.NewTransaction(account, recipient, message, keys);
+            blockchain.NewTransaction(account, recipient, instruction, keys);
 
             _ = await blockchain.MineAsync(account, default).ConfigureAwait(false);
         }
