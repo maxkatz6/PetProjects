@@ -20,7 +20,7 @@
         /// <param name="recipient">Получатель</param>
         /// <param name="content">Содержимое</param>
         /// <param name="date">Дата создания</param>
-        public Transaction(string? sender, string recipient, byte[] publicKey, TInstruction content, DateTime date)
+        public Transaction(string sender, string recipient, byte[] publicKey, TInstruction content, DateTime date)
         {
             Sender = sender;
             Recipient = recipient;
@@ -35,7 +35,7 @@
 
         public byte[]? Signature { get; set; }
 
-        public string? Sender { get; set; }
+        public string Sender { get; set; }
 
         public string Recipient { get; set; }
 
