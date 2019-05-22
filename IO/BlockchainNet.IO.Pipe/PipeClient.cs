@@ -1,5 +1,6 @@
 ﻿namespace BlockchainNet.IO.Pipe
 {
+    using System;
     using System.IO;
     using System.IO.Pipes;
     using System.Text;
@@ -11,16 +12,17 @@
 
     public class PipeClient<T> : ICommunicationClient<T>
     {
-        private NamedPipeClientStream _pipeClient;
+        private NamedPipeClientStream? _pipeClient;
 
-        public PipeClient(string serverId)
+        public PipeClient(string serverId, string responseServerId)
         {
-            ServerId = serverId;
+            ServerId = serverId ?? throw new ArgumentNullException(nameof(serverId));
+            ResponseServerId = responseServerId ?? throw new ArgumentNullException(nameof(responseServerId));
         }
 
         public string ServerId { get; }
 
-        public string ResponseServerId { get; set; }
+        public string ResponseServerId { get; }
 
         public async Task StartAsync()
         {
@@ -36,7 +38,7 @@
             await _pipeClient.ConnectAsync().ConfigureAwait(false);
 
             // Сразу отправляем Id сервера для обратной связи
-            var buffer = Encoding.UTF8.GetBytes(string.IsNullOrEmpty(ResponseServerId) ? "\0" : ResponseServerId);
+            var buffer = Encoding.UTF8.GetBytes(ResponseServerId);
             await _pipeClient.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
         }
 
@@ -62,6 +64,11 @@
 
         public async Task<bool> SendMessageAsync(T message)
         {
+            if (_pipeClient == null)
+            {
+                return false;
+            }
+
             using (var stream = new MemoryStream())
             {
                 Serializer.Serialize(stream, message);

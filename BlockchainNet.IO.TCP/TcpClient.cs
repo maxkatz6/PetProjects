@@ -16,14 +16,15 @@
     {
         private Socket? _socket;
 
-        public TcpClient(string serverId)
+        public TcpClient(string serverId, string responseServerId)
         {
             ServerId = serverId ?? throw new ArgumentNullException(nameof(serverId));
+            ResponseServerId = responseServerId ?? throw new ArgumentNullException(nameof(responseServerId));
         }
 
         public string ServerId { get; }
 
-        public string? ResponseServerId { get; set; }
+        public string ResponseServerId { get; }
 
         public async Task StartAsync()
         {
@@ -41,7 +42,7 @@
                 .ConnectAsync(address, port)
                 .ConfigureAwait(false);
 
-            _ = await SendMessageInternalAsync(string.IsNullOrEmpty(ResponseServerId) ? "\0" : ResponseServerId);
+            _ = await SendMessageInternalAsync(ResponseServerId);
         }
 
         public Task StopAsync()

@@ -4,7 +4,7 @@
 
     public class MessageReceivedEventArgs<T> : DeferredEventArgs
     {
-        public MessageReceivedEventArgs(string? clientId, T message)
+        public MessageReceivedEventArgs(string clientId, T message)
         {
             ClientId = clientId;
             Message = message;
@@ -13,7 +13,7 @@
         /// <summary>
         /// Client id
         /// </summary>
-        public string? ClientId { get; }
+        public string ClientId { get; }
 
         /// <summary>
         /// Received message

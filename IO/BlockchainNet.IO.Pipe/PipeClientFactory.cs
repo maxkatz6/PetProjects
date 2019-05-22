@@ -4,9 +4,9 @@
 
     public class PipeClientFactory<T> : ICommunicationClientFactory<T>
     {
-        public ICommunicationClient<T> CreateNew(string serverId)
+        public ICommunicationClient<T> CreateNew(string serverId, string responseServerId)
         {
-            return new PipeClient<T>(serverId);
+            return new PipeClient<T>(serverId, responseServerId);
         }
     }
 }

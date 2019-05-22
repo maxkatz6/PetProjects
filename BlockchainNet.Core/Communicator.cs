@@ -54,8 +54,7 @@
         {
             foreach (var serverId in serversId)
             {
-                var nodeClient = clientFactory.CreateNew(serverId);
-                nodeClient.ResponseServerId = server.ServerId;
+                var nodeClient = clientFactory.CreateNew(serverId, server.ServerId);
                 await nodeClient.StartAsync().ConfigureAwait(false);
                 nodes.Add(nodeClient);
             }
@@ -72,7 +71,7 @@
 
         public Task BroadcastBlocksAsync(
             IEnumerable<Block<TInstruction>> blocks, 
-            Func<ICommunicationClient<BlockchainPayload<TInstruction>>, bool> filter = null)
+            Func<ICommunicationClient<BlockchainPayload<TInstruction>>, bool>? filter = null)
         {
             return Task.WhenAll(nodes
                 .Where(filter ?? (peer => true))
@@ -107,8 +106,7 @@
                 if (nodes.All(c => c.ServerId != e.ClientId)
                     && e.ClientId != null)
                 {
-                    var nodeClient = clientFactory.CreateNew(e.ClientId);
-                    nodeClient.ResponseServerId = server.ServerId;
+                    var nodeClient = clientFactory.CreateNew(e.ClientId, server.ServerId);
                     await nodeClient.StartAsync().ConfigureAwait(false);
                     nodes.Add(nodeClient);
                 }

@@ -69,10 +69,6 @@
                     {
                         throw new InvalidOperationException("Client returned invalid response id");
                     }
-                    if (responseClientId == "\0")
-                    {
-                        responseClientId = null;
-                    }
 
                     await ClientConnectedEvent
                         .InvokeAsync(this, new ClientConnectedEventArgs(responseClientId))
@@ -92,23 +88,23 @@
             return Task.CompletedTask;
         }
 
-        private async Task ReadLoopAsync(Socket client, string? responceClientId)
+        private async Task ReadLoopAsync(Socket client, string responseClientId)
         {
             while (true)
             {
-                var message = await ReadInternalAsync<T>(client, responceClientId).ConfigureAwait(false);
+                var message = await ReadInternalAsync<T>(client, responseClientId).ConfigureAwait(false);
                 if (message == null)
                 {
                     return;
                 }
 
                 await MessageReceivedEvent
-                    .InvokeAsync(this, new MessageReceivedEventArgs<T>(responceClientId, message))
+                    .InvokeAsync(this, new MessageReceivedEventArgs<T>(responseClientId, message))
                     .ConfigureAwait(false);
             }
         }
 
-        private async Task<TMsg> ReadInternalAsync<TMsg>(Socket client, string? responceClientId)
+        private async Task<TMsg> ReadInternalAsync<TMsg>(Socket client, string? responseClientId)
         {
             if (!client.Connected)
             {
@@ -118,12 +114,7 @@
             var headerLength = await client.ReceiveAsync(headerSegment, SocketFlags.None).ConfigureAwait(false);
             if (headerLength == 0)
             {
-                if (!_isStopping)
-                {
-                    await ClientDisconnectedEvent
-                        .InvokeAsync(this, new ClientDisconnectedEventArgs(responceClientId))
-                        .ConfigureAwait(false);
-                }
+                await OnDisconnectedAsync(responseClientId).ConfigureAwait(false);
                 return default!;
             }
 
@@ -145,12 +136,7 @@
                 var dataLength = await client.ReceiveAsync(dataSegment, SocketFlags.None).ConfigureAwait(false);
                 if (dataLength == 0)
                 {
-                    if (!_isStopping)
-                    {
-                        await ClientDisconnectedEvent
-                            .InvokeAsync(this, new ClientDisconnectedEventArgs(responceClientId))
-                            .ConfigureAwait(false);
-                    }
+                    await OnDisconnectedAsync(responseClientId).ConfigureAwait(false);
                     return default!;
                 }
                 offset += dataLength;
@@ -160,10 +146,25 @@
             using var stream = new MemoryStream(dataArray, 0, dataArray.Length);
             using var reader = new StreamReader(stream);
             using var jsonReader = new JsonTextReader(reader);
-            
+
             var serializer = JsonSerializer.CreateDefault();
 
             return serializer.Deserialize<TMsg>(jsonReader);
+
+            async Task OnDisconnectedAsync(string? responceClientIdIn)
+            {
+                if (!_isStopping)
+                {
+                    if (responceClientIdIn == null)
+                    {
+                        throw new ArgumentNullException(nameof(responceClientIdIn));
+                    }
+
+                    await ClientDisconnectedEvent
+                        .InvokeAsync(this, new ClientDisconnectedEventArgs(responceClientIdIn))
+                        .ConfigureAwait(false);
+                }
+            }
         }
     }
 }

@@ -4,7 +4,7 @@
 
     public class ClientConnectedEventArgs : DeferredEventArgs
     {
-        public ClientConnectedEventArgs(string? clientId)
+        public ClientConnectedEventArgs(string clientId)
         {
             ClientId = clientId;
         }
@@ -12,6 +12,6 @@
         /// <summary>
         /// Client id
         /// </summary>
-        public string? ClientId { get; }
+        public string ClientId { get; }
     }
 }

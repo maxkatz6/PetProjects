@@ -7,6 +7,6 @@
         /// </summary>
         /// <param name="serverId">Id сервера, к которому подключается клиент</param>
         /// <returns>Экземпляр клиента</returns>
-        ICommunicationClient<T> CreateNew(string serverId);
+        ICommunicationClient<T> CreateNew(string serverId, string responseServerId);
     }
 }
