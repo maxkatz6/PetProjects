@@ -18,13 +18,13 @@
 
         private static async Task Main()
         {
-            messengerServiceLocator = new MessengerServiceLocator();
+            AskAndSetAccount();
+
+            messengerServiceLocator = new MessengerServiceLocator(account);
             
             await messengerServiceLocator.Communicator.StartAsync().ConfigureAwait(false);
 
             Console.Title = messengerServiceLocator.Communicator.ServerId;
-
-            AskAndSetAccount();
 
             var active = true;
             while (active)

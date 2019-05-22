@@ -10,6 +10,7 @@
     using BlockchainNet.Core.Interfaces;
     using BlockchainNet.Shared.EventArgs;
     using BlockchainNet.Core.EventArgs;
+    using BlockchainNet.IO.Models;
 
     public class Communicator<TInstruction> : IAsyncDisposable
     {
@@ -19,6 +20,7 @@
         private readonly List<ICommunicationClient<BlockchainPayload<TInstruction>>> nodes;
 
         private readonly IBlockRepository<TInstruction> blockRepository;
+        private readonly string serverDisplayName;
 
         /// <summary>
         /// Конструктор коммуникатора
@@ -26,10 +28,12 @@
         /// <param name="server">Сервер</param>
         /// <param name="clientFactory">Фаблика клиентов</param>
         public Communicator(
+            string displayName,
             IBlockRepository<TInstruction> blockRepository,
             ICommunicationServer<BlockchainPayload<TInstruction>> server,
             ICommunicationClientFactory<BlockchainPayload<TInstruction>> clientFactory)
         {
+            this.serverDisplayName = displayName;
             this.blockRepository = blockRepository;
             this.server = server ?? throw new ArgumentNullException(nameof(server), "Server must be setted");
             this.clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory), "Client factory must be setted");
@@ -52,9 +56,11 @@
 
         public async Task ConnectToAsync(IEnumerable<string> serversId)
         {
+            await server.StartAsync().ConfigureAwait(false);
+
             foreach (var serverId in serversId)
             {
-                var nodeClient = clientFactory.CreateNew(serverId, server.ServerId);
+                var nodeClient = clientFactory.CreateNew(serverId, new ClientInformation(server.ServerId, serverDisplayName));
                 await nodeClient.StartAsync().ConfigureAwait(false);
                 nodes.Add(nodeClient);
             }
@@ -103,10 +109,10 @@
         {
             using (e.GetDeferral())
             {
-                if (nodes.All(c => c.ServerId != e.ClientId)
-                    && e.ClientId != null)
+                if (nodes.All(c => c.ServerId != e.ClientInformation.ClientId)
+                    && e.ClientInformation.ClientId != null)
                 {
-                    var nodeClient = clientFactory.CreateNew(e.ClientId, server.ServerId);
+                    var nodeClient = clientFactory.CreateNew(e.ClientInformation.ClientId, new ClientInformation(server.ServerId, serverDisplayName));
                     await nodeClient.StartAsync().ConfigureAwait(false);
                     nodes.Add(nodeClient);
                 }

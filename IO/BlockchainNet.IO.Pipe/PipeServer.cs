@@ -36,7 +36,9 @@
 
         public Task StartAsync()
         {
-            return StartNamedPipeServer();
+            return _servers.Count > 0
+                ? Task.CompletedTask
+                : StartNamedPipeServer();
         }
 
         public async Task StopAsync()

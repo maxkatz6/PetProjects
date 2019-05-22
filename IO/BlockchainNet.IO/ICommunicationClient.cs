@@ -1,13 +1,11 @@
 ﻿namespace BlockchainNet.IO
 {
+    using BlockchainNet.IO.Models;
     using System.Threading.Tasks;
 
     public interface ICommunicationClient<T> : ICommunication
     {
-        /// <summary>
-        /// Id сервера для обратной связи
-        /// </summary>
-        string ResponseServerId { get; }
+        ClientInformation ResponseClient { get; }
 
         /// <summary>
         /// Асинхронный метод для отправки сообщения

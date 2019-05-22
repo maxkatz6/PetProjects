@@ -61,7 +61,7 @@
                     }
 
                     await ClientConnectedEvent
-                        .InvokeAsync(this, new ClientConnectedEventArgs(responceClientId))
+                        .InvokeAsync(this, new ClientConnectedEventArgs(new Models.ClientInformation(responceClientId, "")))
                         .ConfigureAwait(false);
 
                     await ReadAsync(new Package()).ConfigureAwait(false);

@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
 
     using BlockchainNet.IO;
+    using BlockchainNet.IO.Models;
 
     using ProtoBuf;
 
@@ -14,15 +15,15 @@
     {
         private NamedPipeClientStream? _pipeClient;
 
-        public PipeClient(string serverId, string responseServerId)
+        public PipeClient(string serverId, ClientInformation responseClient)
         {
             ServerId = serverId ?? throw new ArgumentNullException(nameof(serverId));
-            ResponseServerId = responseServerId ?? throw new ArgumentNullException(nameof(responseServerId));
+            ResponseClient = responseClient ?? throw new ArgumentNullException(nameof(responseClient));
         }
 
         public string ServerId { get; }
 
-        public string ResponseServerId { get; }
+        public ClientInformation ResponseClient { get; }
 
         public async Task StartAsync()
         {
@@ -38,7 +39,7 @@
             await _pipeClient.ConnectAsync().ConfigureAwait(false);
 
             // Сразу отправляем Id сервера для обратной связи
-            var buffer = Encoding.UTF8.GetBytes(ResponseServerId);
+            var buffer = Encoding.UTF8.GetBytes(ResponseClient.ClientId);
             await _pipeClient.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
         }
 

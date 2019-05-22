@@ -9,6 +9,7 @@
     using System.Threading.Tasks;
 
     using BlockchainNet.IO;
+    using BlockchainNet.IO.Models;
 
     using Newtonsoft.Json;
 
@@ -16,15 +17,15 @@
     {
         private Socket? _socket;
 
-        public TcpClient(string serverId, string responseServerId)
+        public TcpClient(string serverId, ClientInformation responseClient)
         {
             ServerId = serverId ?? throw new ArgumentNullException(nameof(serverId));
-            ResponseServerId = responseServerId ?? throw new ArgumentNullException(nameof(responseServerId));
+            ResponseClient = responseClient ?? throw new ArgumentNullException(nameof(responseClient));
         }
 
         public string ServerId { get; }
 
-        public string ResponseServerId { get; }
+        public ClientInformation ResponseClient { get; }
 
         public async Task StartAsync()
         {
@@ -42,7 +43,7 @@
                 .ConnectAsync(address, port)
                 .ConfigureAwait(false);
 
-            _ = await SendMessageInternalAsync(ResponseServerId);
+            _ = await SendMessageInternalAsync(ResponseClient);
         }
 
         public Task StopAsync()

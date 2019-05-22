@@ -1,17 +1,18 @@
 ﻿namespace BlockchainNet.IO
 {
+    using BlockchainNet.IO.Models;
     using BlockchainNet.Shared.EventArgs;
 
     public class ClientConnectedEventArgs : DeferredEventArgs
     {
-        public ClientConnectedEventArgs(string clientId)
+        public ClientConnectedEventArgs(ClientInformation clientInformation)
         {
-            ClientId = clientId;
+            ClientInformation = clientInformation;
         }
 
         /// <summary>
         /// Client id
         /// </summary>
-        public string ClientId { get; }
+        public ClientInformation ClientInformation { get; }
     }
 }

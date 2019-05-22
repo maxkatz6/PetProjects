@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
 
     using BlockchainNet.IO;
+    using BlockchainNet.IO.Models;
     using BlockchainNet.Shared.EventArgs;
 
     using Newtonsoft.Json;
@@ -40,6 +41,11 @@
 
         public async Task StartAsync()
         {
+            if (_socket.Connected)
+            {
+                return;
+            }
+
             _isStopping = false;
 
             var ipHost = await Dns.GetHostEntryAsync("localhost").ConfigureAwait(false);
@@ -64,17 +70,17 @@
                         throw;
                     }
 
-                    var responseClientId = await ReadInternalAsync<string?>(client, null).ConfigureAwait(false);
-                    if (string.IsNullOrEmpty(responseClientId))
+                    var clientInformation = await ReadInternalAsync<ClientInformation?>(client, null).ConfigureAwait(false);
+                    if (string.IsNullOrEmpty(clientInformation?.ClientId))
                     {
                         throw new InvalidOperationException("Client returned invalid response id");
                     }
 
                     await ClientConnectedEvent
-                        .InvokeAsync(this, new ClientConnectedEventArgs(responseClientId))
+                        .InvokeAsync(this, new ClientConnectedEventArgs(clientInformation))
                         .ConfigureAwait(false);
 
-                    _ = Task.Run(() => ReadLoopAsync(client, responseClientId));
+                    _ = Task.Run(() => ReadLoopAsync(client, clientInformation.ClientId));
                 }
             });
         }
