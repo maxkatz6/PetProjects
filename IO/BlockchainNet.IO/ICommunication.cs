@@ -1,8 +1,9 @@
 ﻿namespace BlockchainNet.IO
 {
+    using System;
     using System.Threading.Tasks;
 
-    public interface ICommunication
+    public interface ICommunication : IAsyncDisposable
     {
         /// <summary>
         /// Id сервера

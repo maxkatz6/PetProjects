@@ -77,5 +77,10 @@
             var length = await _socket.SendAsync(new List<ArraySegment<byte>> { firstSegment, secondSegment }, SocketFlags.None);
             return length > 0;
         }
+
+        public ValueTask DisposeAsync()
+        {
+            return new ValueTask(StopAsync());
+        }
     }
 }

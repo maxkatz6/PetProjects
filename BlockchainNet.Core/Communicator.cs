@@ -11,7 +11,7 @@
     using BlockchainNet.Shared.EventArgs;
     using BlockchainNet.Core.EventArgs;
 
-    public class Communicator<TInstruction>
+    public class Communicator<TInstruction> : IAsyncDisposable
     {
         private readonly ICommunicationServer<BlockchainPayload<TInstruction>> server;
         private readonly ICommunicationClientFactory<BlockchainPayload<TInstruction>> clientFactory;
@@ -153,6 +153,11 @@
                     await BlockReceived.InvokeAsync(this, new BlockReceivedEventArgs<TInstruction>(e.Message.Blocks, e.ClientId));
                 }
             }
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return new ValueTask(CloseAsync());
         }
     }
 }

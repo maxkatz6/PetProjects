@@ -120,5 +120,10 @@
                 await StopNamedPipeServer(eventArgs.ClientId).ConfigureAwait(false);
             }
         }
+
+        public ValueTask DisposeAsync()
+        {
+            return new ValueTask(StopAsync());
+        }
     }
 }

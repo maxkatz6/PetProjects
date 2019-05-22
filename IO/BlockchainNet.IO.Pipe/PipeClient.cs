@@ -78,5 +78,10 @@
             }
             return true;
         }
+
+        public ValueTask DisposeAsync()
+        {
+            return new ValueTask(StopAsync());
+        }
     }
 }
