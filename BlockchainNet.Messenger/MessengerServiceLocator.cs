@@ -10,15 +10,14 @@
 
     public class MessengerServiceLocator
     {
-        public MessengerServiceLocator(string login)
+        public MessengerServiceLocator(int? port = null)
         {
-            var currentPort = TcpHelper.GetAvailablePort();
+            var currentPort = port ?? TcpHelper.GetAvailablePort();
             System.IO.File.Delete($"database_{currentPort}.litedb");
             BlockRepository = new DefaultBlockRepository<MessageInstruction>($"database_{currentPort}.litedb");
 
             SignatureService = new SignatureService();
             Communicator = new Communicator<MessageInstruction>(
-                login,
                 BlockRepository,
                 new TcpServer<BlockchainPayload<MessageInstruction>>(currentPort),
                 new TcpClientFactory<BlockchainPayload<MessageInstruction>>());

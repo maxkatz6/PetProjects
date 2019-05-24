@@ -8,6 +8,7 @@
     using BlockchainNet.Messenger;
     using BlockchainNet.Core.EventArgs;
     using BlockchainNet.Messenger.Models;
+    using System.Text;
 
     internal static class Program
     {
@@ -18,9 +19,14 @@
 
         private static async Task Main()
         {
-            AskAndSetAccount();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            messengerServiceLocator = new MessengerServiceLocator(account);
+            var password = AskAndSetAccount();
+
+            messengerServiceLocator = new MessengerServiceLocator(51000);
+            messengerServiceLocator.Communicator.Login = account;
+            messengerServiceLocator.Blockchain.BlockAdded += Blockchain_BlockAdded;
+            keys = messengerServiceLocator.SignatureService.GetKeysFromPassword(password);
             
             await messengerServiceLocator.Communicator.StartAsync().ConfigureAwait(false);
 
@@ -67,17 +73,22 @@
                         break;
                     case "switch":
                     case "sw":
-                        AskAndSetAccount(parts.Skip(1).FirstOrDefault(), parts.Skip(2).FirstOrDefault());
+                        password = AskAndSetAccount(parts.Skip(1).FirstOrDefault(), parts.Skip(2).FirstOrDefault());
+                        keys = messengerServiceLocator.SignatureService.GetKeysFromPassword(password);
                         break;
                 }
             }
 
             await messengerServiceLocator.Communicator.CloseAsync().ConfigureAwait(false);
-        }
 
-        private static void Blockchain_BlockchainReplaced(object sender, EventArgs e)
-        {
-            Console.WriteLine("Blockchain replaced");
+            TaskScheduler.UnobservedTaskException += (s, a) =>
+            {
+                a.Exception.Handle(e =>
+                {
+                    Console.WriteLine(e);
+                    return true;
+                });
+            };
         }
 
         private static void Blockchain_BlockAdded(object sender, BlockAddedEventArgs<MessageInstruction> e)
@@ -106,7 +117,7 @@
             Console.ForegroundColor = savedColor;
         }
 
-        private static void AskAndSetAccount(string? username = null, string? password = null)
+        private static string AskAndSetAccount(string? username = null, string? password = null)
         {
             if (string.IsNullOrWhiteSpace(username))
             {
@@ -120,8 +131,9 @@
                 Console.Write("Input password: ");
                 password = Console.ReadLine();
             }
-            keys = messengerServiceLocator.SignatureService.GetKeysFromPassword(password);
             Console.Clear();
+
+            return password;
         }
 
         private static void PrintHelp()

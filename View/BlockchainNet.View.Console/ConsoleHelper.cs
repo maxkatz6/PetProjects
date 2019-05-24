@@ -178,11 +178,14 @@ class SetScreenColorsApp
 
     public static int SetScreenColors(Color foregroundColor, Color backgroundColor)
     {
-        int irc;
-        irc = SetColor(ConsoleColor.Gray, foregroundColor);
-        if (irc != 0) return irc;
-        irc = SetColor(ConsoleColor.Black, backgroundColor);
-        if (irc != 0) return irc;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            int irc;
+            irc = SetColor(ConsoleColor.Gray, foregroundColor);
+            if (irc != 0) return irc;
+            irc = SetColor(ConsoleColor.Black, backgroundColor);
+            if (irc != 0) return irc;
+        }
 
         return 0;
     }

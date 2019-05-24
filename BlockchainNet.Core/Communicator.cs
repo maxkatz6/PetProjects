@@ -20,7 +20,6 @@
         private readonly List<ICommunicationClient<BlockchainPayload<TInstruction>>> nodes;
 
         private readonly IBlockRepository<TInstruction> blockRepository;
-        private readonly string serverDisplayName;
 
         /// <summary>
         /// Конструктор коммуникатора
@@ -28,12 +27,10 @@
         /// <param name="server">Сервер</param>
         /// <param name="clientFactory">Фаблика клиентов</param>
         public Communicator(
-            string displayName,
             IBlockRepository<TInstruction> blockRepository,
             ICommunicationServer<BlockchainPayload<TInstruction>> server,
             ICommunicationClientFactory<BlockchainPayload<TInstruction>> clientFactory)
         {
-            this.serverDisplayName = displayName;
             this.blockRepository = blockRepository;
             this.server = server ?? throw new ArgumentNullException(nameof(server), "Server must be setted");
             this.clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory), "Client factory must be setted");
@@ -46,6 +43,10 @@
         }
 
         public EventHandler<BlockReceivedEventArgs<TInstruction>>? BlockReceived;
+
+        public EventHandler<ClientInformation>? ClientConnected;
+
+        public string? Login { get; set; }
 
         public string ServerId => server.ServerId;
 
@@ -60,7 +61,7 @@
 
             foreach (var serverId in serversId)
             {
-                var nodeClient = clientFactory.CreateNew(serverId, new ClientInformation(server.ServerId, serverDisplayName));
+                var nodeClient = clientFactory.CreateNew(serverId, new ClientInformation(server.ServerId, Login));
                 await nodeClient.StartAsync().ConfigureAwait(false);
                 nodes.Add(nodeClient);
             }
@@ -76,7 +77,7 @@
         }
 
         public Task BroadcastBlocksAsync(
-            IEnumerable<Block<TInstruction>> blocks, 
+            IEnumerable<Block<TInstruction>> blocks,
             Func<ICommunicationClient<BlockchainPayload<TInstruction>>, bool>? filter = null)
         {
             return Task.WhenAll(nodes
@@ -105,18 +106,27 @@
                 })));
         }
 
+        protected void OnClientConnected(ClientInformation information)
+        {
+            ClientConnected?.Invoke(this, information);
+        }
+
         private async void Server_ClientConnectedEvent(object sender, ClientConnectedEventArgs e)
         {
-            using (e.GetDeferral())
+            if (e.ClientInformation.ClientId == null)
             {
-                if (nodes.All(c => c.ServerId != e.ClientInformation.ClientId)
-                    && e.ClientInformation.ClientId != null)
-                {
-                    var nodeClient = clientFactory.CreateNew(e.ClientInformation.ClientId, new ClientInformation(server.ServerId, serverDisplayName));
-                    await nodeClient.StartAsync().ConfigureAwait(false);
-                    nodes.Add(nodeClient);
-                }
+                return;
             }
+
+            if (nodes.All(c => c.ServerId != e.ClientInformation.ClientId))
+            {
+                using var _ = e.GetDeferral();
+
+                var nodeClient = clientFactory.CreateNew(e.ClientInformation.ClientId, new ClientInformation(server.ServerId, Login));
+                await nodeClient.StartAsync().ConfigureAwait(false);
+                nodes.Add(nodeClient);
+            }
+            OnClientConnected(e.ClientInformation);
         }
 
         private async void Server_ClientDisconnectedEvent(object sender, ClientDisconnectedEventArgs e)

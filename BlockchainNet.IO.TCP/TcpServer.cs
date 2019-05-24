@@ -18,6 +18,7 @@
 
         private readonly Socket _socket;
         private bool _isStopping;
+        private bool _isConnected;
         private readonly int _port;
 
         public TcpServer()
@@ -41,7 +42,7 @@
 
         public async Task StartAsync()
         {
-            if (_socket.Connected)
+            if (_isConnected)
             {
                 return;
             }
@@ -54,6 +55,7 @@
             _socket.Bind(new IPEndPoint(address, _port));
 
             _socket.Listen(20);
+            _isConnected = true;
 
             _ = Task.Run(async () =>
             {
@@ -88,6 +90,7 @@
         public Task StopAsync()
         {
             _isStopping = true;
+            _isConnected = false;
 
             _socket.Dispose();
 
