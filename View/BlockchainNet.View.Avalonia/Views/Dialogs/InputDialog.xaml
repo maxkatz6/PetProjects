@@ -1,0 +1,32 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="800"
+        d:DesignHeight="450"
+        Width="250"
+        Height="108"
+        x:Class="BlockchainNet.View.Gui.Views.Dialogs.InputDialog"
+        Title="InputDialog">
+  <DockPanel>
+    <TextBlock DockPanel.Dock="Top"
+               Text="Input:"
+               Margin="8,0" />
+    <TextBox x:Name="InputTextBox"
+             DockPanel.Dock="Top"
+             Margin="8,0,8,8" />
+    <Button DockPanel.Dock="Right"
+            Content="Ok"
+            Width="100"
+            Height="36"
+            Click="Ok_Click"
+            Margin="4" />
+    <Button DockPanel.Dock="Right"
+            Content="Cancel"
+            Width="100"
+            Height="36"
+            Click="Cancel_Click"
+            Margin="4" />
+  </DockPanel>
+</Window>

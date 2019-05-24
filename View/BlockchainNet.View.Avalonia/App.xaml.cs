@@ -1,7 +1,7 @@
-﻿namespace BlockchainNet.View.Avalonia
+﻿namespace BlockchainNet.View.Gui
 {
-    using global::Avalonia;
-    using global::Avalonia.Markup.Xaml;
+    using Avalonia;
+    using Avalonia.Markup.Xaml;
 
     public class App : Application
     {

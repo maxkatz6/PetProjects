@@ -1,0 +1,38 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             HorizontalContentAlignment="Stretch"
+             VerticalContentAlignment="Stretch"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             x:Class="BlockchainNet.View.Gui.Views.Controls.UserListControl">
+  <DockPanel>
+    <!--<Button DockPanel.Dock="Right"
+              Content="+"
+              Height="36"
+              Width="36"
+              Background="Transparent"
+              Click="ConnectTo_Clicked" />-->
+    <TextBlock DockPanel.Dock="Top"
+               Text="Peers"
+               FontSize="16"
+               VerticalAlignment="Center"
+               HorizontalAlignment="Center" />
+    <ListBox Width="200"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             Items="{Binding Clients}">
+      <!--<ListBox.ItemTemplate>
+        <DataTemplate>
+          <DockPanel>
+            <TextBlock Text="{Binding DisplayName}" />
+          </DockPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>-->
+    </ListBox>
+  </DockPanel>
+</UserControl>

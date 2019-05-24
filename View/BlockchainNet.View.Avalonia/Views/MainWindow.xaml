@@ -1,9 +1,37 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="BlockchainNet.View.Avalonia.Views">
+        xmlns:controls="clr-namespace:BlockchainNet.View.Gui.Views.Controls"
+        x:Class="BlockchainNet.View.Gui.Views.MainWindow"
+        Title="Blockchain Messenger"
+        Width="700"
+        Initialized="MainWindow_Initialized">
 
-  <TextBlock Text="{Binding Greeting}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center" />
+  <!--<TabControl Items="{Binding UserListViewModel.Clients, Mode=OneWay}"
+              SelectedItem="{Binding UserListViewModel.SelectedClient, Mode=TwoWay}"
+              TabStripPlacement="Left">
+    <TabControl.ItemTemplate>
+      <DataTemplate>
+        <TextBlock Text="{Binding DisplayName}" />
+      </DataTemplate>
+    </TabControl.ItemTemplate>
+    <TabControl.ContentTemplate>
+      <DataTemplate>
+        <DockPanel>
 
+          <controls:MessageInputControl DockPanel.Dock="Bottom"
+                                        Recepient="{Binding UserListViewModel.SelectedClient, Mode=TwoWay}"
+                                        DataContext="{Binding MessageInputViewModel}" />
+          <controls:ChatListControl DataContext="{Binding ChatListViewModel}" />
+        </DockPanel>
+      </DataTemplate>
+    </TabControl.ContentTemplate>
+  </TabControl>-->
+
+  <DockPanel>
+    <controls:UserListControl DockPanel.Dock="Left"
+                              DataContext="{Binding UserListViewModel}" />
+    <controls:MessageInputControl DockPanel.Dock="Bottom"
+                                  DataContext="{Binding MessageInputViewModel}" />
+    <controls:ChatListControl DataContext="{Binding ChatListViewModel}" />
+  </DockPanel>
 </Window>

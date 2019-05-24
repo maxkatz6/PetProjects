@@ -1,19 +1,38 @@
-﻿namespace BlockchainNet.View.Avalonia
+﻿namespace BlockchainNet.View.Gui
 {
-    using BlockchainNet.View.Avalonia.ViewModels;
-    using BlockchainNet.View.Avalonia.Views;
-    using global::Avalonia;
+    using BlockchainNet.View.Gui.ViewModels;
+    using BlockchainNet.View.Gui.Views;
+    using Avalonia;
+    using BlockchainNet.Messenger;
+    using Avalonia.ReactiveUI;
+    using System.Text;
 
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            BuildAvaloniaApp().Start<MainWindow>(() => new MainWindowViewModel());
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            BuildAvaloniaApp().Start(AppMain, args);
+        }
+
+        private static void AppMain(Application app, string[] args)
+        {
+            var window = new MainWindow
+            {
+                DataContext = new MainWindowViewModel(new MessengerServiceLocator()),
+            };
+
+            _ = app.Run(window);
         }
 
         public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
+        {
+            return AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .With(new X11PlatformOptions { UseGpu = false })
+                .With(new Win32PlatformOptions { UseDeferredRendering = false })
                 .UseReactiveUI();
+        }
     }
 }
