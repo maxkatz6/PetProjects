@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BlockchainNet.View.Shared\BlockchainNet.Shared.csproj" />
+    <ProjectReference Include="..\..\BlockchainNet.Shared\BlockchainNet.Shared.csproj" />
   </ItemGroup>
 
 </Project>
