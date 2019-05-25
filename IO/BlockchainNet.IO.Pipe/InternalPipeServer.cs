@@ -1,16 +1,16 @@
 ﻿namespace BlockchainNet.IO.Pipe
 {
     using System;
-    using System.Text;
     using System.IO;
     using System.IO.Pipes;
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
     using BlockchainNet.IO;
-
-    using ProtoBuf;
+    using BlockchainNet.IO.Models;
     using BlockchainNet.Shared.EventArgs;
+
+    using Newtonsoft.Json;
 
     internal class InternalPipeServer<T> : ICommunicationServer<T>
     {
@@ -41,30 +41,25 @@
 
         public string ServerId { get; }
 
-        private string responceClientId;
-
         public Task StartAsync()
         {
             _ = _pipeServer.WaitForConnectionAsync().ContinueWith(async _ =>
             {
                 if (!_isStopping)
                 {
-                    // сразу читаем id сервера для обратной связи
-                    // он пригодится для передачи в обработчики событий
                     var buffer = new byte[2048];
                     var length = await _pipeServer.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-                    responceClientId = Encoding.UTF8.GetString(buffer, 0, length);
-
-                    if (responceClientId == "\0")
+                    var message = DeserializeBuffer<ClientInformation>(buffer, length);
+                    if (message?.ClientId == null)
                     {
-                        responceClientId = null;
+                        throw new InvalidOperationException("Client returned invalid response id");
                     }
 
                     await ClientConnectedEvent
-                        .InvokeAsync(this, new ClientConnectedEventArgs(new Models.ClientInformation(responceClientId, "")))
+                        .InvokeAsync(this, new ClientConnectedEventArgs(message))
                         .ConfigureAwait(false);
 
-                    await ReadAsync(new Package()).ConfigureAwait(false);
+                    await ReadAsync(new Package(), message.ClientId).ConfigureAwait(false);
                 }
             });
             return Task.CompletedTask;
@@ -89,7 +84,7 @@
             return Task.CompletedTask;
         }
 
-        private async Task ReadAsync(Package package)
+        private async Task ReadAsync(Package package, string responseId)
         {
             // побуферно читаем сообщения, что позволяет не ограничиваться его размером
 
@@ -114,19 +109,16 @@
                 if (!_pipeServer.IsMessageComplete)
                 {
                     // ...то читаем следующий буфер
-                    await ReadAsync(package);
+                    await ReadAsync(package, responseId);
                 }
                 else
                 {
-                    using (var stream = new MemoryStream(package.Result.ToArray()))
-                    {
-                        var message = Serializer.Deserialize<T>(stream);
+                    var message = DeserializeBuffer<T>(package.Result.ToArray());
+                    await MessageReceivedEvent
+                        .InvokeAsync(this, new MessageReceivedEventArgs<T>(responseId, message))
+                        .ConfigureAwait(false);
 
-                        await MessageReceivedEvent
-                            .InvokeAsync(this, new MessageReceivedEventArgs<T>(responceClientId, message))
-                            .ConfigureAwait(false);
-                    }
-                    await ReadAsync(new Package());
+                    await ReadAsync(new Package(), responseId);
                 }
             }
             // Если прочитано 0 байт, то клиент вероятно отключился
@@ -136,7 +128,7 @@
                 {
                     await StopAsync().ConfigureAwait(false);
                     await ClientDisconnectedEvent
-                        .InvokeAsync(this, new ClientDisconnectedEventArgs(responceClientId))
+                        .InvokeAsync(this, new ClientDisconnectedEventArgs(responseId))
                         .ConfigureAwait(false);
                 }
             }
@@ -145,6 +137,17 @@
         public ValueTask DisposeAsync()
         {
             return new ValueTask(StopAsync());
+        }
+
+        private static TMsg DeserializeBuffer<TMsg>(byte[] buffer, int? length = null)
+        {
+            using var stream = new MemoryStream(buffer, 0, length ?? buffer.Length);
+            using var reader = new StreamReader(stream);
+            using var jsonReader = new JsonTextReader(reader);
+
+            var serializer = JsonSerializer.CreateDefault();
+
+            return serializer.Deserialize<TMsg>(jsonReader);
         }
     }
 }

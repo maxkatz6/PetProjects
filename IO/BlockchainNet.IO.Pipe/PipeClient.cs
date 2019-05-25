@@ -3,13 +3,12 @@
     using System;
     using System.IO;
     using System.IO.Pipes;
-    using System.Text;
     using System.Threading.Tasks;
 
     using BlockchainNet.IO;
     using BlockchainNet.IO.Models;
 
-    using ProtoBuf;
+    using Newtonsoft.Json;
 
     public class PipeClient<T> : ICommunicationClient<T>
     {
@@ -38,16 +37,14 @@
 
             await _pipeClient.ConnectAsync().ConfigureAwait(false);
 
-            // Сразу отправляем Id сервера для обратной связи
-            var buffer = Encoding.UTF8.GetBytes(ResponseClient.ClientId);
-            await _pipeClient.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+            _ = await WriteMessageAsync(ResponseClient).ConfigureAwait(false);
         }
 
         public Task StopAsync()
         {
             if (_pipeClient == null)
             {
-            return Task.CompletedTask;
+                return Task.CompletedTask;
             }
 
             try
@@ -63,26 +60,40 @@
             return Task.CompletedTask;
         }
 
-        public async Task<bool> SendMessageAsync(T message)
+        public Task<bool> SendMessageAsync(T message)
+        {
+            return WriteMessageAsync(message);
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return new ValueTask(StopAsync());
+        }
+
+        private async Task<bool> WriteMessageAsync<TMsg>(TMsg message)
         {
             if (_pipeClient == null)
             {
                 return false;
             }
 
-            using (var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            using var writer = new StreamWriter(stream);
+            using var jsonWriter = new JsonTextWriter(writer);
+
+            var serializer = JsonSerializer.CreateDefault();
+            serializer.Serialize(jsonWriter, message);
+            await jsonWriter.FlushAsync().ConfigureAwait(false);
+            _ = stream.Seek(0, SeekOrigin.Begin);
+
+            if (stream.Length == 0)
             {
-                Serializer.Serialize(stream, message);
-
-                await _pipeClient.WriteAsync(stream.ToArray(), 0, (int)stream.Length);
-                await _pipeClient.FlushAsync();
+                throw new InvalidOperationException("Attempt to send empty message");
             }
-            return true;
-        }
 
-        public ValueTask DisposeAsync()
-        {
-            return new ValueTask(StopAsync());
+            await _pipeClient.WriteAsync(stream.ToArray(), 0, (int)stream.Length).ConfigureAwait(false);
+            await _pipeClient.FlushAsync().ConfigureAwait(false);
+            return true;
         }
     }
 }
