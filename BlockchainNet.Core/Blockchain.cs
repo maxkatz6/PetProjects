@@ -5,7 +5,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using System.Collections.Generic;
-    using System.Security.Cryptography;
 
     using BlockchainNet.Core.Enum;
     using BlockchainNet.Core.Models;
@@ -20,12 +19,12 @@
         protected readonly IConsensusMethod<TInstruction> consensusMethod;
         protected readonly ISignatureService signatureService;
         protected readonly IBlockRepository<TInstruction> blockRepository;
-        protected readonly Communicator<TInstruction> communicator;
+        protected readonly ICommunicator<TInstruction> communicator;
 
         protected readonly List<Transaction<TInstruction>> uncommitedTransactions;
 
         protected Blockchain(
-            Communicator<TInstruction> communicator,
+            ICommunicator<TInstruction> communicator,
             IBlockRepository<TInstruction> blockRepository,
             IConsensusMethod<TInstruction> consensusMethod,
             ISignatureService signatureService)

@@ -2,7 +2,7 @@
 {
     public class ClientInformation
     {
-        public ClientInformation(string clientId, string? displayName)
+        public ClientInformation(string clientId, string? displayName = null)
         {
             ClientId = clientId;
             DisplayName = displayName;

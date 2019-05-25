@@ -115,51 +115,60 @@
 
         private async Task<TMsg> ReadInternalAsync<TMsg>(Socket client, string? responseClientId)
         {
-            if (!client.Connected)
-            {
-                return default!;
-            }
-            var headerSegment = new ArraySegment<byte>(new byte[HeaderSize], 0, HeaderSize);
-            var headerLength = await client.ReceiveAsync(headerSegment, SocketFlags.None).ConfigureAwait(false);
-            if (headerLength == 0)
-            {
-                await OnDisconnectedAsync(responseClientId).ConfigureAwait(false);
-                return default!;
-            }
-
-            if (headerLength != HeaderSize)
-            {
-                throw new IndexOutOfRangeException();
-            }
-
-            var length = BitConverter.ToInt32(headerSegment.Array, headerSegment.Offset);
-            var dataArray = new byte[length];
-            var offset = 0;
-            do
+            try
             {
                 if (!client.Connected)
                 {
                     return default!;
                 }
-                var dataSegment = new ArraySegment<byte>(dataArray, offset, length - offset);
-                var dataLength = await client.ReceiveAsync(dataSegment, SocketFlags.None).ConfigureAwait(false);
-                if (dataLength == 0)
+                var headerSegment = new ArraySegment<byte>(new byte[HeaderSize], 0, HeaderSize);
+                var headerLength = await client.ReceiveAsync(headerSegment, SocketFlags.None).ConfigureAwait(false);
+                if (headerLength == 0)
                 {
                     await OnDisconnectedAsync(responseClientId).ConfigureAwait(false);
                     return default!;
                 }
-                offset += dataLength;
+
+                if (headerLength != HeaderSize)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+
+                var length = BitConverter.ToInt32(headerSegment.Array, headerSegment.Offset);
+                var dataArray = new byte[length];
+                var offset = 0;
+                do
+                {
+                    if (!client.Connected)
+                    {
+                        return default!;
+                    }
+                    var dataSegment = new ArraySegment<byte>(dataArray, offset, length - offset);
+                    var dataLength = await client.ReceiveAsync(dataSegment, SocketFlags.None).ConfigureAwait(false);
+                    if (dataLength == 0)
+                    {
+                        await OnDisconnectedAsync(responseClientId).ConfigureAwait(false);
+                        return default!;
+                    }
+                    offset += dataLength;
+                }
+                while (offset < length);
+
+                using var stream = new MemoryStream(dataArray, 0, dataArray.Length);
+                using var reader = new StreamReader(stream);
+                using var jsonReader = new JsonTextReader(reader);
+
+                var serializer = JsonSerializer.CreateDefault();
+
+                return serializer.Deserialize<TMsg>(jsonReader);
             }
-            while (offset < length);
-
-            using var stream = new MemoryStream(dataArray, 0, dataArray.Length);
-            using var reader = new StreamReader(stream);
-            using var jsonReader = new JsonTextReader(reader);
-
-            var serializer = JsonSerializer.CreateDefault();
-
-            return serializer.Deserialize<TMsg>(jsonReader);
-
+            catch (SocketException exception)
+            when (exception.SocketErrorCode == SocketError.ConnectionReset)
+            {                
+                await OnDisconnectedAsync(responseClientId).ConfigureAwait(false);
+                return default!;
+            }
+            
             async Task OnDisconnectedAsync(string? responceClientIdIn)
             {
                 if (!_isStopping)

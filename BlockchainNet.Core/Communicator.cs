@@ -12,7 +12,7 @@
     using BlockchainNet.Core.EventArgs;
     using BlockchainNet.IO.Models;
 
-    public class Communicator<TInstruction> : IAsyncDisposable
+    public class Communicator<TInstruction> : ICommunicator<TInstruction>
     {
         private readonly ICommunicationServer<BlockchainPayload<TInstruction>> server;
         private readonly ICommunicationClientFactory<BlockchainPayload<TInstruction>> clientFactory;
@@ -42,9 +42,9 @@
             server.ClientDisconnectedEvent += Server_ClientDisconnectedEvent;
         }
 
-        public EventHandler<BlockReceivedEventArgs<TInstruction>>? BlockReceived;
+        public event EventHandler<BlockReceivedEventArgs<TInstruction>>? BlockReceived;
 
-        public EventHandler<ClientInformation>? ClientConnected;
+        public event EventHandler<ClientInformation>? ClientConnected;
 
         public string? Login { get; set; }
 

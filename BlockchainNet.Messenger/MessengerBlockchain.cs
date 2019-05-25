@@ -12,7 +12,7 @@
     public class MessengerBlockchain : Blockchain<MessageInstruction>
     {
         public MessengerBlockchain(
-            Communicator<MessageInstruction> communicator,
+            ICommunicator<MessageInstruction> communicator,
             IBlockRepository<MessageInstruction> blockRepository,
             IConsensusMethod<MessageInstruction> consensusMethod,
             ISignatureService signatureService)

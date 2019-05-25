@@ -9,10 +9,13 @@
     using BlockchainNet.IO.Pipe;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using BlockchainNet.IO.Models;
 
     [TestClass]
     public class PipeTest
     {
+        private const string ResponceServerId = "responceServerId";
+
         [TestMethod, Timeout(5000)]
         public void Pipe_Instantiate_PipeServer_IdTest()
         {
@@ -29,7 +32,7 @@
             var isConnected = false;
 
             var server = new PipeServer<string>();
-            var client = new PipeClient<string>(server.ServerId);
+            var client = new PipeClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
 
             server.ClientConnectedEvent += (sender, args) =>
             {
@@ -40,7 +43,7 @@
             await server.StartAsync();
             await client.StartAsync();
 
-            await tcs.Task;
+            _ = await tcs.Task;
 
             Assert.IsTrue(isConnected, "Client is not connected");
         }
@@ -48,52 +51,22 @@
         [TestMethod, Timeout(5000)]
         public async Task Pipe_Client_Connect_ResponceServerIdTest()
         {
-            const string ResponceServerId = "responceServerId";
-
             var tcs = new TaskCompletionSource<bool>();
             var id = string.Empty;
 
             var server = new PipeServer<string>();
-            var client = new PipeClient<string>(server.ServerId)
-            {
-                ResponseServerId = ResponceServerId
-            };
+            var client = new PipeClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
 
             server.ClientConnectedEvent += (sender, args) =>
             {
-                id = args.ClientId;
+                id = args.ClientInformation.ClientId;
                 tcs.SetResult(true);
             };
 
             await server.StartAsync();
             await client.StartAsync();
 
-            await tcs.Task;
-
-            Assert.AreEqual(ResponceServerId, id, "Responce server id does not match the correct");
-        }
-
-        [TestMethod, Timeout(5000)]
-        public async Task Pipe_Client_Connect_ResponceServerId_EmptyTest()
-        {
-            const string? ResponceServerId = null;
-
-            var tcs = new TaskCompletionSource<bool>();
-            var id = string.Empty;
-
-            var server = new PipeServer<string>();
-            var client = new PipeClient<string>(server.ServerId);
-
-            server.ClientConnectedEvent += (sender, args) =>
-            {
-                id = args.ClientId;
-                tcs.SetResult(true);
-            };
-
-            await server.StartAsync();
-            await client.StartAsync();
-
-            await tcs.Task;
+            _ = await tcs.Task;
 
             Assert.AreEqual(ResponceServerId, id, "Responce server id does not match the correct");
         }
@@ -106,7 +79,7 @@
             var isDisconnected = false;
 
             var server = new PipeServer<string>();
-            var client = new PipeClient<string>(server.ServerId);
+            var client = new PipeClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
 
             server.ClientDisconnectedEvent += (sender, args) =>
             {
@@ -121,7 +94,7 @@
 
             await client.StopAsync();
 
-            await tcs.Task;
+            _ = await tcs.Task;
 
             Assert.IsTrue(isDisconnected, "Client is still connected");
         }
@@ -134,7 +107,7 @@
             var tcs = new TaskCompletionSource<string>();
 
             var server = new PipeServer<string>();
-            var client = new PipeClient<string>(server.ServerId);
+            var client = new PipeClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
 
             server.MessageReceivedEvent += (sender, args) =>
             {
@@ -160,7 +133,7 @@
             var tcs = new TaskCompletionSource<string>();
 
             var server = new PipeServer<string>();
-            var client = new PipeClient<string>(server.ServerId);
+            var client = new PipeClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
 
             server.MessageReceivedEvent += (sender, args) => tcs.SetResult(args.Message);
 
@@ -189,12 +162,12 @@
             var message = string.Empty;
 
             var server = new PipeServer<string>();
-            var client = new PipeClient<string>(server.ServerId);
+            var client = new PipeClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
 
             server.MessageReceivedEvent += (sender, args) =>
             {
                 message = args.Message;
-                autoEvent.Set();
+                _ = autoEvent.Set();
             };
 
             await server.StartAsync();
@@ -203,13 +176,13 @@
             var success = await client.SendMessageAsync(FirstTestMessage);
             Assert.IsTrue(success, "Send #1 message failed");
 
-            autoEvent.WaitOne();
+            _ = autoEvent.WaitOne();
             Assert.AreEqual(FirstTestMessage, message, "#1 messages are not equal");
 
             success = await client.SendMessageAsync(SecondTestMessage);
             Assert.IsTrue(success, "Send #2 message failed");
 
-            autoEvent.WaitOne();
+            _ = autoEvent.WaitOne();
             Assert.AreEqual(SecondTestMessage, message, "#2 messages are not equal");
         }
 
@@ -225,7 +198,7 @@
             var message = string.Empty;
 
             var server = new PipeServer<string>();
-            var client = new PipeClient<string>(server.ServerId);
+            var client = new PipeClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
 
             server.MessageReceivedEvent += (sender, args) =>
             {
@@ -233,7 +206,7 @@
 
                 if (recievedMessages.Count >= MessageCount)
                 {
-                    autoEvent.Set();
+                    _ = autoEvent.Set();
                 }
             };
 
@@ -246,7 +219,7 @@
                 Assert.IsTrue(success, $"Send #{i} message failed");
             }));
 
-            autoEvent.WaitOne();
+            _ = autoEvent.WaitOne();
 
             Assert.AreEqual(MessageCount, recievedMessages.Count, "Not all messages recieved");
 
@@ -271,7 +244,7 @@
 
                 if (recievedMessages.Count >= MessageCount)
                 {
-                    autoEvent.Set();
+                    _ = autoEvent.Set();
                 }
             };
 
@@ -279,7 +252,7 @@
 
             await Task.WhenAll(sendMessages.Select(async i =>
             {
-                var client = new PipeClient<string>(server.ServerId);
+                var client = new PipeClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
                 await client.StartAsync();
 
                 var success = await client.SendMessageAsync(i);
@@ -288,7 +261,7 @@
                 await client.StopAsync();
             }));
 
-            autoEvent.WaitOne();
+            _ = autoEvent.WaitOne();
 
             Assert.AreEqual(MessageCount, recievedMessages.Count, "Not all messages recieved");
 
@@ -309,23 +282,23 @@
             {
                 message = args.Message;
 
-                autoEvent.Set();
+                _ = autoEvent.Set();
             };
 
             await server.StartAsync();
 
-            var client = new PipeClient<string>(server.ServerId);
+            var client = new PipeClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
             await client.StartAsync();
 
-            await client.SendMessageAsync(FirstMessage);
-            autoEvent.WaitOne();
+            _ = await client.SendMessageAsync(FirstMessage);
+            _ = autoEvent.WaitOne();
             Assert.AreEqual(FirstMessage, message, "Message are not equal");
 
             await client.StopAsync();
             await client.StartAsync();
 
-            await client.SendMessageAsync(SecondMessage);
-            autoEvent.WaitOne();
+            _ = await client.SendMessageAsync(SecondMessage);
+            _ = autoEvent.WaitOne();
             Assert.AreEqual(SecondMessage, message, "Message are not equal");
         }
     }

@@ -75,7 +75,9 @@
 
             var firstSegment = new ArraySegment<byte>(BitConverter.GetBytes(stream.Length), 0, sizeof(long));
             var secondSegment = new ArraySegment<byte>(stream.ToArray());
-            var length = await _socket.SendAsync(new List<ArraySegment<byte>> { firstSegment, secondSegment }, SocketFlags.None);
+            var length = await _socket
+                .SendAsync(new List<ArraySegment<byte>> { firstSegment, secondSegment }, SocketFlags.None)
+                .ConfigureAwait(false);
             return length > 0;
         }
 
