@@ -24,9 +24,9 @@
             return new ValueTask();
         }
 
-        public IAsyncEnumerable<Peer> GetPeersAsync(string? channel)
+        public IAsyncEnumerable<Peer> GetPeersAsync()
         {
-            return peers.Values.Where(p => p.Channel == channel).ToAsyncEnumerable();
+            return peers.Values.ToAsyncEnumerable();
         }
 
         public ValueTask RemovePeerByIpAsync(string ip)

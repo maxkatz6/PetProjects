@@ -24,9 +24,9 @@
             _ = chain.EnsureIndex(x => x.IpEndpoint, true);
         }
 
-        public IAsyncEnumerable<Peer> GetPeersAsync(string? channel)
+        public IAsyncEnumerable<Peer> GetPeersAsync()
         {
-            return chain.Find(p => p.Channel == channel && p.IpEndpoint != null).ToAsyncEnumerable();
+            return chain.Find(p => p.IpEndpoint != null).ToAsyncEnumerable();
         }
 
         public ValueTask RemovePeerByIpAsync(string ip)

@@ -8,7 +8,7 @@
 
     public class BlockReceivedEventArgs<TInstruction> : DeferredEventArgs
     {
-        public BlockReceivedEventArgs(IEnumerable<Block<TInstruction>> addedBlocks, string? clientId, string? channel)
+        public BlockReceivedEventArgs(IEnumerable<Block<TInstruction>> addedBlocks, string clientId, string? channel)
         {
             AddedBlocks = addedBlocks.ToList();
             ClientId = clientId;
@@ -17,7 +17,7 @@
 
         public IReadOnlyList<Block<TInstruction>> AddedBlocks { get; }
 
-        public string? ClientId { get; }
+        public string ClientId { get; }
         
         public string? Channel { get; set; }
     }

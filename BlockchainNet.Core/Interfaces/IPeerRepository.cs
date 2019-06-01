@@ -6,7 +6,7 @@
 
     public interface IPeerRepository
     {
-        IAsyncEnumerable<Peer> GetPeersAsync(string? channel);
+        IAsyncEnumerable<Peer> GetPeersAsync();
 
         ValueTask UpsertPeerAsync(Peer peer);
 

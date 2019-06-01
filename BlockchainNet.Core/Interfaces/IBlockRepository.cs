@@ -7,6 +7,8 @@
 
     public interface IBlockRepository<TInstruction>
     {
+        string? Channel { get; }
+
         ValueTask AddBlock(Block<TInstruction> block);
 
         ValueTask<bool> IsEmpty();
@@ -17,6 +19,6 @@
 
         ValueTask RewindChain(string blockId);
 
-        IAsyncEnumerable<Block<TInstruction>> GetFork(string forkTipBlockId);  
+        IAsyncEnumerable<Block<TInstruction>> GetFork(string forkTipBlockId);
     }
 }

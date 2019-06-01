@@ -6,17 +6,19 @@
 
     using BlockchainNet.Core.Interfaces;
     using BlockchainNet.Core.Models;
-    
+
     using global::LiteDB;
 
     public class LiteDBBlockRepository<TInstruction> : IBlockRepository<TInstruction>
     {
         private readonly LiteCollection<Block<TInstruction>> chain;
 
-        public LiteDBBlockRepository(string fileName)
+        public LiteDBBlockRepository(string fileName, string? channel)
         {
+            Channel = channel;
+
             var database = new LiteDatabase(new ConnectionString { Filename = fileName });
-            chain = database.GetCollection<Block<TInstruction>>("blocks");
+            chain = database.GetCollection<Block<TInstruction>>(channel != null ? "blocks_" + channel : "blocks");
             _ = BsonMapper.Global
                 .Entity<Block<TInstruction>>()
                 .Id(b => b.Id);
@@ -25,6 +27,8 @@
             _ = chain.EnsureIndex(x => x.PreviousBlockId, true);
             _ = chain.EnsureIndex(x => x.Height, true);
         }
+
+        public string? Channel { get; }
 
         public ValueTask AddBlock(Block<TInstruction> block)
         {
@@ -41,7 +45,7 @@
         {
             if (!chain.Exists(b => true))
             {
-                return new ValueTask<Block<TInstruction>?>((Block<TInstruction>?)null); 
+                return new ValueTask<Block<TInstruction>?>((Block<TInstruction>?)null);
             }
 
             var max = chain.Max<uint>(x => x.Height).AsInt64;

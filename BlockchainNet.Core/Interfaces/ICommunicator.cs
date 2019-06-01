@@ -6,12 +6,13 @@
 
     using BlockchainNet.Core.EventArgs;
     using BlockchainNet.Core.Models;
-    using BlockchainNet.IO;
     using BlockchainNet.IO.Models;
 
     public interface ICommunicator<TInstruction> : IAsyncDisposable
     {
         event EventHandler<BlockReceivedEventArgs<TInstruction>>? BlockReceived;
+        
+        event EventHandler<BlockRequestedEventArgs>? BlockRequested;
 
         event EventHandler<ClientInformation>? ClientConnected;
 
@@ -25,12 +26,12 @@
 
         ValueTask CloseAsync();
 
-        Task BroadcastBlocksAsync(
+        Task<int> BroadcastBlocksAsync(
             IEnumerable<Block<TInstruction>> blocks,
             string? channel,
             Func<Peer, bool>? filter = null);
 
-        Task BroadcastRequestAsync(string blockId, string? channel);
+        Task<int> BroadcastRequestAsync(string blockId, string? channel);
 
         ValueTask IAsyncDisposable.DisposeAsync()
         {

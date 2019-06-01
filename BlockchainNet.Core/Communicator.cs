@@ -22,7 +22,6 @@
         private readonly ConcurrentDictionary<string, ICommunicationClient<BlockchainPayload<TInstruction>>> activeConnections;
 
         private readonly IPeerRepository peerRepository;
-        private readonly IBlockRepository<TInstruction> blockRepository;
 
         /// <summary>
         /// Конструктор коммуникатора
@@ -31,12 +30,10 @@
         /// <param name="clientFactory">Фаблика клиентов</param>
         public Communicator(
             IPeerRepository peerRepository,
-            IBlockRepository<TInstruction> blockRepository,
             ICommunicationServer<BlockchainPayload<TInstruction>> server,
             ICommunicationClientFactory<BlockchainPayload<TInstruction>> clientFactory)
         {
             this.peerRepository = peerRepository;
-            this.blockRepository = blockRepository;
             this.server = server ?? throw new ArgumentNullException(nameof(server), "Server must be setted");
             this.clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory), "Client factory must be setted");
 
@@ -48,6 +45,8 @@
         }
 
         public event EventHandler<BlockReceivedEventArgs<TInstruction>>? BlockReceived;
+
+        public event EventHandler<BlockRequestedEventArgs>? BlockRequested;
 
         public event EventHandler<ClientInformation>? ClientConnected;
 
@@ -91,7 +90,7 @@
                 .AsTask()))));
         }
 
-        public Task BroadcastBlocksAsync(
+        public Task<int> BroadcastBlocksAsync(
             IEnumerable<Block<TInstruction>> blocks,
             string? channel,
             Func<Peer, bool>? filter = null)
@@ -107,10 +106,10 @@
                 Blocks = blocks,
                 Channel = channel
             };
-            return BroadcastMessageAsync(message, channel, filter).AsTask();
+            return BroadcastMessageAsync(message, filter).AsTask();
         }
 
-        public Task BroadcastRequestAsync(string blockId, string? channel)
+        public Task<int> BroadcastRequestAsync(string blockId, string? channel)
         {
             if (blockId == null)
             {
@@ -122,16 +121,15 @@
                 BlockId = blockId,
                 Channel = channel
             };
-            return BroadcastMessageAsync(message, channel).AsTask();
+            return BroadcastMessageAsync(message).AsTask();
         }
 
         private ValueTask<int> BroadcastMessageAsync(
             BlockchainPayload<TInstruction> payload,
-            string? channel,
             Func<Peer, bool>? filter = null)
         {
             return peerRepository
-               .GetPeersAsync(channel)
+               .GetPeersAsync()
                .OrderBy(p => p.LastMessaged ?? DateTime.MinValue)
                .Where(filter ?? (peer => true))
                .SelectAwait(async p =>
@@ -176,6 +174,14 @@
             {
                 IpEndpoint = e.ClientInformation.ClientId
             });
+            var newClient = clientFactory.CreateNew(e.ClientInformation.ClientId, new ClientInformation(server.ServerId, Login));
+            var added = activeConnections.TryAdd(
+                e.ClientInformation.ClientId, 
+                newClient);
+            if (added)
+            {
+                await newClient.StartAsync().ConfigureAwait(false);
+            }
             OnClientConnected(e.ClientInformation);
         }
 
@@ -199,18 +205,9 @@
                         throw new ArgumentNullException(nameof(e.Message.BlockId));
                     }
 
-                    var fork = await blockRepository.GetFork(e.Message.BlockId).ToListAsync().ConfigureAwait(false);
-                    var message = new BlockchainPayload<TInstruction>
-                    {
-                        Action = Enum.BlockchainPayloadAction.ResponseBlocks,
-                        BlockId = fork.FirstOrDefault()?.Id,
-                        Blocks = fork
-                    };
-                    var count = await BroadcastMessageAsync(message, e.Message.Channel, peer => peer.IpEndpoint == e.ClientId).ConfigureAwait(false);
-                    if (count == 0)
-                    {
-                        throw new InvalidOperationException("Nothing was sent");
-                    }
+                    await BlockRequested
+                        .InvokeAsync(this, new BlockRequestedEventArgs(e.ClientId, e.Message.BlockId, e.Message.Channel))
+                        .ConfigureAwait(false);
                 }
                 else if (e.Message.Blocks is IEnumerable<Block<TInstruction>> blocks)
                 {

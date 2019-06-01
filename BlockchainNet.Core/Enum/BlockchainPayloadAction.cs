@@ -4,7 +4,6 @@
     {
         None,
         RequestBlocks,
-        ResponseBlocks,
         BroadcastBlocks
     }
 }
