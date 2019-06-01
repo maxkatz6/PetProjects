@@ -1,7 +1,6 @@
 ﻿namespace BlockchainNet.Test.IO
 {
     using System.Linq;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Collections.Generic;
@@ -11,16 +10,18 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Net.Sockets;
     using BlockchainNet.IO.Models;
+    using System;
 
     [TestClass]
     public class TcpTest
     {
         private const string ResponceServerId = "responceServerId";
+        private readonly Random portRandom = new Random();
 
         [TestMethod, Timeout(5000)]
         public async Task Tcp_Instantiate_TcpServer_IdTest()
         {
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             await server.StartAsync();
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(server.ServerId), "Server id is null or empty");
@@ -33,7 +34,7 @@
 
             var isConnected = false;
 
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             await server.StartAsync();
 
             var client = new TcpClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
@@ -55,7 +56,7 @@
             var tcs = new TaskCompletionSource<bool>();
             var id = string.Empty;
 
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             await server.StartAsync();
 
             var client = new TcpClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
@@ -78,7 +79,7 @@
 
             var isDisconnected = false;
 
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             await server.StartAsync();
 
             var client = new TcpClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
@@ -105,7 +106,7 @@
 
             var tcs = new TaskCompletionSource<string>();
 
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             await server.StartAsync();
 
             var client = new TcpClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
@@ -128,7 +129,7 @@
         {
             var tcs = new TaskCompletionSource<string>();
 
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             await server.StartAsync();
 
             var client = new TcpClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
@@ -156,7 +157,7 @@
             var autoEvent = new AutoResetEvent(false);
             var messages = new List<string>();
 
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             server.MessageReceivedEvent += (sender, args) =>
             {
                 recievedMessages.Add(args.Message);
@@ -198,7 +199,7 @@
             var autoEvent = new AutoResetEvent(false);
             var message = string.Empty;
 
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             await server.StartAsync();
 
             server.MessageReceivedEvent += (sender, args) =>
@@ -235,7 +236,7 @@
             var autoEvent = new AutoResetEvent(false);
             var message = string.Empty;
 
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             await server.StartAsync();
 
             var client = new TcpClient<string>(server.ServerId, new ClientInformation(ResponceServerId));
@@ -268,7 +269,7 @@
             var message = string.Empty;
             var autoEvent = new AutoResetEvent(false);
 
-            var server = new TcpServer<string>();
+            var server = new TcpServer<string>(GetPort());
             server.MessageReceivedEvent += (sender, args) =>
             {
                 message = args.Message;
@@ -290,6 +291,12 @@
             _ = await client.SendMessageAsync(SecondMessage);
             _ = autoEvent.WaitOne();
             Assert.AreEqual(SecondMessage, message, "Message are not equal");
+        }
+
+        private int GetPort()
+        {
+            var minPort = portRandom.Next(TcpHelper.DefaultPort, TcpHelper.DefaultPort + 1000);
+            return TcpHelper.GetAvailablePort(minPort, minPort + 1000);
         }
     }
 }

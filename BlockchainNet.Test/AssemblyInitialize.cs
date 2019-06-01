@@ -1,4 +1,7 @@
-﻿namespace BlockchainNet.Test
+﻿[assembly: Microsoft.VisualStudio.TestTools.UnitTesting.Parallelize(
+    Workers = 4,
+    Scope = Microsoft.VisualStudio.TestTools.UnitTesting.ExecutionScope.MethodLevel)]
+namespace BlockchainNet.Test
 {
     using System;
     using System.Diagnostics;
