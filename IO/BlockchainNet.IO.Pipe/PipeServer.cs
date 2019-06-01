@@ -34,14 +34,14 @@
 
         public string ServerId { get; }
 
-        public Task StartAsync()
+        public ValueTask StartAsync()
         {
             return _servers.Count > 0
-                ? Task.CompletedTask
+                ? new ValueTask()
                 : StartNamedPipeServer();
         }
 
-        public async Task StopAsync()
+        public async ValueTask StopAsync()
         {
             foreach (var server in _servers.Values)
             {
@@ -58,7 +58,7 @@
             _servers.Clear();
         }
 
-        private Task StartNamedPipeServer()
+        private ValueTask StartNamedPipeServer()
         {
             // Есть смысл создавать свой InternalPipeServer для каждого клиента, но при этом основываясь на одном его имени
             // Это позволяет независимо читать данные с множества клиентов
@@ -73,14 +73,14 @@
             return server.StartAsync();
         }
 
-        private Task StopNamedPipeServer(string id)
+        private ValueTask StopNamedPipeServer(string id)
         {
             if (id != null && _servers.TryRemove(id, out var removed))
             {
                 UnregisterFromServerEvents(removed);
                 return removed.StopAsync();
             }
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         private void UnregisterFromServerEvents(ICommunicationServer<T> server)
@@ -121,11 +121,6 @@
 
                 await StopNamedPipeServer(eventArgs.ClientId).ConfigureAwait(false);
             }
-        }
-
-        public ValueTask DisposeAsync()
-        {
-            return new ValueTask(StopAsync());
         }
     }
 }

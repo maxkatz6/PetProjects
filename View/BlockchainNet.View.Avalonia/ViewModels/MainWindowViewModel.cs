@@ -36,7 +36,7 @@
             var (publicKey, privateKey) = locator.SignatureService.GetKeysFromPassword(loginInfo.password ?? string.Empty);
             MessageInputViewModel.PrivateKey = privateKey;
             MessageInputViewModel.PublikKey = publicKey;
-            return locator.Communicator.StartAsync();
+            return locator.Communicator.StartAsync().AsTask();
         }
     }
 }

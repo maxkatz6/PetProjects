@@ -19,7 +19,7 @@
 
         string ServerId { get; }
 
-        Task StartAsync();
+        ValueTask StartAsync();
 
         Task ConnectToAsync(IEnumerable<string> serversId);
 

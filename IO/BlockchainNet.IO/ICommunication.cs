@@ -13,11 +13,16 @@
         /// <summary>
         /// Запускает коммуникацию
         /// </summary>
-        Task StartAsync();
+        ValueTask StartAsync();
 
         /// <summary>
         /// Остагавливает коммуникацию
         /// </summary>
-        Task StopAsync();
+        ValueTask StopAsync();
+
+        ValueTask IAsyncDisposable.DisposeAsync()
+        {
+            return StopAsync();
+        }
     }
 }

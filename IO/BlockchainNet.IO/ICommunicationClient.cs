@@ -12,6 +12,6 @@
         /// </summary>
         /// <param name="message">Сообщение</param>
         /// <returns>True если отправка успещна, иначе False</returns>
-        Task<bool> SendMessageAsync(T message);
+        ValueTask<bool> SendMessageAsync(T message);
     }
 }

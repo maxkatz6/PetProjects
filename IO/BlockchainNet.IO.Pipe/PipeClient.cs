@@ -24,7 +24,7 @@
 
         public ClientInformation ResponseClient { get; }
 
-        public async Task StartAsync()
+        public async ValueTask StartAsync()
         {
             if (_pipeClient == null)
             {
@@ -40,11 +40,11 @@
             _ = await WriteMessageAsync(ResponseClient).ConfigureAwait(false);
         }
 
-        public Task StopAsync()
+        public ValueTask StopAsync()
         {
             if (_pipeClient == null)
             {
-                return Task.CompletedTask;
+                return new ValueTask();
             }
 
             try
@@ -57,20 +57,15 @@
                 _pipeClient.Dispose();
                 _pipeClient = null;
             }
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
-        public Task<bool> SendMessageAsync(T message)
+        public ValueTask<bool> SendMessageAsync(T message)
         {
             return WriteMessageAsync(message);
         }
 
-        public ValueTask DisposeAsync()
-        {
-            return new ValueTask(StopAsync());
-        }
-
-        private async Task<bool> WriteMessageAsync<TMsg>(TMsg message)
+        private async ValueTask<bool> WriteMessageAsync<TMsg>(TMsg message)
         {
             if (_pipeClient == null)
             {

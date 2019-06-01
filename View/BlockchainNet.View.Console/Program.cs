@@ -23,7 +23,7 @@
 
             var password = AskAndSetAccount();
 
-            messengerServiceLocator = new MessengerServiceLocator(51000);
+            messengerServiceLocator = new MessengerServiceLocator(61000);
             messengerServiceLocator.Communicator.Login = account;
             messengerServiceLocator.Blockchain.BlockAdded += Blockchain_BlockAdded;
             keys = messengerServiceLocator.SignatureService.GetKeysFromPassword(password);

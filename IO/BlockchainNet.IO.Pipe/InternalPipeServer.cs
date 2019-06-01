@@ -41,7 +41,7 @@
 
         public string ServerId { get; }
 
-        public Task StartAsync()
+        public ValueTask StartAsync()
         {
             _ = _pipeServer.WaitForConnectionAsync().ContinueWith(async _ =>
             {
@@ -62,10 +62,10 @@
                     await ReadAsync(new Package(), message.ClientId).ConfigureAwait(false);
                 }
             });
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
-        public Task StopAsync()
+        public ValueTask StopAsync()
         {
             _isStopping = true;
 
@@ -81,7 +81,7 @@
                 _pipeServer.Close();
                 _pipeServer.Dispose();
             }
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         private async Task ReadAsync(Package package, string responseId)
@@ -132,11 +132,6 @@
                         .ConfigureAwait(false);
                 }
             }
-        }
-
-        public ValueTask DisposeAsync()
-        {
-            return new ValueTask(StopAsync());
         }
 
         private static TMsg DeserializeBuffer<TMsg>(byte[] buffer, int? length = null)

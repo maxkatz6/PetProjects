@@ -11,6 +11,7 @@
     using BlockchainNet.Shared.EventArgs;
 
     using Newtonsoft.Json;
+    using Open.Nat;
 
     public class TcpServer<T> : ICommunicationServer<T>
     {
@@ -37,10 +38,9 @@
         public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnectedEvent;
         public event EventHandler<MessageReceivedEventArgs<T>> MessageReceivedEvent;
 
-        public string ServerId => _socket?.LocalEndPoint?.ToString()
-            ?? throw new InvalidOperationException("TcpServer is not started");
+        public string ServerId { get; private set; }
 
-        public async Task StartAsync()
+        public async ValueTask StartAsync()
         {
             if (_isConnected)
             {
@@ -49,15 +49,19 @@
 
             _isStopping = false;
 
-            var ipHost = await Dns.GetHostEntryAsync("localhost").ConfigureAwait(false);
-            var address = Array.Find(ipHost.AddressList, adr => adr.AddressFamily == AddressFamily.InterNetwork);
-
-            _socket.Bind(new IPEndPoint(address, _port));
+            _socket.Bind(new IPEndPoint(IPAddress.Any, _port));
 
             _socket.Listen(20);
             _isConnected = true;
 
-            _ = Task.Run(async () =>
+            var discoverer = new NatDiscoverer();
+            var device = await discoverer.DiscoverDeviceAsync();
+            var ip = await device.GetExternalIPAsync();
+            ServerId = ip.MapToIPv4().ToString() + ":" + _port;
+
+            _ = ConnectLoopAsync();
+
+            async Task ConnectLoopAsync()
             {
                 while (!_isStopping)
                 {
@@ -82,19 +86,19 @@
                         .InvokeAsync(this, new ClientConnectedEventArgs(clientInformation))
                         .ConfigureAwait(false);
 
-                    _ = Task.Run(() => ReadLoopAsync(client, clientInformation.ClientId));
+                    _ = ReadLoopAsync(client, clientInformation.ClientId);
                 }
-            });
+            }
         }
 
-        public Task StopAsync()
+        public ValueTask StopAsync()
         {
             _isStopping = true;
             _isConnected = false;
 
             _socket.Dispose();
 
-            return Task.CompletedTask;
+            return new ValueTask();
         }
 
         private async Task ReadLoopAsync(Socket client, string responseClientId)
@@ -164,11 +168,11 @@
             }
             catch (SocketException exception)
             when (exception.SocketErrorCode == SocketError.ConnectionReset)
-            {                
+            {
                 await OnDisconnectedAsync(responseClientId).ConfigureAwait(false);
                 return default!;
             }
-            
+
             async Task OnDisconnectedAsync(string? responceClientIdIn)
             {
                 if (!_isStopping)
@@ -183,11 +187,6 @@
                         .ConfigureAwait(false);
                 }
             }
-        }
-
-        public ValueTask DisposeAsync()
-        {
-            return new ValueTask(StopAsync());
         }
     }
 }

@@ -5,7 +5,7 @@
 
     public static class TcpHelper
     {
-        public const int DefaultPort = 50000;
+        public const int DefaultPort = 60000;
 
         public static int GetAvailablePort(int min = DefaultPort, int max = DefaultPort + 1000)
         {

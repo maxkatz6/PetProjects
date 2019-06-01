@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Net;
     using System.Net.Sockets;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using BlockchainNet.IO;
@@ -16,18 +17,22 @@
     public class TcpClient<T> : ICommunicationClient<T>
     {
         private Socket? _socket;
+        private Timer? timer;
+        private IPEndPoint? endpoint;
+        private readonly SemaphoreSlim semaphoreSlim;
 
         public TcpClient(string serverId, ClientInformation responseClient)
         {
             ServerId = serverId ?? throw new ArgumentNullException(nameof(serverId));
             ResponseClient = responseClient ?? throw new ArgumentNullException(nameof(responseClient));
+            semaphoreSlim = new SemaphoreSlim(1);
         }
 
         public string ServerId { get; }
 
         public ClientInformation ResponseClient { get; }
 
-        public async Task StartAsync()
+        public async ValueTask StartAsync()
         {
             var parts = ServerId.Split(':');
             if (!int.TryParse(parts.Skip(1).FirstOrDefault(), out var port))
@@ -35,30 +40,53 @@
                 port = TcpHelper.DefaultPort;
             }
 
-            var ipHost = await Dns.GetHostEntryAsync(IPAddress.Parse(parts.First())).ConfigureAwait(false);
-            var address = ipHost.AddressList.FirstOrDefault(adr => adr.AddressFamily == AddressFamily.InterNetwork);
-
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            await _socket
-                .ConnectAsync(address, port)
-                .ConfigureAwait(false);
+            var address = IPAddress.Parse(parts.First());
+            endpoint = new IPEndPoint(address, port);
 
             _ = await SendMessageInternalAsync(ResponseClient);
         }
 
-        public Task StopAsync()
+        public ValueTask StopAsync()
         {
-            _socket?.Dispose();
-            return Task.CompletedTask;
+            var socket = _socket;
+            _socket = null;
+            socket?.Dispose();
+            return new ValueTask();
         }
 
-        public Task<bool> SendMessageAsync(T message)
+        public ValueTask<bool> SendMessageAsync(T message)
         {
             return SendMessageInternalAsync(message);
         }
 
-        private async Task<bool> SendMessageInternalAsync<TMsg>(TMsg message)
+        private ValueTask EnsureConnect()
         {
+            return _socket != null ? new ValueTask() : ConnectAsync();
+
+            async ValueTask ConnectAsync()
+            {
+                await semaphoreSlim.WaitAsync();
+                try
+                {
+                    if (_socket == null)
+                    {
+                        _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                        await _socket
+                            .ConnectAsync(endpoint)
+                            .ConfigureAwait(false);
+                    }
+                }
+                finally
+                {
+                    _ = semaphoreSlim.Release();
+                }
+            }
+        }
+
+        private async ValueTask<bool> SendMessageInternalAsync<TMsg>(TMsg message)
+        {
+            await EnsureConnect();
+
             using var stream = new MemoryStream();
             using var writer = new StreamWriter(stream);
             using var jsonWriter = new JsonTextWriter(writer);
@@ -78,12 +106,22 @@
             var length = await _socket
                 .SendAsync(new List<ArraySegment<byte>> { firstSegment, secondSegment }, SocketFlags.None)
                 .ConfigureAwait(false);
+
+            CreateTimerForSocket();
+
             return length > 0;
         }
 
-        public ValueTask DisposeAsync()
+        private void CreateTimerForSocket()
         {
-            return new ValueTask(StopAsync());
+            _ = timer?.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
+            _ = timer?.DisposeAsync();
+            timer = new Timer(TimerCallback, this, TimeSpan.FromMinutes(1), TimeSpan.FromMilliseconds(-1));
+        }
+
+        private void TimerCallback(object state)
+        {
+            _ = ((TcpClient<T>)state).StopAsync();
         }
     }
 }
