@@ -46,11 +46,13 @@
 
         public event EventHandler<BlockAddedEventArgs<TInstruction>> BlockAdded;
 
+        public string? BlockchainChannel { get; set; }
+
         /// <summary>
         /// Запускает процесс майнинга нового блока
         /// </summary>
         /// <returns>Новый блок</returns>
-        public async Task<Block<TInstruction>> MineAsync(string minerAccount, CancellationToken cancellationToken)
+        public async Task<Block<TInstruction>> MineAsync(CancellationToken cancellationToken)
         {
             var topBlock = await blockRepository.GetTopBlock().ConfigureAwait(false)
                 ?? await GenerateGenesisAsync().ConfigureAwait(false);
@@ -72,9 +74,8 @@
 
                 uncommitedTransactions.Clear();
 
-                OnMined(minerAccount, block);
-                BlockAdded?.Invoke(this, new BlockAddedEventArgs<TInstruction>(new[] { block }));
-                await communicator.BroadcastBlocksAsync(new[] { block }).ConfigureAwait(false);
+                BlockAdded?.Invoke(this, new BlockAddedEventArgs<TInstruction>(new[] { block }, BlockchainChannel));
+                await communicator.BroadcastBlocksAsync(new[] { block }, BlockchainChannel).ConfigureAwait(false);
             }
 
             return block;
@@ -151,7 +152,7 @@
             {
                 if (block.PreviousBlockId != null && block.PreviousBlockId != RootId)
                 {
-                    await communicator.BroadcastRequestAsync(RootId).ConfigureAwait(false);
+                    await communicator.BroadcastRequestAsync(RootId, BlockchainChannel).ConfigureAwait(false);
                     return false;
                 }
                 else
@@ -163,7 +164,7 @@
             }
             else
             {
-                await communicator.BroadcastRequestAsync(block.PreviousBlockId).ConfigureAwait(false);
+                await communicator.BroadcastRequestAsync(block.PreviousBlockId, BlockchainChannel).ConfigureAwait(false);
                 return false;
             }
         }
@@ -180,11 +181,6 @@
                 .All(transaction => signatureService.VerifyTransaction(transaction));
         }
 
-        protected virtual void OnMined(string minerAccount, Block<TInstruction> block)
-        {
-
-        }
-
         private async Task<Block<TInstruction>> GenerateGenesisAsync()
         {
             var isEmpty = await blockRepository.IsEmpty().ConfigureAwait(false);
@@ -199,7 +195,7 @@
             await blockRepository.AddBlock(block).ConfigureAwait(false);
 
             await BlockAdded
-                .InvokeAsync(this, new BlockAddedEventArgs<TInstruction>(new[] { block }))
+                .InvokeAsync(this, new BlockAddedEventArgs<TInstruction>(new[] { block }, BlockchainChannel))
                 .ConfigureAwait(false);
 
             return block;
@@ -207,6 +203,11 @@
 
         private async void Communicator_BlockAdded(object sender, BlockReceivedEventArgs<TInstruction> e)
         {
+            if (e.Channel != BlockchainChannel)
+            {
+                throw new InvalidOperationException("Attemt to receive block from invalid channel");
+            }
+
             using (e.GetDeferral())
             {
                 var lastBlock = await blockRepository.GetTopBlock().ConfigureAwait(false);
@@ -226,8 +227,8 @@
                     await blockRepository.RewindChain(lastBlock?.Id ?? RootId).ConfigureAwait(false);
                     throw;
                 }
-                await communicator.BroadcastBlocksAsync(e.AddedBlocks, peer => peer.ServerId != e.ClientId).ConfigureAwait(false);
-                await BlockAdded.InvokeAsync(this, new BlockAddedEventArgs<TInstruction>(e.AddedBlocks)).ConfigureAwait(false);
+                await communicator.BroadcastBlocksAsync(e.AddedBlocks, BlockchainChannel, peer => peer.IpEndpoint != e.ClientId).ConfigureAwait(false);
+                await BlockAdded.InvokeAsync(this, new BlockAddedEventArgs<TInstruction>(e.AddedBlocks, e.Channel)).ConfigureAwait(false);
             }
         }
     }

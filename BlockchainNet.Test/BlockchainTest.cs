@@ -26,7 +26,8 @@
             _ = communicatorMock.SetupGet(c => c.Login).Returns("Alice");
             _ = communicatorMock.Setup(c => c.BroadcastBlocksAsync(
                     It.IsAny<IEnumerable<Block<MessageInstruction>>>(),
-                    It.IsAny<Func<ICommunicationClient<BlockchainPayload<MessageInstruction>>, bool>?>()))
+                    It.IsAny<string>(),
+                    It.IsAny<Func<Peer, bool>?>()))
                 .Returns(Task.CompletedTask);
             var signatureService = new SignatureService();
             var repository = new InMemoryBlockRepository<MessageInstruction>();
@@ -36,7 +37,7 @@
             var keys = signatureService.GetKeysFromPassword("password");
             blockchain.NewTransaction("Alice", "Bob", new MessageInstruction("Hello world"), keys);
 
-            var minedBlock = await blockchain.MineAsync("Alice", default).ConfigureAwait(false);
+            var minedBlock = await blockchain.MineAsync(default).ConfigureAwait(false);
             var isValid = blockchain.IsValidChain(new[] { minedBlock });
 
             Assert.IsTrue(isValid, "Blockchain is invalid");

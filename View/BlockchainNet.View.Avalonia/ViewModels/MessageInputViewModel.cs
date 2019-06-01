@@ -54,7 +54,7 @@
                 throw new ArgumentNullException(nameof(PrivateKey));
             }
             _blockchain.NewTransaction(_communicator.Login, recipient, instruction, (PublikKey, PrivateKey));
-            return _blockchain.MineAsync(_communicator.Login, default);
+            return _blockchain.MineAsync(default);
         }
     }
 }

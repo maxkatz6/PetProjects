@@ -23,12 +23,18 @@
 
         Task ConnectToAsync(IEnumerable<string> serversId);
 
-        Task CloseAsync();
+        ValueTask CloseAsync();
 
         Task BroadcastBlocksAsync(
             IEnumerable<Block<TInstruction>> blocks,
-            Func<ICommunicationClient<BlockchainPayload<TInstruction>>, bool>? filter = null);
+            string? channel,
+            Func<Peer, bool>? filter = null);
 
-        Task BroadcastRequestAsync(string blockId);
+        Task BroadcastRequestAsync(string blockId, string? channel);
+
+        ValueTask IAsyncDisposable.DisposeAsync()
+        {
+            return CloseAsync();
+        }
     }
 }

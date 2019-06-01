@@ -10,8 +10,12 @@
             Message = message;
         }
 
+        public MessageInstruction()
+        {
+        }
+
         public string? HexColor { get; set; }
 
-        public string Message { get; }
+        public string? Message { get; set; }
     }
 }

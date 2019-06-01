@@ -10,6 +10,8 @@
 
         public string? BlockId { get; set; }
 
-        public IEnumerable<Block<TInstruction>> Blocks { get; set; }
+        public string? Channel { get; set; }
+
+        public IEnumerable<Block<TInstruction>>? Blocks { get; set; }
     }
 }

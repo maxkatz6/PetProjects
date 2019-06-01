@@ -6,18 +6,26 @@
     using BlockchainNet.Core.Models;
     using BlockchainNet.Core.Services;
     using BlockchainNet.IO.TCP;
+    using BlockchainNet.LiteDB;
     using BlockchainNet.Messenger.Models;
+    using System.Globalization;
+    using System.Threading;
 
     public class MessengerServiceLocator
     {
-        public MessengerServiceLocator(int? port = null)
+        public MessengerServiceLocator(int? startPort = null)
         {
-            var currentPort = port ?? TcpHelper.GetAvailablePort();
-            System.IO.File.Delete($"database_{currentPort}.litedb");
-            BlockRepository = new DefaultBlockRepository<MessageInstruction>($"database_{currentPort}.litedb");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+            var minPort = startPort ?? TcpHelper.DefaultPort;
+            var currentPort = TcpHelper.GetAvailablePort(minPort, minPort + 1000);
+            var databaseName = $"database_{currentPort}.litedb";
+
+           // System.IO.File.Delete(databaseName);
+            BlockRepository = new LiteDBBlockRepository<MessageInstruction>(databaseName);
 
             SignatureService = new SignatureService();
             Communicator = new Communicator<MessageInstruction>(
+                new LiteDBPeerRepository(databaseName),
                 BlockRepository,
                 new TcpServer<BlockchainPayload<MessageInstruction>>(currentPort),
                 new TcpClientFactory<BlockchainPayload<MessageInstruction>>());

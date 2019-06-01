@@ -1,4 +1,4 @@
-﻿namespace BlockchainNet.Core.Services
+﻿namespace BlockchainNet.LiteDB
 {
     using System.Linq;
     using System.Threading.Tasks;
@@ -6,21 +6,20 @@
 
     using BlockchainNet.Core.Interfaces;
     using BlockchainNet.Core.Models;
+    
+    using global::LiteDB;
 
-    using LiteDB;
-
-    public class DefaultBlockRepository<TInstruction> : IBlockRepository<TInstruction>
+    public class LiteDBBlockRepository<TInstruction> : IBlockRepository<TInstruction>
     {
         private readonly LiteCollection<Block<TInstruction>> chain;
 
-        public DefaultBlockRepository(string fileName)
+        public LiteDBBlockRepository(string fileName)
         {
             var database = new LiteDatabase(new ConnectionString { Filename = fileName });
             chain = database.GetCollection<Block<TInstruction>>("blocks");
             _ = BsonMapper.Global
                 .Entity<Block<TInstruction>>()
-                .Id(b => b.Id)
-                .Ignore(b => b.Transactions);
+                .Id(b => b.Id);
 
             _ = chain.EnsureIndex(x => x.Id, true);
             _ = chain.EnsureIndex(x => x.PreviousBlockId, true);

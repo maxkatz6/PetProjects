@@ -2,6 +2,7 @@
 {
     public enum BlockchainPayloadAction
     {
+        None,
         RequestBlocks,
         ResponseBlocks,
         BroadcastBlocks

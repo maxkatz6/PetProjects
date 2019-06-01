@@ -38,7 +38,7 @@
 
         public DateTimeOffset Date { get; set; }
 
-        public IReadOnlyList<Transaction<TInstruction>> Transactions { get; set; }
+        public List<Transaction<TInstruction>> Transactions { get; set; }
 
         public BlockStatus Status { get; set; }
 
