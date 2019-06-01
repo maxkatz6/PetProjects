@@ -4,6 +4,8 @@
 
     public interface ICommunicationServer<T> : ICommunication
     {
+        bool IsListening { get; }
+
         /// <summary>
         /// Событие, которое вызывается при получении сообщения
         /// </summary>

@@ -8,6 +8,7 @@
 
     using BlockchainNet.IO;
     using BlockchainNet.Shared.EventArgs;
+    using System.Linq;
 
     public class PipeServer<T> : ICommunicationServer<T>
     {
@@ -33,6 +34,8 @@
         public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnectedEvent;
 
         public string ServerId { get; }
+
+        public bool IsListening => _servers.Values.All(s => s.IsListening);
 
         public ValueTask StartAsync()
         {

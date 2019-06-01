@@ -18,9 +18,9 @@
         private const int HeaderSize = sizeof(long);
 
         private readonly Socket _socket;
-        private bool _isStopping;
-        private bool _isConnected;
         private readonly int _port;
+        private bool _isStopping;
+        private string? serverEndpoint;
 
         public TcpServer()
             : this(TcpHelper.GetAvailablePort())
@@ -38,11 +38,13 @@
         public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnectedEvent;
         public event EventHandler<MessageReceivedEventArgs<T>> MessageReceivedEvent;
 
-        public string ServerId { get; private set; }
+        public string ServerId => serverEndpoint ?? throw new InvalidOperationException("Server is not started");
+
+        public bool IsListening { get; private set; }
 
         public async ValueTask StartAsync()
         {
-            if (_isConnected)
+            if (IsListening)
             {
                 return;
             }
@@ -52,12 +54,10 @@
             _socket.Bind(new IPEndPoint(IPAddress.Any, _port));
 
             _socket.Listen(20);
-            _isConnected = true;
+            IsListening = true;
 
-            var discoverer = new NatDiscoverer();
-            var device = await discoverer.DiscoverDeviceAsync();
-            var ip = await device.GetExternalIPAsync();
-            ServerId = ip.MapToIPv4().ToString() + ":" + _port;
+            var ip = await GetDeviceIpAsync().ConfigureAwait(false);
+            serverEndpoint = ip + ":" + _port;
 
             _ = ConnectLoopAsync();
 
@@ -94,11 +94,29 @@
         public ValueTask StopAsync()
         {
             _isStopping = true;
-            _isConnected = false;
+            IsListening = false;
 
             _socket.Dispose();
 
             return new ValueTask();
+        }
+
+        private async Task<string?> GetDeviceIpAsync()
+        {
+            try
+            {
+                var discoverer = new NatDiscoverer();
+                var device = await discoverer.DiscoverDeviceAsync().ConfigureAwait(false);
+                var ip = await device.GetExternalIPAsync().ConfigureAwait(false);
+                return ip?.MapToIPv4().ToString();
+            }
+            catch (Exception)
+            {
+                var ipHost = await Dns.GetHostEntryAsync("localhost").ConfigureAwait(false);
+                return Array.Find(ipHost.AddressList, adr => adr.AddressFamily == AddressFamily.InterNetwork)?
+                    .MapToIPv4()
+                    .ToString();
+            }
         }
 
         private async Task ReadLoopAsync(Socket client, string responseClientId)

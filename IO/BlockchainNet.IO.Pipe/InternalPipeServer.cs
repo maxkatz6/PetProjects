@@ -41,6 +41,8 @@
 
         public string ServerId { get; }
 
+        public bool IsListening => _pipeServer.IsConnected;
+
         public ValueTask StartAsync()
         {
             _ = _pipeServer.WaitForConnectionAsync().ContinueWith(async _ =>
