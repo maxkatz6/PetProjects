@@ -107,7 +107,7 @@
                 throw new InvalidOperationException("Attempt to set genesis block");
             }
 
-            if (!IsValidChain(new[] { block }))
+            if (!await IsValidChainAsync(new[] { block }))
             {
                 return false;
             }
@@ -172,16 +172,30 @@
             }
         }
 
-        public virtual bool IsValidChain(IEnumerable<Block<TInstruction>> recievedChain)
+        public virtual ValueTask<bool> IsValidChainAsync(IEnumerable<Block<TInstruction>> recievedChain)
         {
             var consensusValid = recievedChain.Any(block => !consensusMethod.VerifyConsensus(block));
             if (consensusValid)
             {
-                return false;
+                return new ValueTask<bool>(false);
             }
 
-            return recievedChain.SelectMany(block => block.Transactions)
-                .All(transaction => signatureService.VerifyTransaction(transaction));
+            return recievedChain
+                .SelectMany(block => block.Transactions)
+                .ToAsyncEnumerable()
+                .AllAwaitAsync(async transaction =>
+                {
+                    if (!signatureService.VerifyTransaction(transaction))
+                    {
+                        return false;
+                    }
+                    var lastLocalBySender = await blockRepository.GetLastTransactionAsync(transaction.Sender).ConfigureAwait(false);
+                    if (lastLocalBySender == null)
+                    {
+                        return true;
+                    }
+                    return lastLocalBySender.PublicKey.SequenceEqual(transaction.PublicKey);
+                });
         }
 
         private async Task<Block<TInstruction>> GenerateGenesisAsync()
@@ -203,7 +217,7 @@
 
             return block;
         }
-        
+
         private async void Communicator_BlockRequested(object sender, BlockRequestedEventArgs e)
         {
             if (e.Channel != BlockchainChannel)

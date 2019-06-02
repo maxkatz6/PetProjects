@@ -19,6 +19,8 @@
 
         ValueTask RewindChain(string blockId);
 
+        ValueTask<Transaction<TInstruction>?> GetLastTransactionAsync(string sender);
+
         IAsyncEnumerable<Block<TInstruction>> GetFork(string forkTipBlockId);
     }
 }

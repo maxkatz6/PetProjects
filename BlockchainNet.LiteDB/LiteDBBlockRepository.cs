@@ -77,5 +77,15 @@
                 ? AsyncEnumerable.Empty<Block<TInstruction>>()
                 : chain.Find(b => b.Height >= forkRoot.Height).ToAsyncEnumerable();
         }
+
+        public ValueTask<Transaction<TInstruction>?> GetLastTransactionAsync(string sender)
+        {
+            var transaction = chain
+                .FindOne(b => b.Transactions
+                    .Any(t => t.Sender == sender))?
+                .Transactions
+                .FirstOrDefault(t => t.Sender == sender);
+            return new ValueTask<Transaction<TInstruction>?>(transaction);
+        }
     }
 }

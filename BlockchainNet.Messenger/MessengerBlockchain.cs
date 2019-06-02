@@ -1,13 +1,14 @@
 ﻿namespace BlockchainNet.Messenger
 {
     using System;
-    using System.Linq;
     using System.Collections.Generic;
 
     using BlockchainNet.Core;
     using BlockchainNet.Core.Models;
     using BlockchainNet.Core.Interfaces;
     using BlockchainNet.Messenger.Models;
+    using System.Threading.Tasks;
+    using System.Linq;
 
     public class MessengerBlockchain : Blockchain<MessageInstruction>
     {
@@ -25,29 +26,9 @@
         /// </summary>
         /// <param name="chain">Блокчейн</param>
         /// <returns>True если прошел проверку, иначе False</returns>
-        public override bool IsValidChain(IEnumerable<Block<MessageInstruction>> recievedChain)
+        public override ValueTask<bool> IsValidChainAsync(IEnumerable<Block<MessageInstruction>> recievedChain)
         {
-            if (!base.IsValidChain(recievedChain))
-            {
-                return false;
-            }
-
-            var prevBlock = recievedChain.FirstOrDefault();
-            if (prevBlock == null)
-            {
-                throw new ArgumentException("Blocks chain cannot be empty", nameof(recievedChain));
-            }
-
-            foreach (var block in recievedChain.Skip(1))
-            {
-                if (!consensusMethod.VerifyConsensus(block))
-                {
-                    return false;
-                }
-
-                prevBlock = block;
-            }
-            return true;
+            return base.IsValidChainAsync(recievedChain);
         }
 
         /// <summary>
@@ -57,9 +38,18 @@
         /// <param name="recipient">Адресс получателя</param>
         /// <param name="amount">Сумма</param>
         /// <returns>Индекс блока, хранящего добаленную транзакцию</returns>
-        public void NewTransaction(string sender, string recipient, MessageInstruction message, (byte[] publicKey, byte[] privateKey) keys)
+        public async Task NewTransactionAsync(string sender, string recipient, MessageInstruction message, (byte[] publicKey, byte[] privateKey) keys)
         {
             var date = DateTime.Now;
+            var lastLocalBySender = await blockRepository
+                .GetLastTransactionAsync(sender)
+                .ConfigureAwait(false);
+            if (lastLocalBySender != null
+                && !lastLocalBySender.PublicKey.SequenceEqual(keys.publicKey))
+            {
+                throw new InvalidOperationException("Invalid password for existed sender");
+            }
+
             var transaction = new Transaction<MessageInstruction>(sender, recipient, keys.publicKey, message, date);
             signatureService.SignTransaction(transaction, keys.privateKey);
 

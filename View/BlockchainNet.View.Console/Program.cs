@@ -215,7 +215,7 @@
             };
 
             var blockchain = messengerServiceLocator.Channels.GetOrCreateBlockchain(channel);
-            blockchain.NewTransaction(account, recipient, instruction, keys);
+            await blockchain.NewTransactionAsync(account, recipient, instruction, keys);
 
             _ = await blockchain.MineAsync(default).ConfigureAwait(false);
         }

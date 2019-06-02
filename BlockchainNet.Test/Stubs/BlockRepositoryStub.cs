@@ -14,6 +14,8 @@
         private readonly ConcurrentDictionary<string, Block<TInstruction>> blocks
             = new ConcurrentDictionary<string, Block<TInstruction>>();
 
+        public string? Channel => null;
+
         public ValueTask AddBlock(Block<TInstruction> block)
         {
             if (block.Id == null)
@@ -55,6 +57,12 @@
                     yield return nextBlock;
                 }
             }
+        }
+
+        public ValueTask<Transaction<TInstruction>?> GetLastTransactionAsync(string sender)
+        {
+            var transaction = blocks.Values.SelectMany(b => b.Transactions).FirstOrDefault(t => t.Sender == sender);
+            return new ValueTask<Transaction<TInstruction>?>(transaction);
         }
 
         public ValueTask<Block<TInstruction>?> GetTopBlock()

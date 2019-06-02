@@ -1,4 +1,4 @@
-﻿namespace BlockchainNet.Test.Protobuf
+﻿namespace BlockchainNet.Test.Json
 {
     using System;
     using System.IO;
