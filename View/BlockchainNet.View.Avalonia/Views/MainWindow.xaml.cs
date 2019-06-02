@@ -2,13 +2,10 @@
 {
     using System;
     using Avalonia;
-    using Avalonia.Controls;
-    using Avalonia.Controls.Notifications;
+    using Avalonia.Interactivity;
     using Avalonia.Markup.Xaml;
-    using Avalonia.ReactiveUI;
     using BlockchainNet.View.Gui.Interfaces;
     using BlockchainNet.View.Gui.Views.Dialogs;
-    using Splat;
 
     public class MainWindow : ReactiveWindow<IMainWindowViewModel>
     {
@@ -18,17 +15,33 @@
 #if DEBUG
             this.AttachDevTools();
 #endif
-            Locator.CurrentMutable.RegisterConstant<INotificationManager>(
-				new WindowNotificationManager(this) {
-					Position = NotificationPosition.BottomRight,
-					MaxItems = 4,
-					Margin = new Thickness (0, 0, 15, 40)
-				});
         }
-
+        
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        private async void AddChannel_Click(object sender, RoutedEventArgs e)
+        {
+            var inputDialog = new InputDialog();
+
+            var nodeId = await inputDialog.ShowDialog<string>(Application.Current.MainWindow);
+            if (nodeId != null)
+            {
+                ViewModel.AddChannelCommand.Execute(nodeId);
+            }
+        }
+
+        private async void AddPeer_Click(object sender, RoutedEventArgs e)
+        {
+            var inputDialog = new InputDialog();
+
+            var nodeId = await inputDialog.ShowDialog<string>(Application.Current.MainWindow);
+            if (nodeId != null)
+            {
+                ViewModel.ConnectToCommand.Execute(nodeId);
+            }
         }
 
         private async void MainWindow_Initialized(object sender, EventArgs e)
@@ -40,15 +53,6 @@
                 throw new ArgumentNullException(nameof(login));
             }
             ViewModel.LoginCommand.Execute((login, password));
-
-
-            var inputDialog = new InputDialog();
-            
-            var nodeId = await inputDialog.ShowDialog<string>(Application.Current.MainWindow);
-            if (nodeId != null)
-            {
-                ViewModel.UserListViewModel.ConnectToCommand.Execute(nodeId);
-            }
         }
     }
 }

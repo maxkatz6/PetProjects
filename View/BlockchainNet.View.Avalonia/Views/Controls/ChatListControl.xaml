@@ -16,25 +16,33 @@
   <UserControl.Resources>
     <ResourceDictionary>
       <converters:HexToColorConverter x:Key="HexToColorConverter" />
+      <converters:DateTimeConverter x:Key="DateTimeConverter" />
     </ResourceDictionary>
   </UserControl.Resources>
-  <ListBox Items="{Binding Messages, Mode=OneWay}"
-           HorizontalAlignment="Stretch"
-           VerticalAlignment="Stretch">
-    <ListBox.ItemTemplate>
-      <DataTemplate DataType="models:MessageModel">
-        <DockPanel Margin="8">
-          <TextBlock DockPanel.Dock="Left"
-                     FontWeight="Bold"
-                     Margin="0,0,8,0"
-                     FontSize="14"
-                     Text="{Binding Sender}" />
-          <TextBlock FontSize="14"
-                     Foreground="{Binding HexColor, Converter={StaticResource HexToColorConverter}}"
-                     TextWrapping="Wrap"
-                     Text="{Binding Message}" />
-        </DockPanel>
-      </DataTemplate>
-    </ListBox.ItemTemplate>
-  </ListBox>
+  <ScrollViewer>
+    <ItemsControl Items="{Binding Messages, Mode=OneWay}"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate DataType="models:MessageModel">
+          <DockPanel Margin="4">
+            <TextBlock DockPanel.Dock="Left"
+                       FontWeight="Bold"
+                       Margin="0,0,8,0"
+                       FontSize="14"
+                       Text="{Binding DateTime, Converter={StaticResource DateTimeConverter}}" />
+            <TextBlock DockPanel.Dock="Left"
+                       FontWeight="Bold"
+                       Margin="0,0,8,0"
+                       FontSize="14"
+                       Text="{Binding Sender}" />
+            <TextBlock FontSize="14"
+                       Foreground="{Binding HexColor, Converter={StaticResource HexToColorConverter}}"
+                       TextWrapping="Wrap"
+                       Text="{Binding Message}" />
+          </DockPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </ScrollViewer>
 </UserControl>

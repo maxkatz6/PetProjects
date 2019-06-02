@@ -127,6 +127,10 @@
                 {
                     Console.WriteLine($"({transaction.Date}) You: {transaction.Content.Message}");
                 }
+                else if (transaction.Recipient == Transaction<MessageInstruction>.BroadcastRecipient)
+                {
+                    Console.WriteLine($"({transaction.Date}) {transaction.Sender}: {transaction.Content.Message}");
+                }
                 else
                 {
                     Console.WriteLine($"({transaction.Date}) {transaction.Sender} to {transaction.Recipient}: {transaction.Content.Message}");
@@ -149,15 +153,15 @@
             }
 
             Program.channel = channel;
-var blockchain = messengerServiceLocator.Channels.GetOrCreateBlockchain(channel);
-blockchain.BlockAdded += Blockchain_BlockAdded;
-var blocks = await blockchain
-    .GetFork(MessengerBlockchain.RootId)
-    .ToListAsync()
-    .ConfigureAwait(false);
-Console.Clear();
+            var blockchain = messengerServiceLocator.Channels.GetOrCreateBlockchain(channel);
+            blockchain.BlockAdded += Blockchain_BlockAdded;
+            var blocks = await blockchain
+                .GetFork(MessengerBlockchain.RootId)
+                .ToListAsync()
+                .ConfigureAwait(false);
+            Console.Clear();
 
-WriteBlocks(blocks);
+            WriteBlocks(blocks);
         }
 
         private static string AskAndSetAccount(string? username = null, string? password = null)
@@ -166,6 +170,10 @@ WriteBlocks(blocks);
             {
                 Console.Write("Input account: ");
                 username = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(username))
+                {
+                    username = Transaction<MessageInstruction>.BroadcastRecipient;
+                }
             }
             account = username;
 

@@ -6,32 +6,39 @@
         Width="700"
         Initialized="MainWindow_Initialized">
 
-  <!--<TabControl Items="{Binding UserListViewModel.Clients, Mode=OneWay}"
-              SelectedItem="{Binding UserListViewModel.SelectedClient, Mode=TwoWay}"
-              TabStripPlacement="Left">
-    <TabControl.ItemTemplate>
-      <DataTemplate>
-        <TextBlock Text="{Binding DisplayName}" />
-      </DataTemplate>
-    </TabControl.ItemTemplate>
-    <TabControl.ContentTemplate>
-      <DataTemplate>
-        <DockPanel>
-
-          <controls:MessageInputControl DockPanel.Dock="Bottom"
-                                        Recepient="{Binding UserListViewModel.SelectedClient, Mode=TwoWay}"
-                                        DataContext="{Binding MessageInputViewModel}" />
-          <controls:ChatListControl DataContext="{Binding ChatListViewModel}" />
-        </DockPanel>
-      </DataTemplate>
-    </TabControl.ContentTemplate>
-  </TabControl>-->
-
   <DockPanel>
-    <controls:UserListControl DockPanel.Dock="Left"
-                              DataContext="{Binding UserListViewModel}" />
-    <controls:MessageInputControl DockPanel.Dock="Bottom"
-                                  DataContext="{Binding MessageInputViewModel}" />
-    <controls:ChatListControl DataContext="{Binding ChatListViewModel}" />
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_Channels">
+        <MenuItem Header="_Add"
+                  Click="AddChannel_Click" />
+        <MenuItem Header="_Remove current"
+                  Command="{Binding RemoveChannelCommand}"
+                  CommandParameter="{Binding SelectedChannel.Name}" />
+      </MenuItem>
+      <MenuItem Header="_Peers">
+        <MenuItem Header="_Add"
+                  Click="AddPeer_Click" />
+      </MenuItem>
+    </Menu>
+    <TabControl Classes="sidebar"
+                Items="{Binding Channels, Mode=OneWay}"
+                SelectedItem="{Binding SelectedChannel, Mode=TwoWay}"
+                TabStripPlacement="Left">
+      <TabControl.ItemTemplate>
+        <DataTemplate>
+          <TextBlock Text="{Binding Name}"
+                     Width="100" />
+        </DataTemplate>
+      </TabControl.ItemTemplate>
+      <TabControl.ContentTemplate>
+        <DataTemplate>
+          <DockPanel>
+            <controls:MessageInputControl DockPanel.Dock="Bottom"
+                                          DataContext="{Binding MessageInputViewModel}" />
+            <controls:ChatListControl DataContext="{Binding ChatListViewModel}" />
+          </DockPanel>
+        </DataTemplate>
+      </TabControl.ContentTemplate>
+    </TabControl>
   </DockPanel>
 </Window>

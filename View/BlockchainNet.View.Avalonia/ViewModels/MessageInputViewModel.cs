@@ -4,8 +4,8 @@
     using System.Reactive;
     using System.Threading.Tasks;
     using System.Windows.Input;
-    using BlockchainNet.Core;
-    using BlockchainNet.IO.Models;
+    using BlockchainNet.Core.Interfaces;
+    using BlockchainNet.Core.Models;
     using BlockchainNet.Messenger;
     using BlockchainNet.Messenger.Models;
     using BlockchainNet.View.Gui.Interfaces;
@@ -16,16 +16,15 @@
     {
         private readonly ReactiveCommand<string, Unit> _sendMessage;
         private readonly MessengerBlockchain _blockchain;
-        private readonly Communicator<MessageInstruction> _communicator;
+        private readonly ICommunicator<MessageInstruction> _communicator;
 
         public MessageInputViewModel(
             MessengerBlockchain blockchain,
-            Communicator<MessageInstruction> communicator,
-            IUserListViewModel userListViewModel)
+            ICommunicator<MessageInstruction> communicator)
         {
             _blockchain = blockchain;
             _communicator = communicator;
-            _sendMessage = ReactiveCommand.CreateFromTask<string>(m => AddMessage(m, userListViewModel.SelectedClient?.DisplayName));
+            _sendMessage = ReactiveCommand.CreateFromTask<string>(AddMessage);
         }
 
         public ICommand SendMessageCommand => _sendMessage;
@@ -34,16 +33,12 @@
 
         public byte[]? PublikKey { get; set; }
 
-        private Task AddMessage(string message, string? recipient)
+        private async Task AddMessage(string message)
         {
             var instruction = new MessageInstruction(message);
             if (_communicator.Login == null)
             {
                 throw new InvalidOperationException($"Attempt to send message without {nameof(_communicator.Login)}");
-            }
-            if (recipient == null)
-            {
-                throw new ArgumentNullException(nameof(recipient));
             }
             if (PublikKey == null)
             {
@@ -53,8 +48,8 @@
             {
                 throw new ArgumentNullException(nameof(PrivateKey));
             }
-            _blockchain.NewTransaction(_communicator.Login, recipient, instruction, (PublikKey, PrivateKey));
-            return _blockchain.MineAsync(default);
+            await _blockchain.NewTransactionAsync(_communicator.Login, Transaction<MessageInstruction>.BroadcastRecipient, instruction, (PublikKey, PrivateKey));
+            _ = await _blockchain.MineAsync(default);
         }
     }
 }

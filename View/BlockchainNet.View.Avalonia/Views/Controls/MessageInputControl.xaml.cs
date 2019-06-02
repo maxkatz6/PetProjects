@@ -4,10 +4,7 @@
     using Avalonia.Controls;
     using Avalonia.Input;
     using Avalonia.Markup.Xaml;
-    using Avalonia.ReactiveUI;
-    using BlockchainNet.IO.Models;
     using BlockchainNet.View.Gui.Interfaces;
-    using BlockchainNet.View.Gui.ViewModels;
 
     public class MessageInputControl : ReactiveUserControl<IMessageInputViewModel>
     {
@@ -19,6 +16,15 @@
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        private void MessageInputControl_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            if (this.FindControl<TextBox>("MessageInputBox") is TextBox textBoxSender)
+            {
+                ViewModel.SendMessageCommand.Execute(textBoxSender.Text);
+                textBoxSender.Text = string.Empty;
+            }
         }
 
         private void MessageInputBox_KeyDown(object sender, KeyEventArgs e)

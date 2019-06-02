@@ -1,7 +1,7 @@
 ﻿namespace BlockchainNet.View.Gui.Views.Controls
 {
+    using Avalonia;
     using Avalonia.Markup.Xaml;
-    using Avalonia.ReactiveUI;
     using BlockchainNet.View.Gui.Interfaces;
 
     public class ChatListControl : ReactiveUserControl<IChatListViewModel>

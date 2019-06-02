@@ -4,7 +4,6 @@
     using BlockchainNet.View.Gui.Views;
     using Avalonia;
     using BlockchainNet.Messenger;
-    using Avalonia.ReactiveUI;
     using System.Text;
 
     public class Program
@@ -23,7 +22,7 @@
                 DataContext = new MainWindowViewModel(new MessengerServiceLocator()),
             };
 
-            _ = app.Run(window);
+            app.Run(window);
         }
 
         public static AppBuilder BuildAvaloniaApp()

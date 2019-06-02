@@ -8,6 +8,7 @@
     using BlockchainNet.View.Gui.Models;
     using ReactiveUI;
     using ReactiveUI.Fody.Helpers;
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -18,27 +19,26 @@
 
         public ChatListViewModel(MessengerBlockchain blockchain)
         {
-            _messanges = new ObservableCollection<MessageModel>();
-            _messanges.Add(new MessageModel("System", "Welcome!"));
-            Messages = _messanges;
+            _messanges = new ObservableCollection<MessageModel>
+            {
+                new MessageModel("System", "Welcome!", DateTime.UtcNow)
+            };
             blockchain.BlockAdded += Blockchain_BlockAdded;
         }
-        
-        [Reactive]
-        public ObservableCollection<MessageModel> Messages { get; private set; }
+
+        public IEnumerable<MessageModel> Messages => _messanges;
 
         private void Blockchain_BlockAdded(object sender, Core.EventArgs.BlockAddedEventArgs<MessageInstruction> e)
         {
             var transactions = e.AddedBlocks.SelectMany(b => b.Transactions);
-            Dispatcher.UIThread.InvokeAsync(() =>
+            _ = Dispatcher.UIThread.InvokeAsync(() =>
             {
                 foreach (var transaction in transactions)
                 {
-                    _messanges.Add(new MessageModel(transaction.Sender, transaction.Content.Message)
+                    _messanges.Add(new MessageModel(transaction.Sender, transaction.Content.Message ?? "", transaction.Date.UtcDateTime)
                     {
                         HexColor = transaction.Content.HexColor
                     });
-                    Messages = _messanges;
                 }
             });
         }
