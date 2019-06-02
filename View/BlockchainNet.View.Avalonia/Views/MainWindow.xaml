@@ -5,7 +5,6 @@
         Title="Blockchain Messenger"
         Width="700"
         Initialized="MainWindow_Initialized">
-
   <DockPanel>
     <Menu DockPanel.Dock="Top">
       <MenuItem Header="_Channels">
