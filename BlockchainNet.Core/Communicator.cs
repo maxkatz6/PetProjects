@@ -129,31 +129,34 @@
             Func<Peer, bool>? filter = null)
         {
             return peerRepository
-               .GetPeersAsync()
-               .OrderBy(p => p.LastMessaged ?? DateTime.MinValue)
-               .Where(filter ?? (peer => true))
-               .SelectAwait(async p =>
-               {
-                   try
-                   {
-                       var connection = activeConnections.GetOrAdd(
-                           p.IpEndpoint!,
-                           endpoint => clientFactory.CreateNew(endpoint, new ClientInformation(ServerId, Login)));
-                       await connection.StartAsync().ConfigureAwait(false);
-                       return await connection
-                           .SendMessageAsync(payload)
-                           .ConfigureAwait(false);
-                   }
-                   catch (Exception ex)
-                   {
-                       _ = activeConnections.TryRemove(p.IpEndpoint!, out _);
-                       Debug.WriteLine(ex);
-                       return false;
-                   }
-               })
-               .Where(res => res)
-               .Take(3)
-               .CountAsync();
+                .GetPeersAsync()
+                .OrderBy(p => p.LastMessaged ?? DateTime.MinValue)
+                .Where(filter ?? (peer => true))
+                .SelectAwait(async p =>
+                {
+                    try
+                    {
+                        var connection = activeConnections.GetOrAdd(
+                            p.IpEndpoint!,
+                            endpoint => clientFactory.CreateNew(endpoint, new ClientInformation(ServerId, Login)));
+                        await connection.StartAsync().ConfigureAwait(false);
+                        var result = await connection
+                            .SendMessageAsync(payload)
+                            .ConfigureAwait(false);
+                        p.LastMessaged = DateTime.UtcNow;
+                        await peerRepository.UpsertPeerAsync(p);
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        _ = activeConnections.TryRemove(p.IpEndpoint!, out _);
+                        Debug.WriteLine(ex);
+                        return false;
+                    }
+                })
+                .Where(res => res)
+                .Take(3)
+                .CountAsync();
         }
 
         protected void OnClientConnected(ClientInformation information)
@@ -168,20 +171,20 @@
                 return;
             }
 
-            using var _ = e.GetDeferral();
-
             await peerRepository.UpsertPeerAsync(new Peer
             {
                 IpEndpoint = e.ClientInformation.ClientId
             });
+
             var newClient = clientFactory.CreateNew(e.ClientInformation.ClientId, new ClientInformation(server.ServerId, Login));
             var added = activeConnections.TryAdd(
-                e.ClientInformation.ClientId, 
+                e.ClientInformation.ClientId,
                 newClient);
             if (added)
             {
                 await newClient.StartAsync().ConfigureAwait(false);
             }
+            
             OnClientConnected(e.ClientInformation);
         }
 
@@ -196,23 +199,22 @@
 
         private async void Server_MessageReceivedEvent(object sender, MessageReceivedEventArgs<BlockchainPayload<TInstruction>> e)
         {
-            using (e.GetDeferral())
-            {
-                if (e.Message.Action == Enum.BlockchainPayloadAction.RequestBlocks)
-                {
-                    if (e.Message.BlockId == null)
-                    {
-                        throw new ArgumentNullException(nameof(e.Message.BlockId));
-                    }
+            using var _ = e.GetDeferral();
 
-                    await BlockRequested
-                        .InvokeAsync(this, new BlockRequestedEventArgs(e.ClientId, e.Message.BlockId, e.Message.Channel))
-                        .ConfigureAwait(false);
-                }
-                else if (e.Message.Blocks is IEnumerable<Block<TInstruction>> blocks)
+            if (e.Message.Action == Enum.BlockchainPayloadAction.RequestBlocks)
+            {
+                if (e.Message.BlockId == null)
                 {
-                    await BlockReceived.InvokeAsync(this, new BlockReceivedEventArgs<TInstruction>(blocks, e.ClientId, e.Message.Channel));
+                    throw new ArgumentNullException(nameof(e.Message.BlockId));
                 }
+
+                await BlockRequested
+                    .InvokeAsync(this, new BlockRequestedEventArgs(e.ClientId, e.Message.BlockId, e.Message.Channel))
+                    .ConfigureAwait(false);
+            }
+            else if (e.Message.Blocks is IEnumerable<Block<TInstruction>> blocks)
+            {
+                await BlockReceived.InvokeAsync(this, new BlockReceivedEventArgs<TInstruction>(blocks, e.ClientId, e.Message.Channel));
             }
         }
     }

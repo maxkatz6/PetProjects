@@ -1,6 +1,7 @@
 ﻿namespace BlockchainNet.IO.TCP
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Net;
     using System.Net.Sockets;
@@ -56,7 +57,7 @@
             _socket.Listen(20);
             IsListening = true;
 
-            var ip = await GetDeviceIpAsync().ConfigureAwait(false);
+            var ip = await GetDeviceIpAsync(_port).ConfigureAwait(false);
             serverEndpoint = ip + ":" + _port;
 
             _ = ConnectLoopAsync();
@@ -101,17 +102,28 @@
             return new ValueTask();
         }
 
-        private async Task<string?> GetDeviceIpAsync()
+        private async Task<string?> GetDeviceIpAsync(int mapPort)
         {
             try
             {
                 var discoverer = new NatDiscoverer();
                 var device = await discoverer.DiscoverDeviceAsync().ConfigureAwait(false);
                 var ip = await device.GetExternalIPAsync().ConfigureAwait(false);
+                try
+                {
+                    await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, mapPort, mapPort));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+
                 return ip?.MapToIPv4().ToString();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Debug.WriteLine(ex);
+
                 var ipHost = await Dns.GetHostEntryAsync("localhost").ConfigureAwait(false);
                 return Array.Find(ipHost.AddressList, adr => adr.AddressFamily == AddressFamily.InterNetwork)?
                     .MapToIPv4()

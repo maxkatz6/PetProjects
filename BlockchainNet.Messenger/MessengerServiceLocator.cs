@@ -11,12 +11,17 @@
     using BlockchainNet.IO.TCP;
     using BlockchainNet.LiteDB;
     using BlockchainNet.Messenger.Models;
+    using System;
+    using System.Text;
 
     public class MessengerServiceLocator
     {
         public MessengerServiceLocator(int? startPort = null)
         {
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Console.OutputEncoding = Console.InputEncoding = Encoding.GetEncoding(1251);
+
             var minPort = startPort ?? TcpHelper.DefaultPort;
             var currentPort = TcpHelper.GetAvailablePort(minPort, minPort + 1000);
             var databaseName = $"database_{currentPort}.litedb";

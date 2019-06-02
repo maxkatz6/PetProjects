@@ -40,7 +40,6 @@
         /// <returns>Индекс блока, хранящего добаленную транзакцию</returns>
         public async Task NewTransactionAsync(string sender, string recipient, MessageInstruction message, (byte[] publicKey, byte[] privateKey) keys)
         {
-            var date = DateTime.Now;
             var lastLocalBySender = await blockRepository
                 .GetLastTransactionAsync(sender)
                 .ConfigureAwait(false);
@@ -50,7 +49,7 @@
                 throw new InvalidOperationException("Invalid password for existed sender");
             }
 
-            var transaction = new Transaction<MessageInstruction>(sender, recipient, keys.publicKey, message, date);
+            var transaction = new Transaction<MessageInstruction>(sender, recipient, keys.publicKey, message, DateTime.UtcNow);
             signatureService.SignTransaction(transaction, keys.privateKey);
 
             uncommitedTransactions.Add(transaction);

@@ -88,8 +88,6 @@
 
         private async Task ReadAsync(Package package, string responseId)
         {
-            // побуферно читаем сообщения, что позволяет не ограничиваться его размером
-
             var readBytes = await _pipeServer.ReadAsync(package.Buffer, 0, package.Buffer.Length);
 
             if (readBytes > 0)
@@ -107,10 +105,8 @@
 
                 package.Result.AddRange(result);
 
-                // если не дочитали...
                 if (!_pipeServer.IsMessageComplete)
                 {
-                    // ...то читаем следующий буфер
                     await ReadAsync(package, responseId);
                 }
                 else
@@ -123,7 +119,6 @@
                     await ReadAsync(new Package(), responseId);
                 }
             }
-            // Если прочитано 0 байт, то клиент вероятно отключился
             else
             {
                 if (!_isStopping)

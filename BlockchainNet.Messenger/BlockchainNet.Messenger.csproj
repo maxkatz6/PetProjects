@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BlockchainNet.Core\BlockchainNet.Core.csproj" />
     <ProjectReference Include="..\BlockchainNet.LiteDB\BlockchainNet.LiteDB.csproj" />
     <ProjectReference Include="..\IO\BlockchainNet.IO.TCP\BlockchainNet.IO.TCP.csproj" />

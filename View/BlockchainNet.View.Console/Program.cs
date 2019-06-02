@@ -22,9 +22,6 @@
 
         private static async Task Main()
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Console.OutputEncoding = Console.InputEncoding = Encoding.GetEncoding(1251);
-
             var password = AskAndSetAccount();
 
             messengerServiceLocator = new MessengerServiceLocator(61000);
@@ -152,15 +149,15 @@
             }
 
             Program.channel = channel;
-            var blockchain = messengerServiceLocator.Channels.GetOrCreateBlockchain(channel);
-            blockchain.BlockAdded += Blockchain_BlockAdded;
-            var blocks = await blockchain
-                .GetFork(MessengerBlockchain.RootId)
-                .ToListAsync()
-                .ConfigureAwait(false);
-            Console.Clear();
+var blockchain = messengerServiceLocator.Channels.GetOrCreateBlockchain(channel);
+blockchain.BlockAdded += Blockchain_BlockAdded;
+var blocks = await blockchain
+    .GetFork(MessengerBlockchain.RootId)
+    .ToListAsync()
+    .ConfigureAwait(false);
+Console.Clear();
 
-            WriteBlocks(blocks);
+WriteBlocks(blocks);
         }
 
         private static string AskAndSetAccount(string? username = null, string? password = null)
@@ -182,15 +179,15 @@
 
         private static void PrintHelp()
         {
-            Console.WriteLine("e, exit - close the node");
-            Console.WriteLine("a, add [recipient] [amount] - add new transaction");
-            Console.WriteLine("t, transactions - print current transactions");
+            Console.WriteLine("h, help - print help");
+            Console.WriteLine("c, connect [ip:port] - connect to node");
+            Console.WriteLine("e, exit - close the node and application");
+            Console.WriteLine("a, add [recipient] [message] - add new transaction with message");
+            Console.WriteLine("t, transactions - print current uncommited transactions");
             Console.WriteLine("b, blocks - print blockschain");
             Console.WriteLine("m, mine - mine new block");
-            Console.WriteLine("s, sync - sync blockchain with neighbor");
-            Console.WriteLine("sv, save [filename] - save blockchain");
-            Console.WriteLine("ld, load [filename] - load blockchain");
             Console.WriteLine("sw, switch [account] - change account");
+            Console.WriteLine("ch, channel [channel] - change channel");
         }
 
         private static async Task SendMessageAsync(string? recipient, string? message)

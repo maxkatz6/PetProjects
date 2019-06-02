@@ -1,11 +1,7 @@
 ﻿namespace BlockchainNet.Messenger
 {
-    using System;
-    using System.Linq;
     using System.Collections.Generic;
 
-    using BlockchainNet.Core;
-    using BlockchainNet.Core.Models;
     using BlockchainNet.Core.Interfaces;
     using BlockchainNet.Messenger.Models;
     using BlockchainNet.LiteDB;

@@ -46,13 +46,13 @@
 
         public string? PreviousBlockId { get; set; }
 
-        public void ConfirmBlock(string blockId, long proof)
-        {
-            Date = DateTime.UtcNow;
-            Id = blockId;
-            Proof = proof;
-            Status = BlockStatus.Confirmed;
-        }
+public void ConfirmBlock(string blockId, long proof)
+{
+    Date = DateTime.UtcNow;
+    Id = blockId;
+    Proof = proof;
+    Status = BlockStatus.Confirmed;
+}
 
         public byte[] GetHash(long nonce)
         {

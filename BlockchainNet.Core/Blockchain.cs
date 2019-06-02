@@ -142,7 +142,9 @@
                 {
                     var forkedTransactions = await blockRepository.GetFork(prevBlock.Id)
                         .Skip(1)
-                        .SelectMany(b => b.Transactions.ToAsyncEnumerable())
+                        .SelectMany(b => b.Transactions
+                            .Where(t => !block.Transactions.Select(rt => rt.Id).Contains(t.Id))
+                            .ToAsyncEnumerable())
                         .ToArrayAsync()
                         .ConfigureAwait(false);
                     await blockRepository.RewindChain(prevBlock.Id).ConfigureAwait(false);

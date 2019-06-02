@@ -11,7 +11,7 @@
 
     public class ProofOfWorkConsensus<TInstruction> : IConsensusMethod<TInstruction>
     {
-        private const int Difficulty = 100;
+        private const int Difficulty = 700;
 
         public bool VerifyConsensus(Block<TInstruction> block)
         {
