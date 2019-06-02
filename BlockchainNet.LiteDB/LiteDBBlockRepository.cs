@@ -8,6 +8,7 @@
     using BlockchainNet.Core.Models;
 
     using global::LiteDB;
+    using System;
 
     public class LiteDBBlockRepository<TInstruction> : IBlockRepository<TInstruction>
     {
@@ -16,7 +17,10 @@
         public LiteDBBlockRepository(string fileName, string? channel)
         {
             Channel = channel;
-
+            if (channel != null)
+            {
+                channel = Uri.EscapeDataString(channel).Replace("%", "_");
+            }
             var database = new LiteDatabase(new ConnectionString { Filename = fileName });
             chain = database.GetCollection<Block<TInstruction>>(channel != null ? "blocks_" + channel : "blocks");
             _ = BsonMapper.Global

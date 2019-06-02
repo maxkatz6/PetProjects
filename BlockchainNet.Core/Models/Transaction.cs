@@ -6,6 +6,8 @@
 
     public class Transaction<TInstruction>
     {
+        public const string BroadcastRecipient = "Broadcast";
+
 #pragma warning disable CS8618 // Non-nullable field is uninitialized.
         public Transaction()
 #pragma warning restore CS8618 // Non-nullable field is uninitialized.

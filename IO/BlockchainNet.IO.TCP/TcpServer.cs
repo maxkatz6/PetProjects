@@ -106,19 +106,22 @@
         {
             try
             {
-                var discoverer = new NatDiscoverer();
-                var device = await discoverer.DiscoverDeviceAsync().ConfigureAwait(false);
-                var ip = await device.GetExternalIPAsync().ConfigureAwait(false);
-                try
+                return await Task.Run(async () =>
                 {
-                    await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, mapPort, mapPort));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                }
+                    var discoverer = new NatDiscoverer();
+                    var device = await discoverer.DiscoverDeviceAsync().ConfigureAwait(false);
+                    var ip = await device.GetExternalIPAsync().ConfigureAwait(false);
+                    try
+                    {
+                        await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, mapPort, mapPort));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex);
+                    }
 
-                return ip?.MapToIPv4().ToString();
+                    return ip?.MapToIPv4().ToString();
+                });
             }
             catch (Exception ex)
             {

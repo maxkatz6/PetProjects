@@ -23,6 +23,9 @@
 
         protected readonly List<Transaction<TInstruction>> uncommitedTransactions;
 
+        private readonly SemaphoreSlim mineSemaphore;
+        private readonly SemaphoreSlim setSemaphore;
+
         protected Blockchain(
             ICommunicator<TInstruction> communicator,
             IBlockRepository<TInstruction> blockRepository,
@@ -35,6 +38,9 @@
             this.signatureService = signatureService;
 
             BlockchainChannel = blockRepository.Channel;
+
+            mineSemaphore = new SemaphoreSlim(1);
+            setSemaphore = new SemaphoreSlim(1);
 
             uncommitedTransactions = new List<Transaction<TInstruction>>();
 
@@ -57,31 +63,40 @@
         /// <returns>Новый блок</returns>
         public async Task<Block<TInstruction>> MineAsync(CancellationToken cancellationToken)
         {
-            var topBlock = await blockRepository.GetTopBlock().ConfigureAwait(false)
-                ?? await GenerateGenesisAsync().ConfigureAwait(false);
-            if (string.IsNullOrEmpty(topBlock.Id)
-                || topBlock.Status != BlockStatus.Confirmed)
+            await mineSemaphore.WaitAsync();
+
+            try
             {
-                throw new InvalidOperationException($"Previous block is not confirmed. Id = {topBlock.Id}");
+                var topBlock = await blockRepository.GetTopBlock().ConfigureAwait(false)
+                    ?? await GenerateGenesisAsync().ConfigureAwait(false);
+                if (string.IsNullOrEmpty(topBlock.Id)
+                    || topBlock.Status != BlockStatus.Confirmed)
+                {
+                    throw new InvalidOperationException($"Previous block is not confirmed. Id = {topBlock.Id}");
+                }
+
+                var lastProof = topBlock.Proof;
+
+                var block = new Block<TInstruction>(uncommitedTransactions, topBlock.Id, topBlock.Height + 1);
+
+                await consensusMethod.BuildConsensus(block, cancellationToken).ConfigureAwait(false);
+
+                if (block.Status == BlockStatus.Confirmed)
+                {
+                    await blockRepository.AddBlock(block).ConfigureAwait(false);
+
+                    uncommitedTransactions.Clear();
+
+                    BlockAdded?.Invoke(this, new BlockAddedEventArgs<TInstruction>(new[] { block }, BlockchainChannel));
+                    _ = await communicator.BroadcastBlocksAsync(new[] { block }, BlockchainChannel).ConfigureAwait(false);
+                }
+
+                return block;
             }
-
-            var lastProof = topBlock.Proof;
-
-            var block = new Block<TInstruction>(uncommitedTransactions, topBlock.Id, topBlock.Height + 1);
-
-            await consensusMethod.BuildConsensus(block, cancellationToken).ConfigureAwait(false);
-
-            if (block.Status == BlockStatus.Confirmed)
+            finally
             {
-                await blockRepository.AddBlock(block).ConfigureAwait(false);
-
-                uncommitedTransactions.Clear();
-
-                BlockAdded?.Invoke(this, new BlockAddedEventArgs<TInstruction>(new[] { block }, BlockchainChannel));
-                _ = await communicator.BroadcastBlocksAsync(new[] { block }, BlockchainChannel).ConfigureAwait(false);
+                mineSemaphore.Release();
             }
-
-            return block;
         }
 
         public IAsyncEnumerable<Block<TInstruction>> GetFork(string? blockId)
@@ -99,78 +114,94 @@
         /// </summary>
         /// <param name="recievedChain">Новый блокчейн</param>
         /// <returns>True, если новый блок валидный и замена успешна, иначе - False</returns>
-        public async Task<bool> TrySetChainIfValid(Block<TInstruction> block)
+        public async Task<(bool valid, bool inserted)> TrySetChainIfValid(Block<TInstruction> block)
         {
             if (block.Id == RootId
+                || string.IsNullOrEmpty(block.Id)
                 || string.IsNullOrEmpty(block.PreviousBlockId))
             {
                 throw new InvalidOperationException("Attempt to set genesis block");
             }
 
-            if (!await IsValidChainAsync(new[] { block }))
+            await setSemaphore.WaitAsync();
+
+            try
             {
-                return false;
-            }
-
-            var prevBlock = await blockRepository.GetBlock(block.PreviousBlockId).ConfigureAwait(false);
-            var lastBlock = await blockRepository.GetTopBlock().ConfigureAwait(false);
-            var isEmpty = await blockRepository.IsEmpty().ConfigureAwait(false);
-
-            if (prevBlock != null)
-            {
-                if (string.IsNullOrEmpty(prevBlock.Id)
-                    || prevBlock.Status != BlockStatus.Confirmed)
+                if (!await IsValidChainAsync(new[] { block }))
                 {
-                    throw new InvalidOperationException($"Previous block is not confirmed. Id = {prevBlock.Id}");
+                    return (false, false);
                 }
 
-                if (block.Date < prevBlock.Date)
+                var sameBlock = await blockRepository.GetBlock(block.Id).ConfigureAwait(false);
+                if (sameBlock != null)
                 {
-                    return false;
-                }
-                if (block.Height != (prevBlock.Height + 1))
-                {
-                    return false;
+                    return (true, false);
                 }
 
-                if (prevBlock.Id == lastBlock?.Id)
+                var prevBlock = await blockRepository.GetBlock(block.PreviousBlockId).ConfigureAwait(false);
+                var lastBlock = await blockRepository.GetTopBlock().ConfigureAwait(false);
+                var isEmpty = await blockRepository.IsEmpty().ConfigureAwait(false);
+
+                if (prevBlock != null)
                 {
-                    await blockRepository.AddBlock(block).ConfigureAwait(false);
-                    return true;
+                    if (string.IsNullOrEmpty(prevBlock.Id)
+                        || prevBlock.Status != BlockStatus.Confirmed)
+                    {
+                        throw new InvalidOperationException($"Previous block is not confirmed. Id = {prevBlock.Id}");
+                    }
+
+                    if (block.Date < prevBlock.Date)
+                    {
+                        return (false, false);
+                    }
+                    if (block.Height != (prevBlock.Height + 1))
+                    {
+                        return (false, false);
+                    }
+
+                    if (prevBlock.Id == lastBlock?.Id)
+                    {
+                        await blockRepository.AddBlock(block).ConfigureAwait(false);
+                        return (true, true);
+                    }
+                    else
+                    {
+                        var forkedTransactions = await blockRepository.GetFork(prevBlock.Id)
+                            .Skip(1)
+                            .SelectMany(b => b.Transactions
+                                .Where(t => !block.Transactions.Select(rt => rt.Id).Contains(t.Id))
+                                .ToAsyncEnumerable())
+                            .ToArrayAsync()
+                            .ConfigureAwait(false);
+                        await blockRepository.RewindChain(prevBlock.Id).ConfigureAwait(false);
+                        await blockRepository.AddBlock(block).ConfigureAwait(false);
+                        uncommitedTransactions.AddRange(forkedTransactions);
+                        return (true, true);
+                    }
+                }
+                else if (isEmpty)
+                {
+                    if (block.PreviousBlockId != null && block.PreviousBlockId != RootId)
+                    {
+                        _ = await communicator.BroadcastRequestAsync(RootId, BlockchainChannel).ConfigureAwait(false);
+                        return (false, false);
+                    }
+                    else
+                    {
+                        _ = await GenerateGenesisAsync().ConfigureAwait(false);
+                        await blockRepository.AddBlock(block).ConfigureAwait(false);
+                        return (true, true);
+                    }
                 }
                 else
                 {
-                    var forkedTransactions = await blockRepository.GetFork(prevBlock.Id)
-                        .Skip(1)
-                        .SelectMany(b => b.Transactions
-                            .Where(t => !block.Transactions.Select(rt => rt.Id).Contains(t.Id))
-                            .ToAsyncEnumerable())
-                        .ToArrayAsync()
-                        .ConfigureAwait(false);
-                    await blockRepository.RewindChain(prevBlock.Id).ConfigureAwait(false);
-                    await blockRepository.AddBlock(block).ConfigureAwait(false);
-                    uncommitedTransactions.AddRange(forkedTransactions);
-                    return true;
+                    _ = await communicator.BroadcastRequestAsync(block.PreviousBlockId, BlockchainChannel).ConfigureAwait(false);
+                    return (false, false);
                 }
             }
-            else if (isEmpty)
+            finally
             {
-                if (block.PreviousBlockId != null && block.PreviousBlockId != RootId)
-                {
-                    _ = await communicator.BroadcastRequestAsync(RootId, BlockchainChannel).ConfigureAwait(false);
-                    return false;
-                }
-                else
-                {
-                    _ = await GenerateGenesisAsync().ConfigureAwait(false);
-                    await blockRepository.AddBlock(block).ConfigureAwait(false);
-                    return true;
-                }
-            }
-            else
-            {
-                _ = await communicator.BroadcastRequestAsync(block.PreviousBlockId, BlockchainChannel).ConfigureAwait(false);
-                return false;
+                setSemaphore.Release();
             }
         }
 
@@ -236,18 +267,23 @@
         {
             if (e.Channel != BlockchainChannel)
             {
-                throw new InvalidOperationException("Attemt to receive block from invalid channel");
+                return;
             }
 
             using (e.GetDeferral())
             {
                 var lastBlock = await blockRepository.GetTopBlock().ConfigureAwait(false);
+                var insertedList = new List<Block<TInstruction>>();
                 try
                 {
                     foreach (var block in e.AddedBlocks.SkipWhile(b => b.Id == RootId))
                     {
-                        var result = await TrySetChainIfValid(block).ConfigureAwait(false);
-                        if (!result)
+                        var (valid, inserted) = await TrySetChainIfValid(block).ConfigureAwait(false);
+                        if (inserted)
+                        {
+                            insertedList.Add(block);
+                        }
+                        if (!valid)
                         {
                             return;
                         }
@@ -258,8 +294,11 @@
                     await blockRepository.RewindChain(lastBlock?.Id ?? RootId).ConfigureAwait(false);
                     throw;
                 }
-                _ = await communicator.BroadcastBlocksAsync(e.AddedBlocks, BlockchainChannel, peer => peer.IpEndpoint != e.ClientId).ConfigureAwait(false);
-                await BlockAdded.InvokeAsync(this, new BlockAddedEventArgs<TInstruction>(e.AddedBlocks, e.Channel)).ConfigureAwait(false);
+                if (insertedList.Count > 0)
+                {
+                    _ = await communicator.BroadcastBlocksAsync(e.AddedBlocks, BlockchainChannel, peer => peer.IpEndpoint != e.ClientId).ConfigureAwait(false);
+                    await BlockAdded.InvokeAsync(this, new BlockAddedEventArgs<TInstruction>(insertedList, e.Channel)).ConfigureAwait(false);
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿namespace BlockchainNet.Messenger
 {
+    using System.Linq;
     using System.Collections.Generic;
 
     using BlockchainNet.Core.Interfaces;
@@ -8,6 +9,8 @@
 
     public class MessengerChannels
     {
+        public const string SharedChannelName = "Shared";
+
         private readonly string databaseFile;
         private readonly ICommunicator<MessageInstruction> communicator;
         private readonly IConsensusMethod<MessageInstruction> consensusMethod;
@@ -40,7 +43,7 @@
                 channel,
                 new MessengerBlockchain(
                     communicator,
-                    new LiteDBBlockRepository<MessageInstruction>(databaseFile, channel),
+                    new LiteDBBlockRepository<MessageInstruction>(databaseFile, channel == SharedChannelName ? null : channel),
                     consensusMethod,
                     signatureService));
         }
