@@ -1,0 +1,62 @@
+<!DOCTYPE HTML >
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="[LANG_CODE/]" lang="[LANG_CODE/]" dir="[BASE_DIRECTION/]">
+
+<head>
+    <meta http-equiv="Content-Type" content="[CONTENT_TYPE/]"/>
+    <title>Socio!PARTY Logs</title>
+    <style>.delete{float:right;width:10px;height:10px;background:url('img/delete.png');margin-top:5px;margin-right:5px;}</style>
+    <link rel="stylesheet" type="text/css" href="css/prosilver.css?[VN/]" title="prosilver">
+    <link rel="stylesheet" type="text/css" href="css/fonts.css" title="prosilver">
+    <script src="js/config.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/chat.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/logs.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/lang/[LANG_CODE/].js" type="text/javascript" charset="UTF-8"></script>
+    <script src="js/helper.js" type="text/javascript" charset="UTF-8"></script>
+    <script type="text/javascript">
+        sConfig.sessionName='[SESSION_NAME/]';
+        sConfig.cookieExpiration=parseInt('[COOKIE_EXPIRATION/]');
+        sConfig.cookiePath='[COOKIE_PATH/]';
+        sConfig.cookieDomain='[COOKIE_DOMAIN/]';
+        sConfig.cookieSecure='[COOKIE_SECURE/]';
+        sConfig.chatBotName=decodeURIComponent('[CHAT_BOT_NAME/]');
+        sConfig.chatBotID='[CHAT_BOT_ID/]';
+        sConfig.inactiveTimeout=parseInt('[INACTIVE_TIMEOUT/]');
+        sConfig.privateChannelDiff=parseInt('[PRIVATE_CHANNEL_DIFF/]');
+        sConfig.privateMessageDiff=parseInt('[PRIVATE_MESSAGE_DIFF/]');
+        sConfig.messageTextMaxLength=parseInt('[MESSAGE_TEXT_MAX_LENGTH/]');
+        sConfig.ajaxURL+='&view=logs';
+        sConfig.domIDs['yearSelection']='yearSelection';
+        sConfig.domIDs['monthSelection']='monthSelection';
+        sConfig.domIDs['daySelection'] = 'daySelection';
+        sConfig.domIDs['hourSelection'] = 'hourSelection';
+        sConfig.domIDs["tmcCount"] = 'tmcCount';
+        sConfig.radioServer = sConfig.videoChat = false;
+        sChat.init(sChatLang,true,true,true,null);
+    </script>
+</head>
+
+<body class="s_chat">
+<div id="content">
+    <div id="logoutChannelContainer">
+        <input type="button" id="logoutButton" value="[LANG]logout[/LANG]" onclick="sChat.logout();"/>
+        <label for="channelSelection">[LANG]channel[/LANG]:</label>
+        <select id="channelSelection" onchange="sChat.getLogs();">[LOGS_CHANNEL_OPTIONS/]</select>
+        <label for="yearSelection">[LANG]logsDate[/LANG]:</label>
+        <select id="yearSelection" onchange="sChat.getLogs();">[LOGS_YEAR_OPTIONS/]</select>
+        <select id="monthSelection" onchange="sChat.getLogs();">[LOGS_MONTH_OPTIONS/]</select>
+        <select id="daySelection" onchange="sChat.getLogs();">[LOGS_DAY_OPTIONS/]</select>
+        <label for="hourSelection">[LANG]logsTime[/LANG]:</label>
+        <select id="hourSelection" onchange="sChat.getLogs();">[LOGS_HOUR_OPTIONS/]</select>
+        <label for="languageSelection">[LANG]language[/LANG]:</label>
+        <select id="languageSelection" onchange="sChat.switchLanguage(this.value);">[LANGUAGE_OPTIONS/]</select>
+        <label for="tmcCount">Message count:</label>
+        <input id="tmcCount" onchange="sChat.getLogs();" value="10"/>
+    </div>
+    <div id="chatList"></div>
+    <div id="inputFieldContainer">
+        <textarea id="inputField" rows="1" cols="50" title="[LANG]inputLineBreak[/LANG]"></textarea>
+        <input type="button" id="submitButton" value="[LANG]logsSearch[/LANG]" onclick="sChat.getLogs();"/>
+    </div>
+</div>
+</body>
+</html>

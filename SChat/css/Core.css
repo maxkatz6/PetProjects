@@ -1,0 +1,90 @@
+#bbCodeContainer input, #logoutButton, #submitButton {
+    background-color: #CDE7FF;
+    color: #333;
+    border: 1px solid #787878;
+}
+
+#content select, #content textarea {
+    color: #333;
+    border: 1px solid #787878;
+}
+
+.s_chat {
+    background-color: #E5E5E8;
+    color: #000;
+}
+
+    .s_chat a, .s_chat h1 {
+        color: #000;
+    }
+
+#errorContainer {
+    color: red;
+}
+
+#content input, #content select, #content textarea {
+    background-color: #FFF;
+    color: #000;
+}
+
+#chatList, .panelContainer {
+    border-color: #ADADAD;
+    background-color: #FFF;
+}
+
+.s_chat .popup {
+    background-color: #ADADAD;
+    border: 1px solid gray;
+}
+
+#colorCodesContainer a {
+    border-color: #000;
+}
+
+#optionsContainer input {
+    background-color: transparent;
+}
+
+.rowEven, #helpList dl:nth-child(even), #settingsList dl:nth-child(even) {
+    background-color: #ECEDF3;
+}
+
+.rowOdd, #helpList dl:nth-child(odd), #settingsList dl:nth-child(odd) {
+    background-color: #F6F6F6;
+}
+
+    .rowOdd.private {
+        background-color: #F8D0D0;
+    }
+
+.rowEven.private {
+    background-color: #F8D9D0;
+}
+
+.chatBot {
+    color: #476C8E;
+}
+
+.chatBotErrorMessage {
+    color: red;
+}
+
+#chatList a {
+    color: #476C8E;
+}
+
+.deleteSelected {
+    border-color: red;
+}
+
+.panelContainer h3 {
+    background-color: #88A6C0;
+    color: #FFF;
+}
+
+@media (max-width:700px) {
+    #emoticonsContainer {
+        background-color: #FFF;
+        border: 1px solid #ADADAD;
+    }
+}
