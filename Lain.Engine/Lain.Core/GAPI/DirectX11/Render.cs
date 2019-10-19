@@ -31,7 +31,7 @@ namespace Lain.GAPI
             var render = new Render
             {
                 Device = new Device(DriverType.Hardware,
-                    Config.IsDebug ? DeviceCreationFlags.Debug : DeviceCreationFlags.None, FeatureLevel.Level_11_0,
+                    DeviceCreationFlags.None, FeatureLevel.Level_11_0,
                     FeatureLevel.Level_10_1,
                     FeatureLevel.Level_10_0, FeatureLevel.Level_9_3)
             };

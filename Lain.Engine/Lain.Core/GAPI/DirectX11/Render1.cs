@@ -29,7 +29,6 @@ namespace Lain.GAPI
                 var render = new Render1
                 {
                     Device = new Device(DriverType.Hardware,
-                        (Config.IsDebug ? DeviceCreationFlags.Debug : DeviceCreationFlags.None) |
                         DeviceCreationFlags.BgraSupport, FeatureLevel.Level_11_0,
                         FeatureLevel.Level_10_1,
                         FeatureLevel.Level_10_0, FeatureLevel.Level_9_3),

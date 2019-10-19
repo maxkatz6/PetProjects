@@ -7,7 +7,7 @@ using Squid.Interfaces;
 using Squid.Skinning;
 using Squid.Structs;
 using Squid.Util;
-
+using CategoryAttribute = Squid.Util.CategoryAttribute;
 
 namespace Squid.Controls
 {

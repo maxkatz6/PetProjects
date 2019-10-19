@@ -7,6 +7,11 @@ using Lain.Graphics;
 using Lain.GAPI;
 using Lain.Graphics.GUI;
 using Squid.Structs;
+using System.Threading.Tasks;
+using System.Drawing;
+using Rectangle = System.Drawing.Rectangle;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace Lain.Desktop
 {
@@ -66,7 +71,34 @@ namespace Lain.Desktop
 		{
             FileSystem.Current = new DesktopFileSystem();
             App.Render = Render.Create(Handle);
-            DevIL.Initialize();
+            Texture.FromFileDel = f =>
+            {
+                try
+                {
+                    unsafe
+                    {
+                        using (var oldBmp = new Bitmap(f))
+                        using (var newBmp = new Bitmap(oldBmp))
+                        using (var targetBmp = newBmp.Clone(new Rectangle(0, 0, newBmp.Width, newBmp.Height), PixelFormat.Format32bppArgb))
+                        {
+                            var data = targetBmp.LockBits(new Rectangle(0, 0, newBmp.Width, newBmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                            var dest = new int[data.Width * data.Height];
+                            Marshal.Copy(data.Scan0, dest, 0, dest.Length);
+                            targetBmp.UnlockBits(data);
+
+                            fixed (void* p = &dest[0])
+                            {
+                                return Texture.Create(new IntPtr(p), data.Width, data.Height, SharpDX.DXGI.Format.R8G8B8A8_UNorm);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.SendError("LoadTexture() : " + ex.Message + " on load " + f + ".");
+                    return Texture.Null;
+                }
+            };
 
             Squid.Gui.Renderer = new GuiRenderer();
 
