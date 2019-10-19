@@ -1,4 +1,6 @@
-﻿namespace TDF.Inputs
+﻿using TDF.Inputs; // I have github with smalltalk
+
+namespace TDF.Inputs
 {
     public enum Key
     {
