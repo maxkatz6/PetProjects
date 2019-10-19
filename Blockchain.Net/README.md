@@ -1,1 +1,0 @@
-Localhosted blockchain. Coursework from the Oles Honchar Dnipro National University
