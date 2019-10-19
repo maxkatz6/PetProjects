@@ -1,0 +1,179 @@
+﻿{
+  "itemStyle": {
+    "TextPadding": {
+      "Left": 8,
+      "Top": 0,
+      "Right": 8,
+      "Bottom": 0
+    },
+    "TextAlign": "Alignment.MiddleLeft",
+    "Tiling": "TextureMode.Grid",
+    "Grid": { "All": 3 },
+    "Texture": "tex",
+    "Default": { "TextureRect": [ "button_default.png" ] },
+    "Pressed": { "TextureRect": [ "button_down.png" ] },
+    "SelectedPressed": { "TextureRect": [ "button_down.png" ] },
+    "Focused": { "TextureRect": [ "button_down.png" ] },
+    "SelectedFocused": { "TextureRect": [ "button_down.png" ] },
+    "Selected": { "TextureRect": [ "button_down.png" ] },
+    "SelectedHot": { "TextureRect": [ "button_down.png" ] }
+  },
+
+  "buttonStyle": {
+    "TextPadding": { "All": 0 },
+    "TextAlign": "Alignment.MiddleCenter",
+    "Tiling": "TextureMode.Grid",
+    "Grid": { "All": 3 },
+    "Texture": "tex",
+    "Default": { "TextureRect": [ "button_default.png" ] },
+    "Pressed": { "TextureRect": [ "button_down.png" ] },
+    "SelectedPressed": { "TextureRect": [ "button_down.png" ] },
+    "Focused": { "TextureRect": [ "button_down.png" ] },
+    "SelectedFocused": { "TextureRect": [ "button_down.png" ] },
+    "Selected": { "TextureRect": [ "button_down.png" ] },
+    "SelectedHot": { "TextureRect": [ "button_down.png" ] }
+  },
+
+  "tooltipStyle": {
+    "TextPadding": { "All": 8 },
+    "TextAlign": "Alignment.TopLeft",
+    "Tiling": "TextureMode.Grid",
+    "Grid": { "All": 3 },
+    "Texture": "tex",
+    "Default": { "TextureRect": [ "button_default.png" ] },
+    "Pressed": { "TextureRect": [ "button_down.png" ] },
+    "SelectedPressed": { "TextureRect": [ "button_down.png" ] },
+    "Focused": { "TextureRect": [ "button_down.png" ] },
+    "SelectedFocused": { "TextureRect": [ "button_down.png" ] },
+    "Selected": { "TextureRect": [ "button_down.png" ] },
+    "SelectedHot": { "TextureRect": [ "button_down.png" ] }
+  },
+
+  "inputStyle": {
+    "Grid": { "All": 3 },
+    "Texture": "tex",
+    "Hot": { "TextureRect": [ "input_focused.png" ] },
+    "Focused": {
+      "TextureRect": [ "input_focused.png" ],
+      "Tint": "ColorInt.ARGB(1f,1,0,0)"
+    },
+    "TextPadding": { "All": 8 },
+    "Tiling": "TextureMode.Grid"
+  },
+
+  "windowStyle": {
+    "Tiling": "TextureMode.Grid",
+    "Grid": { "All": 9 },
+    "Texture": "tex",
+    "TextureRect": [ "window.png" ]
+  },
+
+  "frameStyle": {
+    "Tiling": "TextureMode.Grid",
+    "Grid": { "All": 4 },
+    "Texture": "tex",
+    "TextureRect": [ "frame.png" ],
+    "TextPadding": { "All": 8 }
+  },
+
+  "vscrollTrackStyle": {
+    "Tiling": "TextureMode.Grid",
+    "Grid": { "All": 3 },
+    "Texture": "tex",
+    "TextureRect": [ "vscroll_track.png" ]
+  },
+
+  "vscrollButtonStyle": {
+    "Tiling": "TextureMode.Grid",
+    "Grid": { "All": 3 },
+    "Texture": "tex",
+    "TextureRect": [ "vscroll_button.png" ],
+    "Hot": { "TextureRect": [ "vscroll_button_hot.png" ] },
+    "Pressed": { "TextureRect": [ "vscroll_button_down.png" ] }
+  },
+
+  "vscrollUp": {
+    "Texture": "tex",
+    "Default": { "TextureRect": [ "vscrollUp_default.png" ] },
+    "Hot": { "TextureRect": [ "vscrollUp_hot.png" ] },
+    "Pressed": { "TextureRect": [ "vscrollUp_down.png" ] },
+    "Focused": { "TextureRect": [ "vscrollUp_hot.png" ] }
+  },
+
+  "hscrollTrackStyle": {
+    "Tiling": "TextureMode.Grid",
+    "Grid": { "All": 3 },
+    "Texture": "tex",
+    "TextureRect": [ "hscroll_track.png" ]
+  },
+
+  "hscrollButtonStyle": {
+    "Tiling": "TextureMode.Grid",
+    "Grid": { "All": 3 },
+    "Texture": "tex",
+    "TextureRect": [ "hscroll_button.png" ],
+    "Hot": { "TextureRect": [ "hscroll_button_hot.png" ] },
+    "Pressed": { "TextureRect": [ "hscroll_button_down.png" ] }
+  },
+
+  "hscrollUp": {
+    "Texture": "tex",
+    "Default": { "TextureRect": [ "hscrollUp_default.png" ] },
+    "Hot": { "TextureRect": [ "hscrollUp_hot.png" ] },
+    "Pressed": { "TextureRect": [ "hscrollUp_down.png" ] },
+    "Focused": { "TextureRect": [ "hscrollUp_hot.png" ] }
+  },
+
+  "checkButtonStyle": {
+    "Texture": "tex",
+    "Default": { "TextureRect": [ "checkbox_default.png" ] },
+    "Hot": { "TextureRect": [ "checkbox_hot.png" ] },
+    "Pressed": { "TextureRect": [ "checkbox_down.png" ] },
+    "Checked": { "TextureRect": [ "checkbox_checked.png" ] },
+    "CheckedFocused": { "TextureRect": [ "checkbox_checked_hot.png" ] },
+    "CheckedHot": { "TextureRect": [ "checkbox_checked_hot.png" ] },
+    "CheckedPressed": { "TextureRect": [ "checkbox_down.png" ] }
+  },
+
+  "comboLabelStyle": {
+    "TextPadding": "newMargin(10,0,0,0)",
+    "Texture": "tex",
+    "Default": { "TextureRect": [ "combo_default.png" ] },
+    "Hot": { "TextureRect": [ "combo_hot.png" ] },
+    "Pressed": { "TextureRect": [ "combo_down.png" ] },
+    "Focused": { "TextureRect": [ "combo_hot.png" ] },
+    "Tiling": "TextureMode.Grid",
+    "Grid": {
+      "Left": 3,
+      "Top": 0,
+      "Right": 0,
+      "Bottom": 0
+    }
+  },
+
+  "comboButtonStyle": {
+    "Texture": "tex",
+    "Default": { "TextureRect": [ "combo_button_default.png" ] },
+    "Hot": { "TextureRect": [ "combo_button_hot.png" ] },
+    "Pressed": { "TextureRect": [ "combo_button_down.png" ] },
+    "Focused": { "TextureRect": [ "combo_button_hot.png" ] }
+  },
+
+  "multilineStyle": {
+    "TextAlign": "Alignment.TopLeft",
+    "TextPadding": { "All": 0 }
+  },
+
+  "labelStyle": {
+    "TextPadding": {
+      "Left": 8,
+      "Top": 0,
+      "Right": 8,
+      "Bottom": 0
+    },
+    "TextAlign": "Alignment.MiddleLeft",
+    "TextColor": "ColorInt.ARGB(1f,.8f,.8f,.8f)",
+    "BackColor": "0",
+    "Hot": { "BackColor": "ColorInt.ARGB(.125f,1f,1f,1f)" }
+  }
+}
