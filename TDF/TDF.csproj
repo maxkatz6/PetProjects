@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6B3AB776-9024-443E-974E-4B597EDF275E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TDF</RootNamespace>
+    <AssemblyName>TDF</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SharpDX">
+      <HintPath>E:\Lab\Yandex.Disk\Project\Engine\Engine\Libs\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.D3DCompiler">
+      <HintPath>E:\Program Files\SharpDX\2,5,1\Bin\DirectX11-Signed-net40\SharpDX.D3DCompiler.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11">
+      <HintPath>E:\Program Files\SharpDX\2,5,1\Bin\DirectX11-Signed-net40\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11.Effects">
+      <HintPath>E:\Lab\Yandex.Disk\Project\Engine\Engine\Libs\SharpDX.Direct3D11.Effects.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI">
+      <HintPath>E:\Program Files\SharpDX\2,5,1\Bin\DirectX11-Signed-net40\SharpDX.DXGI.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\Config.cs" />
+    <Compile Include="Core\BinaryOperationExtension.cs" />
+    <Compile Include="Core\Error.cs" />
+    <Compile Include="Core\FPS.cs" />
+    <Compile Include="Core\INIFile.cs" />
+    <Compile Include="Core\IShutdown.cs" />
+    <Compile Include="Core\LibManager.cs" />
+    <Compile Include="Core\Log.cs" />
+    <Compile Include="Core\MathHelper.cs" />
+    <Compile Include="Core\Timer.cs" />
+    <Compile Include="Core\WinAPI.cs" />
+    <Compile Include="Graphics\2D\Bitmap.cs" />
+    <Compile Include="Graphics\2D\Box.cs" />
+    <Compile Include="Graphics\Cameras\Camera.cs" />
+    <Compile Include="Graphics\Cameras\FreeCamera.cs" />
+    <Compile Include="Graphics\Cameras\TargetCamera.cs" />
+    <Compile Include="Graphics\Data\Frustum.cs" />
+    <Compile Include="Graphics\Data\Light.cs" />
+    <Compile Include="Graphics\Data\Texture.cs" />
+    <Compile Include="Graphics\Data\Vertex.cs" />
+    <Compile Include="Graphics\Data\WorldObject.cs" />
+    <Compile Include="Graphics\Effects\Effect.cs" />
+    <Compile Include="Graphics\Effects\EffectManager.cs" />
+    <Compile Include="Graphics\Effects\InputElements.cs" />
+    <Compile Include="Inputs\Input.cs" />
+    <Compile Include="Inputs\Key.cs" />
+    <Compile Include="Graphics\Render\DirectX11.cs" />
+    <Compile Include="Graphics\Effects\ColorEffect.cs" />
+    <Compile Include="Graphics\Effects\EffectHelper.cs" />
+    <Compile Include="Graphics\Effects\TextureEffect.cs" />
+    <Compile Include="Graphics\Models\Model.cs" />
+    <Compile Include="Graphics\Models\GeometryGenerator.cs" />
+    <Compile Include="Graphics\Shaders\BitmapShader.cs" />
+    <Compile Include="Graphics\Shaders\ColorShader.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sharpdx_direct3d11_effects_x86.dll" />
+    <None Include="Resources\sharpdx_direct3d11_effects_x64.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\null.dds" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
