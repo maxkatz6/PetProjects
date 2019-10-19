@@ -1,8 +1,0 @@
-C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.Shared\bin\Debug\netstandard1.3\BlockchainNet.Shared.deps.json
-C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.Shared\bin\Debug\netstandard1.3\BlockchainNet.Shared.dll
-C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.Shared\bin\Debug\netstandard1.3\BlockchainNet.Shared.pdb
-C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.Shared\obj\Debug\netstandard1.3\BlockchainNet.Shared.csprojAssemblyReference.cache
-C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.Shared\obj\Debug\netstandard1.3\BlockchainNet.Shared.AssemblyInfoInputs.cache
-C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.Shared\obj\Debug\netstandard1.3\BlockchainNet.Shared.AssemblyInfo.cs
-C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.Shared\obj\Debug\netstandard1.3\BlockchainNet.Shared.dll
-C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.Shared\obj\Debug\netstandard1.3\BlockchainNet.Shared.pdb
