@@ -1,32 +1,30 @@
-﻿using System;
-using System.ComponentModel;
-using System.Text;
-using Newtonsoft.Json;
-
-//http://habrahabr.ru/post/148852/
+﻿//http://habrahabr.ru/post/148852/
 namespace midi
 {
-	public struct Note
+    using System;
+    using System.Text;
+    using Newtonsoft.Json;
+
+    public struct Note
 	{
 		public byte Octave;
-		public Tones Tone;
+		public Tone Tone;
 		public int Id => 12 + Octave*12 + (int) Tone;
 
-		public Note(byte oct, Tones t)
+		public Note(byte oct, Tone t)
 		{
 			Octave = oct;
 			Tone = t;
 		}
-		public Note(byte oct, string t) : this(oct, (Tones)Enum.Parse(typeof(Tones), t)){ }
+		public Note(byte oct, string t) : this(oct, (Tone)Enum.Parse(typeof(Tone), t)){ }
 		public Note(byte oct, char t) : this(oct, new string(t, 1)) { }
 	}
 
-	// ReSharper disable InconsistentNaming
-	public enum Tones
+	public enum Tone
 	{
 		none = -1, a = 9, A = 10, b = 11, c = 0, C = 1,d = 2, D = 3, e = 4, f = 5, F = 6, g = 7, G = 8
 	}
-	public enum Instruments
+	public enum Instrument
 	{
 		AcousticPiano,
 		BriteAcouPiano,
@@ -157,7 +155,7 @@ namespace midi
 		Applause,
 		Gunshot
 	}
-	public struct Tab
+	public class Tab
 	{
 		public struct Part
 		{
@@ -177,14 +175,14 @@ namespace midi
 				writer.WritePropertyName("Notes");
 				var s = new StringBuilder();
 				foreach (var note in part.Notes)
-					s.Append(note.Tone != Tones.none ? note.Tone.ToString() : "-");
+					s.Append(note.Tone != Tone.none ? note.Tone.ToString() : "-");
 				serializer.Serialize(writer, s);
 				writer.WriteEndObject();
 			}
 
 			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 			{
-				Part part;
+				Part part = new Part();
 				byte octave = 0;
 				var s = string.Empty;
 				while (reader.Read())
@@ -205,8 +203,8 @@ namespace midi
 				part.Notes = new Note[s.Length];
 				for (int i = 0; i < s.Length; i++)
 				{
-					Tones t;
-					if (s[i] == '-') t = Tones.none;
+					Tone t;
+					if (s[i] == '-') t = Tone.none;
 					else Enum.TryParse(s[i].ToString(), out t);
 					part.Notes[i] = new Note(octave, t);
 				}
@@ -222,13 +220,13 @@ namespace midi
 		public Tab()
 		{
 			Name = String.Empty;
-			Type = Instruments.AcousticPiano;
+			Type = Instrument.AcousticPiano;
 			Sleep = 100;
 			Parts = new Part[0][];
 		}
 
 		public string Name;
-		public Instruments Type;
+		public Instrument Type;
 		public int Sleep;
 		public Part[][] Parts;
 	}
