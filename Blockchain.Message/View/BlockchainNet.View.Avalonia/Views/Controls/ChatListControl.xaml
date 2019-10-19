@@ -1,0 +1,48 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="clr-namespace:BlockchainNet.View.Gui.Models"
+             xmlns:converters="clr-namespace:BlockchainNet.View.Gui.Converters"
+             mc:Ignorable="d"
+             d:DesignWidth="400"
+             d:DesignHeight="250"
+             HorizontalContentAlignment="Stretch"
+             VerticalContentAlignment="Stretch"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             Background="Transparent"
+             x:Class="BlockchainNet.View.Gui.Views.Controls.ChatListControl">
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <converters:HexToColorConverter x:Key="HexToColorConverter" />
+      <converters:DateTimeConverter x:Key="DateTimeConverter" />
+    </ResourceDictionary>
+  </UserControl.Resources>
+  <ScrollViewer>
+    <ItemsControl Items="{Binding Messages, Mode=OneWay}"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate DataType="models:MessageModel">
+          <DockPanel Margin="4">
+            <TextBlock DockPanel.Dock="Left"
+                       FontWeight="Bold"
+                       Margin="0,0,8,0"
+                       FontSize="14"
+                       Text="{Binding DateTime, Converter={StaticResource DateTimeConverter}}" />
+            <TextBlock DockPanel.Dock="Left"
+                       FontWeight="Bold"
+                       Margin="0,0,8,0"
+                       FontSize="14"
+                       Text="{Binding Sender}" />
+            <TextBlock FontSize="14"
+                       Foreground="{Binding HexColor, Converter={StaticResource HexToColorConverter}}"
+                       TextWrapping="Wrap"
+                       Text="{Binding Message}" />
+          </DockPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </ScrollViewer>
+</UserControl>

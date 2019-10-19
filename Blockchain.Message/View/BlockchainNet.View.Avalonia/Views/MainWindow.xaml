@@ -1,0 +1,43 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:BlockchainNet.View.Gui.Views.Controls"
+        x:Class="BlockchainNet.View.Gui.Views.MainWindow"
+        Title="Blockchain Messenger"
+        Width="700"
+        Initialized="MainWindow_Initialized">
+  <DockPanel>
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_Channels">
+        <MenuItem Header="_Add"
+                  Click="AddChannel_Click" />
+        <MenuItem Header="_Remove current"
+                  Command="{Binding RemoveChannelCommand}"
+                  CommandParameter="{Binding SelectedChannel.Name}" />
+      </MenuItem>
+      <MenuItem Header="_Peers">
+        <MenuItem Header="_Add"
+                  Click="AddPeer_Click" />
+      </MenuItem>
+    </Menu>
+    <TabControl Classes="sidebar"
+                Items="{Binding Channels, Mode=OneWay}"
+                SelectedItem="{Binding SelectedChannel, Mode=TwoWay}"
+                TabStripPlacement="Left">
+      <TabControl.ItemTemplate>
+        <DataTemplate>
+          <TextBlock Text="{Binding Name}"
+                     Width="100" />
+        </DataTemplate>
+      </TabControl.ItemTemplate>
+      <TabControl.ContentTemplate>
+        <DataTemplate>
+          <DockPanel>
+            <controls:MessageInputControl DockPanel.Dock="Bottom"
+                                          DataContext="{Binding MessageInputViewModel}" />
+            <controls:ChatListControl DataContext="{Binding ChatListViewModel}" />
+          </DockPanel>
+        </DataTemplate>
+      </TabControl.ContentTemplate>
+    </TabControl>
+  </DockPanel>
+</Window>

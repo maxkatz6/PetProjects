@@ -1,0 +1,15 @@
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\bin\Debug\netcoreapp3.0\BlockchainNet.LiteDB.deps.json
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\bin\Debug\netcoreapp3.0\BlockchainNet.LiteDB.dll
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\bin\Debug\netcoreapp3.0\BlockchainNet.LiteDB.pdb
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\bin\Debug\netcoreapp3.0\BlockchainNet.Core.dll
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\bin\Debug\netcoreapp3.0\BlockchainNet.IO.dll
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\bin\Debug\netcoreapp3.0\BlockchainNet.Shared.dll
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\bin\Debug\netcoreapp3.0\BlockchainNet.Core.pdb
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\bin\Debug\netcoreapp3.0\BlockchainNet.IO.pdb
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\bin\Debug\netcoreapp3.0\BlockchainNet.Shared.pdb
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\obj\Debug\netcoreapp3.0\BlockchainNet.LiteDB.csprojAssemblyReference.cache
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\obj\Debug\netcoreapp3.0\BlockchainNet.LiteDB.AssemblyInfoInputs.cache
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\obj\Debug\netcoreapp3.0\BlockchainNet.LiteDB.AssemblyInfo.cs
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\obj\Debug\netcoreapp3.0\BlockchainNet.LiteDB.csproj.CopyComplete
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\obj\Debug\netcoreapp3.0\BlockchainNet.LiteDB.dll
+C:\Work\Projects\PerProjects\Blockchain.Message\BlockchainNet.LiteDB\obj\Debug\netcoreapp3.0\BlockchainNet.LiteDB.pdb

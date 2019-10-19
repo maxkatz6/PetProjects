@@ -1,0 +1,33 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="400"
+             x:Class="BlockchainNet.View.Gui.Views.Controls.MessageInputControl">
+  <DockPanel>
+    <Button DockPanel.Dock="Right"
+            Width="36"
+            Height="36"
+            Padding="6"
+            Click="MessageInputControl_Click">
+      <Viewbox>
+        <Path Stroke="Black"
+              StrokeThickness="1"
+              Fill="Gray"
+              Width="51.636"
+              Height="51.636"
+              Data="F1 M51.353,0.914c-0.295-0.305-0.75-0.39-1.135-0.213L0.583,23.481c-0.399,0.184-0.632,0.605-0.574,1.041 s0.393,0.782,0.826,0.854l22.263,3.731l2.545,21.038c0.054,0.438,0.389,0.791,0.824,0.865c0.057,0.01,0.113,0.015,0.169,0.015 c0.375,0,0.726-0.211,0.896-0.556l24-48.415C51.72,1.675,51.648,1.218,51.353,0.914z" />
+      </Viewbox>
+    </Button>
+    <TextBox x:Name="MessageInputBox"
+             Grid.Column="1"
+             FontSize="14"
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch"
+             TextWrapping="Wrap"
+             Padding="8,0"
+             Watermark="Write a message..."
+             KeyDown="MessageInputBox_KeyDown" />
+  </DockPanel>
+</UserControl>

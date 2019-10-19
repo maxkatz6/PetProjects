@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiteDB" Version="4.1.4" />
+    <PackageReference Include="System.Linq.Async" Version="4.0.0-preview.3.build.765" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlockchainNet.Core\BlockchainNet.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\bin\Debug\netcoreapp3.0\BlockchainNet.IO.TCP.deps.json
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\bin\Debug\netcoreapp3.0\BlockchainNet.IO.TCP.dll
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\bin\Debug\netcoreapp3.0\BlockchainNet.IO.TCP.pdb
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\bin\Debug\netcoreapp3.0\BlockchainNet.IO.dll
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\bin\Debug\netcoreapp3.0\BlockchainNet.Shared.dll
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\bin\Debug\netcoreapp3.0\BlockchainNet.IO.pdb
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\bin\Debug\netcoreapp3.0\BlockchainNet.Shared.pdb
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\obj\Debug\netcoreapp3.0\BlockchainNet.IO.TCP.csprojAssemblyReference.cache
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\obj\Debug\netcoreapp3.0\BlockchainNet.IO.TCP.AssemblyInfoInputs.cache
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\obj\Debug\netcoreapp3.0\BlockchainNet.IO.TCP.AssemblyInfo.cs
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\obj\Debug\netcoreapp3.0\BlockchainNet.IO.TCP.csproj.CopyComplete
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\obj\Debug\netcoreapp3.0\BlockchainNet.IO.TCP.dll
+C:\Work\Projects\PerProjects\Blockchain.Message\IO\BlockchainNet.IO.TCP\obj\Debug\netcoreapp3.0\BlockchainNet.IO.TCP.pdb
