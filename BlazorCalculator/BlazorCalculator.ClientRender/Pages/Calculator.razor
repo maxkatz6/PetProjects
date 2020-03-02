@@ -1,0 +1,27 @@
+﻿@page "/calculator"
+
+<h1>Calculator</h1>
+
+<EditForm Model="@this" OnSubmit="Recalculate">
+    <div class="form-group">
+        <lable for="numberA">Number A:</lable>
+        <InputNumber @bind-Value="NumberA" id="numberA" class="form-control" />
+    </div>
+    <div class="form-group">
+        <lable for="operation">Operation:</lable>
+        <InputSelect @bind-Value="Operation" id="operation" class="form-control">
+            <option value="@CalcOperation.Add">@(nameof(CalcOperation.Add))</option>
+            <option value="@CalcOperation.Substract">@(nameof(CalcOperation.Substract))</option>
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <lable for="numberB">Number B:</lable>
+        <InputNumber @bind-Value="NumberB" id="numberB" class="form-control" />
+    </div>
+    <input type="submit" class="btn btn-primary" value="Calculate" />
+
+    <div class="form-group">
+        <span>Result:</span>
+        <span>@Result</span>
+    </div>
+</EditForm>
